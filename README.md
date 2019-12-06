@@ -1,4 +1,4 @@
-# u-blox-nina-w10
+# u-blox-sho-OpenCPU
 Repository with reference code for u-blox Open CPU modules.
 
 ## Disclaimer
