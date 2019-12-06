@@ -1,5 +1,5 @@
 # u-blox-nina-w10
-Repository with reference code for u-blox Open CPU Multiradio module NINA-W10x
+Repository with reference code for u-blox Open CPU modules.
 
 ## Disclaimer
 Copyright (C) u-blox 
