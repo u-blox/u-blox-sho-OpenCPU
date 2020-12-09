@@ -1,0 +1,10 @@
+# R41Z-EVAL board
+# 
+#  Copyright (c) 2020 u-blox AG
+# 
+# SPDX-License-Identifier: Apache-2.0
+
+config BOARD_UBX_R41ZEVAL_KW41Z
+	bool "u-blox R41Z-EVAL"
+	depends on SOC_SERIES_KINETIS_KWX
+	select SOC_PART_NUMBER_MKW41Z512VHT4

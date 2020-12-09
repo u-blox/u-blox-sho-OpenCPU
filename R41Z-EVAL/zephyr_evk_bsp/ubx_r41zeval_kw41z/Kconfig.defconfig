@@ -1,0 +1,47 @@
+# R41Z-EVAL board
+# 
+#  Copyright (c) 2020 u-blox AG
+# 
+# SPDX-License-Identifier: Apache-2.0
+
+if BOARD_UBX_R41ZEVAL_KW41Z
+
+config BOARD
+	default "ubx_r41zeval_kw41z"
+
+config OSC_XTAL0_FREQ
+	default 32000000
+
+config MCG_FRDIV
+	default 5
+
+config MCG_FCRDIV
+	default 0
+
+if PINMUX_MCUX
+
+config PINMUX_MCUX_PORTA
+	default y
+
+config PINMUX_MCUX_PORTB
+	default y if "$(dt_nodelabel_enabled,adc0)" && ADC
+	default y if "$(dt_nodelabel_enabled,tpm1)" && PWM
+
+config PINMUX_MCUX_PORTC
+	default y
+
+endif # PINMUX_MCUX
+
+config FXOS8700_DRDY_INT1
+	default y
+	depends on FXOS8700_TRIGGER
+
+config SPI_0
+	default y
+	depends on SPI
+
+choice ADC_MCUX_ADC16_VREF
+	default ADC_MCUX_ADC16_VREF_ALTERNATE
+endchoice
+
+endif # BOARD_UBX_R41ZEVAL_KW41Z

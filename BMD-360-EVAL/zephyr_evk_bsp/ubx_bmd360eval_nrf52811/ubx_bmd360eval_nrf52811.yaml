@@ -1,0 +1,26 @@
+identifier: ubx_bmd360eval_nrf52811
+name: UBX_BMD360EVAL_NRF52811
+type: mcu
+arch: arm
+ram: 24
+flash: 192
+toolchain:
+  - zephyr
+  - gnuarmemb
+  - xtools
+supported:
+  - adc
+  - arduino_gpio
+  - arduino_i2c
+  - arduino_spi
+  - ble
+  - counter
+  - gpio
+  - i2c
+  - ieee802154
+  - pwm
+  - spi
+  - usb_cdc
+  - usb_device
+  - watchdog
+  - netif:openthread

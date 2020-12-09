@@ -1,7 +1,30 @@
 # u-blox-sho-OpenCPU
 Repository with reference code for u-blox Open CPU modules.
 
-## Disclaimer
+## Introduction
+The reference code in this repository is intended to run on the Evaluation Kits
+that can be purchased from u-blox.
+
+Data sheets and other information related to the modules and EVKs can be found
+at the u-blox website, https://www.u-blox.com/.
+
+## nRF5 SDK
+Please refer to the System Integration Manual for each product for help on how
+to integrate the reference code in your build environment.
+
+Refer to the EVK User Guide for each board for more information on the specific
+board.
+
+## Zephyr
+Please store the board configuration directory in the
+
+	<install directory>/zephyr/boards/arm
+
+folder and then build your code for that board.
+
+The board configuration directory also contains a documentation folder.
+
+# Disclaimer
 Copyright (C) u-blox 
 
 u-blox reserves all rights in this deliverable (documentation, software, etc.,

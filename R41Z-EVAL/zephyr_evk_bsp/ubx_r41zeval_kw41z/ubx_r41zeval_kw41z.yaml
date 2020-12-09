@@ -1,0 +1,17 @@
+identifier: ubx_r41zeval_kw41z
+name: NXP UBX_R41ZEVAL_KW41Z
+type: mcu
+arch: arm
+toolchain:
+  - zephyr
+  - gnuarmemb
+  - xtools
+supported:
+  - adc
+  - arduino_gpio
+  - counter
+  - gpio
+  - i2c
+  - ieee802154
+  - spi
+  - pwm
