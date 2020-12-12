@@ -88,6 +88,65 @@ extern "C" {
 #define RTS_PIN_NUMBER 11
 #define HWFC           true
 
+
+// Arduino board mappings
+#define ARDUINO_SCL_PIN             16  // SCL signal pin (IO_15)
+#define ARDUINO_SDA_PIN             15  // SDA signal pin (IO_14)
+
+// Connector J4
+#define ARDUINO_13_PIN              NRF_GPIO_PIN_MAP(0, 20)  // IO_45
+#define ARDUINO_12_PIN              NRF_GPIO_PIN_MAP(0, 18)  // IO_16
+#define ARDUINO_11_PIN              NRF_GPIO_PIN_MAP(0, 23)  // IO_37
+#define ARDUINO_10_PIN              NRF_GPIO_PIN_MAP(0, 22)  // IO_36
+#define ARDUINO_9_PIN               NRF_GPIO_PIN_MAP(0, 24)  // IO_38
+#define ARDUINO_8_PIN               NRF_GPIO_PIN_MAP(0, 14)  // IO_13
+
+// Connector J3
+#define ARDUINO_7_PIN               NRF_GPIO_PIN_MAP(0, 9)   // IO_21
+#define ARDUINO_6_PIN               NRF_GPIO_PIN_MAP(0, 10)  // IO_22
+#define ARDUINO_5_PIN               NRF_GPIO_PIN_MAP(0, 26)  // IO_31, BLUE LED
+#define ARDUINO_4_PIN               NRF_GPIO_PIN_MAP(0, 27)  // IO_29, RED LED
+#define ARDUINO_3_PIN               NRF_GPIO_PIN_MAP(0, 11)  // UART_RTS
+#define ARDUINO_2_PIN               NRF_GPIO_PIN_MAP(1, 19)  // UART_CTS
+#define ARDUINO_1_PIN               NRF_GPIO_PIN_MAP(0, 3)   // UART_TXD
+#define ARDUINO_0_PIN               NRF_GPIO_PIN_MAP(0, 2)   // UART_RXD
+
+// Connector J2
+#define ARDUINO_A0_PIN              NRF_GPIO_PIN_MAP(0, 4)   // IO_24
+#define ARDUINO_A1_PIN              NRF_GPIO_PIN_MAP(0, 5)   // IO_23
+#define ARDUINO_A2_PIN              NRF_GPIO_PIN_MAP(0, 28)  // IO_28
+#define ARDUINO_A3_PIN              NRF_GPIO_PIN_MAP(0, 29)  // IO_27
+#define ARDUINO_A4_PIN              NRF_GPIO_PIN_MAP(0, 30)  // IO_26, UART_DSR
+#define ARDUINO_A5_PIN              NRF_GPIO_PIN_MAP(0, 31)  // IO_25, UART_DTR
+
+// Connector J14
+#define RASPBERRY_PI_3_PIN          NRF_GPIO_PIN_MAP(0, 15)  // IO_14
+#define RASPBERRY_PI_5_PIN          NRF_GPIO_PIN_MAP(0, 16)  // IO_15
+#define RASPBERRY_PI_13_PIN         NRF_GPIO_PIN_MAP(0, 14)  // IO_13
+#define RASPBERRY_PI_19_PIN         NRF_GPIO_PIN_MAP(0, 31)  // IO_25
+#define RASPBERRY_PI_21_PIN         NRF_GPIO_PIN_MAP(0, 9)   // IO_21
+#define RASPBERRY_PI_23_PIN         NRF_GPIO_PIN_MAP(0, 05)  // IO_23
+#define RASPBERRY_PI_27_PIN         NRF_GPIO_PIN_MAP(0, 29)  // IO_27
+#define RASPBERRY_PI_29_PIN         NRF_GPIO_PIN_MAP(0, 27)  // IO_29
+#define RASPBERRY_PI_31_PIN         NRF_GPIO_PIN_MAP(0, 26)  // IO_31
+#define RASPBERRY_PI_33_PIN         NRF_GPIO_PIN_MAP(0, 11)  // UART_RTS
+#define RASPBERRY_PI_35_PIN         NRF_GPIO_PIN_MAP(0, 19)  // UART_CTS
+#define RASPBERRY_PI_37_PIN         NRF_GPIO_PIN_MAP(0, 23)  // IO_37
+
+#define RASPBERRY_PI_8_PIN          RX_PIN_NUMBER            // UART_RX
+#define RASPBERRY_PI_10_PIN         TX_PIN_NUMBER            // UART_TX
+#define RASPBERRY_PI_12_PIN         NRF_GPIO_PIN_MAP(0, 21)  // RESET_N
+#define RASPBERRY_PI_16_PIN         NRF_GPIO_PIN_MAP(0, 18)  // IO_16
+//#define RASPBERRY_PI_18_PIN         NC
+#define RASPBERRY_PI_22_PIN         NRF_GPIO_PIN_MAP(0, 10)  // IO_24
+#define RASPBERRY_PI_24_PIN         NRF_GPIO_PIN_MAP(0, 04)  // IO_24
+#define RASPBERRY_PI_26_PIN         NRF_GPIO_PIN_MAP(0, 30)  // IO_26
+#define RASPBERRY_PI_28_PIN         NRF_GPIO_PIN_MAP(0, 28)  // IO_28
+#define RASPBERRY_PI_32_PIN         NRF_GPIO_PIN_MAP(0, 25)  // IO_30
+#define RASPBERRY_PI_36_PIN         NRF_GPIO_PIN_MAP(0, 22)  // IO_36
+#define RASPBERRY_PI_38_PIN         NRF_GPIO_PIN_MAP(0, 24)  // IO_38
+#define RASPBERRY_PI_40_PIN         NRF_GPIO_PIN_MAP(0, 23)  // IO_45
+
 // Low frequency clock source to be used by the SoftDevice
 #define NRF_CLOCK_LFCLKSRC      {.source        = NRF_CLOCK_LF_SRC_XTAL,            \
                                  .rc_ctiv       = 0,                                \

@@ -100,6 +100,36 @@ extern "C" {
 #define SPIM0_MISO_PIN  12  // SPI Master In Slave Out GPIO pin number.
 #define SPIM0_SS_PIN    11  // SPI Slave Select GPIO pin number.
 
+// Arduino board mappings
+#define ARDUINO_SCL_PIN              3  // SCL signal pin (IO_25)
+#define ARDUINO_SDA_PIN              2  // SDA signal pin (IO_24)
+
+// Connector J4
+#define ARDUINO_13_PIN              NRF_GPIO_PIN_MAP(0, 14)  // IO_5
+#define ARDUINO_12_PIN              NRF_GPIO_PIN_MAP(0, 12)  // IO_3
+#define ARDUINO_11_PIN              NRF_GPIO_PIN_MAP(0, 13)  // IO_4
+#define ARDUINO_10_PIN              NRF_GPIO_PIN_MAP(0, 11)  // IO_2
+#define ARDUINO_9_PIN               NRF_GPIO_PIN_MAP(0, 8)   // IO_1
+//#define ARDUINO_8_PIN                                      // IO_11, SWDCLK
+
+// Connector J3
+#define ARDUINO_7_PIN               NRF_GPIO_PIN_MAP(0, 10)  // IO_29
+#define ARDUINO_6_PIN               NRF_GPIO_PIN_MAP(0, 9)   // IO_28
+//#define ARDUINO_5_PIN                                      // IO_15, SWDIO
+#define ARDUINO_4_PIN               NRF_GPIO_PIN_MAP(0, 18)  // IO_8, SWO
+#define ARDUINO_3_PIN               NRF_GPIO_PIN_MAP(0, 31)  // UART_RTS
+#define ARDUINO_2_PIN               NRF_GPIO_PIN_MAP(0, 7)   // UART_CTS
+#define ARDUINO_1_PIN               NRF_GPIO_PIN_MAP(0, 6)   // UART_TXD
+#define ARDUINO_0_PIN               NRF_GPIO_PIN_MAP(0, 5)   // UART_RXD
+
+// Connector J2
+#define ARDUINO_A0_PIN              NRF_GPIO_PIN_MAP(0, 3)   // IO_25
+#define ARDUINO_A1_PIN              NRF_GPIO_PIN_MAP(0, 2)   // IO_24
+#define ARDUINO_A2_PIN              NRF_GPIO_PIN_MAP(0, 4)   // IO_27
+#define ARDUINO_A3_PIN              NRF_GPIO_PIN_MAP(0, 30)  // IO_18
+#define ARDUINO_A4_PIN              NRF_GPIO_PIN_MAP(0, 29)  // IO_17, UART_DSR
+#define ARDUINO_A5_PIN              NRF_GPIO_PIN_MAP(0, 28)  // IO_16, UART_DTR
+
 // Low frequency clock source to be used by the SoftDevice
 #define NRF_CLOCK_LFCLKSRC      {.source        = NRF_CLOCK_LF_SRC_XTAL,            \
                                  .rc_ctiv       = 0,                                \
