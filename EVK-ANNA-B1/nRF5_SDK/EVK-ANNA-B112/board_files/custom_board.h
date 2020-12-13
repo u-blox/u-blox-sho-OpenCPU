@@ -107,7 +107,7 @@ extern "C" {
 #define ARDUINO_5_PIN               NRF_GPIO_PIN_MAP(0, 26)  // IO_31, BLUE LED
 #define ARDUINO_4_PIN               NRF_GPIO_PIN_MAP(0, 27)  // IO_29, RED LED
 #define ARDUINO_3_PIN               NRF_GPIO_PIN_MAP(0, 11)  // UART_RTS
-#define ARDUINO_2_PIN               NRF_GPIO_PIN_MAP(1, 19)  // UART_CTS
+#define ARDUINO_2_PIN               NRF_GPIO_PIN_MAP(0, 19)  // UART_CTS
 #define ARDUINO_1_PIN               NRF_GPIO_PIN_MAP(0, 3)   // UART_TXD
 #define ARDUINO_0_PIN               NRF_GPIO_PIN_MAP(0, 2)   // UART_RXD
 
