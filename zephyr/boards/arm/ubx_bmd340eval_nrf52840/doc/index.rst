@@ -34,9 +34,9 @@ the following devices:
 
      BMD-340-EVAL (Credit: u-blox AG)
 
-More information about the BMD-340-EVAL, BMD-340 module, BMD-341-EVAL, 
-and BMD-341 module can be found at the `u-blox website`_. 
-All of the Nordic Semiconductor examples for the nRF52840 DK 
+More information about the BMD-340-EVAL, BMD-340 module, BMD-341-EVAL,
+and BMD-341 module can be found at the `u-blox website`_.
+All of the Nordic Semiconductor examples for the nRF52840 DK
 (nrf52840dk_nrf52840) may be used without modification.
 
 ..note::
@@ -47,21 +47,22 @@ All of the Nordic Semiconductor examples for the nRF52840 DK
 Hardware
 ********
 
-The BMD-340 on the BMD-340-EVAL (or BMD-341 on the BMD-341-EVAL) 
-contains an internal high-frequency oscillator at 32MHz. 
-There is also a low frequency (slow) oscillator of 32.768kHz. 
+The BMD-340 on the BMD-340-EVAL (or BMD-341 on the BMD-341-EVAL)
+contains an internal high-frequency oscillator at 32MHz.
+There is also a low frequency (slow) oscillator of 32.768kHz.
 The BMD-340 and BMD-341 do not include the slow crystal;
 however, the BMD-340-EVAL and BMD-341-EVAL do.
 
 .. note::
 
-	When targeting a custom design without a slow crystal, be sure to
-	modify code to utilize the internal RC oscillator for the slow clock.
+	When targeting a custom design without a slow crystal, be sure
+	to modify code to utilize the internal RC oscillator for the
+	slow clock.
 
 Supported Features
 ==================
 
-The BMD-340-EVAL and BMD-341-EVAL board configuration supports 
+The BMD-340-EVAL and BMD-341-EVAL board configuration supports
 the following hardware features:
 
 +-----------+------------+----------------------+
@@ -134,7 +135,7 @@ External Connectors
      :alt: BMD-340-EVAL pin-out
 
 .. note::
-	The pin numbers noted below are referenced to 
+	The pin numbers noted below are referenced to
 	the pin 1 markings on the BMD-340-EVAL or
 	BMD-341-EVAL for each header
 
@@ -163,7 +164,6 @@ J-Link Prog Connector (J2)
 +-------+--------------+
 | 10    | IMCU_RESET   |
 +-------+--------------+
-
 
 Debug OUT (J3)
 
@@ -393,10 +393,10 @@ J11
 Programming and Debugging
 *************************
 
-Applications for the BMD-340-EVAL and BMD-341-EVAL board 
-configurations can be built and flashed in the usual way 
-(see :ref:`build_an_application` and :ref:`application_run` 
-for more details); however, the standard debugging targets 
+Applications for the BMD-340-EVAL and BMD-341-EVAL board
+configurations can be built and flashed in the usual way
+(see :ref:`build_an_application` and :ref:`application_run`
+for more details); however, the standard debugging targets
 are not currently available.
 
 Flashing
@@ -417,7 +417,7 @@ First, run your favorite terminal program to listen for output.
    $ minicom -D <tty_device> -b 115200
 
 Replace :code:`<tty_device>` with the port where the BMD-340-EVAL
-or BMD-341-EVAL can be found. For example, under Linux, 
+or BMD-341-EVAL can be found. For example, under Linux,
 :code:`/dev/ttyACM0`.
 
 Then build and flash the application in the usual way.
@@ -445,8 +445,9 @@ There are 2 samples that allow you to test that the buttons
    samples/basic/blinky
    samples/basic/button
 
-You can build and flash the examples to make sure Zephyr is running correctly on
-your board. The button and LED definitions can be found in
+You can build and flash the examples to make sure Zephyr is running
+correctly on your board. The button and LED definitions can be found
+in
 :zephyr_file:`boards/arm/ubx_bmd340eval_nrf52840/ubx_bmd340eval_nrf52840.dts`.
 
 Using UART1
@@ -455,7 +456,8 @@ Using UART1
 The following approach can be used when an application needs to use
 more than one UART for connecting peripheral devices:
 
-1. Add device tree overlay file to the main directory of your application:
+1. Add device tree overlay file to the main directory of your
+   application:
 
    .. code-block:: console
 
@@ -468,15 +470,17 @@ more than one UART for connecting peripheral devices:
         rx-pin = <16>;
       };
 
-   In the overlay file above, pin P0.16 is used for RX and P0.14 is used for TX
+   In the overlay file above, pin P0.16 is used for RX and P0.14 is
+   used for TX
 
 2. Use the UART1 as ``device_get_binding("UART_1")``
 
 Overlay file naming
 ===================
 
-The file has to be named ``<board>.overlay`` and placed in the app main directory to be
-picked up automatically by the device tree compiler.
+The file has to be named ``<board>.overlay`` and placed in the app
+main directory to be picked up automatically by the device tree
+compiler.
 
 Selecting the pins
 ==================
@@ -486,12 +490,14 @@ To select the pin numbers for tx-pin and rx-pin:
 
    tx-pin = <pin_no>
 
-Open the data sheet for the BMD-340 at `u-blox website`_, Section 2 'Pin definition'.
-In the table 3 select the pins marked 'GPIO'.  Note that pins marked as 'Standard drive, 
-low frequency I/O only (<10 kH' can only be used in under-10KHz applications. 
+Open the data sheet for the BMD-340 at the `u-blox website`_, Section 2
+'Pin definition'. In the table 3 select the pins marked 'GPIO'.
+Note that pins marked as 'Standard drive, low frequency I/O only
+(<10 kH' can only be used in under-10KHz applications.
 They are not suitable for 115200 speed of UART.
 
-Translate 'Pin' into number for Device tree by using the following formula::
+Translate 'Pin' into number for Device tree by using the following
+formula::
 
    pin_no = b\*32 + a
 
@@ -499,11 +505,12 @@ where ``a`` and ``b`` are from the Pin value in the table (Pb.a).
 For example, for P0.1, ``pin_no = 1`` and for P1.0, ``pin_no = 32``.
 
 .. note:
-  Pins are defined according to the "nRF52" pin number, not the module pad number.
+  Pins are defined according to the "nRF52" pin number, not the module
+  pad number.
 
 References
 **********
 
 .. target-notes::
 
-.. _u-blox website: https://www.u-blox.com/en/product/bmd-34-series-open-cpu
+.. _u-blox website: https://www.u-blox.com/docs/UBX-19033353

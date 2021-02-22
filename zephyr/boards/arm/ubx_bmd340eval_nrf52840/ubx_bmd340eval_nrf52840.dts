@@ -1,4 +1,5 @@
 /*
+ * BMD-340-EVAL board configuration
  * Copyright (c) 2020 u-blox AG
  *
  * SPDX-License-Identifier: Apache-2.0
@@ -52,19 +53,23 @@
 	buttons {
 		compatible = "gpio-keys";
 		button0: button_0 {
-			gpios = <&gpio0 11 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
+			gpios = <&gpio0 11 (GPIO_PULL_UP | \
+					    GPIO_ACTIVE_LOW)>;
 			label = "Push button switch 0";
 		};
 		button1: button_1 {
-			gpios = <&gpio0 12 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
+			gpios = <&gpio0 12 (GPIO_PULL_UP | \
+					    GPIO_ACTIVE_LOW)>;
 			label = "Push button switch 1";
 		};
 		button2: button_2 {
-			gpios = <&gpio0 24 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
+			gpios = <&gpio0 24 (GPIO_PULL_UP | \
+					    GPIO_ACTIVE_LOW)>;
 			label = "Push button switch 2";
 		};
 		button3: button_3 {
-			gpios = <&gpio0 25 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
+			gpios = <&gpio0 25 (GPIO_PULL_UP | \
+					    GPIO_ACTIVE_LOW)>;
 			label = "Push button switch 3";
 		};
 	};
@@ -74,20 +79,20 @@
 		#gpio-cells = <2>;
 		gpio-map-mask = <0xffffffff 0xffffffc0>;
 		gpio-map-pass-thru = <0 0x3f>;
-		gpio-map = <0 0 &gpio0 03 0>,	/* A0 */
-			   <1 0 &gpio0 04 0>,	/* A1 */
+		gpio-map = <0 0 &gpio0 3 0>,	/* A0 */
+			   <1 0 &gpio0 4 0>,	/* A1 */
 			   <2 0 &gpio0 28 0>,	/* A2 */
 			   <3 0 &gpio0 29 0>,	/* A3 */
 			   <4 0 &gpio0 30 0>,	/* A4 */
 			   <5 0 &gpio0 31 0>,	/* A5 */
-			   <6 0 &gpio1 01 0>,	/* D0 */
-			   <7 0 &gpio1 02 0>,	/* D1 */
-			   <8 0 &gpio1 03 0>,	/* D2 */
-			   <9 0 &gpio1 04 0>,	/* D3 */
-			   <10 0 &gpio1 05 0>,	/* D4 */
-			   <11 0 &gpio1 06 0>,	/* D5 */
-			   <12 0 &gpio1 07 0>,	/* D6 */
-			   <13 0 &gpio1 08 0>,	/* D7 */
+			   <6 0 &gpio1 1 0>,	/* D0 */
+			   <7 0 &gpio1 2 0>,	/* D1 */
+			   <8 0 &gpio1 3 0>,	/* D2 */
+			   <9 0 &gpio1 4 0>,	/* D3 */
+			   <10 0 &gpio1 5 0>,	/* D4 */
+			   <11 0 &gpio1 6 0>,	/* D5 */
+			   <12 0 &gpio1 7 0>,	/* D6 */
+			   <13 0 &gpio1 8 0>,	/* D7 */
 			   <14 0 &gpio1 10 0>,	/* D8 */
 			   <15 0 &gpio1 11 0>,	/* D9 */
 			   <16 0 &gpio1 12 0>,	/* D10 */
@@ -216,10 +221,14 @@ arduino_i2c: &i2c0 {
 		label = "MX25R64";
 		jedec-id = [c2 28 17];
 		sfdp-bfp = [
-			e5 20 f1 ff  ff ff ff 03  44 eb 08 6b  08 3b 04 bb
-			ee ff ff ff  ff ff 00 ff  ff ff 00 ff  0c 20 0f 52
-			10 d8 00 ff  23 72 f5 00  82 ed 04 cc  44 83 68 44
-			30 b0 30 b0  f7 c4 d5 5c  00 be 29 ff  f0 d0 ff ff
+			e5 20 f1 ff  ff ff ff 03
+			44 eb 08 6b  08 3b 04 bb
+			ee ff ff ff  ff ff 00 ff
+			ff ff 00 ff  0c 20 0f 52
+			10 d8 00 ff  23 72 f5 00
+			82 ed 04 cc  44 83 68 44
+			30 b0 30 b0  f7 c4 d5 5c
+			00 be 29 ff  f0 d0 ff ff
 		];
 		size = <67108864>;
 		has-dpd;
@@ -239,7 +248,8 @@ arduino_spi: &spi3 {
 &flash0 {
 	/*
 	 * For more information, see:
-	 * https://docs.zephyrproject.org/latest/guides/dts/legacy-macros.html#legacy-flash-partitions
+	 * https://docs.zephyrproject.org/latest/guides/dts/\
+	   legacy-macros.html#legacy-flash-partitions
 	 */
 	partitions {
 		compatible = "fixed-partitions";
