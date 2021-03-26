@@ -35,7 +35,7 @@ the following devices:
      BMD-340-EVAL (Credit: u-blox AG)
 
 .. note::
-    The BMD-380-EVAL shares the same pin headers and assignments as the 
+    The BMD-380-EVAL shares the same pin headers and assignments as the
     BMD-340-EVAL with four exceptions. The BMD-340-EVAL is shown here.
     See the pin tables below for the exceptions.
 
@@ -54,8 +54,9 @@ however, the BMD-380-eval does.
 
 .. note::
 
-	When targeting a custom design without a slow crystal, be sure to
-	modify code to utilize the internal RC oscillator for the slow clock.
+	When targeting a custom design without a slow crystal, be sure
+	to modify code to utilize the internal RC oscillator for the
+	slow clock.
 
 Supported Features
 ==================
@@ -133,13 +134,13 @@ External Connectors
      :alt: BMD-340-EVAL pin-out
 
 .. note::
-    The BMD-380-EVAL shares the same pin headers and assignments as the 
+    The BMD-380-EVAL shares the same pin headers and assignments as the
     BMD-340-EVAL with four exceptions. The BMD-340-EVAL is shown here.
     See the pin tables below for the exceptions.
 
 .. note::
-	The pin numbers noted below are referenced to 
-	the pin 1 markings on the BMD-340-EVAL 
+	The pin numbers noted below are referenced to
+	the pin 1 markings on the BMD-380-EVAL
 	for each header
 
 J-Link Prog Connector (J2)
@@ -167,7 +168,6 @@ J-Link Prog Connector (J2)
 +-------+--------------+
 | 10    | IMCU_RESET   |
 +-------+--------------+
-
 
 Debug OUT (J3)
 
@@ -285,19 +285,16 @@ Auxiliary (J10)
 | 18    | No connection     |
 +-------+-------------------+
 
-Arduino Headers
----------------
-
 Power (J5)
 
 +-------+--------------+-------------------------+
-| PIN # | Signal Name  | BMD-340 Functions       |
+| PIN # | Signal Name  | BMD-380 Functions       |
 +=======+==============+=========================+
 | 1     | VSHLD        | N/A                     |
 +-------+--------------+-------------------------+
 | 2     | VSHLD        | N/A                     |
 +-------+--------------+-------------------------+
-| 3     | RESET        | P0.21 / RESET           |
+| 3     | RESET        | P0.18 / RESET           |
 +-------+--------------+-------------------------+
 | 4     | VSHLD        | N/A                     |
 +-------+--------------+-------------------------+
@@ -313,7 +310,7 @@ Power (J5)
 Analog in (J8)
 
 +-------+--------------+-------------------------+
-| PIN # | Signal Name  | BMD-340 Functions       |
+| PIN # | Signal Name  | BMD-380 Functions       |
 +=======+==============+=========================+
 | 1     | A0           | P0.03 / AIN1            |
 +-------+--------------+-------------------------+
@@ -331,7 +328,7 @@ Analog in (J8)
 Digital I/O (J7)
 
 +-------+--------------+-------------------------+
-| PIN # | Signal Name  | BMD-340 Functions       |
+| PIN # | Signal Name  | BMD-380 Functions       |
 +=======+==============+=========================+
 | 1     | D7           | P1.08                   |
 +-------+--------------+-------------------------+
@@ -353,7 +350,7 @@ Digital I/O (J7)
 Digital I/O (J6)
 
 +-------+--------------+-------------------------+
-| PIN # | Signal Name  | BMD-340 Functions       |
+| PIN # | Signal Name  | BMD-380 Functions       |
 +=======+==============+=========================+
 | 1     | SCL          | P0.27                   |
 +-------+--------------+-------------------------+
@@ -379,7 +376,7 @@ Digital I/O (J6)
 J11
 
 +-------+--------------+-------------------------+
-| PIN # | Signal Name  | BMD-340 Functions       |
+| PIN # | Signal Name  | BMD-380 Functions       |
 +=======+==============+=========================+
 | 1     | D12 (MISO)   | P0.14                   |
 +-------+--------------+-------------------------+
@@ -397,10 +394,11 @@ J11
 Programming and Debugging
 *************************
 
-Applications for the BMD-380-EVAL board configuration can be
-built and flashed in the usual way (see :ref:`build_an_application`
-and :ref:`application_run` for more details); however, the standard
-debugging targets are not currently available.
+Applications for the BMD-380-EVAL board configurations can
+be built and flashed in the usual way
+(see :ref:`build_an_application` and :ref:`application_run`
+for more details); however, the standard debugging targets
+are not currently available.
 
 Flashing
 ========
@@ -447,9 +445,10 @@ There are 2 samples that allow you to test that the buttons
    samples/basic/blinky
    samples/basic/button
 
-You can build and flash the examples to make sure Zephyr is running correctly on
-your board. The button and LED definitions can be found in
-:zephyr_file:`boards/arm/ubx_bmd380eval_nrf52840/ubx_bmd380eval_nrf52840.dts`.
+You can build and flash the examples to make sure Zephyr is running
+correctly on your board. The button and LED definitions can be found
+in
+:zephyr_file:`boards/arm/ubx_bmd340eval_nrf52840/ubx_bmd340eval_nrf52840.dts`.
 
 Using UART1
 ***********
@@ -457,7 +456,8 @@ Using UART1
 The following approach can be used when an application needs to use
 more than one UART for connecting peripheral devices:
 
-1. Add device tree overlay file to the main directory of your application:
+1. Add device tree overlay file to the main directory of your
+   application:
 
    .. code-block:: console
 
@@ -470,14 +470,17 @@ more than one UART for connecting peripheral devices:
         rx-pin = <16>;
       };
 
-   In the overlay file above, pin P0.16 is used for RX and P0.14 is used for TX
+   In the overlay file above, pin P0.16 is used for RX and P0.14 is
+   used for TX
 
 2. Use the UART1 as ``device_get_binding("UART_1")``
 
 Overlay file naming
 ===================
-The file has to be named ``<board>.overlay`` and placed in the app main directory to be
-picked up automatically by the device tree compiler.
+
+The file has to be named ``<board>.overlay`` and placed in the app
+main directory to be picked up automatically by the device tree
+compiler.
 
 Selecting the pins
 ==================
@@ -487,12 +490,14 @@ To select the pin numbers for tx-pin and rx-pin:
 
    tx-pin = <pin_no>
 
-Open the data sheet for the BMD-380 at `u-blox website`_, Section 2 'Pin definition'.
-In the table 3 select the pins marked 'GPIO'.  Note that pins marked as 'Standard drive, 
-low frequency I/O only (<10 kH' can only be used in under-10KHz applications. 
+Open the data sheet for the BMD-380 at the `u-blox website`_, Section 2
+'Pin definition'. In the table 3 select the pins marked 'GPIO'.
+Note that pins marked as 'Standard drive, low frequency I/O only
+(<10 kH' can only be used in under-10KHz applications.
 They are not suitable for 115200 speed of UART.
 
-Translate 'Pin' into number for Device tree by using the following formula::
+Translate 'Pin' into number for Device tree by using the following
+formula::
 
    pin_no = b\*32 + a
 
@@ -500,11 +505,12 @@ where ``a`` and ``b`` are from the Pin value in the table (Pb.a).
 For example, for P0.1, ``pin_no = 1`` and for P1.0, ``pin_no = 32``.
 
 .. note:
-  Pins are defined according to the "nRF52" pin number, not the module pad number.
+  Pins are defined according to the "nRF52" pin number, not the module
+  pad number.
 
 References
 **********
 
 .. target-notes::
 
-.. _u-blox website: https://www.u-blox.com/en/product/bmd-34-series-open-cpu
+.. _u-blox website: https://www.u-blox.com/docs/UBX-19039467

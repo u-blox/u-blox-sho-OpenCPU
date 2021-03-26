@@ -1,11 +1,13 @@
 /*
- * Copyright (c) 2020 u-blox AG
+ * BMD-380-EVAL board configuration
+ * Copyright (c) 2021 u-blox AG
  *
  * SPDX-License-Identifier: Apache-2.0
  */
 
 /dts-v1/;
-#include <nordic/nrf52840_qiaa.dtsi> /* should be ckaa, but not available yet  */
+#include <nordic/nrf52840_qiaa.dtsi>
+/* should be ckaa, but not available yet */
 
 / {
 	model = "u-blox BMD-380-EVAL EVK nRF52840";
@@ -52,61 +54,25 @@
 	buttons {
 		compatible = "gpio-keys";
 		button0: button_0 {
-			gpios = <&gpio0 11 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
+			gpios = <&gpio0 11 (GPIO_PULL_UP | \
+					    GPIO_ACTIVE_LOW)>;
 			label = "Push button switch 0";
 		};
 		button1: button_1 {
-			gpios = <&gpio0 12 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
+			gpios = <&gpio0 12 (GPIO_PULL_UP | \
+					    GPIO_ACTIVE_LOW)>;
 			label = "Push button switch 1";
 		};
 		button2: button_2 {
-			gpios = <&gpio0 24 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
+			gpios = <&gpio0 24 (GPIO_PULL_UP | \
+					    GPIO_ACTIVE_LOW)>;
 			label = "Push button switch 2";
 		};
 		button3: button_3 {
-			gpios = <&gpio0 25 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
+			gpios = <&gpio0 25 (GPIO_PULL_UP | \
+					    GPIO_ACTIVE_LOW)>;
 			label = "Push button switch 3";
 		};
-	};
-
-	arduino_header: connector {
-		compatible = "arduino-header-r3";
-		#gpio-cells = <2>;
-		gpio-map-mask = <0xffffffff 0xffffffc0>;
-		gpio-map-pass-thru = <0 0x3f>;
-		gpio-map = <0 0 &gpio0 03 0>,	/* A0 */
-			   <1 0 &gpio0 04 0>,	/* A1 */
-			   <2 0 &gpio0 28 0>,	/* A2 */
-			   <3 0 &gpio0 29 0>,	/* A3 */
-			   <4 0 &gpio0 30 0>,	/* A4 */
-			   <5 0 &gpio0 31 0>,	/* A5 */
-			   <6 0 &gpio1 01 0>,	/* D0 */
-			   <7 0 &gpio1 02 0>,	/* D1 */
-			   <8 0 &gpio1 03 0>,	/* D2 */
-			   <9 0 &gpio1 04 0>,	/* D3 */
-			   <10 0 &gpio1 05 0>,	/* D4 */
-			   <11 0 &gpio1 06 0>,	/* D5 */
-			   <12 0 &gpio1 07 0>,	/* D6 */
-			   <13 0 &gpio1 08 0>,	/* D7 */
-			   <14 0 &gpio1 10 0>,	/* D8 */
-			   <15 0 &gpio1 11 0>,	/* D9 */
-			   <16 0 &gpio1 12 0>,	/* D10 */
-			   <17 0 &gpio1 13 0>,	/* D11 */
-			   <18 0 &gpio1 14 0>,	/* D12 */
-			   <19 0 &gpio1 15 0>,	/* D13 */
-			   <20 0 &gpio0 26 0>,	/* D14 */
-			   <21 0 &gpio0 27 0>;	/* D15 */
-	};
-
-	arduino_adc: analog-connector {
-		compatible = "arduino,uno-adc";
-		#io-channel-cells = <1>;
-		io-channel-map = <0 &adc 1>,	/* A0 = P0.03 = AIN1 */
-				 <1 &adc 2>,	/* A1 = P0.04 = AIN2 */
-				 <2 &adc 4>,	/* A2 = P0.28 = AIN4 */
-				 <3 &adc 5>,	/* A3 = P0.29 = AIN5 */
-				 <4 &adc 6>,	/* A4 = P0.30 = AIN6 */
-				 <5 &adc 7>;	/* A5 = P0.31 = AIN7 */
 	};
 
 	/* These aliases are provided for compatibility with samples */
@@ -149,26 +115,12 @@
 	cts-pin = <7>;
 };
 
-arduino_serial: &uart1 {
-	status = "okay";
-	current-speed = <115200>;
-	rx-pin = <33>;
-	tx-pin = <34>;
-};
-
-arduino_i2c: &i2c0 {
-	compatible = "nordic,nrf-twi";
-	status = "okay";
-	sda-pin = <26>;
-	scl-pin = <27>;
-};
-
 &i2c1 {
 	compatible = "nordic,nrf-twi";
 	/* Cannot be used together with spi1. */
 	/* status = "okay"; */
-	sda-pin = <30>;
-	scl-pin = <31>;
+	sda-gpios = <&gpio0 30 0>;
+	scl-gpios = <&gpio0 31 0>;
 };
 
 &pwm0 {
@@ -216,10 +168,14 @@ arduino_i2c: &i2c0 {
 		label = "MX25R64";
 		jedec-id = [c2 28 17];
 		sfdp-bfp = [
-			e5 20 f1 ff  ff ff ff 03  44 eb 08 6b  08 3b 04 bb
-			ee ff ff ff  ff ff 00 ff  ff ff 00 ff  0c 20 0f 52
-			10 d8 00 ff  23 72 f5 00  82 ed 04 cc  44 83 68 44
-			30 b0 30 b0  f7 c4 d5 5c  00 be 29 ff  f0 d0 ff ff
+			e5 20 f1 ff  ff ff ff 03
+			44 eb 08 6b  08 3b 04 bb
+			ee ff ff ff  ff ff 00 ff
+			ff ff 00 ff  0c 20 0f 52
+			10 d8 00 ff  23 72 f5 00
+			82 ed 04 cc  44 83 68 44
+			30 b0 30 b0  f7 c4 d5 5c
+			00 be 29 ff  f0 d0 ff ff
 		];
 		size = <67108864>;
 		has-dpd;
@@ -228,18 +184,11 @@ arduino_i2c: &i2c0 {
 	};
 };
 
-arduino_spi: &spi3 {
-	status = "okay";
-	sck-pin = <47>;
-	miso-pin = <46>;
-	mosi-pin = <45>;
-	cs-gpios = <&arduino_header 16 GPIO_ACTIVE_LOW>; /* D10 */
-};
-
 &flash0 {
 	/*
 	 * For more information, see:
-	 * https://docs.zephyrproject.org/latest/guides/dts/legacy-macros.html#legacy-flash-partitions
+	 * https://docs.zephyrproject.org/latest/guides/dts/\
+	   legacy-macros.html#legacy-flash-partitions
 	 */
 	partitions {
 		compatible = "fixed-partitions";

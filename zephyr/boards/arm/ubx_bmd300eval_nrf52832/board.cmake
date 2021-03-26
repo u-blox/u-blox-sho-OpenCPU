@@ -1,6 +1,8 @@
+# BMD-300-EVAL, BMD-301-EVAL, and BMD-350-EVAL board configuration
+
+# Copyright (c) 2021 u-blox AG
 # SPDX-License-Identifier: Apache-2.0
 
-board_runner_args(nrfjprog "--nrf-family=NRF52")
 board_runner_args(jlink "--device=nrf52" "--speed=4000")
 board_runner_args(pyocd "--target=nrf52" "--frequency=4000000")
 include(${ZEPHYR_BASE}/boards/common/nrfjprog.board.cmake)

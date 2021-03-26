@@ -1,4 +1,5 @@
 identifier: ubx_bmd300eval_nrf52832
+name: UBX_BMD300EVAL_NRF52832
 type: mcu
 arch: arm
 toolchain:
