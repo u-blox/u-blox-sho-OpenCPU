@@ -1,6 +1,6 @@
-#  EVK-NINA-B1 board configuration
-#
-# Copyright (c) 2020 u-blox AG
+# u-blox EVK-NINA-B1 board configuration
+
+# Copyright (c) 2021 u-blox AG
 # SPDX-License-Identifier: Apache-2.0
 
 config BOARD_UBX_EVKNINAB1_NRF52832

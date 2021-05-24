@@ -25,35 +25,29 @@
 	leds {
 		compatible = "gpio-leds";
 		led0: led_0 {
-			gpios = <&gpio1 1 GPIO_ACTIVE_LOW>;  /* NINA-B4 GPIO_7 */
-			label = "Green LED";
-		};
-		led1: led_1 {
-			gpios = <&gpio0 13 GPIO_ACTIVE_LOW>;  /* NINA-B1 GPIO_1 */
+			/* NINA-B1 GPIO_1 */
+			gpios = <&gpio0 13 GPIO_ACTIVE_LOW>;
 			label = "Red LED";
 		};
+		led1: led_1 {
+			/* NINA-B4 GPIO_7 */
+			gpios = <&gpio1 1 GPIO_ACTIVE_LOW>;
+			label = "Green LED";
+		};
 		led2: led_2 {
-			gpios = <&gpio1 00 GPIO_ACTIVE_LOW>;   /*NINA-B1 GPIO_8 */
+			/*NINA-B1 GPIO_8 */
+			gpios = <&gpio1 0 GPIO_ACTIVE_LOW>;
 			label = "Blue LED";
 		};
 	};
 
 	pwmleds {
 		compatible = "pwm-leds";
-		pwm_led0: pwm_led_0 {
-			pwms = <&pwm0 33>;
-		};
-		pwm_led1: pwm_led_1 {
+		red_pwm_led: red_pwm_led {
 			pwms = <&pwm0 13>;
-		};
-		pwm_led2: pwm_led_2 {
-			pwms = <&pwm0 32>;
 		};
 		green_pwm_led: green_pwm_led {
 			pwms = <&pwm0 33>;
-		};
-		red_pwm_led: red_pwm_led {
-			pwms = <&pwm0 13>;
 		};
 		blue_pwm_led: blue_pwm_led {
 			pwms = <&pwm0 32>;
@@ -63,12 +57,14 @@
 	buttons {
 		compatible = "gpio-keys";
 		button0: button_0 {
+			/* EVK-NINA-B4 SW1 button */
 			gpios = <&gpio1 1 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
-			label = "Push button switch 0";    /* EVK-NINA-B4 SW1 button */
+			label = "Push button switch 0";
 		};
 		button1: button_1 {
+			/* EVK-NINA-B4 SW2 button */
 			gpios = <&gpio0 2 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
-			label = "Push button switch 1";    /* EVK-NINA-B4 SW2 button */
+			label = "Push button switch 1";
 		};
 	};
 
@@ -101,15 +97,25 @@
 			   <21 0 &gpio0 17 0>;	/* D15 */  /* SCL */
 	};
 
+	arduino_adc: analog-connector {
+		compatible = "arduino,uno-adc";
+		#io-channel-cells = <1>;
+		io-channel-map = <0 &adc 2>,	/* A0 = P0.04 = AIN2 */
+				 <1 &adc 6>,	/* A1 = P0.30 = AIN6 */
+				 <2 &adc 3>,	/* A2 = P0.5 = AIN3 */
+				 <3 &adc 0>,	/* A3 = P0.2 = AIN0 */
+				 <4 &adc 4>,	/* A4 = P0.28 = AIN4 */
+				 <5 &adc 1>;	/* A5 = P0.3 = AIN1 */
+	};
 
 	/* These aliases are provided for compatibility with samples */
 	aliases {
 		led0 = &led0;
 		led1 = &led1;
 		led2 = &led2;
-		pwm-led0 = &pwm_led0;
-		pwm-led1 = &pwm_led1;
-		pwm-led2 = &pwm_led2;
+		pwm-led0 = &red_pwm_led;
+		pwm-led1 = &green_pwm_led;
+		pwm-led2 = &blue_pwm_led;
 		red-pwm-led = &red_pwm_led;
 		green-pwm-led = &green_pwm_led;
 		blue-pwm-led = &blue_pwm_led;
@@ -151,20 +157,25 @@ arduino_i2c: &i2c0 {
 	scl-pin = <17>;
 };
 
-&pwm0 {
-	status = "okay";
-	ch0-pin = <33>;
-	ch0-inverted;
-	status = "okay";
-	ch1-pin = <13>;
-	ch1-inverted;
-	status = "okay";
-	ch2-pin = <32>;
-	ch2-inverted;
+&spi0 {
+	compatible = "nordic,nrf-spi";
+	/* Cannot be used together with i2c0. */
+	/* status = "okay"; */
+	sck-pin = <7>;
+	mosi-pin = <32>;
+	miso-pin = <15>;
 };
 
-arduino_spi: &spi0 {
+&spi1 {
 	compatible = "nordic,nrf-spi";
+	status = "okay";
+	sck-pin = <3>;
+	mosi-pin = <28>;
+	miso-pin = <9>;
+};
+
+arduino_spi: &spi2 {
+	compatible = "nordic,nrf-spim";
 	status = "okay";
 	sck-pin = <7>;              /* D13 */
 	mosi-pin = <1>;             /* D11 */
@@ -172,12 +183,19 @@ arduino_spi: &spi0 {
 	cs-gpios = <&arduino_header 0 GPIO_ACTIVE_LOW>; /* D10 */
 };
 
+&pwm0 {
+	status = "okay";
+	ch0-pin = <13>;
+	ch0-inverted;
+	status = "okay";
+	ch1-pin = <33>;
+	ch1-inverted;
+	status = "okay";
+	ch2-pin = <32>;
+	ch2-inverted;
+};
 
 &flash0 {
-	/*
-	 * For more information, see:
-	 * https://docs.zephyrproject.org/latest/guides/dts/legacy-macros.html#legacy-flash-partitions
-	 */
 	partitions {
 		compatible = "fixed-partitions";
 		#address-cells = <1>;
@@ -185,7 +203,7 @@ arduino_spi: &spi0 {
 
 		boot_partition: partition@0 {
 			label = "mcuboot";
-			reg = <0x00000000 0xc000>;
+			reg = <0x00000000 0xC000>;
 		};
 		slot0_partition: partition@c000 {
 			label = "image-0";
@@ -197,11 +215,11 @@ arduino_spi: &spi0 {
 		};
 		scratch_partition: partition@70000 {
 			label = "image-scratch";
-			reg = <0x00070000 0xa000>;
+			reg = <0x00070000 0xA000>;
 		};
 		storage_partition: partition@7a000 {
 			label = "storage";
-			reg = <0x0007a000 0x00006000>;
+			reg = <0x0007A000 0x00006000>;
 		};
 	};
 };

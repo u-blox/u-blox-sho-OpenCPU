@@ -7,7 +7,7 @@ Overview
 ********
 
 The u-blox NINA-B4 Evaluation Kit hardware is a Bluetooth low energy
-module based on the Nordic Semiconductor nRF52833 ARM Cortex-M4F CPU 
+module based on the Nordic Semiconductor nRF52833 ARM Cortex-M4F CPU
 and has support for the following features:
 
 * :abbr:`ADC (Analog to Digital Converter)`
@@ -29,7 +29,7 @@ and has support for the following features:
 .. figure:: img/EVK-NINA-B406_Top_web.png
 
     EVK NINA-B4
-	 
+
 More information about the NINA-B4 module and the EVK-NINA-B4 can be
 found at `NINA-B40 product page`_ and `EVK-NINA-B4 product page`_.
 
@@ -83,8 +83,8 @@ Connections and IOs
 LED
 ---
 
-* LED0 (green) = P1.01
-* LED1 (red) = P0.13
+* LED0 (red) = P0.13
+* LED1 (green) = P1.01
 * LED2 (blue) = P1.00
 
 Push buttons
@@ -102,7 +102,7 @@ information on how to map NINA-B40 pins to the pin numbering on the
 nRF52833 SoC.
 
 The reason for this is the u-blox module family concept where different
-modules share the same pinout and can be interchanged, see 
+modules share the same pinout and can be interchanged, see
 `NINA module family Nested design`_.
 
 Programming and Debugging
@@ -116,13 +116,13 @@ debugging targets are not currently available.
 Flashing
 ========
 
-Build and flash applications as usual (see 
-:ref:`build_an_application` and :ref:`application_run` for more details).
+Build and flash applications as usual (see
+:ref:`build_an_application` and :ref:`application_run` for more details)
 
 Here is an example for the :ref:`hello_world` application.
 
-Open a terminal program to the USB Serial Port installed when connecting 
-the board and listen for output. 
+Open a terminal program to the USB Serial Port installed when connecting
+the board and listen for output.
 
 Settings: 115200, 8N1, no flow control.
 
@@ -136,14 +136,14 @@ Then build and flash the application in the usual way.
 Debugging
 =========
 
-Refer to the :ref:`nordic_segger` page to learn about debugging  boards 
+Refer to the :ref:`nordic_segger` page to learn about debugging  boards
 containing a Nordic Semiconductor chip with a Segger IC.
 
 
 Testing the LEDs and buttons in the EVK NINA-B40x
 *************************************************
 
-There are 2 samples that allow you to test that the buttons (switches) 
+There are 2 samples that allow you to test that the buttons (switches)
 and LEDs on the board are working properly with Zephyr:
 
 .. code-block:: console
@@ -155,7 +155,7 @@ You can build and flash the examples to make sure Zephyr is running
 correctly on your board. The button and LED definitions can be found in
 :zephyr_file:`boards/arm/ubx_evkninab4_nrf52833/ubx_evkninab4_nrf52833.dts`.
 
-Note that the buttons on the EVK-NINA-B4 are marked SW1 and SW2, which 
+Note that the buttons on the EVK-NINA-B4 are marked SW1 and SW2, which
 are named sw0 and sw1 in the dts file.
 Also note that the SW1 button and the green LED are connected on HW level.
 
@@ -197,7 +197,7 @@ To select the pin numbers for tx-pin and rx-pin:
    tx-pin = <pin_no>
 
 Open the data sheet for the NINA-B4 at `NINA-B40 Data Sheet`_, Section 3 'Pin definition'.
-In the table 7 select the pins marked 'GPIO_xx'.  Note that pins marked as 'Radio sensitive pin' 
+In the table 7 select the pins marked 'GPIO_xx'.  Note that pins marked as 'Radio sensitive pin'
 can only be used in under-10KHz applications. They are not suitable for 115200 speed of UART.
 
 Translate 'Pin' into number for Device tree by using the following formula::

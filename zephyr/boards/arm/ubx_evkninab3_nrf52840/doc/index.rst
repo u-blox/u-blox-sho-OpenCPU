@@ -7,7 +7,7 @@ Overview
 ********
 
 The u-blox EVK-NINA-B30 Development Kit hardware provides support for the
-u-blox NINA-B30x Bluetooth 5.0 module, based on the Nordic Semiconductor 
+u-blox NINA-B30x Bluetooth 5.0 module, based on the Nordic Semiconductor
 nRF52840 ARM Cortex-M4F CPU and the following devices:
 
 * :abbr:`ADC (Analog to Digital Converter)`
@@ -95,9 +95,9 @@ Connections and IOs
 LED
 ---
 
-* LED1 (red) = P0.13
+* LED0 (red) = P0.13
+* LED1 (green) = P0.25
 * LED2 (blue) = P1.00
-* LED3 (green) = P0.25
 
 Push buttons
 ------------
@@ -110,8 +110,8 @@ External Connectors
 -------------------
 
 .. note::
-	The pin numbers noted below are referenced to 
-	the pin 1 markings on the EVK-NINA-B30x 
+	The pin numbers noted below are referenced to
+	the pin 1 markings on the EVK-NINA-B30x
 	for each header
 
 
@@ -127,7 +127,7 @@ Power (J1)
 +-------+--------------+-------------------------+
 | 2     | VDD_IO       | N/A                     |
 +-------+--------------+-------------------------+
-| 3     | RESET        | P0.21 / RESET           |
+| 3     | RESET        | P0.18 / RESET           |
 +-------+--------------+-------------------------+
 | 4     | 3V3          | N/A                     |
 +-------+--------------+-------------------------+
@@ -302,7 +302,7 @@ To select the pin numbers for tx-pin and rx-pin:
    tx-pin = <pin_no>
 
 Open the data sheet for the NINA-B3 at `u-blox website`_, Section 3 'Pin definition'.
-In the table 7 select the pins marked 'GPIO_xx'.  Note that pins marked as 'Radio sensitive pin' 
+In the table 7 select the pins marked 'GPIO_xx'.  Note that pins marked as 'Radio sensitive pin'
 can only be used in under-10KHz applications. They are not suitable for 115200 speed of UART.
 
 Translate 'Pin' into number for Device tree by using the following formula::

@@ -1,16 +1,16 @@
 .. _ubx_bmd345eval_nrf52840:
 
-u-blox EVK-BMD-34/48: BMD-345-EVAL
+u-blox EVK-BMD-34/38: BMD-345-EVAL
 ##################################
 
 Overview
 ********
 
-The BMD-345-EVAL hardware provides support for the
-u-blox BMD-345 Bluetooth 5.0 module with a power amplifier / 
-low noise amplifier (PA/LNA), based on The
-Nordic Semiconductor nRF52840 ARM Cortex-M4F CPU and
-the following devices:
+The BMD-345-EVALhardware provides support for the u-blox BMD-345
+Bluetooth 5.0 modules, based on the Nordic Semiconductor nRF52840
+ARM Cortex-M4F CPU and Skyworks RFX2411 Front End Module (FEM),
+also known as a Power Amplifier / Low Noise Amplifier (PA/LNA).
+Both support the following devices:
 
 * :abbr:`ADC (Analog to Digital Converter)`
 * CLOCK
@@ -28,61 +28,51 @@ the following devices:
 * :abbr:`USB (Universal Serial Bus)`
 * :abbr:`WDT (Watchdog Timer)`
 
-.. figure:: img/BMD-345-EVAL.png
-     :width: 600px
+.. figure:: img/bmd-345-eval_features.png
+     :width: 442px
      :align: center
-     :alt: BMD-345-EVAL
+     :alt: BMD 345 EVAL
 
-     BMD-345-EVAL (Credit: u-blox AG)
+     BMD-345-EVAL (Credit: ublox AG)
 
-.. note::
-    The BMD-345-EVAL shares the nearly the same pin headers and 
-    assignments as the BMD-340-EVAL. The BMD-340-EVAL is shown here.
-    See the tables below for the differences
+More information about the BMD-345-EVAL and BMD-345 module can be
+found at the `u-blox website`_.
 
-More information about the BMD-345-EVAL and the BMD-345 module
-can be found at the `u-blox website`_.
 
 Hardware
 ********
 
 The BMD-345 on the BMD-345-EVAL contains an internal high-frequency
-oscillator at 32MHz. There is also a low frequency (slow) oscillator
-of 32.768kHz. The BMD-345 itself does not include the slow crystal;
-however, the BMD-345-EVAL does.
+oscillator at 32MHz. There is also a low frequency (slow)
+oscillator of 32.768kHz. The BMD-345 does not include the slow
+crystal; however, the BMD-345-EVAL does.
 
 .. note::
 
-	When targeting a custom design without a slow crystal, be sure to
-	modify code to utilize the internal RC oscillator for the slow clock.
+	When targeting a custom design without a slow crystal, be sure
+	to modify code to utilize the internal RC oscillator for the
+	slow clock.
 
 Front End Module
 ================
 
-The BMD-345 utilizes the Skyworks RFX2411 front end module (FEM), 
-also known as a power amplifier / low noise amplifier (PA/LNA). 
-The FEM provides a higher output power than the BMD-340 and BMD-341, 
-as well as providing better receive sensitivity.
+BMD-345 utilizes the Skyworks RFX2411 front end module (FEM).
+The FEM provides higher output power and better sensitivity.
 
-See the BMD-345 data sheet and system integration manual (SIM) at the
-'u-blox website'_ for details on using the FEM.
+FEM pin assignments
+-------------------
 
-Required pins
--------------
-
-The BMD-345 uses four GPIO pins to control the FEM:
-
-+-----------+-----------------+---------------+-----------------+
-| name      | Zephyr Pin Name | Function      | nRF52840 signal |
-+===========+=================+===============+=================+
-| TX_EN     | PA_PIN          | PA TX enable  | P1.05           |
-+-----------+-----------------+---------------+-----------------+
-| RX_EN     | LNA_PIN         | LNA RX enable | P1.06           |
-+-----------+-----------------+---------------+-----------------+
-| PA_MODE   | -               | FEM mode      | P1.04           |
-+-----------+-----------------+---------------+-----------------+
-| ANT_SW    | -               | FEM switch    | P1.02           |
-+-----------+-----------------+---------------+-----------------+
++-------------+--------------+----------+--------+----------+---------+
+| GPIO Number | Signal Name  | Shutdown | Bypass | Transmit | Receive |
++=============+==============+==========+========+==========+=========+
+| P1.05       | TX_EN        | Low      | Low    | High     | Low     |
++-------------+--------------+----------+--------+----------+---------+
+| P1.06       | RX_EN        | Low      | Low    | Low      | High    |
++-------------+--------------+----------+--------+----------+---------+
+| P1.04       | MODE         | Low      | High   | Low      | Low     |
++-------------+--------------+----------+--------+----------+---------+
+| P1.02       | A_SEL        | Low      | Low    | Low      | Low     |
++-------------+--------------+----------+--------+----------+---------+
 
 Supported Features
 ==================
@@ -154,22 +144,15 @@ Push buttons
 External Connectors
 -------------------
 
-.. figure:: img/bmd-340-eval_pin_out.png
-     :width: 800px
+.. figure:: img/bmd-345-eval_pin_out.png
+     :width: 819px
      :align: center
-     :alt: BMD-340-EVAL pin-out
-
-     BMD-340-EVAL pin-out (Credit: u-blox AG)
+     :alt: BMD-345-EVAL pin-out
 
 .. note::
-    The BMD-345-EVAL shares the nearly the same pin headers and 
-    assignments as the BMD-340-EVAL. The BMD-340-EVAL is shown here.
-    See the tables below for the differences
-
-.. note::
-	The pin numbers noted below are referenced to 
-	the pin 1 markings on the BMD-340-EVAL 
-	for each header
+	The pin numbers noted below are referenced to
+	the pin 1 markings on the BMD-340-EVAL or
+	BMD-341-EVAL for each header
 
 J-Link Prog Connector (J2)
 
@@ -196,7 +179,6 @@ J-Link Prog Connector (J2)
 +-------+--------------+
 | 10    | IMCU_RESET   |
 +-------+--------------+
-
 
 Debug OUT (J3)
 
@@ -320,13 +302,13 @@ Arduino Headers
 Power (J5)
 
 +-------+--------------+-------------------------+
-| PIN # | Signal Name  | BMD-340 Functions       |
+| PIN # | Signal Name  | BMD-345 Functions       |
 +=======+==============+=========================+
 | 1     | VSHLD        | N/A                     |
 +-------+--------------+-------------------------+
 | 2     | VSHLD        | N/A                     |
 +-------+--------------+-------------------------+
-| 3     | RESET        | P0.21 / RESET           |
+| 3     | RESET        | P0.18 / RESET           |
 +-------+--------------+-------------------------+
 | 4     | VSHLD        | N/A                     |
 +-------+--------------+-------------------------+
@@ -342,7 +324,7 @@ Power (J5)
 Analog in (J8)
 
 +-------+--------------+-------------------------+
-| PIN # | Signal Name  | BMD-340 Functions       |
+| PIN # | Signal Name  | BMD-345 Functions       |
 +=======+==============+=========================+
 | 1     | A0           | P0.03 / AIN1            |
 +-------+--------------+-------------------------+
@@ -360,21 +342,21 @@ Analog in (J8)
 Digital I/O (J7)
 
 +-------+--------------+-------------------------+
-| PIN # | Signal Name  | BMD-340 Functions       |
+| PIN # | Signal Name  | BMD-345 Functions       |
 +=======+==============+=========================+
 | 1     | D7           | P1.08                   |
 +-------+--------------+-------------------------+
 | 2     | D6           | P1.07                   |
 +-------+--------------+-------------------------+
-| 3     | -            | No connection           |
+| 3     | N/C          | N/A                     |
 +-------+--------------+-------------------------+
-| 4     | -            | No connection           |
+| 4     | N/C          | N/A                     |
 +-------+--------------+-------------------------+
-| 5     | -            | No connection           |
+| 5     | N/C          | N/A                     |
 +-------+--------------+-------------------------+
 | 6     | D2           | P1.03                   |
 +-------+--------------+-------------------------+
-| 7     | -            | No connection           |
+| 7     | N/C          | N/A                     |
 +-------+--------------+-------------------------+
 | 8     | D0 (RX)      | P1.01                   |
 +-------+--------------+-------------------------+
@@ -382,7 +364,7 @@ Digital I/O (J7)
 Digital I/O (J6)
 
 +-------+--------------+-------------------------+
-| PIN # | Signal Name  | BMD-340 Functions       |
+| PIN # | Signal Name  | BMD-345 Functions       |
 +=======+==============+=========================+
 | 1     | SCL          | P0.27                   |
 +-------+--------------+-------------------------+
@@ -408,7 +390,7 @@ Digital I/O (J6)
 J11
 
 +-------+--------------+-------------------------+
-| PIN # | Signal Name  | BMD-340 Functions       |
+| PIN # | Signal Name  | BMD-345 Functions       |
 +=======+==============+=========================+
 | 1     | D12 (MISO)   | P0.14                   |
 +-------+--------------+-------------------------+
@@ -426,10 +408,11 @@ J11
 Programming and Debugging
 *************************
 
-Applications for the BMD-345-EVAL board configuration can be
-built and flashed in the usual way (see :ref:`build_an_application`
-and :ref:`application_run` for more details); however, the standard
-debugging targets are not currently available.
+Applications for the BMD-345-EVAL board
+configurations can be built and flashed in the usual way
+(see :ref:`build_an_application` and :ref:`application_run`
+for more details); however, the standard debugging targets
+are not currently available.
 
 Flashing
 ========
@@ -466,7 +449,7 @@ u-blox boards with a Segger J-LINK-OB IC.
 
 
 Testing the LEDs and buttons in the BMD-345-EVAL
-************************************************
+*****************************************************************
 
 There are 2 samples that allow you to test that the buttons
 (switches) and LEDs on the board are working properly with Zephyr:
@@ -476,13 +459,10 @@ There are 2 samples that allow you to test that the buttons
    samples/basic/blinky
    samples/basic/button
 
-You can build and flash the examples to make sure Zephyr is running correctly on
-your board. The button and LED definitions can be found in
-:zephyr_file:`boards/arm/ubx_bmd345eval_nrf52840/ubx_bmd345eval_nrf52840.dts`.
-
-.. note::
-	Further configuration of the four FEM control pins is required for 
-	radio examples to function properly
+You can build and flash the examples to make sure Zephyr is running
+correctly on your board. The button and LED definitions can be found
+in
+:zephyr_file:`boards/arm/ubx_bmd340eval_nrf52840/ubx_bmd345eval_nrf52840.dts`.
 
 Using UART1
 ***********
@@ -490,7 +470,8 @@ Using UART1
 The following approach can be used when an application needs to use
 more than one UART for connecting peripheral devices:
 
-1. Add device tree overlay file to the main directory of your application:
+1. Add device tree overlay file to the main directory of your
+   application:
 
    .. code-block:: console
 
@@ -503,14 +484,17 @@ more than one UART for connecting peripheral devices:
         rx-pin = <16>;
       };
 
-   In the overlay file above, pin P0.16 is used for RX and P0.14 is used for TX
+   In the overlay file above, pin P0.16 is used for RX and P0.14 is
+   used for TX
 
 2. Use the UART1 as ``device_get_binding("UART_1")``
 
 Overlay file naming
 ===================
-The file has to be named ``<board>.overlay`` and placed in the app main directory to be
-picked up automatically by the device tree compiler.
+
+The file has to be named ``<board>.overlay`` and placed in the app
+main directory to be picked up automatically by the device tree
+compiler.
 
 Selecting the pins
 ==================
@@ -520,12 +504,14 @@ To select the pin numbers for tx-pin and rx-pin:
 
    tx-pin = <pin_no>
 
-Open the data sheet for the BMD-345 at `u-blox website`_, Section 2 'Pin definition'.
-In the table 3 select the pins marked 'GPIO'.  Note that pins marked as 'Standard drive, 
-low frequency I/O only (<10 kH' can only be used in under-10KHz applications. 
+Open the data sheet for the BMD-345 at the `u-blox website`_, Section 2
+'Pin definition'. In the table 3 select the pins marked 'GPIO'.
+Note that pins marked as 'Standard drive, low frequency I/O only
+(<10 kH' can only be used in under-10KHz applications.
 They are not suitable for 115200 speed of UART.
 
-Translate 'Pin' into number for Device tree by using the following formula::
+Translate 'Pin' into number for Device tree by using the following
+formula::
 
    pin_no = b\*32 + a
 
@@ -533,7 +519,8 @@ where ``a`` and ``b`` are from the Pin value in the table (Pb.a).
 For example, for P0.1, ``pin_no = 1`` and for P1.0, ``pin_no = 32``.
 
 .. note:
-  Pins are defined according to the "nRF52" pin number, not the module pad number.
+  Pins are defined according to the "nRF52" pin number, not the module
+  pad number.
 
 References
 **********

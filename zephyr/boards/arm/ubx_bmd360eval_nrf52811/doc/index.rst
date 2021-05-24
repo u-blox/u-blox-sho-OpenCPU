@@ -7,8 +7,8 @@ Overview
 ********
 
 The BMD-360-EVAL hardware provides support for the
-u-blox BMD-360 Bluetooth 5.1 module, based on The
-Nordic Semiconductor nRF52811 ARM Cortex-M4F CPU and
+u-blox BMD-360 Bluetooth 5 module, based on The
+Nordic Semiconductor nRF52811 ARM Cortex-M4 CPU and
 the following devices:
 
 * :abbr:`ADC (Analog to Digital Converter)`
@@ -19,7 +19,7 @@ the following devices:
 * :abbr:`MPU (Memory Protection Unit)`
 * :abbr:`NVIC (Nested Vectored Interrupt Controller)`
 * :abbr:`PWM (Pulse Width Modulation)`
-* RADIO (Bluetooth Low Energy and IEEE 802.15.4)
+* RADIO (Bluetooth Low Energy)
 * :abbr:`RTC (nRF RTC System Clock)`
 * Segger RTT (RTT Console)
 * :abbr:`SPI (Serial Peripheral Interface)`
@@ -27,32 +27,31 @@ the following devices:
 * :abbr:`WDT (Watchdog Timer)`
 
 .. figure:: img/BMD-30-33-35-36-EVAL.png
-     :width: 600px
-     :align: center
-     :alt: BMD-300-EVAL
+	:width: 593px
+	:align: center
+	:alt: BMD-300-EVAL
 
-     BMD-300-EVAL (Credit: u-blox AG)
+	BMD-300-EVAL (Credit: u-blox AG)
 
 .. note::
-    The BMD-360-EVAL shares the same pin headers and assignments as the 
-    BMD-300-EVAL. The BMD-300-EVAL is shown here.
+	The BMD-360-EVAL shares the same pin headers and assignments as the
+	BMD-300-EVAL. The BMD-300-EVAL is shown here.
 
-More information about the BMD-360-EVAL board can be found at the 
-`u-blox website`_. All of the Nordic Semiconductor
-examples for the nRF52 DK (nrf52dk_nrf52832) may be used without modification.
+More information about the BMD-360-EVAL and the BMD-360 module
+can be found at the `u-blox website`_.
 
 Hardware
 ********
 
-The BMD-360 on the BMD-360-EVAL contains an internal high-frequency
-oscillator at 32MHz. There is also a low frequency (slow) oscillator
-of 32.768kHz. The BMD-360 itself does not include the slow crystal;
-however, the BMD-360-eval does.
+The BMD-360 on the BMD-360-EVAL contains an internal
+high-frequency oscillator at 32MHz. There is also a low frequency
+(slow) oscillator of 32.768kHz. The BMD-360 itself does not include
+the slow crystal; however, the BMD-360-EVAL does.
 
 .. note::
-
-	When targeting a custom design without a slow crystal, be sure to
-	modify code to utilize the internal RC oscillator for the slow clock.
+	When targeting a custom design without a slow crystal,
+	be sure to modify code to utilize the internal RC
+	oscillator for the slow clock.
 
 Supported Features
 ==================
@@ -79,8 +78,7 @@ hardware features:
 +-----------+------------+----------------------+
 | PWM       | on-chip    | pwm                  |
 +-----------+------------+----------------------+
-| RADIO     | on-chip    | Bluetooth,           |
-|           |            | IEEE 802.15.4        |
+| RADIO     | on-chip    | Bluetooth            |
 +-----------+------------+----------------------+
 | RTC       | on-chip    | system clock         |
 +-----------+------------+----------------------+
@@ -94,8 +92,8 @@ hardware features:
 +-----------+------------+----------------------+
 
 Other hardware features are not supported by the Zephyr kernel.
-See the `u-blox website`_ for a complete list of BMD-360-EVAL
-hardware features.
+See the `u-blox website`_ for a complete list of
+BMD-360-EVAL hardware features.
 
 Connections and IOs
 ===================
@@ -123,19 +121,19 @@ External Connectors
 -------------------
 
 .. figure:: img/bmd-300-eval_pin_out.png
-     :width: 800px
-     :align: center
-     :alt: BMD-300-EVAL pin-out
+	:width: 659px
+	:align: center
+	:alt: BMD-300-EVAL pin-out
 
-     BMD-300-EVAL pin-out (Credit: u-blox AG)
-
-.. note::
-    The BMD-360-EVAL shares the same pin headers and assignments as the 
-    BMD-300-EVAL. The BMD-300-EVAL is shown here.
+	BMD-300-EVAL pin-out (Credit: u-blox AG)
 
 .. note::
-	The pin numbers noted below are referenced to 
-	the pin 1 markings on the BMD-300-EVAL 
+	The BMD-360-EVAL shares the same pin headers and assignments
+	as the BMD-300-EVAL. The BMD-300-EVAL is shown here.
+
+.. note::
+	The pin numbers noted below are referenced to
+	the pin 1 markings on the BMD-360-EVAL
 	for each header
 
 J-Link Prog Connector (J2)
@@ -218,8 +216,10 @@ Auxiliary (J9)
 | 10    | GND            |
 +-------+----------------+
 
+
 Arduino Headers
 ---------------
+
 
 Power (J5)
 
@@ -266,7 +266,7 @@ Digital I/O (J7)
 +-------+--------------+----------------------------+
 | PIN # | Signal Name  | BMD-360 Functions          |
 +=======+==============+============================+
-| 1     | D7           | P0.18 /                    |
+| 1     | D7           | P0.18                      |
 +-------+--------------+----------------------------+
 | 2     | D6           | P0.17                      |
 +-------+--------------+----------------------------+
@@ -304,7 +304,7 @@ Digital I/O (J6)
 +-------+--------------+-------------------------+
 | 8     | D10 (SS)     | P0.22                   |
 +-------+--------------+-------------------------+
-| 9     | D9           | P0.20                   | 
+| 9     | D9           | P0.20                   |
 +-------+--------------+-------------------------+
 | 10    | D8           | P0.19                   |
 +-------+--------------+-------------------------+
@@ -345,17 +345,18 @@ First, run your favorite terminal program to listen for output.
 
 .. code-block:: console
 
-   $ minicom -D <tty_device> -b 115200
+	$ minicom -D <tty_device> -b 115200
 
-Replace :code:`<tty_device>` with the port where the BMD-360-EVAL
-can be found. For example, under Linux, :code:`/dev/ttyACM0`.
+Replace :code:`<tty_device>` with the port where the
+BMD-360-EVAL can be found. For example, under Linux,
+:code:`/dev/ttyACM0`.
 
 Then build and flash the application in the usual way.
 
 .. zephyr-app-commands::
-   :zephyr-app: samples/hello_world
-   :board: ubx_bmd360eval_nrf52811
-   :goals: build flash
+	:zephyr-app: samples/hello_world
+	:board: ubx_bmd360eval_nrf52811
+	:goals: build flash
 
 Debugging
 =========
@@ -372,16 +373,16 @@ There are 2 samples that allow you to test that the buttons
 
 .. code-block:: console
 
-   samples/basic/blinky
-   samples/basic/button
+	samples/basic/blinky
+	samples/basic/button
 
-You can build and flash the examples to make sure Zephyr is running correctly on
-your board. The button and LED definitions can be found in
-:zephyr_file:`boards/arm/ubx_bmd360eval_nrf52811/ubx_bmd360eval_nrf52811.dts`.
+You can build and flash the examples to make sure Zephyr is
+running correctly on your board. The button and LED definitions
+can be found in :zephyr_file:`boards/arm/ubx_bmd360eval_nrf52811/ubx_bmd360eval_nrf52811.dts`.
 
 References
 **********
 
 .. target-notes::
 
-.. _u-blox website: https://www.u-blox.com/en/product/bmd-34-series-open-cpu
+.. _u-blox website: https://www.u-blox.com/en/product/bmd-360-open-cpu

@@ -8,7 +8,7 @@ Overview
 
 The BMD-330-EVAL hardware provides support for the
 u-blox BMD-330 Bluetooth 5 module, based on The
-Nordic Semiconductor nRF52810 ARM Cortex-M4F CPU and
+Nordic Semiconductor nRF52810 ARM Cortex-M4 CPU and
 the following devices:
 
 * :abbr:`ADC (Analog to Digital Converter)`
@@ -27,32 +27,33 @@ the following devices:
 * :abbr:`WDT (Watchdog Timer)`
 
 .. figure:: img/BMD-30-33-35-36-EVAL.png
-     :width: 600px
-     :align: center
-     :alt: BMD-300-EVAL
+	:width: 593px
+	:align: center
+	:alt: BMD-300-EVAL
 
-     BMD-300-EVAL (Credit: u-blox AG)
+	BMD-300-EVAL (Credit: u-blox AG)
 
 .. note::
-    The BMD-330-EVAL shares the same pin headers and assignments as the 
-    BMD-300-EVAL. The BMD-300-EVAL is shown here.
+	The BMD-330-EVAL shares the same pin headers and assignments as the
+	BMD-300-EVAL. The BMD-300-EVAL is shown here.
 
 More information about the BMD-330-EVAL and the BMD-330 module
-can be found at the `u-blox website`_. All of the Nordic Semiconductor
-examples for the nRF52 DK (nrf52dk_nrf52810) may be used without modification.
+can be found at the `u-blox website`_. All of the Nordic
+Semiconductor examples for the nRF52 DK (nrf52dk_nrf52810)
+may be used without modification.
 
 Hardware
 ********
 
-The BMD-330 on the BMD-330-EVAL contains an internal high-frequency
-oscillator at 32MHz. There is also a low frequency (slow) oscillator
-of 32.768kHz. The BMD-330 itself does not include the slow crystal;
-however, the BMD-330-EVAL does.
+The BMD-330 on the BMD-330-EVAL contains an internal
+high-frequency oscillator at 32MHz. There is also a low frequency
+(slow) oscillator of 32.768kHz. The BMD-330 itself does not include
+the slow crystal; however, the BMD-330-EVAL does.
 
 .. note::
-
-	When targeting a custom design without a slow crystal, be sure to
-	modify code to utilize the internal RC oscillator for the slow clock.
+	When targeting a custom design without a slow crystal,
+	be sure to modify code to utilize the internal RC
+	oscillator for the slow clock.
 
 Supported Features
 ==================
@@ -93,8 +94,8 @@ hardware features:
 +-----------+------------+----------------------+
 
 Other hardware features are not supported by the Zephyr kernel.
-See the `u-blox website`_ for a complete list of BMD-330-EVAL
-hardware features.
+See the `u-blox website`_ for a complete list of
+BMD-330-EVAL hardware features.
 
 Connections and IOs
 ===================
@@ -122,19 +123,19 @@ External Connectors
 -------------------
 
 .. figure:: img/bmd-300-eval_pin_out.png
-     :width: 800px
-     :align: center
-     :alt: BMD-300-EVAL pin-out
+	:width: 659px
+	:align: center
+	:alt: BMD-300-EVAL pin-out
 
-      BMD-300-EVAL pin-out (Credit: u-blox AG)
-
-.. note::
-    The BMD-330-EVAL shares the same pin headers and assignments as the 
-    BMD-300-EVAL. The BMD-300-EVAL is shown here.
+	BMD-300-EVAL pin-out (Credit: u-blox AG)
 
 .. note::
-	The pin numbers noted below are referenced to 
-	the pin 1 markings on the BMD-300-EVAL 
+	The BMD-330-EVAL shares the same pin headers and assignments
+	as the BMD-300-EVAL. The BMD-300-EVAL is shown here.
+
+.. note::
+	The pin numbers noted below are referenced to
+	the pin 1 markings on the BMD-330-EVAL
 	for each header
 
 J-Link Prog Connector (J2)
@@ -217,8 +218,10 @@ Auxiliary (J9)
 | 10    | GND            |
 +-------+----------------+
 
+
 Arduino Headers
 ---------------
+
 
 Power (J5)
 
@@ -344,17 +347,18 @@ First, run your favorite terminal program to listen for output.
 
 .. code-block:: console
 
-   $ minicom -D <tty_device> -b 115200
+	$ minicom -D <tty_device> -b 115200
 
-Replace :code:`<tty_device>` with the port where the BMD-330-EVAL
-can be found. For example, under Linux, :code:`/dev/ttyACM0`.
+Replace :code:`<tty_device>` with the port where the
+BMD-330-EVAL can be found. For example, under Linux,
+:code:`/dev/ttyACM0`.
 
 Then build and flash the application in the usual way.
 
 .. zephyr-app-commands::
-   :zephyr-app: samples/hello_world
-   :board: ubx_bmd330eval_nrf52810
-   :goals: build flash
+	:zephyr-app: samples/hello_world
+	:board: ubx_bmd330eval_nrf52810
+	:goals: build flash
 
 Debugging
 =========
@@ -371,8 +375,8 @@ There are 2 samples that allow you to test that the buttons
 
 .. code-block:: console
 
-   samples/basic/blinky
-   samples/basic/button
+	samples/basic/blinky
+	samples/basic/button
 
 You can build and flash the examples to make sure Zephyr is
 running correctly on your board. The button and LED definitions
@@ -383,4 +387,4 @@ References
 
 .. target-notes::
 
-.. _u-blox website: https://www.u-blox.com/en/product/bmd-3035-series-open-cpu
+.. _u-blox website: https://www.u-blox.com/en/product/bmd-330-open-cpu

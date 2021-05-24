@@ -6,9 +6,9 @@ u-blox EVK NINA-B11x
 Overview
 ********
 
-The u-blox NINA-B1 Evaluation Kit hardware is a Bluetooth low energy
-module based on the Nordic Semiconductor nRF52832 ARM Cortex-M4F CPU 
-and has support for the following features:
+The u-blox NINA-B1 Evaluation Kit hardware is a Bluetooth
+low energy module based on the Nordic Semiconductor nRF52832
+ARM Cortex-M4F CPU and has support for the following features:
 
 * :abbr:`ADC (Analog to Digital Converter)`
 * CLOCK
@@ -27,16 +27,17 @@ and has support for the following features:
 
 .. figure:: img/EVK-NINA-B1.jpg
 
-    EVK NINA-B1
-	 
-More information about the NINA-B1 module and the EVK NINA-B1 can be found
-at `NINA-B1 product page`_ and `EVK-NINA-B1 product page`_.
+	EVK NINA-B1
+
+More information about the NINA-B1 module and the EVK NINA-B1
+can be found at `NINA-B1 product page`_ and
+`EVK-NINA-B1 product page`_.
 
 Supported Features
 ==================
 
-The ubx_evkninab1x_nrf52832 board configuration supports the following
-hardware features:
+The ubx_evkninab1_nrf52832 board configuration supports the
+following hardware features:
 
 +-----------+------------+----------------------+
 | Interface | Controller | Driver/Component     |
@@ -57,7 +58,7 @@ hardware features:
 +-----------+------------+----------------------+
 | PWM       | on-chip    | pwm                  |
 +-----------+------------+----------------------+
-| RADIO     | on-chip    | Bluetooth low energy |
+| RADIO     | on-chip    | Bluetooth Low Energy |
 +-----------+------------+----------------------+
 | RTC       | on-chip    | system clock         |
 +-----------+------------+----------------------+
@@ -70,6 +71,12 @@ hardware features:
 | WDT       | on-chip    | watchdog             |
 +-----------+------------+----------------------+
 
+.. note::
+	Most Arduino interfaces are supported. Arduino pins
+	D5 and D8 are not available, so arduino_gpio is
+	disabled. On the EVK-NINA-B1, these pins are
+	assigned to SWDIO and SWDCLK, respectively.
+
 Other hardware features are not supported by the Zephyr kernel.
 See `EVK-NINA-B1 product page`_ and `NINA-B1 Data Sheet`_
 for a complete list of EVK NINA-B1 hardware features.
@@ -80,8 +87,8 @@ Connections and IOs
 LED
 ---
 
-* LED0 (green) = P0.16
-* LED1 (red) = P0.08
+* LED0 (red) = P0.08
+* LED1 (green) = P0.16
 * LED2 (blue) = P0.18
 
 Push buttons
@@ -100,7 +107,7 @@ information on how to map NINA-B1 pins to the pin numbering on the
 nRF52832 SoC.
 
 The reason for this is the u-blox module family concept where different
-modules share the same pinout and can be interchanged, see 
+modules share the same pinout and can be interchanged, see
 `NINA module family Nested design`_.
 
 Programming and Debugging
@@ -114,13 +121,13 @@ debugging targets are not currently available.
 Flashing
 ========
 
-Build and flash applications as usual (see 
+Build and flash applications as usual (see
 :ref:`build_an_application` and :ref:`application_run` for more details).
 
 Here is an example for the :ref:`hello_world` application.
 
-Open a terminal program to the USB Serial Port installed when connecting 
-the board and listen for output. 
+Open a terminal program to the USB Serial Port installed when connecting
+the board and listen for output.
 
 Settings: 115200, 8N1, no flow control.
 
@@ -128,20 +135,20 @@ Then build and flash the application in the usual way.
 
 .. zephyr-app-commands::
    :zephyr-app: samples/hello_world
-   :board: ubx_evknina1_nrf52832
+   :board: ubx_evkninab1_nrf52832
    :goals: build flash
 
 Debugging
 =========
 
-Refer to the :ref:`nordic_segger` page to learn about debugging  boards 
+Refer to the :ref:`nordic_segger` page to learn about debugging boards
 containing a Nordic Semiconductor chip with a Segger IC.
 
 
 Testing the LEDs and buttons in the EVK NINA-B11x
 *************************************************
 
-There are 2 samples that allow you to test that the buttons (switches) 
+There are 2 samples that allow you to test that the buttons (switches)
 and LEDs on the board are working properly with Zephyr:
 
 .. code-block:: console
@@ -149,11 +156,11 @@ and LEDs on the board are working properly with Zephyr:
    samples/basic/blinky
    samples/basic/button
 
-You can build and flash the examples to make sure Zephyr is running c
-orrectly on your board. The button and LED definitions can be found in
+You can build and flash the examples to make sure Zephyr is running
+correctly on your board. The button and LED definitions can be found in
 :zephyr_file:`boards/arm/ubx_evkninab1_nrf52832/ubx_evkninab1_nrf52832.dts`.
 
-Note that the buttons on the EVK-NINA-B1 are marked SW1 and SW2, which 
+Note that the buttons on the EVK-NINA-B1 are marked SW1 and SW2, which
 are named sw0 and sw1 in the dts file.
 Also note that the SW1 button and the green LED are connected on HW level.
 

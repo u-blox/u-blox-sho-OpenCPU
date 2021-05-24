@@ -1,3 +1,6 @@
+# BMD-345-EVAL board configuration
+
+# Copyright (c) 2021 u-blox AG
 # SPDX-License-Identifier: Apache-2.0
 
 CONFIG_SOC_SERIES_NRF52X=y
@@ -6,6 +9,9 @@ CONFIG_BOARD_UBX_BMD345EVAL_NRF52840=y
 
 # Enable MPU
 CONFIG_ARM_MPU=y
+
+# Enable hardware stack protection
+CONFIG_HW_STACK_PROTECTION=y
 
 # Enable RTT
 CONFIG_USE_SEGGER_RTT=y
@@ -22,3 +28,11 @@ CONFIG_UART_CONSOLE=y
 
 # additional board options
 CONFIG_GPIO_AS_PINRESET=y
+
+# PA GPIO Pin
+CONFIG_BT_CTLR_GPIO_PA=y
+CONFIG_BT_CTLR_GPIO_PA_PIN=37
+
+# LNA GPIO Pin
+CONFIG_BT_CTLR_GPIO_LNA=y
+CONFIG_BT_CTLR_GPIO_LNA_PIN=38

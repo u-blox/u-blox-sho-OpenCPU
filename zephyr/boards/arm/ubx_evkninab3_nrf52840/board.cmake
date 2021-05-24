@@ -1,3 +1,6 @@
+# EVK-NINA-B3 board configuration
+
+# Copyright (c) 2021 u-blox AG
 # SPDX-License-Identifier: Apache-2.0
 
 board_runner_args(nrfjprog "--nrf-family=NRF52")

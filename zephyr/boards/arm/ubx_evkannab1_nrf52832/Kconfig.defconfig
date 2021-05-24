@@ -1,6 +1,6 @@
-# ANNA-B1 EVK board configuration
+# u-blox EVK-ANNA-B1 board configuration
 #
-# Copyright (c) 2020 u-blox AG
+# Copyright (c) 2021 u-blox AG
 # SPDX-License-Identifier: Apache-2.0
 
 if BOARD_UBX_EVKANNAB1_NRF52832

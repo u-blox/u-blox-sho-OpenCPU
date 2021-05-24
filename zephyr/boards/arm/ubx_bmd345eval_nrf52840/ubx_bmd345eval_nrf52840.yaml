@@ -1,5 +1,5 @@
 identifier: ubx_bmd345eval_nrf52840
-name: UBX_BMD345EVAL_NRF52840
+name: BMD-345-EVAL
 type: mcu
 arch: arm
 ram: 256
@@ -10,7 +10,6 @@ toolchain:
   - xtools
 supported:
   - adc
-  - arduino_gpio
   - arduino_i2c
   - arduino_spi
   - ble
