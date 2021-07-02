@@ -28,12 +28,12 @@ project mainline repository: https://github.com/zephyrproject-rtos/zephyr
 | BMD-340-EVAL | ubx_bmd340eval_nrf52840 |
 | BMD-341-EVAL | ubx_bmd340eval_nrf52840 |
 | BMD-345-EVAL | ubx_bmd345eval_nrf52840 |
-| BMD-360-EVAL | ubx_bmd350eval_nrf52811 |
+| BMD-360-EVAL | ubx_bmd360eval_nrf52811 |
 | BMD-380-EVAL | ubx_bmd380eval_nrf52840 |
 | EVK-ANNA-B1  | ubx_evkannab1_nrf52832  |
 | EVK-NINA-B1  | ubx_evkninab1_nrf52832  |
-| EVK-NINA-B3  | ubx_evkninab3_nrf52832  |
-| EVK-NINA-B4  | ubx_evkninab4_nrf52832  |
+| EVK-NINA-B3  | ubx_evkninab3_nrf52840  |
+| EVK-NINA-B4  | ubx_evkninab4_nrf52833  |
 
 Board support packages for the followng EVKs are not planned for submission to
 the Zephyr mainline project:
