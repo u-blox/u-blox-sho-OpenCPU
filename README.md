@@ -40,7 +40,6 @@ Board support packages for the following EVKs are in process or planned.
 | EVK board    | Folder                    |
 |--------------|---------------------------|
 | EVK-NORA-B1  | planned, not present yet  |
-|--------------|---------------------------|
 | MINI-NORA-B1 | ubx_mininorab1_nrf5340    |
 
 Board support packages for the followng EVKs are not planned for submission to
