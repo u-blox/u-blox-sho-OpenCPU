@@ -1,0 +1,16 @@
+identifier: ubx_mininorab1_nrf5340_cpuappns
+name: UBX_MININORAB1_NRF5340-application-MCU-Non-Secure
+type: mcu
+arch: arm
+toolchain:
+  - gnuarmemb
+  - xtools
+  - zephyr
+ram: 192
+flash: 192
+supported:
+  - i2c
+  - pwm
+  - watchdog
+  - usb_cdc
+  - usb_device

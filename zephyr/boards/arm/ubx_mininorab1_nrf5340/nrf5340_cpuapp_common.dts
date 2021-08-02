@@ -1,0 +1,202 @@
+/*
+ * Copyright (c) 2019-2020 Nordic Semiconductor ASA
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/ {
+
+	chosen {
+		zephyr,console = &uart0;
+		zephyr,shell-uart = &uart0;
+		zephyr,uart-mcumgr = &uart0;
+		zephyr,bt-mon-uart = &uart0;
+		zephyr,bt-c2h-uart = &uart0;
+	};
+
+	leds {
+				compatible = "gpio-leds";
+				led0: led_0 {
+					gpios = <&gpio1 4 GPIO_ACTIVE_HIGH>;
+					/* gpios = <&gpio0 28 GPIO_ACTIVE_LOW>; */
+					label = "RED LED 0";
+				};
+				led1: led_1 {
+					gpios = <&gpio0 25 GPIO_ACTIVE_HIGH>;
+					/* gpios = <&gpio0 29 GPIO_ACTIVE_LOW>; */
+					label = "Green LED 1";
+				};
+				led2: led_2 {
+					gpios = <&gpio1 6 GPIO_ACTIVE_HIGH>;
+					/* gpios = <&gpio0 30 GPIO_ACTIVE_LOW>; */
+					label = "BLUE LED 2";
+				};
+			};
+
+	pwmleds {
+		compatible = "pwm-leds";
+		pwm_led0: pwm_led_0 {
+			pwms = <&pwm0 28>;
+		};
+	};
+
+	buttons {
+				compatible = "gpio-keys";
+				button0: button_0 {
+					gpios = <&gpio1 7 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
+					/* gpios = <&gpio0 23 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>; */
+					label = "Push button 1";
+				};
+				button1: button_1 {
+					gpios = <&gpio1 8 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
+					/* gpios = <&gpio0 24 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>; */
+					label = "Push button 2";
+				};
+			};
+
+	/* These aliases are provided for compatibility with samples */
+	aliases {
+		led0 = &led0;
+		led1 = &led1;
+		led2 = &led2;
+		pwm-led0 = &pwm_led0;
+		sw0 = &button0;
+		sw1 = &button1;
+		bootloader-led0 = &led0;
+	};
+};
+
+&adc {
+	status = "okay";
+};
+
+&gpiote {
+	status = "okay";
+};
+
+&gpio0 {
+	status = "okay";
+};
+
+&gpio1 {
+	status = "okay";
+};
+
+&i2c1 {
+	compatible = "nordic,nrf-twim";
+	status = "okay";
+	sda-pin = <0x27>;
+	scl-pin = <0x5>;
+};
+
+&uart0 {
+	status = "okay";
+	current-speed = <115200>;
+	tx-pin = <20>;
+	rx-pin = <22>;
+	rts-pin = <19>;
+	cts-pin = <21>;
+};
+
+&pwm0 {
+	status = "okay";
+	ch0-pin = <28>;
+};
+
+&qspi {
+	status = "okay";
+	sck-pin = <17>;
+	io-pins = <13>, <14>, <15>, <16>;
+	csn-pins = <18>;
+	mx25r64: mx25r6435f@0 {
+		compatible = "nordic,qspi-nor";
+		reg = <0>;
+		/* MX24R64 supports only pp and pp4io */
+		writeoc = "pp4io";
+		/* MX24R64 supports all readoc options */
+		readoc = "read4io";
+		sck-frequency = <8000000>;
+		label = "MX25R64";
+		jedec-id = [c2 28 17];
+		sfdp-bfp = [
+			e5 20 f1 ff  ff ff ff 03  44 eb 08 6b  08 3b 04 bb
+			ee ff ff ff  ff ff 00 ff  ff ff 00 ff  0c 20 0f 52
+			10 d8 00 ff  23 72 f5 00  82 ed 04 cc  44 83 68 44
+			30 b0 30 b0  f7 c4 d5 5c  00 be 29 ff  f0 d0 ff ff
+		];
+		size = <67108864>;
+		has-dpd;
+		t-enter-dpd = <10000>;
+		t-exit-dpd = <35000>;
+	};
+};
+
+&timer0 {
+	status = "okay";
+};
+
+&timer1 {
+	status = "okay";
+};
+
+&timer2 {
+	status = "okay";
+};
+
+&flash0 {
+
+	partitions {
+		compatible = "fixed-partitions";
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		boot_partition: partition@0 {
+			label = "mcuboot";
+			reg = <0x00000000 0x00010000>;
+		};
+		slot0_partition: partition@10000 {
+			label = "image-0";
+		};
+		slot0_ns_partition: partition@50000 {
+			label = "image-0-nonsecure";
+		};
+		slot1_partition: partition@80000 {
+			label = "image-1";
+		};
+		slot1_ns_partition: partition@c0000 {
+			label = "image-1-nonsecure";
+		};
+		scratch_partition: partition@f0000 {
+			label = "image-scratch";
+			reg = <0x000f0000 0xa000>;
+		};
+		storage_partition: partition@fa000 {
+			label = "storage";
+			reg = <0x000fa000 0x00006000>;
+		};
+	};
+};
+
+/ {
+
+	reserved-memory {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		ranges;
+
+		sram0_image: image@20000000 {
+			/* Zephyr image(s) memory */
+		};
+
+		sram0_s: image_s@20000000 {
+			/* Secure image memory */
+		};
+
+		sram0_ns: image_ns@20040000 {
+			/* Non-Secure image memory */
+		};
+	};
+};
+
+/* Include partition configuration file */
+#include "nrf5340_cpuapp_partition_conf.dts"
