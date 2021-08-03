@@ -47,8 +47,6 @@ Board support packages for the following boards are planned.
 | EVK board     | Folder                    |
 |---------------|---------------------------|
 | EVK-NORA-B10  | ubx_evknorab10_nrf5340    |
-| EVK-NORA-B12  | ubx_evknorab12_nrf5340    |
-| MINI-NORA-B12 | ubx_mininorab12_nrf5340   |
 
 Board support packages for the followng EVKs are not planned for submission to
 the Zephyr mainline project. They will remain here at the u-blox repository:
