@@ -342,3 +342,5 @@ In case you provide us a feedback or make a contribution in the form of a
 further development of the Deliverable (“Contribution”), u-blox will have the
 same rights as granted to you, namely to use, copy, modify and distribute the
 Contribution provided to us for any purpose without fee.
+
+.. |copy|   unicode:: U+000A9 .. COPYRIGHT SIGN
