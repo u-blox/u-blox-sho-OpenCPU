@@ -1,7 +1,5 @@
 /*
- * u-blox MINI-NORA-B1 board configuration
- *
- * Copyright (c) 2021 u-blox AG 
+ * Copyright (c) 2019-2021 Nordic Semiconductor ASA.
  *
  * SPDX-License-Identifier: Apache-2.0
  */
