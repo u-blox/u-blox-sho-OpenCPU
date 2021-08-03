@@ -40,13 +40,13 @@ GitHub repository. They will be submitted to mainline Zephyr in the near future
 
 | EVK board     | Folder                    |
 |---------------|---------------------------|
+| EVK-NORA-B10  | ubx_evknorab10_nrf5340    |
 | MINI-NORA-B10 | ubx_mininorab10_nrf5340   |
 
 Board support packages for the following boards are planned.
 
 | EVK board     | Folder                    |
 |---------------|---------------------------|
-| EVK-NORA-B10  | ubx_evknorab10_nrf5340    |
 
 Board support packages for the followng EVKs are not planned for submission to
 the Zephyr mainline project. They will remain here at the u-blox repository:
