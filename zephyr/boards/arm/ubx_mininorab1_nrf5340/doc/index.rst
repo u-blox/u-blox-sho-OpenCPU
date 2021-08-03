@@ -325,7 +325,7 @@ References
 Disclaimer
 **********
 
-Copyright &#x00a9; u-blox
+Copyright |copy| u-blox
 
 u-blox reserves all rights in this deliverable (documentation, software, etc.,
 hereafter “Deliverable”).
