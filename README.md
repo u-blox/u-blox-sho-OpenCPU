@@ -16,7 +16,7 @@ Refer to the EVK User Guide for each board for more information on the specific
 board.
 
 ## Zephyr
-Board support packages for the following EVKs have been merged with the Zephyr
+Board support packages for the following boards have been merged with the Zephyr
 project mainline repository: https://github.com/zephyrproject-rtos/zephyr
 
 | EVK board    | Folder                  |
@@ -35,15 +35,23 @@ project mainline repository: https://github.com/zephyrproject-rtos/zephyr
 | EVK-NINA-B3  | ubx_evkninab3_nrf52840  |
 | EVK-NINA-B4  | ubx_evkninab4_nrf52833  |
 
-Board support packages for the following EVKs are in process or planned.
+Board support packages for the following boards are available here at the u-blox
+GitHub repository. They will be submitted to mainline Zephyr in the near future
 
-| EVK board    | Folder                    |
-|--------------|---------------------------|
-| EVK-NORA-B1  | planned, not present yet  |
-| MINI-NORA-B1 | ubx_mininorab1_nrf5340    |
+| EVK board     | Folder                    |
+|---------------|---------------------------|
+| MINI-NORA-B10 | ubx_mininorab10_nrf5340   |
+
+Board support packages for the following boards are planned.
+
+| EVK board     | Folder                    |
+|---------------|---------------------------|
+| EVK-NORA-B10  | ubx_evknorab10_nrf5340    |
+| EVK-NORA-B12  | ubx_evknorab12_nrf5340    |
+| MINI-NORA-B12 | ubx_mininorab12_nrf5340   |
 
 Board support packages for the followng EVKs are not planned for submission to
-the Zephyr mainline project:
+the Zephyr mainline project. They will remain here at the u-blox repository:
 
 | EVK board | Folder             |
 |-----------|--------------------|

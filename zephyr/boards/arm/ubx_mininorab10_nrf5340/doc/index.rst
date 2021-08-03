@@ -1,13 +1,13 @@
-.. _ubx_mininorab1_nrf5340:
+.. _ubx_mininorab10_nrf5340:
 
-u-blox MINI-NORA-B1 evaluation kit
+u-blox MINI-NORA-B10 evaluation kit
 ##################################
 
 Overview
 ********
 
-The u-blox MINI-NORA-B1 is a single-board development kit for evaluation
-and development on the NORA-B1 series of Bluetooth modules based on the
+The u-blox MINI-NORA-B10 is a single-board development kit for evaluation
+and development on the NORA-B10 series of Bluetooth modules based on the
 Nordic Semiconductor nRF5340 system on chip (SoC).
 
 The nRF5340 is a dual-core SoC based on the Arm® Cortex®-M33 architecture, with:
@@ -18,11 +18,11 @@ The nRF5340 is a dual-core SoC based on the Arm® Cortex®-M33 architecture, wit
 * a secondary Arm Cortex-M33 core, with a reduced feature set, running at
   a fixed 64 MHz, referred to as the **network core**.
 
-The ubx_mininorab1_nrf5340_cpuapp build target provides support for the application
-core on the nRF5340 SoC. The ubx_mininorab1_nrf5340_cpunet build target provides
+The ubx_mininorab10_nrf5340_cpuapp build target provides support for the application
+core on the nRF5340 SoC. The ubx_mininorab10_nrf5340_cpunet build target provides
 support for the network core on the nRF5340 SoC.
 
-NORA-B1 modules provide support for the following devices:
+NORA-B10 modules provide support for the following devices:
 
 * :abbr:`ADC (Analog to Digital Converter)`
 * CLOCK
@@ -41,27 +41,27 @@ NORA-B1 modules provide support for the following devices:
 * :abbr:`USB (Universal Serial Bus)`
 * :abbr:`WDT (Watchdog Timer)`
 
-.. figure:: img/MINI-NORA-B1_PCB.png
+.. figure:: img/MINI-NORA-B10_PCB.png
      :width: 711px
      :align: center
-     :alt: u-blox MINI-NORA-B1 evaluation board
+     :alt: u-blox MINI-NORA-B10 evaluation board
 
-     MINI-NORA-B1 (Credit: u-blox AG)
+     MINI-NORA-B10 (Credit: u-blox AG)
 
 More information about the board can be found at the
-`NORA-B1 website`_.
+`NORA-B10 website`_.
 
 Hardware
 ********
 
-MINI-NORA-B1 has two oscillators. The frequency of
+MINI-NORA-B10 has two oscillators. The frequency of
 the slow clock is 32.768 kHz. The frequency of the main clock
 is 32 MHz.
 
 Supported Features
 ==================
 
-The ubx_mininorab1_nrf5340_cpuapp board configuration supports the following
+The ubx_mininorab10_nrf5340_cpuapp board configuration supports the following
 hardware features:
 
 +-----------+------------+----------------------+
@@ -98,7 +98,7 @@ hardware features:
 | WDT       | on-chip    | watchdog             |
 +-----------+------------+----------------------+
 
-The ubx_mininorab1_nrf5340_cpunet board configuration supports the following
+The ubx_mininorab10_nrf5340_cpunet board configuration supports the following
 hardware features:
 
 +-----------+------------+----------------------+
@@ -161,7 +161,7 @@ Programming and Debugging
 *************************
 
 nRF5340 application core supports the Armv8-M Security Extension.
-Applications build for the ubx_mininorab1_nrf5340_cpuapp board by default
+Applications build for the ubx_mininorab10_nrf5340_cpuapp board by default
 boot in the Secure state.
 
 nRF5340 network core does not support the Armv8-M Security Extension.
@@ -190,7 +190,7 @@ The process to build the Secure firmware image using TF-M and the Non-Secure
 firmware image using Zephyr requires the following steps:
 
 1. Build the Non-Secure Zephyr application
-   for the application core using ``-DBOARD=ubx_mininorab1_nrf5340_cpuappns``.
+   for the application core using ``-DBOARD=ubx_mininorab10_nrf5340_cpuappns``.
    To invoke the building of TF-M the Zephyr build system requires the
    Kconfig option ``BUILD_WITH_TFM`` to be enabled, which is done by
    default when building Zephyr as a Non-Secure application.
@@ -208,7 +208,7 @@ firmware image using Zephyr requires the following steps:
    and sizes.
 
 2. Build the application firmware for the network core using
-   ``-DBOARD=ubx_mininorab1_nrf5340_cpunet``.
+   ``-DBOARD=ubx_mininorab10_nrf5340_cpunet``.
 
 
 Building the Secure firmware using Zephyr
@@ -218,14 +218,14 @@ The process to build the Secure and the Non-Secure firmware images
 using Zephyr requires the following steps:
 
 1. Build the Secure Zephyr application for the application core
-   using ``-DBOARD=ubx_mininorab1_nrf5340_cpuapp`` and
+   using ``-DBOARD=ubx_mininorab10_nrf5340_cpuapp`` and
    ``CONFIG_TRUSTED_EXECUTION_SECURE=y`` and ``CONFIG_BUILD_WITH_TFM=n``
    in the application project configuration file.
 2. Build the Non-Secure Zephyr application for the application core
-   using ``-DBOARD=ubx_mininorab1_nrf5340_cpuappns``.
+   using ``-DBOARD=ubx_mininorab10_nrf5340_cpuappns``.
 3. Merge the two binaries together.
 4. Build the application firmware for the network core using
-   ``-DBOARD=ubx_mininorab1_nrf5340_cpunet``.
+   ``-DBOARD=ubx_mininorab10_nrf5340_cpunet``.
 
 
 When building a Secure/Non-Secure application for the nRF5340 application core,
@@ -238,9 +238,9 @@ Building a Secure only application
 ==================================
 
 Build the Zephyr app in the usual way (see :ref:`build_an_application`
-and :ref:`application_run`), using ``-DBOARD=ubx_mininorab1_nrf5340_cpuapp`` for
+and :ref:`application_run`), using ``-DBOARD=ubx_mininorab10_nrf5340_cpuapp`` for
 the firmware running on the nRF5340 application core, and using
-``-DBOARD=ubx_mininorab1_nrf5340_cpunet`` for the firmware running
+``-DBOARD=ubx_mininorab10_nrf5340_cpunet`` for the firmware running
 on the nRF5340 network core.
 
 Flashing
@@ -286,7 +286,7 @@ Then build and flash the application in the usual way.
 
 .. zephyr-app-commands::
    :zephyr-app: samples/hello_world
-   :board: ubx_mininorab1_nrf5340_cpuapp
+   :board: ubx_mininorab10_nrf5340_cpuapp
    :goals: build flash
 
 Debugging
@@ -307,7 +307,7 @@ LEDs on the board are working properly with Zephyr:
 
 You can build and flash the examples to make sure Zephyr is running correctly on
 your board. The button and LED definitions can be found in
-:zephyr_file:`boards/arm/ubx_mininorab1_nrf5340/nrf5340_cpuapp_common.dts`.
+:zephyr_file:`boards/arm/ubx_mininorab10_nrf5340/nrf5340_cpuapp_common.dts`.
 
 References
 **********
@@ -316,7 +316,29 @@ References
 
 .. _IDAU:
    https://developer.arm.com/docs/100690/latest/attribution-units-sau-and-idau
-.. _NORA-B1 website:
+.. _NORA-B10 website:
    https://www.u-blox.com/en/product/nora-b10-series
 .. _Nordic Semiconductor Infocenter: https://infocenter.nordicsemi.com
 .. _Trusted Firmware M: https://www.trustedfirmware.org/projects/tf-m/
+
+Disclaimer
+**********
+Copyright |copy| u-blox
+
+u-blox reserves all rights in this deliverable (documentation, software, etc.,
+hereafter “Deliverable”).
+
+u-blox grants you the right to use, copy, modify and distribute the
+Deliverable provided hereunder for any purpose without fee.
+
+THIS DELIVERABLE IS BEING PROVIDED "AS IS", WITHOUT ANY EXPRESS OR IMPLIED
+WARRANTY. IN PARTICULAR, NEITHER THE AUTHOR NOR U-BLOX MAKES ANY
+REPRESENTATION OR WARRANTY OF ANY KIND CONCERNING THE MERCHANTABILITY OF THIS
+DELIVERABLE OR ITS FITNESS FOR ANY PARTICULAR PURPOSE.
+
+In case you provide us a feedback or make a contribution in the form of a
+further development of the Deliverable (“Contribution”), u-blox will have the
+same rights as granted to you, namely to use, copy, modify and distribute the
+Contribution provided to us for any purpose without fee.
+
+.. |copy|   unicode:: U+000A9 .. COPYRIGHT SIGN

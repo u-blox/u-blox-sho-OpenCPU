@@ -1,5 +1,6 @@
 /*
- * Copyright (c) 2019-2021 Nordic Semiconductor ASA.
+ * u-blox MINI-NORA-B10 board configuration
+ * Copyright (c) 2021 u-blox AG
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -10,12 +11,12 @@
 
 #include <soc.h>
 
-LOG_MODULE_REGISTER(ubx_mininorab1_nrf5340_cpuapp, CONFIG_LOG_DEFAULT_LEVEL);
+LOG_MODULE_REGISTER(ubx_mininorab10_nrf5340_cpuapp, CONFIG_LOG_DEFAULT_LEVEL);
 
 #if !defined(CONFIG_TRUSTED_EXECUTION_NONSECURE)
 
 /* This should come from DTS, possibly an overlay. */
-#if defined(CONFIG_BOARD_UBX_MININORAB1_NRF5340_CPUAPP)
+#if defined(CONFIG_BOARD_UBX_MININORAB10_NRF5340_CPUAPP)
 #define CPUNET_UARTE_PIN_TX  33
 #define CPUNET_UARTE_PIN_RX  32
 #define CPUNET_UARTE_PORT_TRX NRF_P1

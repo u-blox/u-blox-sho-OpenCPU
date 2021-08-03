@@ -1,18 +1,18 @@
-# u-blox MINI-NORA-B1 NRF5340 board configuration
+# u-blox MINI-NORA-B10 board configuration
 
-# Copyright (c) 2019-2020 Nordic Semiconductor ASA
+# Copyright (c) 2021 u-blox AG
 # SPDX-License-Identifier: Apache-2.0
 
 if SOC_NRF5340_CPUAPP_QKAA
 
-config BOARD_UBX_MININORAB1_NRF5340_CPUAPP
-	bool "MINI-NORA-B1 nRF5340 Application MCU"
+config BOARD_UBX_MININORAB10_NRF5340_CPUAPP
+	bool "MINI-NORA-B10 nRF5340 Application MCU"
 
-config BOARD_UBX_MININORAB1_NRF5340_CPUAPPNS
-	bool "MINI-NORA-B1 nRF5340 Application MCU non-secure"
+config BOARD_UBX_MININORAB10_NRF5340_CPUAPPNS
+	bool "MINI-NORA-B10 nRF5340 Application MCU non-secure"
 
 endif # SOC_NRF5340_CPUAPP_QKAA
 
-config BOARD_UBX_MININORAB1_NRF5340_CPUNET
-	bool "MINI-NORA-B1 NRF5340 Network MCU"
+config BOARD_UBX_MININORAB10_NRF5340_CPUNET
+	bool "MINI-NORA-B10 NRF5340 Network MCU"
 	depends on SOC_NRF5340_CPUNET_QKAA

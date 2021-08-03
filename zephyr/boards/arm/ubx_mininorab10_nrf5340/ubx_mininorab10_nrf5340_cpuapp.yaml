@@ -1,5 +1,10 @@
-identifier: ubx_mininorab1_nrf5340_cpuapp
-name: UBX_MININORAB1_NRF5340-application-MCU
+# u-blox MINI-NORA-B10 board configuration
+
+# Copyright (c) 2021 u-blox AG
+# SPDX-License-Identifier: Apache-2.0
+
+identifier: ubx_mininorab10_nrf5340_cpuapp
+name: UBX_MININORAB10_NRF5340-application-MCU
 type: mcu
 arch: arm
 toolchain:

@@ -1,5 +1,6 @@
 /*
- * Copyright (c) 2020 Nordic Semiconductor ASA
+ * u-blox MINI-NORA-B10 board configuration
+ * Copyright (c) 2021 u-blox AG
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -8,8 +9,8 @@
 #include <nordic/nrf5340_cpunet_qkaa.dtsi>
 
 / {
-	model = "u-blox MINI-NORA-B1 NRF5340 Network";
-	compatible = "nordic,ubx_mininorab1_nrf5340_cpunet";
+	model = "u-blox MINI-NORA-B10 NRF5340 Network";
+	compatible = "nordic,ubx_mininorab10_nrf5340_cpunet";
 
 	chosen {
 		zephyr,console = &uart0;
