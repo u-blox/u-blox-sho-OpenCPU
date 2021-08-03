@@ -35,6 +35,13 @@ project mainline repository: https://github.com/zephyrproject-rtos/zephyr
 | EVK-NINA-B3  | ubx_evkninab3_nrf52840  |
 | EVK-NINA-B4  | ubx_evkninab4_nrf52833  |
 
+Board support packages for the following EVKs are in process or planned.
+
+| EVK board    | Folder                    |
+|--------------|---------------------------|
+| EVK-NORA-B1  | planned, not present yet  |
+| MINI-NORA-B1 | ubx_mininorab1_nrf5340    |
+
 Board support packages for the followng EVKs are not planned for submission to
 the Zephyr mainline project:
 
