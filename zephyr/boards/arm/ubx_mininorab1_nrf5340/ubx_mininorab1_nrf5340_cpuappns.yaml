@@ -1,3 +1,7 @@
+# u-blox MINI-NORA-B1 board configuration
+
+# Copyright (c) 2021 u-blox AG
+# SPDX-License-Identifier: Apache-2.0
 identifier: ubx_mininorab1_nrf5340_cpuappns
 name: UBX_MININORAB1_NRF5340-application-MCU-Non-Secure
 type: mcu
