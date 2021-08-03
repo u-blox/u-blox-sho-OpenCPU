@@ -322,7 +322,9 @@ References
 .. _Trusted Firmware M: https://www.trustedfirmware.org/projects/tf-m/
 
 
-# Disclaimer
+Disclaimer
+**********
+
 Copyright &#x00a9; u-blox
 
 u-blox reserves all rights in this deliverable (documentation, software, etc.,
