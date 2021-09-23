@@ -63,6 +63,9 @@ folder and then build your code for that board.
 
 The board configuration directory also contains a documentation folder.
 
+## NINA-W10 OTP and RF Calibration
+This example includes examples on how to read OTP information as well as apply RF calibration and limit TX Power for compliance reasons.
+
 # Disclaimer
 Copyright &#x00a9; u-blox
 
