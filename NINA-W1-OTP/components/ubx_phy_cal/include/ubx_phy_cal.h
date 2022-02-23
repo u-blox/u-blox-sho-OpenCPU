@@ -22,17 +22,6 @@
 #include "esp_phy_init.h"
 
 /**
-* @brief Set the max WiFi output power. 
-*        For setting to take affect this function must be called before first call to @esp_wifi_start.
-*        Actual output power may be lower.
-*        If not function is not called then max output power will be used.
-*
-* @param output_power Output power in dBm valid range is [0-14]
-* @return ESP_OK if valid output power, ESP_FAIL if not
-**/
-esp_err_t ubx_wifi_set_max_output_power(uint32_t max_output_power_dbm);
-
-/**
 * @brief Called from esp-idf code to fetch the phy init data.
 **/
 const esp_phy_init_data_t* esp_phy_get_init_data(void);

@@ -29,9 +29,6 @@
 #define PHY_FREQ_OFFSET_VALUE   (106)
 #define FREQ_CHANNEL1_DIV_8kHz  (3) // 2.412GHz/(8kHz*10^6) = 0,3015 => ~0,3 (*10 to avoid double calculations)
 
-// constrain a value between 'low' and 'high', inclusive
-#define LIMIT(val, low, high) ((val < low) ? low : (val > high) ? high : val)
-
 /*===========================================================================
 * DECLARATIONS
 *=========================================================================*/
@@ -43,16 +40,6 @@ static int8_t max_output_power = 127;
 /*===========================================================================
 * FUNCTIONS
 *=========================================================================*/
-esp_err_t ubx_wifi_set_max_output_power(uint32_t max_output_power_dbm)
-{
-    esp_err_t err = ESP_FAIL;
-    if (max_output_power_dbm <= MAX_TX_POWER) {
-        max_output_power = max_output_power_dbm;
-        err = ESP_OK;
-    }
-
-    return err;
-}
 
 /**
   * Device specific rf calibration value is stored in flash otp area.
@@ -94,12 +81,6 @@ const esp_phy_init_data_t* esp_phy_get_init_data()
 {
     ubx_init_data = phy_init_data;
     int8_t *init_data = (int8_t *)&ubx_init_data;
-    init_data[44] = LIMIT(max_output_power * 4, 0, 56); //target power 0
-    init_data[45] = LIMIT(max_output_power * 4, 0, 54); //target power 1
-    init_data[46] = LIMIT(max_output_power * 4, 0, 48); //target power 2
-    init_data[47] = LIMIT(max_output_power * 4, 0, 46); //target power 3
-    init_data[48] = LIMIT(max_output_power * 4, 0, 42); //target power 4
-    init_data[49] = LIMIT(max_output_power * 4, 0, 36); //target power 5
 
     init_data[50] = 0; //msc0
     init_data[51] = 0; //msc1
@@ -154,6 +135,25 @@ const esp_phy_init_data_t* esp_phy_get_init_data()
     init_data[79] = 0x44; //channel 9, 10
     init_data[80] = 0x44; //channel 11
 
+    #if ESP_IDF_VERSION_MAJOR == 4 && ESP_IDF_VERSION_MINOR == 0
+    init_data[44] = 56; //target power 0
+    init_data[45] = 54; //target power 1
+    init_data[46] = 48; //target power 2
+    init_data[47] = 46; //target power 3
+    init_data[48] = 42; //target power 4
+    init_data[49] = 36; //target power 5
+
+    #elif ESP_IDF_VERSION_MAJOR == 4 && ESP_IDF_VERSION_MINOR == 3
+    init_data[44] = 62; //target power 0
+    init_data[45] = 60; //target power 1
+    init_data[46] = 54; //target power 2
+    init_data[47] = 52; //target power 3
+    init_data[48] = 48; //target power 4
+    init_data[49] = 42; //target power 5
+
+    #else
+    #error Configuration are only valid and tested for ESP IDF v4.0 and v4.3
+    #endif 
     apply_rf_frequency_calibration(init_data);
 
     ESP_LOGD(TAG, "loading PHY init data from application binary");
