@@ -1,0 +1,315 @@
+/*
+ * u-blox XPLR-IOT-1 board configuration
+ * Copyright (c) 2022 u-blox AG
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/ {
+
+	chosen {
+		zephyr,console = &uart0;
+		zephyr,shell-uart = &uart0;
+		zephyr,uart-mcumgr = &uart0;
+		zephyr,bt-mon-uart = &uart0;
+		zephyr,bt-c2h-uart = &uart0;
+	};
+
+	leds {
+		compatible = "gpio-leds";
+		led0: led_0 {
+			gpios = <&gpio1 07 GPIO_ACTIVE_HIGH>;
+			label = "RED LED 0";
+		};
+		led1: led_1 {
+			gpios = <&gpio0 23 GPIO_ACTIVE_HIGH>;
+			label = "Green LED 1";
+		};
+		led2: led_2 {
+			gpios = <&gpio0 6 GPIO_ACTIVE_HIGH>;
+			label = "BLUE LED 2";
+		};
+	};
+
+	pwmleds {
+		compatible = "pwm-leds";
+		pwm_led0: pwm_led_0 {
+			pwms = <&pwm0 28>;
+		};
+	};
+
+	buttons {
+		compatible = "gpio-keys";
+		button0: button_0 {
+			gpios = <&gpio0 5 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
+			label = "Push button 1";
+		};
+		button1: button_1 {
+			gpios = <&gpio0 28 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
+			label = "Push button 2";
+		};
+	};
+
+
+	/* These aliases are provided for compatibility with samples */
+	aliases {
+		led0 = &led0;
+		led1 = &led1;
+		led2 = &led2;
+		pwm-led0 = &pwm_led0;
+		sw0 = &button0;
+		sw1 = &button1;
+		bootloader-led0 = &led0;
+	};
+};
+
+// Console uart
+&uart0 {
+	status = "okay";
+	current-speed = <115200>;
+	tx-pin = <25>;
+	rx-pin = <26>;
+	rts-pin = <27>;
+	cts-pin = <24>;
+};
+
+
+// Default configuration is set on the NINA-W156 pins, the same UART is also used by SARA-R5
+&uart2 {
+	status = "okay";
+	current-speed = <115200>;
+	tx-pin = <31>;
+	rx-pin = <43>;
+	cts-pin = <30>;
+	rts-pin = <20>;
+	hw-flow-control;
+};
+
+// MaxM10S uart
+&uart3 {
+	status = "okay";
+	current-speed = <9600>;
+	tx-pin = <45>;
+	rx-pin = <46>;
+};
+
+&adc {
+	status = "okay";
+};
+
+&gpiote {
+	status = "okay";
+};
+
+&gpio0 {
+	status = "okay";
+};
+
+&gpio1 {
+	status = "okay";
+};
+
+&i2c1 {
+    compatible = "nordic,nrf-twim";
+	status = "okay";
+	sda-pin = < 35 >;
+	scl-pin = < 34 >;
+  clock-frequency = <I2C_BITRATE_STANDARD>;
+
+	bme280@76 {
+		compatible = "bosch,bme280";
+		reg = <0x76>;
+		label = "BME280";
+	};
+
+	adxl345@1d {
+		compatible = "adi,adxl345";
+		reg = <0x1d>;
+		label = "ADXL345";
+	};
+
+	lis3mdl@1e {
+		compatible = "st,lis3mdl-magn";
+		reg = <0x1e>;
+		label = "LIS3MDL";
+	};
+
+	fxas21002@20 {
+		compatible = "nxp,fxas21002";
+		reg = <0x20>;
+		label = "FXAS21002";
+	};
+
+	lis2dh@19 {
+		compatible = "st,lis2dh";
+		reg = <0x19>;
+		label = "LIS2DH";
+	};
+
+	bq27421@55 {
+		compatible = "ti,bq274xx";
+		label = "BQ274XX";
+		reg = <0x55>;
+		design-voltage = <3700>;
+		design-capacity = <1200>;
+		taper-current = <45>;
+		terminate-voltage = <3000>;
+	};
+};
+
+
+//PWM for Led control brightness
+&pwm0 {
+	status = "okay";
+	ch0-pin = <39>;
+	ch1-pin = <23>;
+	ch2-pin = <6>;
+};
+
+// Leds at PWM channels
+/{
+	pwmleds {
+		compatible = "pwm-leds";
+
+		pwm_led0: pwm_led_0 {
+			pwms = <&pwm0 39>;
+			label = "Red Led";
+		};
+
+		pwm_led1: pwm_led_1 {
+			pwms = <&pwm0 23>;
+			label = "Green Led";
+		};
+
+		pwm_led2: pwm_led_2 {
+			pwms = <&pwm0 6>;
+			label = "Blue Led";
+		};
+
+	};
+
+
+};
+
+&qspi {
+	status = "okay";
+	sck-pin = <17>;
+	io-pins = <13>, <14>, <15>, <16>;
+	csn-pins = <18>;
+	mx25r64: mx25r6435f@0 {
+		compatible = "nordic,qspi-nor";
+		reg = <0>;
+		/* MX24R64 supports only pp and pp4io */
+		writeoc = "pp4io";
+		/* MX24R64 supports all readoc options */
+		readoc = "read4io";
+		sck-frequency = <8000000>;
+		label = "MX25R64";
+		jedec-id = [c2 28 17];
+		sfdp-bfp = [
+			e5 20 f1 ff  ff ff ff 03  44 eb 08 6b  08 3b 04 bb
+			ee ff ff ff  ff ff 00 ff  ff ff 00 ff  0c 20 0f 52
+			10 d8 00 ff  23 72 f5 00  82 ed 04 cc  44 83 68 44
+			30 b0 30 b0  f7 c4 d5 5c  00 be 29 ff  f0 d0 ff ff
+		];
+		size = <67108864>;
+		has-dpd;
+		t-enter-dpd = <10000>;
+		t-exit-dpd = <35000>;
+	};
+};
+
+&timer0 {
+	status = "okay";
+};
+
+&timer1 {
+	status = "okay";
+};
+
+&timer2 {
+	status = "okay";
+};
+
+&flash0 {
+
+	partitions {
+		compatible = "fixed-partitions";
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		boot_partition: partition@0 {
+			label = "mcuboot";
+			reg = <0x00000000 0x00010000>;
+		};
+		slot0_partition: partition@10000 {
+			label = "image-0";
+		};
+		slot0_ns_partition: partition@50000 {
+			label = "image-0-nonsecure";
+		};
+		slot1_partition: partition@80000 {
+			label = "image-1";
+		};
+		slot1_ns_partition: partition@c0000 {
+			label = "image-1-nonsecure";
+		};
+		scratch_partition: partition@f0000 {
+			label = "image-scratch";
+			reg = <0x000f0000 0xa000>;
+		};
+	};
+};
+
+/ {
+
+	reserved-memory {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		ranges;
+
+		sram0_image: image@20000000 {
+			/* Zephyr image(s) memory */
+		};
+
+		sram0_s: image_s@20000000 {
+			/* Secure image memory */
+		};
+
+		sram0_ns: image_ns@20040000 {
+			/* Non-Secure image memory */
+		};
+	};
+};
+
+/ {
+	fstab {
+		compatible = "zephyr,fstab";
+		lfs1: lfs1 {
+			compatible = "zephyr,fstab,littlefs";
+			mount-point = "/lfs1";
+			partition = <&lfs1_part>;
+			read-size = <16>;
+			prog-size = <16>;
+			cache-size = <64>;
+			lookahead-size = <32>;
+			block-cycles = <512>;
+		};
+	};
+};
+
+&mx25r64 {
+	partitions {
+		compatible = "fixed-partitions";
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		lfs1_part: partition@0 {
+			label = "storage";
+			reg = <0x00000000 0x800000>;
+		};
+	};
+};
+
+/* Include partition configuration file */
+#include "nrf5340_cpuapp_partition_conf.dts"

@@ -15,7 +15,7 @@ to integrate the reference code in your build environment.
 Refer to the EVK User Guide for each board for more information on the specific
 board.
 
-## Zephyr
+## Zephyr RTOS
 Board support packages for the following boards have been merged with the Zephyr
 project mainline repository: https://github.com/zephyrproject-rtos/zephyr
 
@@ -36,24 +36,35 @@ project mainline repository: https://github.com/zephyrproject-rtos/zephyr
 | EVK-NINA-B4  | ubx_evkninab4_nrf52833  |
 
 Board support packages for the following boards are available here at the u-blox
-GitHub repository. They will be submitted to mainline Zephyr in the near future
+GitHub repository. 
 
-| EVK board     | Folder                    |
-|---------------|---------------------------|
-| EVK-NORA-B10  | ubx_evknorab10_nrf5340    |
-| MINI-NORA-B10 | ubx_mininorab10_nrf5340   |
+| EVK board     | Folder                    | Remarks                                 |
+|---------------|---------------------------|-----------------------------------------|
+| EVK-ANNA-B4   | ubx_evkannab4_nrf52833    | Tested with NCS v1.6.1 / Zephyr 2.6-rc1 |
+| EVK-NORA-B10  | ubx_evknorab10_nrf5340    | Tested with NCS v1.6.1 / Zephyr 2.6-rc1 |
+| MINI-NORA-B10 | ubx_mininorab10_nrf5340   | Tested with NCS v1.6.1 / Zephyr 2.6-rc1 |
+| XPLR-IOT-1    | ubx_xplriot1_nrf5340      | Tested with NCS v1.9.1 / Zephyr 2.7.99  |
 
-Board support packages for the following boards are planned.
+> **_NOTE:_** NCS = Nordic Semiconductor [nRF Connect SDK](https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/index.html), which is based on Zephyr RTOS. NCS lags mainline Zephyr by a few months.
 
-| EVK board     | Folder                    |
-|---------------|---------------------------|
+Board support packages for the following boards are planned for submission
+with mainline Zephyr.
+
+| EVK board     | Remarks                            |
+|---------------|------------------------------------|
+| EVK-ANNA-B4   | Target: NCS v2.0.0 / Zephyr 3.1.99 |
+| EVK-NORA-B10  | Target: NCS v2.0.0 / Zephyr 3.1.99 |
+| EVK-NORA-B12  | Target: NCS v2.0.0 / Zephyr 3.1.99 |
+| MINI-NORA-B10 | Target: NCS v2.0.0 / Zephyr 3.1.99 |
+| MINI-NORA-B12 | Target: NCS v2.0.0 / Zephyr 3.1.99 |
+| XPLR-IOT-1    | Target: NCS v2.0.0 / Zephyr 3.1.99 |
 
 Board support packages for the followng EVKs are not planned for submission to
 the Zephyr mainline project. They will remain here at the u-blox repository:
 
-| EVK board | Folder             |
-|-----------|--------------------|
-| R41Z-EVAL | ubx_r41zeval_kw41z |
+| EVK board | Folder             | Remarks                     |
+|-----------|--------------------|-----------------------------|
+| R41Z-EVAL | ubx_r41zeval_kw41z | Tested with Zephyr v2.6-rc1 |
 
 Please store the board configuration directory in the
 

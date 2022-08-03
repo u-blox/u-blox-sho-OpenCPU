@@ -1,0 +1,22 @@
+# u-blox XPLR-IOT-1 board configuration
+
+# Copyright (c) 2022 u-blox AG
+# SPDX-License-Identifier: Apache-2.0
+identifier: ubx_xplriot1_nrf5340_cpuapp
+name: UBX_XPLRIOT1_NRF5340-application-MCU
+type: mcu
+arch: arm
+toolchain:
+  - gnuarmemb
+  - xtools
+  - zephyr
+ram: 448
+flash: 1024
+supported:
+  - gpio
+  - i2c
+  - i2s
+  - pwm
+  - watchdog
+  - usb_cdc
+  - usb_device
