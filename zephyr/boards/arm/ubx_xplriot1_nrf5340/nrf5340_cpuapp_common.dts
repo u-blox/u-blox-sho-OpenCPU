@@ -311,5 +311,11 @@
 	};
 };
 
+/ {
+	chosen {
+		nordic,pm-ext-flash = &mx25r64;
+	};
+};
+
 /* Include partition configuration file */
 #include "nrf5340_cpuapp_partition_conf.dts"

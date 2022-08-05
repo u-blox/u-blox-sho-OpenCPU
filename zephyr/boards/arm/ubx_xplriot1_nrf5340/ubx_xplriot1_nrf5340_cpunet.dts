@@ -36,7 +36,7 @@
 			gpios = <&gpio0 6 GPIO_ACTIVE_HIGH>;
 			label = "BLUE LED 2";
 		};
-	};	
+	};
 	buttons {
 		compatible = "gpio-keys";
 		button0: button_0 {
