@@ -1,0 +1,9 @@
+
+littlefs_storage:
+  address: 0x0
+  end_address: 0x800000
+  placement:
+    before:
+    - end
+  region: external_flash
+  size: 0x800000
