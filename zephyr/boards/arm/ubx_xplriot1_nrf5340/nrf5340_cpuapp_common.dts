@@ -74,7 +74,18 @@
 };
 
 
-// Default configuration is set on the NINA-W156 pins, the same UART is also used by SARA-R5
+// SARA-R5 uart
+&uart1 {
+	status = "okay";
+	current-speed = <115200>;
+	tx-pin = <36>;
+	rx-pin = <40>;
+	cts-pin = <38>;
+	rts-pin = <19>;
+	hw-flow-control;
+};
+
+// Nina W15 uart
 &uart2 {
 	status = "okay";
 	current-speed = <115200>;
