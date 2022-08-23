@@ -74,9 +74,9 @@
 };
 
 
-// SARA-R5 uart
+// SARA-R5 uart. Only available when i2c is not used
 &uart1 {
-	status = "okay";
+	status = "disabled";
 	current-speed = <115200>;
 	tx-pin = <36>;
 	rx-pin = <40>;
@@ -85,7 +85,7 @@
 	hw-flow-control;
 };
 
-// Nina W15 uart
+// Nina W15 uart, shared with Sara-R5 when i2c is used
 &uart2 {
 	status = "okay";
 	current-speed = <115200>;

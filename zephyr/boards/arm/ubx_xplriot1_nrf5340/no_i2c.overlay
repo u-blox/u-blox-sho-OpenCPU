@@ -1,0 +1,10 @@
+// This file enables uart1 and disables i2c
+// as both can not be enabled at the same time
+
+&uart1 {
+  status = "okay";
+};
+
+&i2c1 {
+  status = "disabled";
+};
