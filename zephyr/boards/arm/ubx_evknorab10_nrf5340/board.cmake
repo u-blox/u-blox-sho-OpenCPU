@@ -1,13 +1,13 @@
-# u-blox EVK-NORA-B10 board configuration
+# EVK-NORA-B10 board configuration
 
-# Copyright (c) 2021 u-blox AG
+# Copyright (c) 2022 u-blox AG
 # SPDX-License-Identifier: Apache-2.0
 
-if(CONFIG_BOARD_UBX_EVKNORAB10_NRF5340_CPUAPPNS)
+if(CONFIG_BOARD_UBX_EVKNORAB10_NRF5340_CPUAPP_NS)
   set(TFM_PUBLIC_KEY_FORMAT "full")
 endif()
 
-if(CONFIG_BOARD_UBX_EVKNORAB10_NRF5340_CPUAPP OR CONFIG_BOARD_UBX_EVKNORAB10_NRF5340_CPUAPPNS)
+if(CONFIG_BOARD_UBX_EVKNORAB10_NRF5340_CPUAPP OR CONFIG_BOARD_UBX_EVKNORAB10_NRF5340_CPUAPP_NS)
 board_runner_args(jlink "--device=nrf5340_xxaa_app" "--speed=4000")
 endif()
 
