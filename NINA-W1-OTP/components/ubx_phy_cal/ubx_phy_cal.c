@@ -18,6 +18,7 @@
 #include "otp_reader.h"
 #include "esp_log.h"
 #include "phy_init_data.h"
+#include "esp_idf_version.h"
 
 /*===========================================================================
 * DEFINES
@@ -95,7 +96,7 @@ const esp_phy_init_data_t* esp_phy_get_init_data()
     init_data[59] = 2; //11B 1m, 2m
     init_data[60] = 2; //11B 5.5, 11m
 
-    init_data[61] = 50;//2; //fcc enable 2: enable 62-80 bytes to set maximum power
+    init_data[61] = 2; //fcc enable 2: enable 62-80 bytes to set maximum power
     /*
     0: Maximum Power is (txpwr_qdb_0/4) dbm
     1: Maximum Power is (txpwr_qdb_1/4) dbm
@@ -151,8 +152,16 @@ const esp_phy_init_data_t* esp_phy_get_init_data()
     init_data[48] = 48; //target power 4
     init_data[49] = 42; //target power 5
 
+    #elif ESP_IDF_VERSION_MAJOR == 4 && ESP_IDF_VERSION_MINOR == 4
+    init_data[44] = 62; //target power 0
+    init_data[45] = 60; //target power 1
+    init_data[46] = 54; //target power 2
+    init_data[47] = 52; //target power 3
+    init_data[48] = 48; //target power 4
+    init_data[49] = 42; //target power 5
+
     #else
-    #error Configuration are only valid and tested for ESP IDF v4.0 and v4.3
+    #error Configuration are only valid and tested for ESP IDF v4.0, v4.3 and v4.4
     #endif 
     apply_rf_frequency_calibration(init_data);
 

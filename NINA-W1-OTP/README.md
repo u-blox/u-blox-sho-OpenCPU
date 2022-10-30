@@ -14,7 +14,7 @@ The application shows example code to read out above values from the flash OTP, 
 
 ## Applying the RF calibration
 
-### esp-idf 4.0.x and 4.3.x
+### esp-idf 4.0.x, 4.3.x and  4.4.x
 
 Apply the patches found on `patches` folder to the ESP-IDF installation path, for example:
 
