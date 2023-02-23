@@ -1,17 +1,17 @@
 /*
- * Copyright (c) 2022 u-blox AG
+ * u-blox EVK-NORA-B12 board configuration
  *
+ * Copyright (c) 2023 u-blox AG
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include <zephyr.h>
-#include <init.h>
-#include <logging/log.h>
+#include <zephyr/kernel.h>
+#include <zephyr/init.h>
+#include <zephyr/logging/log.h>
 
 #include <soc.h>
-#include <soc_secure.h>
 
-LOG_MODULE_REGISTER(ubx_evknorab10_nrf5340_cpuapp, CONFIG_LOG_DEFAULT_LEVEL);
+LOG_MODULE_REGISTER(ubx_evknorab12_nrf5340_cpuapp, CONFIG_LOG_DEFAULT_LEVEL);
 
 #if defined(CONFIG_BT_CTLR_DEBUG_PINS_CPUAPP)
 #include <../subsys/bluetooth/controller/ll_sw/nordic/hal/nrf5/debug.h>

@@ -1,5 +1,5 @@
 /*
- * u-blox EVK-NORA-B10 board configuration
+ * u-blox EVK-NORA-B12 board configuration
  *
  * Copyright (c) 2023 u-blox AG
  * SPDX-License-Identifier: Apache-2.0
@@ -7,11 +7,11 @@
 
 /dts-v1/;
 #include <nordic/nrf5340_cpuappns_qkaa.dtsi>
-#include "ubx_evknorab10_cpuapp_common.dts"
+#include "ubx_evknorab12_cpuapp_common.dts"
 
 / {
-	model = "u-blox EVK-NORA-B10 NRF5340 Application";
-	compatible = "nordic,ubx-evknorab10-nrf5340-cpuapp";
+	model = "u-blox EVK-NORA-B12 NRF5340 Application";
+	compatible = "nordic,ubx-evknorab12-nrf5340-cpuapp";
 
 	chosen {
 		zephyr,sram = &sram0_ns;

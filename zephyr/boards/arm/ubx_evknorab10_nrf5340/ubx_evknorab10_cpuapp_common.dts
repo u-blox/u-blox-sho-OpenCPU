@@ -2,16 +2,12 @@
  * u-blox EVK-NORA-B10 board configuration
  *
  * Copyright (c) 2023 u-blox AG
+ *
  * SPDX-License-Identifier: Apache-2.0
  */
-
-/dts-v1/;
-#include <nordic/nrf5340_cpunet_qkaa.dtsi>
-#include "ubx_evknorab10_nrf5340_cpunet-pinctrl.dtsi"
+#include "ubx_evknorab10_cpuapp_common-pinctrl.dtsi"
 
 / {
-	model = "u-blox EVK-NORA-B10 NRF5340 Network";
-	compatible = "nordic,ubx-evknorab10-nrf5340-cpunet";
 
 	chosen {
 		zephyr,console = &uart0;
@@ -20,9 +16,7 @@
 		zephyr,bt-mon-uart = &uart0;
 		zephyr,bt-c2h-uart = &uart0;
 		zephyr,bt-hci-rpmsg-ipc = &ipc0;
-		zephyr,sram = &sram1;
-		zephyr,flash = &flash1;
-		zephyr,code-partition = &slot0_partition;
+		zephyr,ieee802154 = &ieee802154;
 	};
 
 	leds {
@@ -42,6 +36,13 @@
 		led3: led_3 {
 			gpios = <&gpio0 31 GPIO_ACTIVE_LOW>;
 			label = "Green LED 3";
+		};
+	};
+
+	pwmleds {
+		compatible = "pwm-leds";
+		pwm_led0: pwm_led_0 {
+			pwms = <&pwm0 0 PWM_MSEC(20) PWM_POLARITY_INVERTED>;
 		};
 	};
 
@@ -94,12 +95,32 @@
 			   <21 0 &gpio1 3 0>;	/* D15 */
 	};
 
+	arduino_adc: analog-connector {
+		compatible = "arduino,uno-adc";
+		#io-channel-cells = <1>;
+		io-channel-map = <0 &adc 0>,	/* A0 = P0.4 = AIN0 */
+				 <1 &adc 1>,	/* A1 = P0.5 = AIN1 */
+				 <2 &adc 2>,	/* A2 = P0.6 = AIN2 */
+				 <3 &adc 3>,	/* A3 = P0.7 = AIN3 */
+				 <4 &adc 4>,	/* A4 = P0.25 = AIN4 */
+				 <5 &adc 5>;	/* A5 = P0.26 = AIN5 */
+	};
+
+	gpio_fwd: nrf-gpio-forwarder {
+		compatible = "nordic,nrf-gpio-forwarder";
+		status = "okay";
+		uart {
+			gpios = <&gpio1 1 0>, <&gpio1 0 0>, <&gpio0 11 0>, <&gpio0 10 0>;
+		};
+	};
+
 	/* These aliases are provided for compatibility with samples */
 	aliases {
 		led0 = &led0;
 		led1 = &led1;
 		led2 = &led2;
 		led3 = &led3;
+		pwm-led0 = &pwm_led0;
 		sw0 = &button0;
 		sw1 = &button1;
 		sw2 = &button2;
@@ -108,7 +129,12 @@
 		mcuboot-button0 = &button0;
 		mcuboot-led0 = &led0;
 		watchdog0 = &wdt0;
+		spi-flash0 = &mx25r64;
 	};
+};
+
+&adc {
+	status = "okay";
 };
 
 &gpiote {
@@ -123,6 +149,14 @@
 	status = "okay";
 };
 
+&i2c1 {
+	compatible = "nordic,nrf-twim";
+	status = "okay";
+	pinctrl-0 = <&i2c1_default>;
+	pinctrl-1 = <&i2c1_sleep>;
+	pinctrl-names = "default", "sleep";
+};
+
 &uart0 {
 	status = "okay";
 	current-speed = <115200>;
@@ -131,25 +165,38 @@
 	pinctrl-names = "default", "sleep";
 };
 
-arduino_serial: &uart0{};
-
-arduino_i2c: &i2c0 {
-	compatible = "nordic,nrf-twim";
-	/* Cannot be used together with uart0. */
-	/* status = "okay"; */
-	pinctrl-0 = <&i2c0_default>;
-	pinctrl-1 = <&i2c0_sleep>;
+&pwm0 {
+	status = "okay";
+	pinctrl-0 = <&pwm0_default>;
+	pinctrl-1 = <&pwm0_sleep>;
 	pinctrl-names = "default", "sleep";
 };
 
-arduino_spi: &spi0 {
-	compatible = "nordic,nrf-spim";
-	/* Cannot be used together with uart0. */
-	/* status = "okay"; */
-	cs-gpios = <&arduino_header 16 GPIO_ACTIVE_LOW>; /* D10 */
-	pinctrl-0 = <&spi0_default>;
-	pinctrl-1 = <&spi0_sleep>;
+&qspi {
+	status = "okay";
+	pinctrl-0 = <&qspi_default>;
+	pinctrl-1 = <&qspi_sleep>;
 	pinctrl-names = "default", "sleep";
+	mx25r64: mx25r6435f@0 {
+		compatible = "nordic,qspi-nor";
+		reg = <0>;
+		/* MX25R64 supports only pp and pp4io */
+		writeoc = "pp4io";
+		/* MX25R64 supports all readoc options */
+		readoc = "read4io";
+		sck-frequency = <8000000>;
+		jedec-id = [c2 28 17];
+		sfdp-bfp = [
+			e5 20 f1 ff  ff ff ff 03  44 eb 08 6b  08 3b 04 bb
+			ee ff ff ff  ff ff 00 ff  ff ff 00 ff  0c 20 0f 52
+			10 d8 00 ff  23 72 f5 00  82 ed 04 cc  44 83 68 44
+			30 b0 30 b0  f7 c4 d5 5c  00 be 29 ff  f0 d0 ff ff
+		];
+		size = <67108864>;
+		has-dpd;
+		t-enter-dpd = <10000>;
+		t-exit-dpd = <35000>;
+	};
 };
 
 &timer0 {
@@ -164,7 +211,26 @@ arduino_spi: &spi0 {
 	status = "okay";
 };
 
-&flash1 {
+arduino_serial: &uart1 {
+	compatible = "nordic,nrf-uarte";
+	current-speed = <115200>;
+	pinctrl-0 = <&uart1_default>;
+	pinctrl-1 = <&uart1_sleep>;
+	pinctrl-names = "default", "sleep";
+};
+
+arduino_i2c: &i2c1 {};
+
+arduino_spi: &spi4 {
+	compatible = "nordic,nrf-spim";
+	status = "okay";
+	cs-gpios = <&arduino_header 16 GPIO_ACTIVE_LOW>; /* D10 */
+	pinctrl-0 = <&spi4_default>;
+	pinctrl-1 = <&spi4_sleep>;
+	pinctrl-names = "default", "sleep";
+};
+
+&flash0 {
 
 	partitions {
 		compatible = "fixed-partitions";
@@ -173,26 +239,56 @@ arduino_spi: &spi0 {
 
 		boot_partition: partition@0 {
 			label = "mcuboot";
-			reg = <0x00000000 0xc000>;
+			reg = <0x00000000 0x00010000>;
 		};
-		slot0_partition: partition@c000 {
+		slot0_partition: partition@10000 {
 			label = "image-0";
-			reg = <0x0000C000 0x12000>;
 		};
-		slot1_partition: partition@1e000 {
+		slot0_ns_partition: partition@50000 {
+			label = "image-0-nonsecure";
+		};
+		slot1_partition: partition@80000 {
 			label = "image-1";
-			reg = <0x0001E000 0x12000>;
 		};
-		scratch_partition: partition@30000 {
+		slot1_ns_partition: partition@c0000 {
+			label = "image-1-nonsecure";
+		};
+		scratch_partition: partition@f0000 {
 			label = "image-scratch";
-			reg = <0x00030000 0xa000>;
+			reg = <0x000f0000 0xa000>;
 		};
-		storage_partition: partition@3a000 {
+		storage_partition: partition@fa000 {
 			label = "storage";
-			reg = <0x0003a000 0x6000>;
+			reg = <0x000fa000 0x00006000>;
 		};
 	};
 };
 
-/* Include shared RAM configuration file */
-#include "ubx_evknorab10_shared_sram_planning_conf.dts"
+zephyr_udc0: &usbd {
+	compatible = "nordic,nrf-usbd";
+	status = "okay";
+};
+
+/ {
+
+	reserved-memory {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		ranges;
+
+		sram0_image: image@20000000 {
+			/* Zephyr image(s) memory */
+		};
+
+		sram0_s: image_s@20000000 {
+			/* Secure image memory */
+		};
+
+		sram0_ns: image_ns@20040000 {
+			/* Non-Secure image memory */
+		};
+	};
+};
+
+/* Include partition configuration file */
+#include "ubx_evknorab10_cpuapp_partition_conf.dts"

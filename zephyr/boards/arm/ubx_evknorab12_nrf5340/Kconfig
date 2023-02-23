@@ -1,9 +1,9 @@
-# u-blox EVK-NORA-B10 board configuration
+# u-blox EVK-NORA-B12 board configuration
 
 # Copyright (c) 2023 u-blox AG
 # SPDX-License-Identifier: Apache-2.0
 
-if BOARD_UBX_EVKNORAB10_NRF5340_CPUAPP || BOARD_UBX_EVKNORAB10_NRF5340_CPUAPP_NS
+if BOARD_UBX_EVKNORAB12_NRF5340_CPUAPP || BOARD_UBX_EVKNORAB12_NRF5340_CPUAPP_NS
 
 config BOARD_ENABLE_DCDC_APP
 	bool "Application MCU DCDC converter"
@@ -38,7 +38,7 @@ config BOARD_ENABLE_CPUNET
 
 config DOMAIN_CPUNET_BOARD
 	string
-	default "ubx_evknorab10_nrf5340_cpunet"
+	default "ubx_evknorab12_nrf5340_cpunet"
 	depends on BOARD_ENABLE_CPUNET
 	help
 	  The board which will be used for CPUNET domain when creating a multi
@@ -46,12 +46,12 @@ config DOMAIN_CPUNET_BOARD
 	  another board. For example hci_rpmsg on the nRF5340_cpunet for
 	  Bluetooth applications.
 
-endif #  BOARD_UBX_EVKNORAB10_NRF5340_CPUAPP || BOARD_UBX_EVKNORAB10_NRF5340_CPUAPP_NS
+endif #  BOARD_UBX_EVKNORAB12_NRF5340_CPUAPP || BOARD_UBX_EVKNORAB12_NRF5340_CPUAPP_NS
 
 config DOMAIN_CPUAPP_BOARD
 	string
-	default "ubx_evknorab10_nrf5340_cpuapp"
-	depends on BOARD_UBX_EVKNORAB10_NRF5340_CPUNET
+	default "ubx_evknorab12_nrf5340_cpuapp"
+	depends on BOARD_UBX_EVKNORAB12_NRF5340_CPUNET
 	help
 	  The board which will be used for CPUAPP domain when creating a multi
 	  image application where one or more images should be located on

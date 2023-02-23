@@ -1,6 +1,6 @@
-# EVK-NORA-B10 board configuration
+# u-blox EVK-NORA-B10 board configuration
 
-# Copyright (c) 2022 u-blox AG
+# Copyright (c) 2023 u-blox AG
 # SPDX-License-Identifier: Apache-2.0
 
 CONFIG_SOC_SERIES_NRF53X=y
