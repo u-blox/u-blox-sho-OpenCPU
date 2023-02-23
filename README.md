@@ -54,7 +54,8 @@ with mainline Zephyr.
 | EVK board     | Remarks                            |
 |---------------|------------------------------------|
 | EVK-ANNA-B4   | Target: NCS v2.2.0 / Zephyr 3.2.99 |
-| EVK-NORA-B12  | Target: NCS v2.2.0 / Zephyr 3.2.99 |
+| MINI-NORA-B10 | Target: NCS v2.2.0 / Zephyr 3.2.99 |
+| MINI-NORA-B12 | Target: NCS v2.2.0 / Zephyr 3.2.99 |
 | XPLR-IOT-1    | Target: NCS v2.2.0 / Zephyr 3.2.99 |
 
 Board support packages for the followng EVKs are not planned for submission to
