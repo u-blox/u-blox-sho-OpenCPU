@@ -41,7 +41,8 @@ GitHub repository.
 | EVK board     | Folder                    | Remarks                                 |
 |---------------|---------------------------|-----------------------------------------|
 | EVK-ANNA-B4   | ubx_evkannab4_nrf52833    | Tested with NCS v1.6.1 / Zephyr 2.6-rc1 |
-| EVK-NORA-B10  | ubx_evknorab10_nrf5340    | Tested with NCS v2.0.x / Zephyr 3.0.99  |
+| EVK-NORA-B10  | ubx_evknorab10_nrf5340    | Tested with NCS v2.2.x / Zephyr 3.2.99  |
+| EVK-NORA-B12  | ubx_evknorab12_nrf5340    | Tested with NCS v2.2.x / Zephyr 3.2.99  |
 | MINI-NORA-B10 | ubx_mininorab10_nrf5340   | Tested with NCS v1.6.1 / Zephyr 2.6-rc1 |
 | XPLR-IOT-1    | ubx_xplriot1_nrf5340      | Tested with NCS v1.9.1 / Zephyr 2.7.99  |
 
@@ -52,11 +53,9 @@ with mainline Zephyr.
 
 | EVK board     | Remarks                            |
 |---------------|------------------------------------|
-| EVK-ANNA-B4   | Target: NCS v2.0.0 / Zephyr 3.1.99 |
-| EVK-NORA-B12  | Target: NCS v2.0.0 / Zephyr 3.1.99 |
-| MINI-NORA-B10 | Target: NCS v2.0.0 / Zephyr 3.1.99 |
-| MINI-NORA-B12 | Target: NCS v2.0.0 / Zephyr 3.1.99 |
-| XPLR-IOT-1    | Target: NCS v2.0.0 / Zephyr 3.1.99 |
+| EVK-ANNA-B4   | Target: NCS v2.2.0 / Zephyr 3.2.99 |
+| EVK-NORA-B12  | Target: NCS v2.2.0 / Zephyr 3.2.99 |
+| XPLR-IOT-1    | Target: NCS v2.2.0 / Zephyr 3.2.99 |
 
 Board support packages for the followng EVKs are not planned for submission to
 the Zephyr mainline project. They will remain here at the u-blox repository:
