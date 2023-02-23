@@ -43,7 +43,7 @@ NORA-B12 provides support for the following devices:
 * :abbr:`USB (Universal Serial Bus)`
 * :abbr:`WDT (Watchdog Timer)`
 
-.. figure:: img/EVK-NORA-B126-top.png
+.. figure:: img/EVK-NORA-B12-top.png
      :align: center
      :alt: EVK-NORA-B12
 
