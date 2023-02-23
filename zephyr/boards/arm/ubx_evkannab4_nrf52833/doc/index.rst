@@ -50,13 +50,9 @@ hardware features:
 +-----------+------------+----------------------+
 | GPIO      | on-chip    | gpio                 |
 +-----------+------------+----------------------+
-| I2C(M)    | on-chip    | i2c                  |
-+-----------+------------+----------------------+
 | MPU       | on-chip    | arch/arm             |
 +-----------+------------+----------------------+
 | NVIC      | on-chip    | arch/arm             |
-+-----------+------------+----------------------+
-| PWM       | on-chip    | pwm                  |
 +-----------+------------+----------------------+
 | RADIO     | on-chip    | Bluetooth low energy |
 +-----------+------------+----------------------+
@@ -64,11 +60,7 @@ hardware features:
 +-----------+------------+----------------------+
 | RTT       | Segger     | console              |
 +-----------+------------+----------------------+
-| SPI(M/S)  | on-chip    | spi                  |
-+-----------+------------+----------------------+
 | UART      | on-chip    | serial               |
-+-----------+------------+----------------------+
-| USB       | on-chip    | usb                  |
 +-----------+------------+----------------------+
 | WDT       | on-chip    | watchdog             |
 +-----------+------------+----------------------+
@@ -101,9 +93,6 @@ numbering on the nRF52833 SoC. Please see the `ANNA-B40 Data Sheet`_ for
 information on how to map ANNA-B40 pins to the pin numbering on the
 nRF52833 SoC.
 
-The reason for this is the u-blox module family concept where different
-modules share the same pinout and can be interchanged, see
-`ANNA module family Nested design`_.
 
 Programming and Debugging
 *************************
@@ -159,53 +148,6 @@ Note that the buttons on the EVK-ANNA-B4 are marked SW1 and SW2, which
 are named sw0 and sw1 in the dts file.
 Also note that the SW1 button and the green LED are connected on HW level.
 
-Using UART1
-***********
-
-The following approach can be used when an application needs to use
-more than one UART for connecting peripheral devices:
-
-1. Add device tree overlay file to the main directory of your application:
-
-   .. code-block:: console
-
-      $ cat ubx_evk_annab4nrf52833.overlay
-      &uart1 {
-        compatible = "nordic,nrf-uarte";
-        current-speed = <115200>;
-        status = "okay";
-        tx-pin = <14>;
-        rx-pin = <16>;
-      };
-
-   In the overlay file above, pin P0.16 is used for RX and P0.14 is used for TX
-
-2. Use the UART1 as ``device_get_binding(DT_LABEL(DT_NODELABEL(uart1)))``
-
-
-See :ref:`set-devicetree-overlays` for further details.
-
-Selecting the pins
-==================
-To select the pin numbers for tx-pin and rx-pin:
-
-.. code-block:: console
-
-   tx-pin = <pin_no>
-
-Open the data sheet for the ANNA-B4 at `ANNA-B40 Data Sheet`_, Section 3 'Pin definition'.
-In the table 7 select the pins marked 'GPIO_xx'.  Note that pins marked as 'Radio sensitive pin'
-can only be used in under-10KHz applications. They are not suitable for 115200 speed of UART.
-
-Translate 'Pin' into number for Device tree by using the following formula::
-
-   pin_no = b\*32 + a
-
-where ``a`` and ``b`` are from the Pin value in the table (Pb.a).
-For example, for P0.1, ``pin_no = 1`` and for P1.0, ``pin_no = 32``.
-
-.. note:
-  Pins are defined according to the "nRF52" pin number, not the module pad number.
 
 
 References
@@ -213,7 +155,7 @@ References
 
 .. target-notes::
 
-.. _ANNA-B40 product page: https://www.u-blox.com/en/product/anna-b40-series-open-cpu
+.. _ANNA-B40 product page: https://www.u-blox.com/en/product/anna-b402-open-cpu
 .. _EVK-ANNA-B4 product page: https://www.u-blox.com/en/product/evk-anna-b4
 .. _Nordic Semiconductor Infocenter: https://infocenter.nordicsemi.com
 .. _J-Link Software and documentation pack: https://www.segger.com/jlink-software.html
