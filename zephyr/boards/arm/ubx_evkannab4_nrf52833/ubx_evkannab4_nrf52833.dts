@@ -6,6 +6,7 @@
 
 /dts-v1/;
 #include <nordic/nrf52833_qiaa.dtsi>
+#include "ubx_evkannab4_nrf52833-pinctrl.dtsi"
 
 / {
 	model = "u-blox EVK-ANNA-B4 NRF52833";
@@ -38,13 +39,6 @@
 			/*ANNA-B4 GPIO_33 */
 			gpios = <&gpio0 26 GPIO_ACTIVE_LOW>;
 			label = "Blue LED";
-		};
-	};
-
-	pwmleds {
-		compatible = "pwm-leds";
-		pwm_led0: pwm_led0 {
-			pwms = <&pwm0 27>;
 		};
 	};
 
@@ -96,10 +90,9 @@
 		led0 = &led0;
 		led1 = &led1;
 		led2 = &led2;
-		pwm-led0 = &pwm_led0;
-		red-pwm-led = &pwm_led0;
 		sw0 = &button0;
 		sw1 = &button1;
+                watchdog0 = &wdt0;
 	};
 };
 
@@ -123,50 +116,12 @@
 	compatible = "nordic,nrf-uarte";
 	status = "okay";
 	current-speed = <115200>;
-	tx-pin = <3>;
-	rx-pin = <2>;
-	rts-pin = <16>;
-	cts-pin = <22>;
+	pinctrl-0 = <&uart0_default>;
+	pinctrl-1 = <&uart0_sleep>;
+	pinctrl-names = "default", "sleep";
 };
 
-arduino_i2c: &i2c0 {
-	compatible = "nordic,nrf-twi";
-	status = "okay";
-	sda-pin = <11>;
-	scl-pin = <12>;
-};
 
-&pwm0 {
-	status = "okay";
-	ch0-pin = <27>;
-	ch0-inverted;
-	status = "okay";
-};
-
-&spi0 {
-	compatible = "nordic,nrf-spi";
-	/* Cannot be used together with i2c0. */
-	/* status = "okay"; */
-	sck-pin = <29>;
-	mosi-pin = <12>;
-	miso-pin = <11>;
-};
-
-&spi1 {
-	compatible = "nordic,nrf-spi";
-	status = "okay";
-	sck-pin = <31>;
-	mosi-pin = <28>;
-	miso-pin = <9>;
-};
-
-arduino_spi: &spi3 {
-	status = "okay";
-	sck-pin = <7>;              /* D13 */
-	mosi-pin = <23>;             /* D11 */
-	miso-pin = <32>;             /* D12 */
-	cs-gpios = <&arduino_header 16 GPIO_ACTIVE_LOW>; /* D10 */
-};
 
 &flash0 {
 	partitions {
@@ -180,24 +135,15 @@ arduino_spi: &spi3 {
 		};
 		slot0_partition: partition@c000 {
 			label = "image-0";
-			reg = <0x0000C000 0x32000>;
+			reg = <0x0000C000 0x37000>;
 		};
-		slot1_partition: partition@3e000 {
+		slot1_partition: partition@43000 {
 			label = "image-1";
-			reg = <0x0003E000 0x32000>;
-		};
-		scratch_partition: partition@70000 {
-			label = "image-scratch";
-			reg = <0x00070000 0xA000>;
+			reg = <0x00043000 0x37000>;
 		};
 		storage_partition: partition@7a000 {
 			label = "storage";
 			reg = <0x0007A000 0x00006000>;
 		};
 	};
-};
-
-zephyr_udc0: &usbd {
-	compatible = "nordic,nrf-usbd";
-	status = "okay";
 };
