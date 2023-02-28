@@ -1,6 +1,7 @@
 /*
- * Copyright (c) 2022 u-blox AG
+ * u-blox EVK-NORA-B10 board configuration
  *
+ * Copyright (c) 2023 u-blox AG
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -57,4 +58,4 @@
 };
 
 /* Include shared RAM configuration file */
-#include "nrf5340_shared_sram_planning_conf.dts"
+#include "ubx_evknorab10_shared_sram_planning_conf.dts"

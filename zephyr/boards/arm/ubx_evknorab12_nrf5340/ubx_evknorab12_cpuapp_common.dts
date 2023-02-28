@@ -1,10 +1,11 @@
 /*
- * Copyright (c) 2022 u-blox AG
+ * u-blox EVK-NORA-B12 board configuration
+ *
+ * Copyright (c) 2023 u-blox AG
  *
  * SPDX-License-Identifier: Apache-2.0
  */
-
-#include "nrf5340_cpuapp_common-pinctrl.dtsi"
+#include "ubx_evknorab12_cpuapp_common-pinctrl.dtsi"
 
 / {
 
@@ -14,6 +15,8 @@
 		zephyr,uart-mcumgr = &uart0;
 		zephyr,bt-mon-uart = &uart0;
 		zephyr,bt-c2h-uart = &uart0;
+		zephyr,bt-hci-rpmsg-ipc = &ipc0;
+		zephyr,ieee802154 = &ieee802154;
 	};
 
 	leds {
@@ -80,8 +83,8 @@
 			   <9 0 &gpio1 5 0>,	/* D3 */
 			   <10 0 &gpio1 6 0>,	/* D4 */
 			   <11 0 &gpio1 7 0>,	/* D5 */
-			   <12 0 &gpio1 8 0>,	/* D6 */
-			   <13 0 &gpio1 9 0>,	/* D7 */
+/*			   <12 0 &gpio1 8 0>,	   D6 FEM CTX */
+/*			   <13 0 &gpio1 9 0>,	   D7 FEM CRX */
 			   <14 0 &gpio1 10 0>,	/* D8 */
 			   <15 0 &gpio1 11 0>,	/* D9 */
 			   <16 0 &gpio1 12 0>,	/* D10 */
@@ -123,7 +126,20 @@
 		sw2 = &button2;
 		sw3 = &button3;
 		bootloader-led0 = &led0;
+		mcuboot-button0 = &button0;
+		mcuboot-led0 = &led0;
+		watchdog0 = &wdt0;
+		spi-flash0 = &mx25r64;
 	};
+
+	/* Enable the NORA-B12 FEM */
+	nrf_radio_fem: norab12_fem {
+		compatible = "skyworks,sky66112-11", "generic-fem-two-ctrl-pins";
+		ctx-gpios = <&gpio1 8 GPIO_ACTIVE_HIGH>;
+		crx-gpios = <&gpio1 9 GPIO_ACTIVE_HIGH>;
+		tx-gain-db = < 10 >;
+		rx-gain-db = < 5 >;
+ 	};
 };
 
 &adc {
@@ -178,7 +194,6 @@
 		/* MX25R64 supports all readoc options */
 		readoc = "read4io";
 		sck-frequency = <8000000>;
-		label = "MX25R64";
 		jedec-id = [c2 28 17];
 		sfdp-bfp = [
 			e5 20 f1 ff  ff ff ff 03  44 eb 08 6b  08 3b 04 bb
@@ -217,6 +232,7 @@ arduino_i2c: &i2c1 {};
 
 arduino_spi: &spi4 {
 	compatible = "nordic,nrf-spim";
+	status = "okay";
 	cs-gpios = <&arduino_header 16 GPIO_ACTIVE_LOW>; /* D10 */
 	pinctrl-0 = <&spi4_default>;
 	pinctrl-1 = <&spi4_sleep>;
@@ -257,6 +273,11 @@ arduino_spi: &spi4 {
 	};
 };
 
+zephyr_udc0: &usbd {
+	compatible = "nordic,nrf-usbd";
+	status = "okay";
+};
+
 / {
 
 	reserved-memory {
@@ -279,4 +300,4 @@ arduino_spi: &spi4 {
 };
 
 /* Include partition configuration file */
-#include "nrf5340_cpuapp_partition_conf.dts"
+#include "ubx_evknorab12_cpuapp_partition_conf.dts"

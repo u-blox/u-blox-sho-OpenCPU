@@ -1,5 +1,5 @@
 /*
- * u-blox EVK-NORA-B10 board configuration
+ * u-blox EVK-NORA-B12 board configuration
  *
  * Copyright (c) 2023 u-blox AG
  * SPDX-License-Identifier: Apache-2.0
@@ -7,11 +7,11 @@
 
 /dts-v1/;
 #include <nordic/nrf5340_cpunet_qkaa.dtsi>
-#include "ubx_evknorab10_nrf5340_cpunet-pinctrl.dtsi"
+#include "ubx_evknorab12_nrf5340_cpunet-pinctrl.dtsi"
 
 / {
-	model = "u-blox EVK-NORA-B10 NRF5340 Network";
-	compatible = "nordic,ubx-evknorab10-nrf5340-cpunet";
+	model = "u-blox EVK-NORA-B12 NRF5340 Network";
+	compatible = "nordic,ubx-evknorab12-nrf5340-cpunet";
 
 	chosen {
 		zephyr,console = &uart0;
@@ -82,8 +82,8 @@
 			   <9 0 &gpio1 5 0>,	/* D3 */
 			   <10 0 &gpio1 6 0>,	/* D4 */
 			   <11 0 &gpio1 7 0>,	/* D5 */
-			   <12 0 &gpio1 8 0>,	/* D6 */
-			   <13 0 &gpio1 9 0>,	/* D7 */
+/*			   <12 0 &gpio1 8 0>,	   D6 FEM CTX */
+/*			   <13 0 &gpio1 9 0>,	   D7 FEM CRX */
 			   <14 0 &gpio1 10 0>,	/* D8 */
 			   <15 0 &gpio1 11 0>,	/* D9 */
 			   <16 0 &gpio1 12 0>,	/* D10 */
@@ -109,6 +109,15 @@
 		mcuboot-led0 = &led0;
 		watchdog0 = &wdt0;
 	};
+
+	/* Enable the NORA-B12 FEM */
+	nrf_radio_fem: norab12_fem {
+		compatible = "skyworks,sky66112-11", "generic-fem-two-ctrl-pins";
+		ctx-gpios = <&gpio1 8 GPIO_ACTIVE_HIGH>;
+		crx-gpios = <&gpio1 9 GPIO_ACTIVE_HIGH>;
+		tx-gain-db = < 10 >;
+		rx-gain-db = < 5 >;
+	 };
 };
 
 &gpiote {
@@ -195,4 +204,4 @@ arduino_spi: &spi0 {
 };
 
 /* Include shared RAM configuration file */
-#include "ubx_evknorab10_shared_sram_planning_conf.dts"
+#include "ubx_evknorab12_shared_sram_planning_conf.dts"
