@@ -109,7 +109,8 @@
 		mcuboot-led0 = &led0;
 		watchdog0 = &wdt0;
 	};
-// brec
+
+	/* Enable the NORA-B12 FEM */
 	nrf_radio_fem: norab12_fem {
 		compatible = "skyworks,sky66112-11", "generic-fem-two-ctrl-pins";
 		ctx-gpios = <&gpio1 8 GPIO_ACTIVE_HIGH>;
