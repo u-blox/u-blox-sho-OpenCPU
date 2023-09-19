@@ -40,7 +40,6 @@ GitHub repository.
 
 | EVK board     | Folder                    | Remarks                                 |
 |---------------|---------------------------|-----------------------------------------|
-
 | EVK-ANNA-B4   | ubx_evkannab4_nrf52833    | Tested with NCS v2.2.0 / Zephyr 3.2.99  |
 | EVK-NORA-B10  | ubx_evknorab10_nrf5340    | Tested with NCS v2.2.x / Zephyr 3.2.99  |
 | EVK-NORA-B12  | ubx_evknorab12_nrf5340    | Tested with NCS v2.2.x / Zephyr 3.2.99  |
