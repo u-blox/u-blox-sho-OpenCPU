@@ -75,6 +75,9 @@ The board configuration directory also contains a documentation folder.
 ## NINA-W10 OTP and RF Calibration
 This example includes examples on how to read OTP information as well as apply RF calibration and limit TX Power for compliance reasons.
 
+## IRIS-W10 USB EVK bring-up software
+These softwares need to be installed according to instructions mentioned in userguide before first use.
+
 # Disclaimer
 Copyright &#x00a9; u-blox
 
