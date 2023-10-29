@@ -21,7 +21,7 @@
 #include "esp_attr.h"
 #include "esp_err.h"
 #include "soc/spi_reg.h"
-#include "esp_spi_flash.h"
+#include "esp_private/spi_flash_os.h" // esp-idf < v5.1 change to #include "esp_spi_flash.h"
 
 #define OTP_SPI_MAX_XFER_SIZE  (64)
 #define OTP_SPI_HOST_ID        (1)
@@ -125,12 +125,24 @@ uint32_t otp_read(uint32_t offset, uint8_t *buf, uint32_t len);
  *
  * return ESP_OK if operation succeeds, ESP_FAIL is not
  */
-esp_err_t IRAM_ATTR otp_spi_xfer (uint8_t *cmd, uint32_t cmd_len,
+
+//esp-idf < v5.1 change to:
+// esp_err_t IRAM_ATTR otp_spi_xfer (uint8_t *cmd, uint32_t cmd_len,
+//                                         uint8_t *data_out, uint32_t data_out_len,
+//                                         uint8_t *data_in, uint32_t data_in_len);
+
+// void IRAM_ATTR otp_restore_spi_reg(uint32_t prev[]);
+// void IRAM_ATTR otp_save_spi_reg(uint32_t prev[]);
+// void IRAM_ATTR otp_spi_configure(void);
+
+//esp-idf v5.1
+esp_err_t otp_spi_xfer (uint8_t *cmd, uint32_t cmd_len,
                                         uint8_t *data_out, uint32_t data_out_len,
                                         uint8_t *data_in, uint32_t data_in_len);
 
-void IRAM_ATTR otp_restore_spi_reg(uint32_t prev[]);
-void IRAM_ATTR otp_save_spi_reg(uint32_t prev[]);
-void IRAM_ATTR otp_spi_configure(void);
+void otp_restore_spi_reg(uint32_t prev[]);
+void otp_save_spi_reg(uint32_t prev[]);
+void otp_spi_configure(void);
+
 
 #endif //OTP_READER_H
