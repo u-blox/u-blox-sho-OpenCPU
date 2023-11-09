@@ -21,7 +21,7 @@
 #include "esp_attr.h"
 #include "esp_err.h"
 #include "soc/spi_reg.h"
-#include "esp_spi_flash.h"
+#include "esp_private/spi_flash_os.h" // esp-idf < v5.1 change to #include "esp_spi_flash.h"
 
 #define OTP_SPI_MAX_XFER_SIZE  (64)
 #define OTP_SPI_HOST_ID        (1)

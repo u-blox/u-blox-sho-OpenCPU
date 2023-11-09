@@ -24,7 +24,7 @@
 #include "esp_system.h"
 #include "esp_wifi.h"
 #include "nvs_flash.h"
-#include "esp_event_loop.h"
+#include "esp_event.h"  // esp-idf < v5.1 change to #include "esp_event_loop.h"
 
 #include "lwip/err.h"
 #include "lwip/sys.h"
@@ -92,9 +92,11 @@ void app_main(void)
 static void wifi_init_sta(void)
 {
     printf("%s\n", IDF_VER);
-    tcpip_adapter_init(); // esp-idf >= 4.3 change to ESP_ERROR_CHECK(esp_netif_init()); to get rid of depricated warning
+    
+    ESP_ERROR_CHECK(esp_netif_init());  // esp-idf < 4.3 change to tcpip_adapter_init();
 
     ESP_ERROR_CHECK(esp_event_loop_create_default());
+    esp_netif_create_default_wifi_sta(); // Necessary for version 5.1 or up
 
     wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
     ESP_ERROR_CHECK(esp_wifi_init(&cfg));
