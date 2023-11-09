@@ -61,12 +61,18 @@
 /*===========================================================================
 * DECLARATIONS
 *=========================================================================*/
-static esp_err_t IRAM_ATTR mx25_otp_read_chunk(uint32_t offset, uint8_t *data, uint32_t len);
+//esp-idf < 5.1 change to:
+/* static esp_err_t IRAM_ATTR mx25_otp_read_chunk(uint32_t offset, uint8_t *data, uint32_t len);
 
 static esp_err_t IRAM_ATTR cmd_enter_secured_otp(void);
 static esp_err_t IRAM_ATTR cmd_exit_secured_otp(void);
-static esp_err_t IRAM_ATTR cmd_read_data_bytes(uint32_t offset, uint8_t *buf, uint32_t size);
+static esp_err_t IRAM_ATTR cmd_read_data_bytes(uint32_t offset, uint8_t *buf, uint32_t size); */
 
+static esp_err_t mx25_otp_read_chunk(uint32_t offset, uint8_t *data, uint32_t len);
+
+static esp_err_t cmd_enter_secured_otp(void);
+static esp_err_t cmd_exit_secured_otp(void);
+static esp_err_t cmd_read_data_bytes(uint32_t offset, uint8_t *buf, uint32_t size);
 
 static otp_ops_t mx25_otp_ops = {
     .otp_chip_read = otp_mx25_read,

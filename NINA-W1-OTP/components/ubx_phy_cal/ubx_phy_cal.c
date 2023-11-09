@@ -36,7 +36,6 @@
 static const char* TAG = "ubx_phy_cal";
 
 static esp_phy_init_data_t ubx_init_data;
-static int8_t max_output_power = 127;
 
 /*===========================================================================
 * FUNCTIONS
@@ -169,7 +168,7 @@ const esp_phy_init_data_t* esp_phy_get_init_data()
     init_data[49] = 42; //target power 5
 
     #else
-    #error Configuration are only valid and tested for ESP IDF v4.0, v4.3, v4.4, and v5.1
+    #error Configuration are only valid and tested for ESP IDF v4.0, v4.3, v4.4 and v5.1
     #endif 
     apply_rf_frequency_calibration(init_data);
 

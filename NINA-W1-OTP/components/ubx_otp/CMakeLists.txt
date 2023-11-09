@@ -12,10 +12,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-set(COMPONENT_REQUIRES spi_flash)
+# esp-idf < v5.1 change to:
+# set(COMPONENT_REQUIRES spi_flash)
 
-set(COMPONENT_SRCS "otp_is25lp.c otp_mx25.c otp_reader.c")
-set(COMPONENT_ADD_INCLUDEDIRS "include")
+# set(COMPONENT_SRCS "otp_is25lp.c otp_mx25.c otp_reader.c")
+# set(COMPONENT_ADD_INCLUDEDIRS "include")
 set(COMPONENT_NAME "ubx_otp")
 
-register_component()
+# register_component()
+
+# esp-idf v5.1
+idf_component_register(SRCS  "otp_is25lp.c" "otp_mx25.c" "otp_reader.c"
+                    INCLUDE_DIRS "include"
+                    REQUIRES spi_flash
+                    )

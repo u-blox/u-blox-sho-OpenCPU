@@ -15,9 +15,15 @@
 
 set(COMPONENT_REQUIRES esp_wifi)  # required for esp-idf v5.1
 
-set(COMPONENT_PRIV_REQUIRES ubx_otp)
+# set(COMPONENT_PRIV_REQUIRES ubx_otp)
 
-set(COMPONENT_SRCS "ubx_phy_cal.c")
-set(COMPONENT_ADD_INCLUDEDIRS "include")
+# set(COMPONENT_SRCS "ubx_phy_cal.c")
+# set(COMPONENT_ADD_INCLUDEDIRS "include")
 
-register_component()
+# register_component()
+
+# esp-idf v5.1
+idf_component_register(SRCS  "ubx_phy_cal.c"
+                    INCLUDE_DIRS "include"
+                    PRIV_REQUIRES ubx_otp esp_phy
+                    )
