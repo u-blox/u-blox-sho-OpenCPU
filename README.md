@@ -62,9 +62,11 @@ with mainline Zephyr.
 
 | EVK board     | Remarks                            |
 |---------------|------------------------------------|
-| MINI-NORA-B10 | Target: NCS v2.2.0 / Zephyr 3.2.99 |
-| MINI-NORA-B12 | Target: NCS v2.2.0 / Zephyr 3.2.99 |
-| XPLR-IOT-1    | Target: NCS v2.2.0 / Zephyr 3.2.99 |
+| EVK-NORA-B10  |  |
+| EVK-NORA-B12  |  |
+| MINI-NORA-B10 | Rev C and later hardware only |
+| MINI-NORA-B12 | Rev C and later hardware only |
+| XPLR-IOT-1    |  |
 
 Board support packages for the followng EVKs are not planned for submission to
 the Zephyr mainline project. They will remain here at the u-blox repository:
