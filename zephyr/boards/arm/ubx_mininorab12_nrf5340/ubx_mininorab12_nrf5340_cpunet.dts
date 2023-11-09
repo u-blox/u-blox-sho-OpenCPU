@@ -1,0 +1,134 @@
+/*
+ * u-blox MINI-NORA-B12 board configuration
+ *
+ * Copyright (c) 2023 u-blox AG
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/dts-v1/;
+#include <nordic/nrf5340_cpunet_qkaa.dtsi>
+#include "ubx_mininorab12_nrf5340_cpunet-pinctrl.dtsi"
+#include <zephyr/dt-bindings/input/input-event-codes.h>
+
+/ {
+	model = "u-blox MINI-NORA-B12 NRF5340 Network";
+	compatible = "nordic,ubx-mininorab12-nrf5340-cpunet";
+
+	chosen {
+		zephyr,console = &uart0;
+		zephyr,shell-uart = &uart0;
+		zephyr,uart-mcumgr = &uart0;
+		zephyr,bt-mon-uart = &uart0;
+		zephyr,bt-c2h-uart = &uart0;
+		zephyr,bt-hci-rpmsg-ipc = &ipc0;
+		nordic,802154-spinel-ipc = &ipc0;
+		zephyr,sram = &sram1;
+		zephyr,flash = &flash1;
+		zephyr,code-partition = &slot0_partition;
+		zephyr,ieee802154 = &ieee802154;
+	};
+
+	leds {
+		compatible = "gpio-leds";
+		led0: led_0 {
+			gpios = <&gpio0 28 GPIO_ACTIVE_LOW>;
+			label = "Red LED 0";
+		};
+		led1: led_1 {
+			gpios = <&gpio0 30 GPIO_ACTIVE_LOW>;
+			label = "Green LED 1";
+		};
+		led2: led_2 {
+			gpios = <&gpio1 11 GPIO_ACTIVE_LOW>;
+			label = "Blue LED 2";
+		};
+	};
+
+	buttons {
+		compatible = "gpio-keys";
+		button0: button_0 {
+			gpios = <&gpio0 22 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
+			label = "Push button 1";
+			zephyr,code = <INPUT_KEY_0>;
+		};
+		button1: button_1 {
+			gpios = <&gpio0 4 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
+			label = "Push button 2";
+			zephyr,code = <INPUT_KEY_1>;
+		};
+	};
+
+	/* These aliases are provided for compatibility with samples */
+	aliases {
+		led0 = &led0;
+		led1 = &led1;
+		led2 = &led2;
+		sw0 = &button0;
+		sw1 = &button1;
+		bootloader-led0 = &led0;
+		mcuboot-button0 = &button0;
+		mcuboot-led0 = &led0;
+		watchdog0 = &wdt0;
+	};
+	/* Enable the NORA-B12 FEM */
+	nrf_radio_fem: norab12_fem {
+		compatible = "skyworks,sky66112-11", "generic-fem-two-ctrl-pins";
+		ctx-gpios = <&gpio1 8 GPIO_ACTIVE_HIGH>;
+		crx-gpios = <&gpio1 9 GPIO_ACTIVE_HIGH>;
+		tx-gain-db = < 10 >;
+		rx-gain-db = < 5 >;
+	 };
+};
+
+&gpiote {
+	status = "okay";
+};
+
+&gpio0 {
+	status = "okay";
+};
+
+&gpio1 {
+	status = "okay";
+};
+
+&uart0 {
+	status = "okay";
+	current-speed = <115200>;
+	pinctrl-0 = <&uart0_default>;
+	pinctrl-1 = <&uart0_sleep>;
+	pinctrl-names = "default", "sleep";
+};
+
+&flash1 {
+
+	partitions {
+		compatible = "fixed-partitions";
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		boot_partition: partition@0 {
+			label = "mcuboot";
+			reg = <0x00000000 0xc000>;
+		};
+		slot0_partition: partition@c000 {
+			label = "image-0";
+			reg = <0x0000C000 0x17000>;
+		};
+		slot1_partition: partition@23000 {
+			label = "image-1";
+			reg = <0x00023000 0x17000>;
+		};
+		storage_partition: partition@3a000 {
+			label = "storage";
+			reg = <0x0003a000 0x6000>;
+		};
+	};
+};
+
+&ieee802154 {
+	status = "okay";
+};
+
+/* Include shared RAM configuration file */
+#include "ubx_mininorab12_shared_sram_planning_conf.dtsi"

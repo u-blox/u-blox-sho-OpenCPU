@@ -1,17 +1,17 @@
 /*
- * u-blox MINI-NORA-B10 board configuration
- * Copyright (c) 2021 u-blox AG
+ * u-blox MINI-NORA-B10 REV C and later board configuration
  *
+ * Copyright (c) 2023 u-blox AG
  * SPDX-License-Identifier: Apache-2.0
  */
 
 /dts-v1/;
 #include <nordic/nrf5340_cpuapp_qkaa.dtsi>
-#include "nrf5340_cpuapp_common.dts"
+#include "ubx_mininorab10_cpuapp_common.dtsi"
 
 / {
 	model = "u-blox MINI-NORA-B10 NRF5340 Application";
-	compatible = "u-blox,ubx_mininorab10_nrf5340_cpuapp";
+	compatible = "nordic,ubx-mininorab10-nrf5340-cpuapp";
 
 	chosen {
 		zephyr,sram = &sram0_image;
@@ -20,17 +20,4 @@
 		zephyr,sram-secure-partition = &sram0_s;
 		zephyr,sram-non-secure-partition = &sram0_ns;
 	};
-};
-
-&spi2 {
-	compatible = "nordic,nrf-spim";
-	status = "okay";
-	sck-pin = <47>;
-	miso-pin = <46>;
-	mosi-pin = <45>;
-};
-
-&usbd {
-	compatible = "nordic,nrf-usbd";
-	status = "okay";
 };

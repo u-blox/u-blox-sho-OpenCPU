@@ -1,6 +1,6 @@
-# u-blox MINI-NORA-B10 board configuration
+# u-blox MINI-NORA-B10 REV C and later board configuration
 
-# Copyright (c) 2021 u-blox AG
+# Copyright (c) 2023 u-blox AG
 # SPDX-License-Identifier: Apache-2.0
 
 CONFIG_SOC_SERIES_NRF53X=y
@@ -25,3 +25,5 @@ CONFIG_SERIAL=y
 # enable console
 CONFIG_CONSOLE=y
 CONFIG_UART_CONSOLE=y
+
+CONFIG_PINCTRL=y
