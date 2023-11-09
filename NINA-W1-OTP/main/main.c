@@ -93,10 +93,10 @@ static void wifi_init_sta(void)
 {
     printf("%s\n", IDF_VER);
     
-    ESP_ERROR_CHECK(esp_netif_init());  // esp-idf < 4.3 change to tcpip_adapter_init();
+    ESP_ERROR_CHECK(esp_netif_init());  // esp-idf < v4.3 change to tcpip_adapter_init();
 
     ESP_ERROR_CHECK(esp_event_loop_create_default());
-    esp_netif_create_default_wifi_sta(); // Necessary for version 5.1 or up
+    esp_netif_create_default_wifi_sta(); // Necessary for version v5.1 or up
 
     wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
     ESP_ERROR_CHECK(esp_wifi_init(&cfg));
