@@ -13,8 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# esp-idf < v5.1 change to:
-# set(COMPONENT_REQUIRES)
+set(COMPONENT_REQUIRES esp_wifi)  # required for esp-idf v5.1
 
 # set(COMPONENT_PRIV_REQUIRES ubx_otp)
 
