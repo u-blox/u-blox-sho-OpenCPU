@@ -43,7 +43,7 @@ const esp_phy_init_data_t * esp_phy_get_init_data( void )
     // channel 1 and 11 < 16.5dBm
     // Others < 17dBm for RED
 
-#if ESP_IDF_VERSION_MAJOR == 4 && ESP_IDF_VERSION_MINOR == 4 && CONFIG_IDF_TARGET_ESP32S3
+#if ESP_IDF_VERSION_MAJOR == 5 && ESP_IDF_VERSION_MINOR == 1 && CONFIG_IDF_TARGET_ESP32S3
 
     // TX Power is in 0.25dBm steps, ie 60 = (60/4) = 15dBm
     init_data[2] = 0x50; // target_power_qdb_1m_2m

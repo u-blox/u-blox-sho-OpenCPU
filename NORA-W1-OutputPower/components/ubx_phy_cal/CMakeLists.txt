@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-set(COMPONENT_REQUIRES)
+set(COMPONENT_REQUIRES esp_phy efuse)
 
 set(COMPONENT_SRCS "ubx_phy_cal.c")
 set(COMPONENT_ADD_INCLUDEDIRS ".")
