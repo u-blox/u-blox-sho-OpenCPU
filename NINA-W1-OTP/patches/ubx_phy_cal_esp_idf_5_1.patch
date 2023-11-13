@@ -1,18 +1,18 @@
-From dd6cc933a4701c678c623fd60783cbd79f4ced30 Mon Sep 17 00:00:00 2001
+From 409a9f1da7a2ed820847c7f706cc5ce8e1dea6ce Mon Sep 17 00:00:00 2001
 From: Fernando Torres <fernando.torres@u-blox.com>
-Date: Sun, 29 Oct 2023 17:42:25 +0100
-Subject: [PATCH] .
+Date: Mon, 13 Nov 2023 09:01:22 +0100
+Subject: [PATCH] patch: nina-w1 OTP v5.1
 
 ---
  components/esp_phy/src/phy_init.c  | 10 +++++-----
- components/esp_wifi/CMakeLists.txt |  6 +++---
- 2 files changed, 8 insertions(+), 8 deletions(-)
+ components/esp_wifi/CMakeLists.txt |  2 +-
+ 2 files changed, 6 insertions(+), 6 deletions(-)
 
 diff --git a/components/esp_phy/src/phy_init.c b/components/esp_phy/src/phy_init.c
-index 83ff6ab809..ea73aa3316 100644
+index 1a6ccfdde0..bd31980f11 100644
 --- a/components/esp_phy/src/phy_init.c
 +++ b/components/esp_phy/src/phy_init.c
-@@ -557,11 +557,11 @@ void esp_phy_release_init_data(const esp_phy_init_data_t* init_data)
+@@ -572,11 +572,11 @@ void esp_phy_release_init_data(const esp_phy_init_data_t* init_data)
  
  // phy_init_data.h will declare static 'phy_init_data' variable initialized with default init data
  
@@ -30,18 +30,14 @@ index 83ff6ab809..ea73aa3316 100644
  void esp_phy_release_init_data(const esp_phy_init_data_t* init_data)
  {
 diff --git a/components/esp_wifi/CMakeLists.txt b/components/esp_wifi/CMakeLists.txt
-index bcd442eeb8..20a339caf9 100644
+index bcd442eeb8..7647ff7ace 100644
 --- a/components/esp_wifi/CMakeLists.txt
 +++ b/components/esp_wifi/CMakeLists.txt
-@@ -38,9 +38,9 @@ endif()
- 
- idf_component_register(SRCS "${srcs}"
+@@ -40,7 +40,7 @@ idf_component_register(SRCS "${srcs}"
                      INCLUDE_DIRS "include" "wifi_apps/include"
--                    REQUIRES esp_event esp_phy esp_netif
--                    PRIV_REQUIRES driver esptool_py esp_pm esp_timer nvs_flash
+                     REQUIRES esp_event esp_phy esp_netif
+                     PRIV_REQUIRES driver esptool_py esp_pm esp_timer nvs_flash
 -                                  wpa_supplicant hal lwip esp_coex ${extra_priv_requires}
-+                    REQUIRES esp_event esp_netif
-+                    PRIV_REQUIRES driver esptool_py esp_pm esp_timer nvs_flash esp_phy
 +                                  wpa_supplicant hal lwip esp_coex ubx_phy_cal ${extra_priv_requires}
                      LDFRAGMENTS "${ldfragments}")
  
