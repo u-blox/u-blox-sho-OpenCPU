@@ -62,11 +62,7 @@
 		compatible = "nordic,nrf-gpio-forwarder";
 		status = "okay";
 		uart {
-			gpios = <&gpio1 1 0>, <&gpio1 0 0>, <&gpio0 11 0>, <&gpio0 10 0>;
-		};
-		/* Forward pins for NORA-B10 FEM */
-		norab10fem {
-			gpios = <&gpio1 8 0>, <&gpio1 9 0>;
+			gpios = <&gpio0 19 0>, <&gpio0 20 0>, <&gpio0 21 0>, <&gpio0 23 0>;
 		};
 	};
 

@@ -1,15 +1,19 @@
-.. _ubx_evknorab10_nrf5340:
+.. _ubx_mininorab12_nrf5340:
 
-EVK-NORA-B10
-############
+MINI-NORA-B12
+#############
 
 Overview
 ********
 
-The EVK-NORA-B10 is a single-board development kit for evaluation
-and development on the u-blox NORA-B10 module containing the Nordic
-Semiconductor nRF5340. EVK-NORA-B10 is equivalent to the Nordic Semiconductor
-nRF5340 DK.
+The MINI-NORA-B12 is a single-board development kit for evaluation
+and development on the u-blox NORA-B12 module containing the Nordic
+Semiconductor nRF5340 and the Skyworks SKY66405-11 front-end module (FEM). 
+GPIO pins P1.08 and P1.09 are reserved for the FEM module CTX and CRX.
+
+The MINI-NORA-B12 is a single-board development kit for evaluation
+and development on the u-blox NORA-B12 module containing the Nordic
+Semiconductor nRF5340.
 
 The nRF5340 is a dual-core SoC based on the Arm® Cortex®-M33 architecture, with:
 
@@ -19,11 +23,11 @@ The nRF5340 is a dual-core SoC based on the Arm® Cortex®-M33 architecture, wit
 * a secondary Arm Cortex-M33 core, with a reduced feature set, running at
   a fixed 64 MHz, referred to as the **network core**.
 
-The ubx_evknorab10_cpuapp build target provides support for the application
-core on the NORA-B10. The ubx_evknorab10_nrf5340_cpunet build target provides
-support for the network core on the NORA-B10.
+The ubx_mininorab12_cpuapp build target provides support for the application
+core on the NORA-B12. The ubx_mininorab12_nrf5340_cpunet build target provides
+support for the network core on the NORA-B12.
 
-NORA-B10 provides support for the following devices:
+NORA-B12 provides support for the following devices:
 
 * :abbr:`ADC (Analog to Digital Converter)`
 * CLOCK
@@ -42,14 +46,14 @@ NORA-B10 provides support for the following devices:
 * :abbr:`USB (Universal Serial Bus)`
 * :abbr:`WDT (Watchdog Timer)`
 
-.. figure:: img/EVK-NORA-B106-top.png
+.. figure:: img/Mini-NORA-B126-top.png
      :align: center
-     :alt: EVK-NORA-B10
+     :alt: MINI-NORA-B1
 
-     EVK-NORA-B10 (Credit: u-blox AG)
+     MINI-NORA-B1 - MINI-NORA-B12 shown (Credit: u-blox AG)
 
 More information about the board can be found at the
-`EVK-NORA-B1 website`_.
+`MINI-NORA-B1 website`_.
 The `u-blox NORA-B1`_
 contains the module's information and the datasheet.
 
@@ -57,15 +61,15 @@ contains the module's information and the datasheet.
 Hardware
 ********
 
-EVK-NORA-B10 has two oscillators. The main clock is contained within
-the NORA-B10 module and has a frequency of 32 MHz. The slow clock can
+NORA-B12 has two oscillators. The main clock is contained within
+the NORA-B12 module and has a frequency of 32 MHz. The slow clock can
 be enabled as an RC oscillator on the module, or with an external crystal.
 The frequency of the slow clock is 32.768 kHz. 
 
 Supported Features
 ==================
 
-The ubx_evknorab10_nrf5340_cpuapp board configuration supports the following
+The ubx_mininorab12_nrf5340_cpuapp board configuration supports the following
 hardware features:
 
 +-----------+------------+----------------------+
@@ -102,7 +106,7 @@ hardware features:
 | WDT       | on-module  | watchdog             |
 +-----------+------------+----------------------+
 
-The ubx_evknorab10_nrf5340_cpunet board configuration supports the following
+The ubx_mininorab12_nrf5340_cpunet board configuration supports the following
 hardware features:
 
 +-----------+------------+----------------------+
@@ -135,8 +139,8 @@ hardware features:
 +-----------+------------+----------------------+
 
 Other hardware features have not been enabled yet for this board.
-See `EVK-NORA-B1 website`_
-for a complete list of EVK-NORA-B10 board hardware features.
+See `MINI-NORA-B1 website`_
+for a complete list of MINI-NORA-B12 board hardware features.
 
 Connections and IOs
 ===================
@@ -145,18 +149,16 @@ LED
 ---
 
 * LED1 (red) = P0.28
-* LED2 (red) = P0.29
-* LED3 (green) = P0.30
-* LED4 (green) = P0.31
+* LED2 (green) = P0.30
+* LED3 (blue) = P1.11
+
 
 Push buttons
 ------------
 
-* BUTTON1 = P0.23
-* BUTTON2 = P0.24
-* BUTTON3 = P0.8
-* BUTTON4 = P0.9
-* BOOT = SW5 = boot/reset
+* BUTTON1 = P0.04
+* BUTTON2 = P0.22
+* BOOT = BTN3 = boot/reset
 
 Security components
 ===================
@@ -171,26 +173,26 @@ Security components
 Programming and Debugging
 *************************
 
-NORA-B10 application core supports the Armv8-M Security Extension.
-Applications built for the ubx_evknorab10_nrf5340_cpuapp board by default
+NORA-B12 application core supports the Armv8-M Security Extension.
+Applications built for the ubx_mininorab12_nrf5340_cpuapp board by default
 boot in the Secure state.
 
-NORA-B10 network core does not support the Armv8-M Security Extension.
-NORA-B10 IDAU may configure bus accesses by the NORA-B10 network core
+NORA-B12 network core does not support the Armv8-M Security Extension.
+NORA-B12 IDAU may configure bus accesses by the NORA-B12 network core
 to have Secure attribute set; the latter allows to build and run
-Secure only applications on the NORA-B10 module.
+Secure only applications on the NORA-B12 module.
 
 Building Secure/Non-Secure Zephyr applications with Arm |reg| TrustZone |reg|
 =============================================================================
 
-Applications on NORA-B10 may contain a Secure and a Non-Secure firmware
+Applications on NORA-B12 may contain a Secure and a Non-Secure firmware
 image for the application core. The Secure image can be built using either
 Zephyr or `Trusted Firmware M`_ (TF-M). Non-Secure firmware
 images are always built using Zephyr. The two alternatives are described below.
 
 .. note::
 
-   By default the Secure image for NORA-B10 application core is built
+   By default the Secure image for NORA-B12 application core is built
    using TF-M.
 
 
@@ -201,7 +203,7 @@ The process to build the Secure firmware image using TF-M and the Non-Secure
 firmware image using Zephyr requires the following steps:
 
 1. Build the Non-Secure Zephyr application
-   for the application core using ``-DBOARD=ubx_evknorab10_nrf5340_cpuapp_ns``.
+   for the application core using ``-DBOARD=ubx_mininorab12_nrf5340_cpuapp_ns``.
    To invoke the building of TF-M the Zephyr build system requires the
    Kconfig option ``BUILD_WITH_TFM`` to be enabled, which is done by
    default when building Zephyr as a Non-Secure application.
@@ -219,7 +221,7 @@ firmware image using Zephyr requires the following steps:
    and sizes.
 
 2. Build the application firmware for the network core using
-   ``-DBOARD=ubx_evknorab10_nrf5340_cpunet``.
+   ``-DBOARD=ubx_mininorab12_nrf5340_cpunet``.
 
 
 Building the Secure firmware using Zephyr
@@ -229,17 +231,17 @@ The process to build the Secure and the Non-Secure firmware images
 using Zephyr requires the following steps:
 
 1. Build the Secure Zephyr application for the application core
-   using ``-DBOARD=ubx_evknorab10_nrf5340_cpuapp`` and
+   using ``-DBOARD=ubx_mininorab12_nrf5340_cpuapp`` and
    ``CONFIG_TRUSTED_EXECUTION_SECURE=y`` and ``CONFIG_BUILD_WITH_TFM=n``
    in the application project configuration file.
 2. Build the Non-Secure Zephyr application for the application core
-   using ``-DBOARD=ubx_evknorab10_nrf5340_cpuapp_ns``.
+   using ``-DBOARD=ubx_mininorab12_nrf5340_cpuapp_ns``.
 3. Merge the two binaries together.
 4. Build the application firmware for the network core using
-   ``-DBOARD=ubx_evknorab10_nrf5340_cpunet``.
+   ``-DBOARD=ubx_mininorab12_nrf5340_cpunet``.
 
 
-When building a Secure/Non-Secure application for the NORA-B10 application core,
+When building a Secure/Non-Secure application for the NORA-B12 application core,
 the Secure application will have to set the IDAU (SPU) configuration to allow
 Non-Secure access to all CPU resources utilized by the Non-Secure application
 firmware. SPU configuration shall take place before jumping to the Non-Secure
@@ -249,9 +251,9 @@ Building a Secure only application
 ==================================
 
 Build the Zephyr app in the usual way (see :ref:`build_an_application`
-and :ref:`application_run`), using ``-DBOARD=ubx_evknorab10_nrf5340_cpuapp`` for
-the firmware running on the NORA-B10 application core, and using
-``-DBOARD=ubx_evknorab10_nrf5340_cpunet`` for the firmware running
+and :ref:`application_run`), using ``-DBOARD=ubx_mininorab12_nrf5340_cpuapp`` for
+the firmware running on the NORA-B12 application core, and using
+``-DBOARD=ubx_mininorab12_nrf5340_cpunet`` for the firmware running
 on the nRF5340 network core.
 
 Flashing
@@ -265,7 +267,7 @@ applications as usual (:ref:`build_an_application` and
 
 .. warning::
 
-   The nRF5340 within NORA-B10 has a flash read-back protection feature. 
+   The nRF5340 within NORA-B12 has a flash read-back protection feature. 
    When flash read-back protection is active, you will need to recover
    the chip before reflashing. If you are flashing with 
    :ref:`west <west-build-flash-debug>`, run
@@ -277,13 +279,13 @@ applications as usual (:ref:`build_an_application` and
 
 .. note::
 
-   Flashing and debugging applications on the EVK-NORA-B10 requires
+   Flashing and debugging applications on the MINI-NORA-B12 requires
    upgrading the nRF Command Line Tools to version 10.12.0. Further
    information on how to install the nRF Command Line Tools can be
    found in :ref:`nordic_segger_flashing`.
 
 Here is an example for the :ref:`hello_world` application running on the
-NORA-B10 application core.
+NORA-B12 application core.
 
 First, run your favorite terminal program to listen for output.
 
@@ -298,7 +300,7 @@ Then build and flash the application in the usual way.
 
 .. zephyr-app-commands::
    :zephyr-app: samples/hello_world
-   :board: ubx_evknorab10_nrf5340_cpuapp
+   :board: ubx_mininorab12_nrf5340_cpuapp
    :goals: build flash
 
 Debugging
@@ -308,7 +310,7 @@ Refer to the :ref:`nordic_segger` page to learn about debugging Nordic
 boards with a Segger IC.
 
 
-Testing the LEDs and buttons in the EVK-NORA-B10
+Testing the LEDs and buttons in the MINI-NORA-B12
 **********************************************
 
 There are 2 samples that allow you to test that the buttons (switches) and
@@ -319,7 +321,7 @@ LEDs on the board are working properly with Zephyr:
 
 You can build and flash the examples to make sure Zephyr is running correctly on
 your board. The button and LED definitions can be found in
-:zephyr_file:`boards/arm/ubx_evknorab10_nrf5340/ubx_evknorab10_cpuapp_common.dts`.
+:zephyr_file:`boards/arm/ubx_mininorab12_nrf5340/ubx_mininorab12_cpuapp_common.dtsi`.
 
 References
 **********
@@ -328,7 +330,7 @@ References
 
 .. _IDAU:
    https://developer.arm.com/docs/100690/latest/attribution-units-sau-and-idau
-.. _EVK-NORA-B1 website:
-   https://www.u-blox.com/en/product/evk-nora-b1
+.. _MINI-NORA-B1 website:
+   https://www.u-blox.com/en/product/mini-nora-b1
 .. _u-blox NORA-B1: https://www.u-blox.com/en/product/nora-b1-series-open-cpu
 .. _Trusted Firmware M: https://www.trustedfirmware.org/projects/tf-m/
