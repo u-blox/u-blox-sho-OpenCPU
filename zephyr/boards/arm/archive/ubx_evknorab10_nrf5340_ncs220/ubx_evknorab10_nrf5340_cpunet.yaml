@@ -1,0 +1,12 @@
+identifier: ubx_evknorab10_nrf5340_cpunet
+name: UBX-EVKNORAB10-NRF5340-network-MCU
+type: mcu
+arch: arm
+toolchain:
+  - gnuarmemb
+  - xtools
+  - zephyr
+ram: 64
+flash: 256
+supported:
+  - watchdog

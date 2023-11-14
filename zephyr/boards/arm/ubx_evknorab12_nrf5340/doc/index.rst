@@ -43,7 +43,7 @@ NORA-B12 provides support for the following devices:
 * :abbr:`USB (Universal Serial Bus)`
 * :abbr:`WDT (Watchdog Timer)`
 
-.. figure:: img/EVK-NORA-B12_top.jpg
+.. figure:: img/EVK-NORA-B126-top.png
      :align: center
      :alt: EVK-NORA-B12
 
@@ -58,9 +58,10 @@ contains the module's information and the datasheet.
 Hardware
 ********
 
-EVK-NORA-B12 has two external oscillators. The frequency of
-the slow clock is 32.768 kHz. The frequency of the main clock
-is 32 MHz.
+EVK-NORA-B12 has two oscillators. The main clock is contained within
+the NORA-B12 module and has a frequency of 32 MHz. The slow clock can
+be enabled as an RC oscillator on the module, or with an external crystal.
+The frequency of the slow clock is 32.768 kHz. 
 
 Supported Features
 ==================

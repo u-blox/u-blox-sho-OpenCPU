@@ -1,10 +1,5 @@
-# u-blox MINI-NORA-B10 board configuration
-
-# Copyright (c) 2021 u-blox AG
-# SPDX-License-Identifier: Apache-2.0
-
 identifier: ubx_mininorab10_nrf5340_cpunet
-name: UBX_MININORAB10_NRF5340-network-MCU
+name: UBX-MININORAB10-NRF5340-network-MCU
 type: mcu
 arch: arm
 toolchain:
@@ -15,3 +10,4 @@ ram: 64
 flash: 256
 supported:
   - watchdog
+  - gpio
