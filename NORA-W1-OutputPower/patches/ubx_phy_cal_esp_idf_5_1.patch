@@ -1,36 +1,23 @@
-From e088c3766ba440e72268b458a68f27b6e7d63986 Mon Sep 17 00:00:00 2001
-Date: Mon, 21 Aug 2023 14:24:40 +0550
-Subject: [PATCH] versions: Update version to 5.1.1
+Date: Mon, 13 Nov 2023 20:05:34 +0100
+Subject: [PATCH] fix: updated nora-w1 5.1 patch
 
 ---
- components/esp_common/include/esp_idf_version.h | 2 +-
- tools/cmake/version.cmake                       | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ components/esp_wifi/CMakeLists.txt | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/components/esp_common/include/esp_idf_version.h b/components/esp_common/include/esp_idf_version.h
-index a05a15efe6..824079ecd8 100644
---- a/components/esp_common/include/esp_idf_version.h
-+++ b/components/esp_common/include/esp_idf_version.h
-@@ -15,7 +15,7 @@ extern "C" {
- /** Minor version number (x.X.x) */
- #define ESP_IDF_VERSION_MINOR   1
- /** Patch version number (x.x.X) */
--#define ESP_IDF_VERSION_PATCH   0
-+#define ESP_IDF_VERSION_PATCH   1
+diff --git a/components/esp_wifi/CMakeLists.txt b/components/esp_wifi/CMakeLists.txt
+index bcd442eeb8..7647ff7ace 100644
+--- a/components/esp_wifi/CMakeLists.txt
++++ b/components/esp_wifi/CMakeLists.txt
+@@ -40,7 +40,7 @@ idf_component_register(SRCS "${srcs}"
+                     INCLUDE_DIRS "include" "wifi_apps/include"
+                     REQUIRES esp_event esp_phy esp_netif
+                     PRIV_REQUIRES driver esptool_py esp_pm esp_timer nvs_flash
+-                                  wpa_supplicant hal lwip esp_coex ${extra_priv_requires}
++                                  wpa_supplicant hal lwip esp_coex ubx_phy_cal ${extra_priv_requires}
+                     LDFRAGMENTS "${ldfragments}")
  
- /**
-  * Macro to convert IDF version number into an integer
-diff --git a/tools/cmake/version.cmake b/tools/cmake/version.cmake
-index 4e33c6c6b2..3547139a5d 100644
---- a/tools/cmake/version.cmake
-+++ b/tools/cmake/version.cmake
-@@ -1,5 +1,5 @@
- set(IDF_VERSION_MAJOR 5)
- set(IDF_VERSION_MINOR 1)
--set(IDF_VERSION_PATCH 0)
-+set(IDF_VERSION_PATCH 1)
- 
- set(ENV{IDF_VERSION} "${IDF_VERSION_MAJOR}.${IDF_VERSION_MINOR}.${IDF_VERSION_PATCH}")
+ if(CONFIG_ESP_WIFI_ENABLED)
 -- 
 2.39.1.windows.1
 
