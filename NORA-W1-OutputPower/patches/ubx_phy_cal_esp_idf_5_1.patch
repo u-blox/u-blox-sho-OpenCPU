@@ -1,0 +1,36 @@
+From e088c3766ba440e72268b458a68f27b6e7d63986 Mon Sep 17 00:00:00 2001
+Date: Mon, 21 Aug 2023 14:24:40 +0550
+Subject: [PATCH] versions: Update version to 5.1.1
+
+---
+ components/esp_common/include/esp_idf_version.h | 2 +-
+ tools/cmake/version.cmake                       | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/components/esp_common/include/esp_idf_version.h b/components/esp_common/include/esp_idf_version.h
+index a05a15efe6..824079ecd8 100644
+--- a/components/esp_common/include/esp_idf_version.h
++++ b/components/esp_common/include/esp_idf_version.h
+@@ -15,7 +15,7 @@ extern "C" {
+ /** Minor version number (x.X.x) */
+ #define ESP_IDF_VERSION_MINOR   1
+ /** Patch version number (x.x.X) */
+-#define ESP_IDF_VERSION_PATCH   0
++#define ESP_IDF_VERSION_PATCH   1
+ 
+ /**
+  * Macro to convert IDF version number into an integer
+diff --git a/tools/cmake/version.cmake b/tools/cmake/version.cmake
+index 4e33c6c6b2..3547139a5d 100644
+--- a/tools/cmake/version.cmake
++++ b/tools/cmake/version.cmake
+@@ -1,5 +1,5 @@
+ set(IDF_VERSION_MAJOR 5)
+ set(IDF_VERSION_MINOR 1)
+-set(IDF_VERSION_PATCH 0)
++set(IDF_VERSION_PATCH 1)
+ 
+ set(ENV{IDF_VERSION} "${IDF_VERSION_MAJOR}.${IDF_VERSION_MINOR}.${IDF_VERSION_PATCH}")
+-- 
+2.39.1.windows.1
+
