@@ -155,8 +155,8 @@ References
 
 .. target-notes::
 
-.. _ANNA-B40 product page: https://www.u-blox.com/en/product/anna-b402-open-cpu
+.. _ANNA-B402 product page: https://www.u-blox.com/en/product/anna-b402-open-cpu
 .. _EVK-ANNA-B4 product page: https://www.u-blox.com/en/product/evk-anna-b4
 .. _Nordic Semiconductor Infocenter: https://infocenter.nordicsemi.com
 .. _J-Link Software and documentation pack: https://www.segger.com/jlink-software.html
-.. _ANNA-B40 Data Sheet: https://www.u-blox.com/en/docs/UBX-20032372
+.. _ANNA-B402 Data Sheet: https://www.u-blox.com/en/docs/UBX-20032372
