@@ -40,7 +40,7 @@ GitHub repository.
 
 | EVK board                    | Folder                    | Remarks                |
 |------------------------------|---------------------------|------------------------|
-| EVK-ANNA-B4                  | ubx_evkannab4_nrf52833    | Tested with NCS v2.2.0 |
+| EVK-ANNA-B4                  | ubx_evkannab4_nrf52833    | Tested with NCS v2.5.0 |
 | EVK-NORA-B10                 | ubx_evknorab10_nrf5340    | Tested with NCS v2.5.0 |
 | EVK-NORA-B12                 | ubx_evknorab12_nrf5340    | Tested with NCS v2.5.0 |
 | MINI-NORA-B10 Rev C or later | ubx_mininorab10_nrf5340   | Tested with NCS v2.5.0 |

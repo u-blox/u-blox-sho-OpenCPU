@@ -2,6 +2,8 @@ identifier: ubx_evkannab4_nrf52833
 name: EVK-ANNA-B4-NRF52833
 type: mcu
 arch: arm
+ram: 128
+flash: 512
 toolchain:
   - zephyr
   - gnuarmemb
@@ -11,6 +13,5 @@ supported:
   - arduino_gpio
   - ble
   - gpio
-  - ieee802154
   - watchdog
   - counter
