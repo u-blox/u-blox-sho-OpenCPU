@@ -22,6 +22,7 @@
 		zephyr,sram = &sram0;
 		zephyr,flash = &flash0;
 		zephyr,code-partition = &slot0_partition;
+		zephyr,ieee802154 = &ieee802154;
 	};
 
 	leds {
@@ -49,11 +50,13 @@
 			/* EVK-ANNA-B4 SW1 button (IO_32). Note: shared with Green LED */
 			gpios = <&gpio0 6 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
 			label = "Push button switch 0";
+			zephyr,code = <INPUT_KEY_0>;
 		};
 		button1: button_1 {
 			/* EVK-ANNA-B4 SW2 button (IO_40) */
 			gpios = <&gpio0 15 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
 			label = "Push button switch 1";
+			zephyr,code = <INPUT_KEY_1>;
 		};
 	};
 
@@ -101,6 +104,10 @@
 	status = "okay";
 };
 
+&uicr {
+	gpio-as-nreset;
+};
+
 &gpiote {
 	status = "okay";
 };
@@ -122,7 +129,9 @@
 	pinctrl-names = "default", "sleep";
 };
 
-
+&ieee802154 {
+	status = "okay";
+};
 
 &flash0 {
 	partitions {
@@ -147,4 +156,9 @@
 			reg = <0x0007A000 0x00006000>;
 		};
 	};
+};
+
+zephyr_udc0: &usbd {
+	compatible = "nordic,nrf-usbd";
+	status = "okay";
 };

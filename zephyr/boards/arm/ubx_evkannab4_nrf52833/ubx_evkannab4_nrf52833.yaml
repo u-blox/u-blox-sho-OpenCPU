@@ -11,6 +11,7 @@ toolchain:
 supported:
   - adc
   - arduino_gpio
+  - usb_device
   - ble
   - gpio
   - watchdog
