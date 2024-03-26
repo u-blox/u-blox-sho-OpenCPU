@@ -8,3 +8,5 @@ Include the file in the build, and remove the default file.
 **{SDK Base}/project/realtek_amebaD_va0_example/GCC-RELEASE/project_hp/asdk/make/wlan/option/Makefile**
 Comment out:  **CSRC = $(DIR)/rtw_opt_rf_para_rtl8721d.c**
 Added in place of: **CSRC = $(DIR)/rtw_opt_rf_para_rtl8721d_uCX_cert_v2.c**
+
+![alt text](image.png)
