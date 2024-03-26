@@ -1,6 +1,6 @@
 # u-blox NORA-W30 openCPU output power settings
 
-1. Add the file (customer will be directed to our GitHub) **rtw_opt_rf_para_rtl8721d_uCX_cert_v2.c** to the SDK folder:
+1. Add the file **rtw_opt_rf_para_rtl8721d_uCX_cert_v2.c** to the SDK folder:
 **{SDK Base}/component/common/drivers/wlan/realtek/src/core/option/**
 Include the file in the build, and remove the default file.
 
