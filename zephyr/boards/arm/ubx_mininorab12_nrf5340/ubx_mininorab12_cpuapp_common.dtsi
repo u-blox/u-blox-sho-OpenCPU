@@ -40,7 +40,16 @@
 	pwmleds {
 		compatible = "pwm-leds";
 		pwm_led0: pwm_led_0 {
-			pwms = <&pwm0 28 PWM_MSEC(20) PWM_POLARITY_INVERTED>;
+			pwms = <&pwm0 0 PWM_MSEC(20) PWM_POLARITY_INVERTED>;
+			label = "Red PWM LED";
+		};
+		pwm_led1: pwm_led_1 {
+			pwms = <&pwm0 1 PWM_MSEC(20) PWM_POLARITY_INVERTED>;
+			label = "Green PWM LED";
+		};
+		pwm_led2: pwm_led_2 {
+			pwms = <&pwm0 2 PWM_MSEC(20) PWM_POLARITY_INVERTED>;
+			label = "Blue PWM LED";
 		};
 	};
 
@@ -76,6 +85,11 @@
 		led1 = &led1;
 		led2 = &led2;
 		pwm-led0 = &pwm_led0;
+		pwm-led1 = &pwm_led1;
+		pwm-led2 = &pwm_led2;
+		red-pwm-led = &pwm_led0;
+		green-pwm-led = &pwm_led1;
+		blue-pwm-led = &pwm_led2;
 		sw0 = &button0;
 		sw1 = &button1;
 		bootloader-led0 = &led0;
