@@ -43,8 +43,8 @@ GitHub repository.
 | EVK-ANNA-B4                  | ubx_evkannab4_nrf52833    | Tested with NCS v2.5.0 |
 | EVK-NORA-B10                 | ubx_evknorab10_nrf5340    | Tested with NCS v2.5.0 |
 | EVK-NORA-B12                 | ubx_evknorab12_nrf5340    | Tested with NCS v2.5.0 |
-| MINI-NORA-B10 Rev C or later | ubx_mininorab10_nrf5340   | Tested with NCS v2.5.0 |
-| MINI-NORA-B12 Rev C or later | ubx_mininorab12_nrf5340   | Tested with NCS v2.5.0 |
+| MINI-NORA-B10 Rev C or later | ubx_mininorab10_nrf5340   | Tested with NCS v2.6.0 |
+| MINI-NORA-B12 Rev C or later | ubx_mininorab12_nrf5340   | Tested with NCS v2.6.0 |
 | XPLR-IOT-1                   | ubx_xplriot1_nrf5340      | Tested with NCS v1.9.1 |
 
 These board support packages are retained in the repository; however, they have been moved to an "archive" folder.
