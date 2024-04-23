@@ -14,8 +14,9 @@ Added in place for NORA-W301: **CSRC = $(DIR)/rtw_opt_rf_para_rtl8721d_W301.c**<
 ![image](https://github.com/u-blox/u-blox-sho-OpenCPU/assets/11769925/039ebdd9-ce00-4422-92f5-3bc55d3d520a)<br><br>
 or added in place for NORA-W306: **CSRC = $(DIR)/rtw_opt_rf_para_rtl8721d_W306.c**<br>
 ![image](https://github.com/u-blox/u-blox-sho-OpenCPU/assets/11769925/cfe6d267-0c89-425c-9948-684b2c20e190)
-4. It is very important to change the Regulatory Domain (channel plan) to maintain regulatory compliance depending on the location where NORA-W30 is used.<br>
-This is done by the API call: **wifi_change_channel_plan(channel_plan_code)**<br>
+4. A regulatory domain channel plan must be set during WLAN initialization to maintain regulatory compliance. The codes in Table below must be used for the appropriate regulatory domain to limit Wi-Fi channel selection and output power. The OEM integrator must not allow the channel plan to able to be changed.<br>
+To set the regulatory domain channel plan, the following API call is used in Realtek SDK:<br>
+ **wifi_change_channel_plan(channel_plan_code)**<br>
 Example: **wifi_change_channel_plan(0x3F)** for FCC regulatory domain.<br>
 
 |Regulatory domain|Channel plan code|
