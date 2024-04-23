@@ -14,12 +14,12 @@ Added in place for NORA-W301: **CSRC = $(DIR)/rtw_opt_rf_para_rtl8721d_W301.c**<
 ![image](https://github.com/u-blox/u-blox-sho-OpenCPU/assets/11769925/039ebdd9-ce00-4422-92f5-3bc55d3d520a)<br><br>
 or added in place for NORA-W306: **CSRC = $(DIR)/rtw_opt_rf_para_rtl8721d_W306.c**<br>
 ![image](https://github.com/u-blox/u-blox-sho-OpenCPU/assets/11769925/cfe6d267-0c89-425c-9948-684b2c20e190)
-4. Change the Regulatory Domain depending on the location of NORA-W30 using the following API call:<br>
-   **wifi_change_channel_plan(reg_domain)**<br>
-Currently the following regulatory domains are approved:<br>
+4. It is very important to change the Regulatory Domain (channel plan) to maintain regulatory compliance depending on the location where NORA-W30 is used.<br>
+This is done by the API call: **wifi_change_channel_plan(channel_plan_code)**<br>
+Example: **wifi_change_channel_plan(0x3F)** for FCC regulatory domain.<br>
 
-|Regulatory domain |Channel plan code (reg_domain)|
-|------------------|-----------------------------|
+|Regulatory domain|Channel plan code|
+|-----------------|-----------------|
 |FCC|0x3F|
 |ISED|0x4A|
 |ETSI|0x5E|
