@@ -16,8 +16,8 @@ or added in place for NORA-W306: **CSRC = $(DIR)/rtw_opt_rf_para_rtl8721d_W306.c
 ![image](https://github.com/u-blox/u-blox-sho-OpenCPU/assets/11769925/cfe6d267-0c89-425c-9948-684b2c20e190)
 4. A regulatory domain channel plan must be set during WLAN initialization to maintain regulatory compliance. The codes in Table below must be used for the appropriate regulatory domain to limit Wi-Fi channel selection and output power. The OEM integrator must not allow the channel plan to able to be changed.<br>
 To set the regulatory domain channel plan, the following API call is used in Realtek SDK:<br>
- **wifi_change_channel_plan(channel_plan_code);**<br>
-Example: **wifi_change_channel_plan(0x3F);** for FCC regulatory domain.<br>
+`wifi_change_channel_plan(channel_plan_code);`<br>
+Example: `wifi_change_channel_plan(0x3f);` for FCC regulatory domain.<br>
 
 |Regulatory domain|Channel plan code|
 |-----------------|-----------------|
@@ -26,8 +26,9 @@ Example: **wifi_change_channel_plan(0x3F);** for FCC regulatory domain.<br>
 |ETSI|0x5E|
 |MKK|0x7D|
 
-5. After the change of channel plan, it is important to restart the Wi-Fi, in this example case Stattion (RTW_MODE_STA).
+5. The change of channel plan should be done after the restart of Wi-Fi, in this example case Stattion (RTW_MODE_STA).
 
+```
 wifi_off();
 vTaskDelay(20);
 if (wifi_on(RTW_MODE_STA) < 0){
@@ -36,8 +37,12 @@ if (wifi_on(RTW_MODE_STA) < 0){
     goto EXIT;
 }
 
+wifi_change_channel_plan(0x3f)
+```
+
 6. It is recommended to print the TX power values, to be sure the right values are used.
 
+```
 extern const u8 array_mp_8721d_txpwr_lmt_type1[] ;
 
 void printallvalues(void)
@@ -51,9 +56,13 @@ void printallvalues(void)
     }
     printf("End Tx Power Values \n");
 }
+```
 
 In the main(void) function, call the printallvalues() before wlan_network() function. 
 
+```
 printallvalues();
 wlan_network();
+```
+
 
