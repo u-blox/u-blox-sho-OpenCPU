@@ -26,4 +26,34 @@ Example: **wifi_change_channel_plan(0x3F);** for FCC regulatory domain.<br>
 |ETSI|0x5E|
 |MKK|0x7D|
 
+5. After the change of channel plan, it is important to restart the Wi-Fi, in this example case Stattion (RTW_MODE_STA).
+
+wifi_off();
+vTaskDelay(20);
+if (wifi_on(RTW_MODE_STA) < 0){
+    printf("\n\rERROR: Wifi on failed!");
+    ret = RTW_ERROR;
+    goto EXIT;
+}
+
+6. It is recommended to print the TX power values, to be sure the right values are used.
+
+extern const u8 array_mp_8721d_txpwr_lmt_type1[] ;
+
+void printallvalues(void)
+{
+    printf("Begin Tx Power Values \n");
+    for (int i = 0; i < 70 ; i += 7) {
+        printf("%d,%d,%d,%d,%d,%d,%d \n",  array_mp_8721d_txpwr_lmt_type1[i],
+               array_mp_8721d_txpwr_lmt_type1[i + 1], array_mp_8721d_txpwr_lmt_type1[i + 2],
+               array_mp_8721d_txpwr_lmt_type1[i + 3], array_mp_8721d_txpwr_lmt_type1[i + 4],
+               array_mp_8721d_txpwr_lmt_type1[i + 5], array_mp_8721d_txpwr_lmt_type1[i + 6]);
+    }
+    printf("End Tx Power Values \n");
+}
+
+In the main(void) function, call the printallvalues() before wlan_network() function. 
+
+printallvalues();
+wlan_network();
 
