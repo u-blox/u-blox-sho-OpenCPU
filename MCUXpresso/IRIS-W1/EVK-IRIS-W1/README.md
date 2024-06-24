@@ -1,12 +1,12 @@
 # EVK-IRIS-W1 
 
-This README provides instructions for setting up and running the "hello_world" and "Wi-Fi & BT"application using MCUXpresso IDE and the latest SDK. 
+This README provides instructions for setting up and running the application using MCUXpresso IDE and the latest SDK. 
 
 ## Setup Instructions
 
 1. **Install MCUXpresso IDE**: Make sure you have MCUXpresso IDE installed on your system. If not, download and install it from the official [NXP website](https://www.nxp.com/design/design-center/software/development-software/mcuxpresso-software-and-tools-/mcuxpresso-integrated-development-environment-ide:MCUXpresso-IDE).
 
-2. **Download SDK**: Download the latest [SDK](https://mcuxpresso.nxp.com/en/welcome) version 2.15.0 from the NXP website and install it in MCUXpresso IDE.
+2. **Download SDK**: Download the latest [SDK](https://mcuxpresso.nxp.com/en/welcome) current version: 2.15.0 from the NXP website and install it in MCUXpresso IDE.
 
 3. **Import "hello_world" Example**:
    - Import the "hello_world" example into your MCUXpresso IDE project.
@@ -43,11 +43,13 @@ When using WiFi/BT applications, you need to flash WiFi/BT Firmware separately f
    - After flashing the WiFi/BT Firmware, you can flash the application Firmware using the [same method mentioned above (Setup Instruction)](#setupinstructions).
    - Alternatively, pre-built application Firmware can be downloaded from the GitHub EVK section and flashed using J-Link Lite.
 
-### **Pre-setup requirement** for Wi-Fi / BT / 802.15.4 application.
+### **Pre-setup requirement**
 
-1. **Replacing Flash config file**: *Macronix (8 MB)*
+use **flash_config.c** file from [this]() location as per density and vendor preset on IRIS-W1 EVK.
+
+1. **Replacing Flash config file**:
      - Replace **flash_config.c** file located at **SDK_2_15_000_RD-RW612-BGA.zip\boards\rdrw612bga\flash_config\flash_config.c** in SDK
-2. **Replacing mflash config file**: *Macronix (8 MB)*
+2. **Replacing mflash config file**: 
      - Replace **mflash_drv.c** file located at **SDK_2_15_000_RD-RW612-BGA.zip\components\flash\mflash\rdrw612bga\mflash_drv.c** in SDK
 
 ### Note
