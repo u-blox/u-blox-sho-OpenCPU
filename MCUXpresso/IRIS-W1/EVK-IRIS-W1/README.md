@@ -16,7 +16,7 @@ This README provides instructions for setting up and running the application usi
    - Import the example (hello_world/FreeRTOS/wifi_cli) into your MCUXpresso IDE project.
    
 2. **Update Pre-Setup Requirements**:
-   - Check [this section](#pre-setup-requirement) to set up flash configuration.
+   - Check [this section](#pre-setup-requirement) to set up flash configuration. (if you have updated flash config files in SDK, then ignore)
 
 3. **Build the Application**:
    - Follow the standard build procedure in MCUXpresso IDE.
@@ -44,7 +44,7 @@ When using WiFi/BT applications, you need to flash the WiFi/BT Firmware separate
 
 ### Flashing Application Firmware
 
-1. **Flashing the Application**:
+**Flashing the Application**:
    - After flashing the WiFi/BT Firmware, you can flash the application Firmware using the [same method mentioned above](#instructions-for-building-and-flashing-the-application-on-evk-iris-w1).
    - Alternatively, pre-built application Firmware can be downloaded from GitHub and flashed using J-Link Lite.
 
