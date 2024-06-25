@@ -21,7 +21,7 @@ This README provides instructions for setting up and running the application usi
 3. **Build the Application**:
    - Follow the standard build procedure in MCUXpresso IDE.
 
-4. **Plug the USB-IRIS-W1 to PC**: (Make sure about the boot mode,should be in QSPI mode) 
+4. **Plug the USB-IRIS-W1 into PC**: (Make sure about the boot mode, should be in QSPI mode) 
 
 5. **Debugging**:
    - Use debug mode in MCUXpresso IDE to flash the application onto the EVK.
