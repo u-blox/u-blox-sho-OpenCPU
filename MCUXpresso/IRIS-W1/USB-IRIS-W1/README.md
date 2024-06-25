@@ -39,7 +39,31 @@ When using WiFi/BT applications, you need to flash the WiFi/BT Firmware separate
    - **WiFi**: Flash `rw61x_sb_wifi.bin_v1.bin` at address `0x08400000` using J-Link Lite.
    - **Bluetooth**: Flash `rw61x_sb_ble_a1.bin` at address `0x08540000` using J-Link Lite.
 
+   you can find the latest Radio application Firmware in the SDK as well    
+   
+   ```sh
+            ex. Wi-Fi Firmware location path ->  \rdrw612bga_wifi_cli\component\conn_fwloader\fw_bin
+   ```
+
 **NOTE:** The WiFi/BT Firmware version depends on the chipset variant. Please use the appropriate version (e.g., a1 chipset -> XXXXXX_a1.bin).
+    
+   ```sh
+Use j-link commander to identify the chipset variant, follow the  setups
+
+J-Link> con
+Device> RW610
+TIF>S
+Speed><Enter>
+CHIP_INFO @0x4500_1114 > **mem32 45001114 1**
+
+Below is the hexadecimal representation of the chipset variant.
+A0 : 0x7000
+A1 : 0x7001
+A2 : 0x7002
+
+   ```
+
+
 
 ### Flashing Application Firmware
 
