@@ -28,5 +28,5 @@ IRIS-W1 has build with differnt vendor of flash memroy (Fidelex,Macronix) . This
 
 ### wifi_Calibration
 
-This directory (**wifi_Calibration**) contains custom calibration data specifically tailored for u-blox modules to ensure proper toggling of the RF CTRL switch. this will help different Radio application to switch the radio.
+This directory (**wifi_Calibration**) contains calibration data specifically for IRIS-W1 modules.
  
