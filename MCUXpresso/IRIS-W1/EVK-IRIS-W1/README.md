@@ -50,7 +50,7 @@ When using WiFi/BT applications, you need to flash the WiFi/BT Firmware separate
 
 ## Pre-Setup Requirement
 
-Use the **flash_config.c** file from [this location](IRIS-W1/sw_config) as per the density and vendor preset on IRIS-W1 EVK.
+Use the **flash_config.c** file from [this location](https://github.com/u-blox/u-blox-sho-OpenCPU/tree/master/MCUXpresso/IRIS-W1/sw_config/flash_config) as per the density and vendor preset on IRIS-W1 EVK.
 
 1. **Replacing Flash Config File**:
      - Replace the **flash_config.c** file located at **SDK_2_xx_xxx_RD-RW612-BGA.zip\boards\rdrw612bga\flash_config\flash_config.c** in the SDK.
@@ -59,7 +59,7 @@ Use the **flash_config.c** file from [this location](IRIS-W1/sw_config) as per t
 
 ## Recovery of IRIS-W1
 
-If you face any issues with IRIS-W1 and can't perform any operations, it might be in an unknown state. Use the blhost application to reset it. Find more information on [this page](IRIS-W1/tools/blhost/README.md).
+If you face any issues with IRIS-W1 and can't perform any operations, it might be in an unknown state. Use the blhost application to reset it. Find more information on [this page](https://github.com/u-blox/u-blox-sho-OpenCPU/tree/master/MCUXpresso/IRIS-W1/tools/blhost).
 
 ## Note
 
