@@ -7,7 +7,7 @@
 
 /dts-v1/;
 #include <nordic/nrf5340_cpuappns_qkaa.dtsi>
-#include "ubx_mininorab10_cpuapp_common.dts"
+#include "ubx_mininorab10_cpuapp_common.dtsi"
 
 / {
 	model = "u-blox MINI-NORA-B10 NRF5340 Application";
