@@ -39,18 +39,21 @@ This Windows batch script helps to recover EVK-IRIS-W1 from a abnormal state, us
      - Enter `1` for Macrionix or
      - Enter `2` for Fieldex and 
      - press `Enter`.
+       
    - **Enter the COM Port Number**:
      - Enter the COMXX port number of the connected EVK (e.g., `COM1`) and press `Enter`.
+       
    - **Enter the Path to `blhost.exe`**:
      - Enter the full path to `blhost.exe` (e.g., `C:\path\to\blhost.exe`) and press `Enter`.
+       
     ```plaintext
     Enter COM port number (e.g., COM1): COM3
     Enter path to blhost.exe (e.g., C:\path\to\blhost.exe): C:\tools\blhost.exe
     ```
-  - **step for FCB_FID .bin file (only required with Fidelex)** :
+   - **step for FCB_FID .bin file (only required with Fidelex)** :
     
-   ```plaintext
-   Enter path to Enter path to FCB_FID.bin (e.g., C:\path\to\FCB_FID.bin)
+    ```plaintext
+    Enter the path to FCB_FID.bin (e.g., C:\path\to\FCB_FID.bin)
     ```
   
 
