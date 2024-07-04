@@ -1,6 +1,6 @@
 # USB-IRIS-W1
 
-This README provides instructions for setting up and running the application using MCUXpresso IDE with the latest SDK.
+This README provides instructions for setting up, building, and running the application using MCUXpresso IDE with the latest SDK.
 
 ## Required Tools
 
@@ -8,7 +8,7 @@ This README provides instructions for setting up and running the application usi
 
 **Download SDK**: Download the latest [SDK](https://mcuxpresso.nxp.com/en/welcome) (current version: 2.15.0) from the NXP website and install it in MCUXpresso IDE.
 
-**J-Link **: Download the J-Link software from Segger [here](https://www.segger.com/downloads/jlink/).
+**J-Link**: Download the J-Link software from Segger [here](https://www.segger.com/downloads/jlink/).
 
 ## Instructions for Building and Flashing the Application on USB-IRIS-W1
 
@@ -16,7 +16,7 @@ This README provides instructions for setting up and running the application usi
    - Import the example (hello_world/FreeRTOS/wifi_cli) into your MCUXpresso IDE project.
    
 2. **Update Pre-Setup Requirements**:
-   - Check [this section](#pre-setup-requirement) to set up flash configuration.
+   - Check [this section(Pre-Setup Requirement)](#pre-setup-requirement) to set up flash configuration.
 
 3. **Build the Application**:
    - Follow the standard build procedure in MCUXpresso IDE.
@@ -73,7 +73,7 @@ A2 : 0x7002
 
 ## Pre-Setup Requirement
 
-Use the **flash** files from [this location]((https://github.com/u-blox/u-blox-sho-OpenCPU/tree/master/MCUXpresso/IRIS-W1/sw_config) as per the density and vendor preset on IRIS-W1 EVK.
+Use the **flash** files from [this location](https://github.com/u-blox/u-blox-sho-OpenCPU/tree/master/MCUXpresso/IRIS-W1/sw_config) as per the density and vendor preset on IRIS-W1 EVK.
 
 1. **Replacing Flash Config File**:
      - Replace the **flash_config.c** file located at **SDK_2_xx_xxx_RD-RW612-BGA.zip\boards\rdrw612bga\flash_config\flash_config.c** in the SDK.
