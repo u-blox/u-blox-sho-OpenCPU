@@ -1,6 +1,8 @@
 # blhost Automation Script
 
-This Windows batch script helps to recover EVK-IRIS-W1 from a abnormal state, using `blhost.exe`. 
+This Windows batch script helps to recover EVK-IRIS-W1 from a abnormal state, using `blhost.exe`.
+
+ 
 
 ## Prerequisites
 

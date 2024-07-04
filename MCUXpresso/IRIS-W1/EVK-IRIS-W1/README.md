@@ -37,8 +37,8 @@ When using WiFi/BT applications, you need to flash the WiFi/BT Firmware separate
 **Using J-Link Lite Tool**:
 
    - Use the J-Link Lite tool to flash the WiFi/BT Firmware.
-   - **WiFi**: Flash `rw61x_sb_wifi.bin_v1.bin` at address `0x08400000` using J-Link Lite.
-   - **Bluetooth**: Flash `rw61x_sb_ble_a1.bin` at address `0x08540000` using J-Link Lite.
+   - **WiFi**: Flash `rw610_sb_wifi_vXX.bin` at address `0x08400000` using J-Link Lite.
+   - **Bluetooth**: Flash `rw61x_sb_ble_aXX.bin` at address `0x08540000` using J-Link Lite.
 
 **NOTE:** The WiFi/BT Firmware version depends on the chipset variant. Please use the appropriate version (e.g., a1 chipset -> XXXXXX_a1.bin). please check the more details on [this](https://github.com/u-blox/u-blox-sho-OpenCPU/tree/master/MCUXpresso/IRIS-W1/USB-IRIS-W1#flashing-firmware)
 
@@ -70,5 +70,3 @@ If you face any issues with IRIS-W1 and can't perform any operations, it might b
 ## Note
 
 If you encounter any issues or have further questions, please refer to the documentation or contact the support team for assistance.
-
-
