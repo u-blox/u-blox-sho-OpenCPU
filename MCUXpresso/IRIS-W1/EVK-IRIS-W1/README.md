@@ -1,6 +1,6 @@
 # EVK-IRIS-W1
 
-This README provides instructions for setting up and running the application using MCUXpresso IDE with the latest SDK.
+This README provides instructions for setting up, building, and running the application using MCUXpresso IDE with the latest SDK.
 
 ## Required Tools
 
@@ -8,7 +8,7 @@ This README provides instructions for setting up and running the application usi
 
 **Download SDK**: Download the latest [SDK](https://mcuxpresso.nxp.com/en/welcome) (current version: 2.15.0) from the NXP website and install it in MCUXpresso IDE.
 
-**J-Link Tool**: Download the J-Link tool from Segger [here](https://www.segger.com/downloads/jlink/).
+**J-Link**: Download the J-Link software from Segger [here](https://www.segger.com/downloads/jlink/).
 
 ## Instructions for Building and Flashing the Application on EVK-IRIS-W1
 
