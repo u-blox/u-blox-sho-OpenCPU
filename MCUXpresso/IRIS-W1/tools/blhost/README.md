@@ -47,9 +47,10 @@ This Windows batch script helps to recover EVK-IRIS-W1 from a abnormal state, us
     Enter COM port number (e.g., COM1): COM3
     Enter path to blhost.exe (e.g., C:\path\to\blhost.exe): C:\tools\blhost.exe
     ```
-
+  - **step for FCB_FID .bin file (only required with Fidelex)** :
+    
    ```plaintext
-   **NOTE**: FCB_FID.bin path also needs to be added with the Fidelex flash config file.
+   Enter path to Enter path to FCB_FID.bin (e.g., C:\path\to\FCB_FID.bin)
     ```
   
 
