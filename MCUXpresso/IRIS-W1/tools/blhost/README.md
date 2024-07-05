@@ -1,8 +1,6 @@
-# blhost Automation Script
+# blhost Automation Script (EVK-IRIS-W1)
 
-This Windows batch script helps to recover EVK-IRIS-W1 from a abnormal state, using `blhost.exe`.
-
- 
+This Windows batch script helps to recover EVK-IRIS-W1 from an abnormal state, using `blhost.exe`. (**NOTE** : script supports only EVK-IRIS-W1)
 
 ## Prerequisites
 
@@ -55,8 +53,10 @@ This Windows batch script helps to recover EVK-IRIS-W1 from a abnormal state, us
     ```plaintext
     Enter the path to FCB_FID.bin (e.g., C:\path\to\FCB_FID.bin)
     ```
-  
 
+# blhost Automation Script (USB-IRIS-W1)
+
+ TO-DO
 
 ## Troubleshooting
 
