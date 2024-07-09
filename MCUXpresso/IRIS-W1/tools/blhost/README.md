@@ -53,6 +53,12 @@ This Windows batch script helps to recover EVK-IRIS-W1 from an abnormal state, u
     ```plaintext
     Enter the path to FCB_FID.bin (e.g., C:\path\to\FCB_FID.bin)
     ```
+   - **step to flash hello_world.bin file ** :
+    
+    ```plaintext
+    For **Macronix**: Enter the path to hello_world_M8.bin (e.g., C:\path\to\hello_world_M8.bin )
+    For **Fidelix**: Enter the path to hello_world_F8.bin (e.g., C:\path\to\hello_world_F8.bin )
+    ```
 
 # blhost Automation Script (USB-IRIS-W1)
 
