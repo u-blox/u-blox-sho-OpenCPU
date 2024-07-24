@@ -95,7 +95,7 @@ Use the **flash** files from [this location](https://github.com/u-blox/u-blox-sh
 
 ## Recovery of IRIS-W1
 
-If you face any issues with IRIS-W1 and can't perform any operations, it might be in an unknown state. Use the blhost application to reset it. Find more information on [this page](IRIS-W1/tools/blhost/README.md).
+If you face any issues with IRIS-W1 and can't perform any operations, it might be in an unknown state. Use the blhost application to reset it. Find more information on [this page](https://github.com/u-blox/u-blox-sho-OpenCPU/tree/master/MCUXpresso/IRIS-W1/tools/blhost).
 
 ## Note
 
