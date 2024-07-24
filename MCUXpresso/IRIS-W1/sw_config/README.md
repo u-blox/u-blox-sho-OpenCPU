@@ -42,6 +42,7 @@ This directory (**flash_drv**) contains mflash drv files. Similar to the configu
 ### wifi_Calibration
 
 This directory (**wifi_Calibration**) contains calibration data specifically for IRIS-W1 modules.
-```
 
-This structure and detailed explanation should help users understand the purpose and content of each directory within your project.
+### wifi_txpower_cfg
+
+This directory (**wifi_txpower_cfg**) provide infomation and example header file for setting the txpower limit specifically for IRIS-W1 modules.

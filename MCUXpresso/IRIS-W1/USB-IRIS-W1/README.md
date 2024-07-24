@@ -1,6 +1,6 @@
 # USB-IRIS-W1
 
-This README provides instructions for setting up, building, and running the application using MCUXpresso IDE with the latest SDK.
+This README provides instructions for setting up, building,flashing and running the application using MCUXpresso IDE with the latest SDK.
 
 ## Required Tools
 
@@ -23,7 +23,8 @@ This README provides instructions for setting up, building, and running the appl
 
 4. **Plug the USB-IRIS-W1 into PC**: (Make sure about the boot mode, should be in QSPI mode) 
 
-5. **Debugging**:
+5. **Debugging**: (**Only possible with External Debugger**)
+   - Use external debugger and connect to USB-IRIS-W1.
    - Use debug mode in MCUXpresso IDE to flash the application onto the EVK.
    - The application will start at the main function. Use the play button to run the application.
 
@@ -33,9 +34,17 @@ When using WiFi/BT applications, you need to flash the WiFi/BT Firmware separate
 
 ### Flashing WiFi/BT Firmware
 
-**Using J-Link Lite Tool**:
+**Using blhost Tool**:
 
+   - The blhost application can be used to flash firmware on the USB-IRIS-W1.
+ 
+**NOTE:** The blhost application is intended for testing and demonstration purposes the capabilities of the module and is not recommended for feature development due to its slower flashing process and doesn't provide debug option. For extensive development, use the EVK version of IRIS-W1, which offers more GPIOs, standard connection options, and an on-board debugger.
+
+**Using External Debugger (MCU-Link Pro)**:
+
+   - Use external debugger and connect to USB-IRIS-W1 over **SW4** (10pin).
    - Use the J-Link Lite tool to flash the WiFi/BT Firmware.
+
    - **WiFi**: Flash `rw610_sb_wifi_aXX.bin` at address `0x08400000` using J-Link Lite.
    - **Bluetooth**: Flash `rw61x_sb_ble_aXX.bin` at address `0x08540000` using J-Link Lite.
 
@@ -47,8 +56,8 @@ When using WiFi/BT applications, you need to flash the WiFi/BT Firmware separate
             ex. Wi-Fi Firmware location path ->  \rdrw612bga_wifi_cli\component\conn_fwloader\fw_bin
    ```
 
-    
    ```sh
+
 Use j-link commander to identify the chipset variant, follow the  setups
 
 J-Link> con
@@ -63,7 +72,6 @@ A1 : 0x7001
 A2 : 0x7002
 
    ```
-
 
 ### Flashing Application Firmware
 
