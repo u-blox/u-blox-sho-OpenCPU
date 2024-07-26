@@ -53,6 +53,11 @@ This Windows batch script helps to recover EVK-IRIS-W1 from an abnormal state, u
     ```plaintext
     Enter the path to FCB_FID.bin (e.g., C:\path\to\FCB_FID.bin)
     ```
+   - **step to flash rw61x_sb_wifi_XX.bin file (Radio Firmware, only required with (Wifi/Bluetooth/802.15.4)) ** :
+    
+    ```plaintext
+    For **rw61x_sb_wifi_a1.bin**: Enter the path to hello_world_F8.bin (e.g., C:\path\to\rw61x_sb_wifi_a1.bin )
+    ```
    - **step to flash hello_world.bin file ** :
     
     ```plaintext
@@ -60,9 +65,43 @@ This Windows batch script helps to recover EVK-IRIS-W1 from an abnormal state, u
     For **Fidelix**: Enter the path to hello_world_F8.bin (e.g., C:\path\to\hello_world_F8.bin )
     ```
 
-# blhost Automation Script (USB-IRIS-W1)
+# blhost Automation Script for flashing **(USB-IRIS-W1)**
 
- TO-DO
+This guide outlines using the `blhost` script to flash firmware onto a USB-IRIS-W1.
+
+**Requirements**
+
+- USB-IRIS-W1 board
+- MCUXpresso IDE (latest version recommended)
+- `IRIS_blhost.bat` script
+
+**Steps**
+
+1. **Hardware Setup**
+   - Connect USB-IRIS-W1 (ISP mode) via USB. (check USB-IRIS-W1 USerGuide for DIP Switch setting)
+
+2. **Firmware Conversion**
+   - Build your firmware application.
+   - Use MCUXpresso IDE's Binary Utilities (consult IDE docs for specific steps) to convert the generated `.hex` file to a `.bin` file.
+
+3. **Flashing Process**
+   - Run `IRIS_blhost.bat`.
+   - Follow on-screen prompts to select:
+     - Flash Memory (e.g., Macrionix , Fieldex )
+     - COM Port (connected to USB-IRIS-W1)
+     - blhost Application Location (`.exe` file path)
+     - Radio Firmware (`.bin` path, e.g, rw61x_sb_wifi_aXX.bin) (this is require only with wifi/Bluetooth/802.15.4 FW)
+     - Application Firmware ( `.bin` path of application, e.g, hello_world,wifi_cli,. _)
+
+4. **Optional: Reset and Verification**
+   - After successful flashing, disconnect USB-IRIS-W1 (as prompted).
+   - Refer to the device's user manual for instructions on switching back to QSPI mode and verifying the firmware.
+
+**Troubleshooting**
+
+- **COM Port:** Verify selection in step 3 using Device Manager (Windows) or system settings (other OSes).
+- **Flashing Errors:** Refer to `blhost` script documentation or MCUXpresso IDE error messages for troubleshooting.
+
 
 ## Troubleshooting
 
