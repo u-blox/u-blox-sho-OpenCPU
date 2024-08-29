@@ -20,6 +20,7 @@ For more detailed instructions go to the offical [nRF Connect Getting Started Gu
 - In the dropdown you should see the path where nRF Connect was installed before. Choose it.
 - Under "applications" press "No build configurations Click to create one".
 - Choose all boards and select ubx_bmd360eval_nrf52811 in the drowdown.
+- Click "Add argument" button to add Extra CMake arguments "-DEXTRA_CONF_FILE=overlay-aoa.conf"
 - Press "Build Configuration" button.
 - Now project should build successfully.
 
@@ -27,7 +28,7 @@ For more detailed instructions go to the offical [nRF Connect Getting Started Gu
 - Open nRF Connect for Desktops Toolchain Manager.
 - Right next to the "nRF Connect SDK v2.7.0" you have a dropdown, click "Open bash". This step is not required, but it will set up the necessary environment variables for you.
 - `cd` to project folder
-- `west build -b ubx_bmd360eval_nrf52811`
+- `west build -b ubx_bmd360eval_nrf52811 . -- -DEXTRA_CONF_FILE=overlay-aoa.conf`
 - `west flash`
 - `west flash` only will be enough for building + flashing after that, specifying the board is only needed on the first build.
 
