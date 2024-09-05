@@ -43,8 +43,8 @@ GitHub repository.
 | EVK-ANNA-B4                  | ubx_evkannab4_nrf52833    | Tested with NCS v2.5.0 |
 | EVK-NORA-B10                 | ubx_evknorab10_nrf5340    | Tested with NCS v2.5.0 |
 | EVK-NORA-B12                 | ubx_evknorab12_nrf5340    | Tested with NCS v2.5.0 |
-| MINI-NORA-B10 Rev C or later | ubx_mininorab10_nrf5340   | Tested with NCS v2.5.0 |
-| MINI-NORA-B12 Rev C or later | ubx_mininorab12_nrf5340   | Tested with NCS v2.5.0 |
+| MINI-NORA-B10 Rev C or later | ubx_mininorab10_nrf5340   | Tested with NCS v2.6.0 |
+| MINI-NORA-B12 Rev C or later | ubx_mininorab12_nrf5340   | Tested with NCS v2.6.0 |
 | XPLR-IOT-1                   | ubx_xplriot1_nrf5340      | Tested with NCS v1.9.1 |
 
 These board support packages are retained in the repository; however, they have been moved to an "archive" folder.
@@ -86,8 +86,8 @@ The board configuration directory also contains a documentation folder.
 ## NINA-W10 OTP and RF Calibration
 This example includes examples on how to read OTP information as well as apply RF calibration and limit TX Power for compliance reasons.
 
-## IRIS-W10 USB EVK bring-up software
-These softwares need to be installed according to instructions mentioned in userguide before first use.
+## MCUxpresso
+Examples and start-up softwares for IRIS EVK and USB IRIS EVK.
 
 # Disclaimer
 Copyright &#x00a9; u-blox
