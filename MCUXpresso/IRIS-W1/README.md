@@ -26,6 +26,8 @@ software configuration files.
 
 **NOTE :** flash_config.c and mflash_drv.c file same for EVK and USB IRIS-W1.Use the appropriate config. files based on the flash variant type(vendor).
 
+**Identify module memory** 
+
 ### [tools](tools)
 
 - **blhost**: tools for blhost operations.
