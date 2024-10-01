@@ -108,7 +108,7 @@ Both values are programmed during production.
 4. Flash the compiled application onto the module.
 5. Press the reset button to display the Type Number and Serial Number via the UART Serial Console.
 
-![Type and Serial Number Demo](../images/serial.png)
+![Type and Serial Number Demo](../images/serial_type.png)
 
 - To retrieve the module's Wi-Fi STA MAC Address, follow these steps using the provided APIs:
 
