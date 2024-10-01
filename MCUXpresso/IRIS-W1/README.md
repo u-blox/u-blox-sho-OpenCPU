@@ -24,9 +24,7 @@ software configuration files.
 - Fidelex_8MB: Fidelex 8MB flash file.
 - Macronix_8MB: Macronix 8MB flash file.
 
-**NOTE :** flash_config.c and mflash_drv.c file same for EVK and USB IRIS-W1.Use the appropriate config. files based on the flash variant type(vendor).
-
-**Identify module memory** 
+**NOTE :** flash_config.c and mflash_drv.c file same for EVK and USB IRIS-W1.Use the appropriate config. files based on the flash variant type(vendor). [this](EVK-IRIS-W1/examples/README.md)
 
 ### [tools](tools)
 

@@ -43,6 +43,8 @@ This directory (**flash_drv**) contains mflash drv files. Similar to the configu
 - **Fidelex_8MB:** files specific to the Fidelex 8MB flash memory.
 - **Macronix_8MB:** files specific to the Macronix 8MB flash memory.
 
+**NOTE:** please check [this](../EVK-IRIS-W1/examples/README.md) to indetifty vendor type on module.
+
 ### labtool 
 
 This document provides guidance on the usage of RW61x manufacturing software (Labtool) application. Labtool is a software application used to control and run various RF and regulatory compliance tests.

@@ -103,7 +103,7 @@ Both values are programmed during production.
 
 1. Navigate to the file:
 	**SDK_2_16_000_RD-RW612-BGA/boards/rdrw612bga/driver_examples/romapi/otp/main.c**
-2. Replace the existing code with the provided code.[readOTP](https://github.com/u-blox/u-blox-sho-OpenCPU/tree/master/MCUXpresso/IRIS-W1/EVK-IRIS-W1/examples/Fidelex_8MB)
+2. Replace the existing code with the provided code.[readOTP](/examples/Fidelex_8MB)
 3. Compile the demo application.
 4. Flash the compiled application onto the module.
 5. Press the reset button to display the Type Number and Serial Number via the UART Serial Console.
@@ -148,9 +148,6 @@ Alternatively, you can use the existing Wi-Fi Test Mode Application in the SDK t
 	wlan-get-rf-otp-mac-addr
 6. This will display the written Wi-Fi STA MAC Address.
   
-
-- **NOTE** this precompiled binary is only for Fidelex memory boards.
-
 ## Recovery of IRIS-W1
 
 If you face any issues with IRIS-W1 and can't perform any operations, it might be in an unknown state. Use the blhost application to reset it. Find more information on [this page](https://github.com/u-blox/u-blox-sho-OpenCPU/tree/master/MCUXpresso/IRIS-W1/tools/blhost).
