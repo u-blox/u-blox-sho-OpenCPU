@@ -88,11 +88,66 @@ Use the **flash_config.c** file from [this location](https://github.com/u-blox/u
 
 ## Obtaining Device Identifiers (Serial Number, Module Type, MAC Address)
 
-When developing an application that requires access to the serial number, module type number, or MAC address of a device, there are two main approaches to obtain this data:
+When developing an application that requires access to the serial number, module type number, or MAC address of a device :
 
-1.Custom Application: Write your own application using NXP's API to retrieve these identifiers directly from the hardware, integrating it into your application.
+- To retrieve the module's Type Number and Serial Number using the romapi OTP APIs, follow these steps:
 
-2.Precompiled binary for Testing: Use the readOTP precompiled binary to quickly retrieve these identifiers for testing or verification. This method is ideal for checking data without developing cutom application. [readOTP](https://github.com/u-blox/u-blox-sho-OpenCPU/tree/master/MCUXpresso/IRIS-W1/EVK-IRIS-W1/examples/Fidelex_8MB)
+- Type Number: Read from E-Fuse IDs 305-312.
+- Serial Number: Read from E-Fuse IDs 313-316.
+
+Both values are programmed during production.
+
+### Type and Serial Number
+
+- To quickly verify the module's Type and Serial Numbers:
+
+1. Navigate to the file:
+	**SDK_2_16_000_RD-RW612-BGA/boards/rdrw612bga/driver_examples/romapi/otp/main.c**
+2. Replace the existing code with the provided code.[readOTP](https://github.com/u-blox/u-blox-sho-OpenCPU/tree/master/MCUXpresso/IRIS-W1/EVK-IRIS-W1/examples/Fidelex_8MB)
+3. Compile the demo application.
+4. Flash the compiled application onto the module.
+5. Press the reset button to display the Type Number and Serial Number via the UART Serial Console.
+
+![Type and Serial Number Demo](../images/serial_type.png)
+
+- To retrieve the module's Wi-Fi STA MAC Address, follow these steps using the provided APIs:
+
+- Initialize the Wi-Fi driver with the wlan_init(wlan_fw_bin, wlan_fw_bin_len) API.
+- Enable WLAN RF test mode using the wlan_set_rf_test_mode() API.
+- Read the Wi-Fi STA MAC Address via the wlan_get_rf_otp_mac_addr() API.
+
+### MAC address
+
+**First Method**
+
+ To quickly verify the module's Wi-Fi STA MAC Address:
+
+1. Navigate to the file:
+	SDK_2_16_000_RD-RW612-BGA/boards/rdrw612bga/wifi_examples/wifi_test_mode/main.c
+2. Replace the existing code with the provided code.[readMAC](https://github.com/u-blox/u-blox-sho-OpenCPU/tree/master/MCUXpresso/IRIS-W1/EVK-IRIS-W1/examples/Fidelex_8MB)
+3. Compile the demo application.
+4. Flash the compiled application onto the module along with the rw61x_sb_wifi_a2.bin binary at address 0x08400000.
+5. Press the reset button to display the Wi-Fi STA MAC Address on the UART Serial Console.
+
+**NOTE** For more detailed information on the Wi-Fi Test Mode Application, refer to the UM11799-NXP-Wi-Fi-and-Bluetooth-Demo-Applications-for-RW61x.pdf document located at:
+	**SDK_2_16_000_RD-RW612-BGA/docs/wireless**
+
+![MAC-address Demo](../images/macdata.png)
+
+**Second Method**
+
+Alternatively, you can use the existing Wi-Fi Test Mode Application in the SDK to read the Wi-Fi STA MAC Address:
+
+1. Navigate to:
+	SDK_2_16_000_RD-RW612-BGA/boards/rdrw612bga/wifi_examples/wifi_test_mode
+2. Compile the Wi-Fi Test Mode Application.
+3. Flash the application onto the module along with the rw61x_sb_wifi_a2.bin binary at address 0x08400000.
+4. Press the reset button to view the Wi-Fi Test Mode logs on the console.
+5. Enter the following commands, one after the other:
+	wlan-set-rf-test-mode
+	wlan-get-rf-otp-mac-addr
+6. This will display the written Wi-Fi STA MAC Address.
+  
 
 - **NOTE** this precompiled binary is only for Fidelex memory boards.
 
