@@ -6,15 +6,23 @@ This folder contains essential software configuration and calibration files for 
 ## Folder Structure
 
 ```shell
-├── bt_Calibration  
+
+├── bt_Calibration
+│   ├── fwk_config.h
+│   └── fwk_platform_ble.c
 ├── flash_config
 │   ├── Fidelex_8MB
 │   └── Macronix_8MB
 ├── flash_drv
 │   ├── Fidelex_8MB
 │   └── Macronix_8MB
+├── labtool
+│   ├── Fidelex_8MB
+│   ├── Macronix_8MB
+│   └── README.md
 ├── README.md
-└── wifi_Calibration
+├── wifi_Calibration
+└── wifi_txpower_cfg
 ```
 
 ### bt_Calibration
@@ -28,7 +36,6 @@ IRIS-W1 is built with different vendors of flash memory (Fidelex, Macronix). Thi
 - **Fidelex_8MB:** Configuration files specific to the Fidelex 8MB flash memory.
 - **Macronix_8MB:** Configuration files specific to the Macronix 8MB flash memory.
 
-
 ### flash_drv
 
 This directory (**flash_drv**) contains mflash drv files. Similar to the configuration directory, it includes subdirectories for different flash memory types.
@@ -36,8 +43,12 @@ This directory (**flash_drv**) contains mflash drv files. Similar to the configu
 - **Fidelex_8MB:** files specific to the Fidelex 8MB flash memory.
 - **Macronix_8MB:** files specific to the Macronix 8MB flash memory.
 
+**NOTE:** please check [this](../EVK-IRIS-W1/examples/README.md) to indetifty vendor type on module.
 
-**NOTE:** If you're unable to identify the flash memory vendor, please contact the u-blox support team.
+### labtool 
+
+This document provides guidance on the usage of RW61x manufacturing software (Labtool) application. Labtool is a software application used to control and run various RF and regulatory compliance tests.
+
 
 ### wifi_Calibration
 
