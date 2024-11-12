@@ -23,6 +23,7 @@ Here’s a table of GPIO pin assignments for LEDs and switches:
 | GPIO42          | RGB-Blue                  |
 | GPIO43          | RGB-Green                 |
 | GPIO44          | RGB-Red                   |
+| GPIO45          | SW1                       |
 | GPIO51          | SW2                       |
 
 ### 3. Include `pin_mux.h` in Your Application Code
