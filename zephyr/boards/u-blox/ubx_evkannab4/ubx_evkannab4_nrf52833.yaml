@@ -1,0 +1,19 @@
+identifier: ubx_evkannab4/nrf52833
+name: EVK-ANNAB4-NRF52833
+type: mcu
+arch: arm
+ram: 128
+flash: 512
+toolchain:
+  - zephyr
+  - gnuarmemb
+  - xtools
+supported:
+  - adc
+  - arduino_gpio
+  - usb_device
+  - ble
+  - gpio
+  - watchdog
+  - counter
+vendor: u-blox
