@@ -46,18 +46,25 @@ int main(void) {
     GPIO_PortInit(GPIO, 1);
 
     /* Configure RGB_BLUE pin (GPIO42) */
-    gpio_pin_config_t gpio1_pinH12_config = {
-        .pinDirection = kGPIO_DigitalOutput,
-        .outputLogic = 0U
-    };
     
-    GPIO_PinInit(GPIO, 1U, 11U, &gpio1_pinH12_config);
-    uint32_t coreClock = CLOCK_GetFreq(kCLOCK_CoreSysClk);
-    PRINTF("Core Clock = %d\n", coreClock);
+    gpio_pin_config_t RGB_BLUE_config = {
+           .pinDirection = kGPIO_DigitalOutput,
+           .outputLogic = 0U
+       };
+       
+       /* Initialize GPIO functionality on pin PIO1_10 (pin G13)  */
+   GPIO_PinInit(BOARD_INITPINS_RGB_BLUE_GPIO, BOARD_INITPINS_RGB_BLUE_PORT, BOARD_INITPINS_RGB_BLUE_PIN, &RGB_BLUE_config);
 
-    /* Toggle RGB_BLUE LED */
-    GPIO_PortToggle(GPIO, 1U, 1U << 11U);
-    SDK_DelayAtLeastUs(3000000, coreClock);
+   uint32_t coreClock = CLOCK_GetFreq(kCLOCK_CoreSysClk);
+
+   PRINTF("clock = %d\n",coreClock);
+
+   //GPIO_PortToggle(GPIO, 1U, 1u << 11U); /* need to use MACRO from pin_mux.h */
+	GPIO_PortToggle(BOARD_INITPINS_RGB_GREEN_PERIPHERAL, BOARD_INITPINS_RGB_GREEN_PORT, BOARD_INITPINS_RGB_GREEN_PIN_MASK);
+   SDK_DelayAtLeastUs(3000000, coreClock);
+   GPIO_PortToggle(BOARD_INITPINS_RGB_GREEN_PERIPHERAL, BOARD_INITPINS_RGB_GREEN_PORT, BOARD_INITPINS_RGB_GREEN_PIN_MASK);
+   SDK_DelayAtLeastUs(3000000, coreClock);
+
 }
 ```
 
