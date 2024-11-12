@@ -19,33 +19,34 @@ board.
 Board support packages for the following boards have been merged with the Zephyr
 project mainline repository: https://github.com/zephyrproject-rtos/zephyr
 
-| EVK board    | Folder                  |
-|--------------|-------------------------|
-| BMD-300-EVAL | ubx_bmd300eval_nrf52832 |
-| BMD-301-EVAL | ubx_bmd300eval_nrf52832 |
-| BMD-350-EVAL | ubx_bmd300eval_nrf52832 |
-| BMD-330-EVAL | ubx_bmd330eval_nrf52810 |
-| BMD-340-EVAL | ubx_bmd340eval_nrf52840 |
-| BMD-341-EVAL | ubx_bmd340eval_nrf52840 |
-| BMD-345-EVAL | ubx_bmd345eval_nrf52840 |
-| BMD-360-EVAL | ubx_bmd360eval_nrf52811 |
-| BMD-380-EVAL | ubx_bmd380eval_nrf52840 |
-| EVK-ANNA-B1  | ubx_evkannab1_nrf52832  |
-| EVK-NINA-B1  | ubx_evkninab1_nrf52832  |
-| EVK-NINA-B3  | ubx_evkninab3_nrf52840  |
-| EVK-NINA-B4  | ubx_evkninab4_nrf52833  |
+| EVK board    | Folder                |
+|--------------|-----------------------|
+| BMD-300-EVAL | u-blox/ubx_bmd300eval |
+| BMD-301-EVAL | u-blox/ubx_bmd300eval |
+| BMD-350-EVAL | u-blox/ubx_bmd300eval |
+| BMD-330-EVAL | u-blox/ubx_bmd330eval |
+| BMD-340-EVAL | u-blox/ubx_bmd340eval |
+| BMD-341-EVAL | u-blox/ubx_bmd340eval |
+| BMD-345-EVAL | u-blox/ubx_bmd345eval |
+| BMD-360-EVAL | u-blox/ubx_bmd360eval |
+| BMD-380-EVAL | u-blox/ubx_bmd380eval |
+| EVK-ANNA-B1  | u-blox/ubx_evkannab1  |
+| EVK-NINA-B1  | u-blox/ubx_evkninab1  |
+| EVK-NINA-B3  | u-blox/ubx_evkninab3  |
+| EVK-NINA-B4  | u-blox/ubx_evkninab4  |
 
 Board support packages for the following boards are available here at the u-blox
 GitHub repository. 
 
-| EVK board                    | Folder                    | Remarks                |
-|------------------------------|---------------------------|------------------------|
-| EVK-ANNA-B4                  | ubx_evkannab4_nrf52833    | Tested with NCS v2.5.0 |
-| EVK-NORA-B10                 | ubx_evknorab10_nrf5340    | Tested with NCS v2.5.0 |
-| EVK-NORA-B12                 | ubx_evknorab12_nrf5340    | Tested with NCS v2.5.0 |
-| MINI-NORA-B10 Rev C or later | ubx_mininorab10_nrf5340   | Tested with NCS v2.6.0 |
-| MINI-NORA-B12 Rev C or later | ubx_mininorab12_nrf5340   | Tested with NCS v2.6.0 |
-| XPLR-IOT-1                   | ubx_xplriot1_nrf5340      | Tested with NCS v1.9.1 |
+| EVK board                    | Folder                        | Remarks                |
+|------------------------------|-------------------------------|------------------------|
+| EVK-ANNA-B4                  | arm/ubx_evkannab4_nrf52833    | Tested with NCS v2.5.0 |
+| EVK-NORA-B10                 | arm/ubx_evknorab10_nrf5340    | Tested with NCS v2.5.0 |
+| EVK-NORA-B12                 | arm/ubx_evknorab12_nrf5340    | Tested with NCS v2.5.0 |
+| MINI-NORA-B10 Rev C or later | arm/ubx_mininorab10_nrf5340   | Tested with NCS v2.6.0 |
+| MINI-NORA-B12 Rev C or later | arm/ubx_mininorab12_nrf5340   | Tested with NCS v2.6.0 |
+| XPLR-IOT-1                   | arm/ubx_xplriot1_nrf5340      | Tested with NCS v1.9.1 |
+| EVK-ANNA-B4                  | u-blox/ubx_evkannab4          | Tested with NCS v2.7.0 |
 
 These board support packages are retained in the repository; however, they have been moved to an "archive" folder.
 
@@ -62,6 +63,7 @@ with mainline Zephyr.
 
 | EVK board     | Remarks                            |
 |---------------|------------------------------------|
+| EVK-ANNA-B4   |  |
 | EVK-NORA-B10  |  |
 | EVK-NORA-B12  |  |
 | MINI-NORA-B10 | Rev C and later hardware only |
