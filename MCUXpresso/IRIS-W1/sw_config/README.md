@@ -6,7 +6,8 @@ This folder contains essential software configuration and calibration files for 
 ## Folder Structure
 
 ```shell
-
+.
+├── board_file 
 ├── bt_Calibration
 │   ├── fwk_config.h
 │   └── fwk_platform_ble.c
