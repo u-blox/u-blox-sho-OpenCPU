@@ -45,49 +45,30 @@ if %errorlevel% neq 0 goto :step_failed
 echo Step 2 successful.
 timeout /t 1
 
-echo Step 3: Flash erasing region for FW .bin...
-%BLHOST_PATH% -p %COM_PORT% %TIMEOUT% -- flash-erase-region 0x08400000 0x1DFFFF
+echo Step 3: Flash erasing region...
+%BLHOST_PATH% -p %COM_PORT% %TIMEOUT% -- flash-erase-region 0x18000400 0x200000
 if %errorlevel% neq 0 goto :step_failed
 
 echo Step 3 successful.
 timeout /t 2
 
-set /p M_FW_BIN=Enter path to FW .bin (applicable on radio FW if not please press Enter to continue) (e.g., C:\path\to\rw612XX_wifi_aXX.bin): 
-
-if not "%M_FW_BIN%"=="" (
-    echo Step 4: Writing FW .bin to memory...
-    timeout /t 2
-    "%BLHOST_PATH%" -p %COM_PORT% %TIMEOUT% -- write-memory 0x08400000 "%M_FW_BIN%"
-
-    if %errorlevel% neq 0 goto :step_failed
-
-    echo Step 4 successful.
-) else (
-    echo No firmware binary path provided. Skipping blhost execution.
-    timeout /t 2
-)
-
-echo Step 5: Flash erasing region...
-%BLHOST_PATH% -p %COM_PORT% %TIMEOUT% -- flash-erase-region 0x08000000 0x3FFFFF
-if %errorlevel% neq 0 goto :step_failed
-
-echo Step 5 successful.
-timeout /t 2
-
 rem New Step: Prompt for application .bin location
 set /p APP_BIN=Enter path to application .bin (e.g., hello_world.bin/wifi_cli.bin, C:\path\to\hello_world.bin): 
 
-echo Step 6: Writing application .bin to memory...
-%BLHOST_PATH% -p %COM_PORT% %TIMEOUT% -- write-memory 0x08000000 %APP_BIN%
+echo Step 4: Writing application .bin to memory...
+%BLHOST_PATH% -p %COM_PORT% %TIMEOUT% -- write-memory 0x18000400 %APP_BIN%
 if %errorlevel% neq 0 goto :step_failed
 
-echo Step 6 successful.
+echo Step 4 successful.
 timeout /t 1
 
 echo Macronix steps successful.
 timeout /t 5
 
 goto :done
+
+## ---------------FIDELIX PART----------------- ##
+
 
 rem Function to perform all steps for Fidelix
 :fidelix_steps
@@ -117,7 +98,7 @@ echo Step 3 successful.
 timeout /t 1
 
 echo Step 4: Flash erasing region 0x08000000 
-%BLHOST_PATH% -p %COM_PORT% %TIMEOUT% -- flash-erase-region 0x08000000 0x3FFFFF
+%BLHOST_PATH% -p %COM_PORT% %TIMEOUT% -- flash-erase-region 0x08000000 0x1000
 if %errorlevel% neq 0 goto :step_failed
 
 echo Step 4 successful.
@@ -137,45 +118,21 @@ if %errorlevel% neq 0 goto :step_failed
 echo Step 6 successful.
 timeout /t 1
 
-echo Step 7: Flash erasing region 0x08400000 
-%BLHOST_PATH% -p %COM_PORT% %TIMEOUT% -- flash-erase-region 0x08400000 0x1DFFFF
+echo Step 7: Flash erasing region 0x08000000 
+%BLHOST_PATH% -p %COM_PORT% %TIMEOUT% -- flash-erase-region 0x08000000 0x10000
 if %errorlevel% neq 0 goto :step_failed
 
 echo Step 7 successful.
 timeout /t 1
 
-set /p F_FW_BIN=Enter path to FW .bin (e.g., C:\path\to\rw612XX_aXX.bin): 
-
-if not "%F_FW_BIN%"=="" (
-    echo Step 8: Writing FW .bin to memory...
-    timeout /t 2
-    "%BLHOST_PATH%" -p %COM_PORT% %TIMEOUT% -- write-memory 0x08400000 "%F_FW_BIN%"
-
-    if %errorlevel% neq 0 goto :step_failed
-
-    echo Step 8 successful.
-) else (
-    echo No firmware binary path provided. Skipping blhost execution.
-    timeout /t 2
-)
-
-
-echo Step 9: Flash erasing region 0x08000000 
-%BLHOST_PATH% -p %COM_PORT% %TIMEOUT% -- flash-erase-region 0x08000000 0x3FFFFF
-if %errorlevel% neq 0 goto :step_failed
-
-echo Step 9 successful.
-timeout /t 1
-
-
 rem New Step: Prompt for application .bin location
 set /p F_APP_BIN=Enter path to application .bin (e.g., hello_world.bin/wifi_cli.bin, C:\path\to\hello_world.bin): 
 
-echo Step 10: Writing application .bin to memory...
+echo Step 8: Writing application .bin to memory...
 %BLHOST_PATH% -p %COM_PORT% %TIMEOUT% -- write-memory 0x08000000 %F_APP_BIN%
 if %errorlevel% neq 0 goto :step_failed
 
-echo Step 10 successful.
+echo Step 8 successful.
 timeout /t 3
 
 echo End of Fidelix .

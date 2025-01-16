@@ -36,7 +36,7 @@ When using WiFi/BT applications, you need to flash the WiFi/BT Firmware separate
 
 **Using blhost Tool**:
 
-   - The blhost application can be used to flash the firmware on the USB-IRIS-W1.[Check this](https://github.com/u-blox/u-blox-sho-OpenCPU/tree/master/MCUXpresso/IRIS-W1/tools/blhost#blhost-automation-script-for-flashing-usb-iris-w1)
+   - The blhost application can be used to flash the firmware on the USB-IRIS-W1.[Check this](../recovery_tool/blhost/README.md)
  
 **NOTE:** The blhost application is intended for testing and demonstration purposes the capabilities of the module and is not recommended for feature development due to its slower flashing process and doesn't provide debug option. For extensive development, use the EVK version of IRIS-W1, which offers more GPIOs, standard connection options, and an on-board debugger.
 
