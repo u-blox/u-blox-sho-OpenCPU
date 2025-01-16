@@ -85,6 +85,7 @@ Use the **flash_config.c** file from [this location](https://github.com/u-blox/u
      - Replace the **fwk_config.h** file located at **D:\SDK_2_15_000_RD-RW612-BGA.zip\middleware\wireless\framework\platform\rw61x\configs** in the example.
      - Replace the **fwk_platform_ble.c** file located at **D:\SDK_2_15_000_RD-RW612-BGA.zip\middleware\wireless\framework\platform\rw61x** in the example.
    
+**NOTE**: We can use the same flash file, and .bin files for the **Fidelix 16 MB** variant as for the **8 MB** variant.
 
 ## Obtaining Device Identifiers (Serial Number, Module Type, MAC Address)
 
