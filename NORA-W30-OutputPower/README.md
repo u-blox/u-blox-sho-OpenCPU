@@ -64,5 +64,18 @@ In the main(void) function, call the printallvalues() before wlan_network() func
 printallvalues();
 wlan_network();
 ```
-
+Adaptivity is needed for some Regulatory domains like ETSI, enable this with the following in the wifi_set_mib(void) function.
+```
+void wifi_set_mib(void)
+{
+    // adaptivity
+    wext_set_adaptivity(RTW_ADAPTIVITY_NORMAL);
+    wext_set_adaptivity_th_l2h_ini(242);
+    // auto set adaptivity
+    wext_auto_set_adaptivity(RTW_ADAPTIVITY_NORMAL);
+.
+.
+.
+}
+```
 
