@@ -65,6 +65,7 @@ printallvalues();
 wlan_network();
 ```
 Adaptivity is needed for some Regulatory domains like ETSI, enable this with the following in the wifi_set_mib(void) function.
+The threshold for adaptivity is 242.
 ```
 void wifi_set_mib(void)
 {
