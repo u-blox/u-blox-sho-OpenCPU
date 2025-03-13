@@ -1,4 +1,26 @@
-# u-blox NORA-W30 openCPU output power settings
+# u-blox NORA-W30 openCPU
+## Adaptivity configuration
+Enabling adaptivity feature is required for some Regulatory domains, e.g. ETSI.
+
+You enable this with the following in the wifi_set_mib(void) function.
+
+The threshold for adaptivity should be set to 242 as in the below example.
+```
+void wifi_set_mib(void)
+{
+    // adaptivity
+    wext_set_adaptivity(RTW_ADAPTIVITY_NORMAL);
+    wext_set_adaptivity_th_l2h_ini(242);
+    // auto set adaptivity
+    wext_auto_set_adaptivity(RTW_ADAPTIVITY_NORMAL);
+.
+.
+.
+}
+```
+
+## Output power settings
+Power limit tables provided here by u-blox need to be used to maintain regulatory compliance.
 
 1. Download one of the two files depending of the model of NORA-W30<br><br>
 2. Add the file for NORA-W301: **rtw_opt_rf_para_rtl8721d_W301.c**<br>
@@ -64,5 +86,3 @@ In the main(void) function, call the printallvalues() before wlan_network() func
 printallvalues();
 wlan_network();
 ```
-
-
