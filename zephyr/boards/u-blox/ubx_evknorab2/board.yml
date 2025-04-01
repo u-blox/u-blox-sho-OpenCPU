@@ -1,0 +1,10 @@
+board:
+  name: ubx_evknorab2
+  vendor: u-blox
+  socs:
+  - name: nrf54l15
+    variants:
+    - name: xip
+      cpucluster: cpuflpr
+    - name: ns
+      cpucluster: cpuapp
