@@ -47,6 +47,7 @@ GitHub repository.
 | MINI-NORA-B12 Rev C or later | arm/ubx_mininorab12_nrf5340   | Tested with NCS v2.6.0 |
 | XPLR-IOT-1                   | arm/ubx_xplriot1_nrf5340      | Tested with NCS v1.9.1 |
 | EVK-ANNA-B4                  | u-blox/ubx_evkannab4          | Tested with NCS v2.7.0 |
+| EVK-NORA-B2                  | u-blox/ubx_evknorab2          | Tested with NCS v2.9.0 |
 
 These board support packages are retained in the repository; however, they have been moved to an "archive" folder.
 
@@ -80,6 +81,8 @@ the Zephyr mainline project. They will remain here at the u-blox repository:
 Please store the board configuration directory in the
 
 	<install directory>/zephyr/boards/arm
+	or
+	<install directory>/zephyr/boards/u-blox (for HW model v2)
 
 folder and then build your code for that board.
 
