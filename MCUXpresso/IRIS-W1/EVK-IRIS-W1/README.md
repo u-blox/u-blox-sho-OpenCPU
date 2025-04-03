@@ -76,14 +76,16 @@ A2 : 0x7002
 Use the **flash_config.c** file from [this location](https://github.com/u-blox/u-blox-sho-OpenCPU/tree/master/MCUXpresso/IRIS-W1/sw_config/flash_config) as per the density and vendor preset on IRIS-W1 EVK.
 
 1. **Replacing Flash Config File**:
-     - Replace the **flash_config.c** file located at **SDK_2_xx_xxx_RD-RW612-BGA.zip\boards\rdrw612bga\flash_config\flash_config.c** in the SDK.
+     - Replace the **flash_config.c** file located at **SDK_2_xx_xxx_RD-RW612-BGA\boards\rdrw612bga\flash_config\flash_config.c** in the SDK.
 2. **Replacing MFlash Config File**: 
-     - Replace the **mflash_drv.c** file located at **SDK_2_xx_xxx_RD-RW612-BGA.zip\components\flash\mflash\rdrw612bga\mflash_drv.c** in the SDK.
+     - Replace the **mflash_drv.c** file located at **SDK_2_xx_xxx_RD-RW612-BGA\components\flash\mflash\rdrw612bga\mflash_drv.c** in the SDK based on the SDK versions.
 3. **Replacing wifi_cal_data File**: 
-     - Replace the **wifi_cal_data_ext.h** file located at **SDK_2_xx_xxx_RD-RW612-BGA.zip\middleware\wifi_nxp\incl\wifi_cal_data_ext.h** in the example.
+     - Replace the **wifi_cal_data_ext.h** or **wifi_cal_data_rw61x_2ant.h** file located at **SDK_2_xx_xxx_RD-RW612-BGA\middleware\wifi_nxp\incl** in the SDK based on the SDK versions.
+     - For more information, please refer to [Readme](/MCUXpresso/IRIS-W1/sw_config/wifi_Calibration/README.md)
 4. **Replacing bt_Calibration File**: 
-     - Replace the **fwk_config.h** file located at **D:\SDK_2_15_000_RD-RW612-BGA.zip\middleware\wireless\framework\platform\rw61x\configs** in the example.
-     - Replace the **fwk_platform_ble.c** file located at **D:\SDK_2_15_000_RD-RW612-BGA.zip\middleware\wireless\framework\platform\rw61x** in the example.
+     - Replace the **fwk_config.h** file located at **SDK_2_xx_xxx_RD-RW612-BGA\middleware\wireless\framework\platform\rw61x\configs** in the SDK based on the SDK versions.
+     - Replace the **fwk_platform_ble.c** file located at **SDK_2_xx_xxx_RD-RW612-BGA\middleware\wireless\framework\platform\rw61x** in the SDK based on the SDK versions.
+     - For more information, please refer to [Readme](/MCUXpresso/IRIS-W1/sw_config/BT_802_15_4_Calibration_Files/README.md)
    
 **NOTE**: We can use the same flash file, and .bin files for the **Fidelix 16 MB** variant as for the **8 MB** variant.
 
