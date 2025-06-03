@@ -1,78 +1,142 @@
 
-## Software Configuration 
+# IRIS-W1 Software Configuration and Calibration
 
-This folder contains essential software configuration and calibration files for the IRIS-W1 module.
+This repository contains essential software configuration files, calibration data, and board-specific settings for the **IRIS-W1** module. These files ensure proper operation of wireless subsystems and flash memory support for various vendors.
 
-## Folder Structure
+---
+
+## 📁 Folder Structure
 
 ```shell
 .
 ├── App_note_15_4_Radio
 │   └── README.md
-├── board_file 
+├── board_files
 ├── BT_802_15_4_Calibration_Files
+│   ├── README.md
 │   ├── SDK_2_16_000
 │   │   ├── fwk_config.h
 │   │   └── fwk_platform_ble.c
-│   └── SDK_2_16_100
+│   │── SDK_2_16_100
+│   │   ├── fwk_config.h
+│   │   └── fwk_platform_ble.c
+│   └── SDK_24_12_00
 │       ├── fwk_config.h
 │       └── fwk_platform_ble.c
 ├── flash_config
 │   ├── Fidelex_8MB
+│   │   └── flash_config.c
 │   └── Macronix_8MB
+│        └── flash_config.c
 ├── flash_drv
 │   ├── Fidelex_8MB
+│   │   ├── README.md
+│   │   ├── SDK_2_16_100
+│   │   │   └── mflash_drv.c
+│   │   └── SDK_24_12_00
+│   │        └── mflash_drv.c
 │   └── Macronix_8MB
+│        └── mflash_drv.c
 ├── labtool
-│   ├── app_config.h
+│   ├── mcux_config.h
 │   ├── Fidelex_8MB
 │   ├── Macronix_8MB
+│   ├── Single_antenna_calibration_data_text_files
 │   └── README.md
 ├── README.md
 ├── wifi_Calibration
+│   ├── README.md
+│   ├── SDK_2_16_100
+│   │   └── wifi_cal_data_ext.h
+│   └── SDK_24_12_00
+│       └── wifi_cal_data_rw61x_1ant.h
 └── wifi_txpower_cfg
+    ├── README.md
+    └── wlan_txpwrlimit_cfg_WW_rw610.h
 ```
 
+---
 
-### App_note_15_4_Radio
-- Contains application notes README and resources for working with the 802.15.4 radio.
+## 📘 Directory Overview
 
-### board_file
-- EVK-IRIS pin mux file ,board-specific configuration files.
+### [`App_note_15_4_Radio/`](/MCUXpresso/IRIS-W1/sw_config/App_note_15_4_Radio/)
+Contains application notes and guidance for using the 802.15.4 radio subsystem.
 
-### BT_802_15_4_Calibration_Files
+---
 
-This directory (**BT_802_15_4_Calibration_Files**) contains custom calibration data specifically for IRIS-W1 modules to ensure proper toggling of the RF CTRL switch. The default settings in the NXP SDK may not correctly manage this functionality. This is an important configuration file when we use BT/Wi-Fi applications.
+### [`board_files/`](/MCUXpresso/IRIS-W1/sw_config/board_files/)
+Includes EVK-IRIS pin mux and other board-specific configuration files.
 
-### flash_config 
+---
 
-IRIS-W1 is built with different vendors of flash memory (Fidelex, Macronix). This directory holds configuration files for flash memory. It includes subdirectories for different flash memory types.
+### [`BT_802_15_4_Calibration_Files/`](/MCUXpresso/IRIS-W1/sw_config/BT_802_15_4_Calibration_Files/)
+Houses **custom calibration data for Bluetooth and 802.15.4 radios** tailored for the IRIS-W1 module.
 
-- **Fidelex_8MB:**  [Link](flash_config/Fidelex_8MB/) 
-- **Macronix_8MB:** [Link](flash_config/Macronix_8MB/) 
+> 🛠️ These files override default NXP SDK settings to ensure correct toggling of the RF CTRL switch during radio operation.
 
+Structure:
+- Supports multiple SDK versions (e.g., `SDK_2_16_100`, `SDK_24_12_00`)
+- Contains `fwk_config.h` and `fwk_platform_ble.c` files
 
-**NOTE**: We can use the same flash file, and .bin files for the **Fidelix 16 MB** variant as for the **8 MB** variant.
+---
 
-### flash_drv
+### [`flash_config/`](/MCUXpresso/IRIS-W1/sw_config/flash_config/)
+Contains configuration files for different **flash memory vendors** used in IRIS-W1 modules:
 
-This directory (**flash_drv**) contains mflash drv files. Similar to the configuration directory, it includes subdirectories for different flash memory types.
+- [`Fidelex_8MB/`](/MCUXpresso/IRIS-W1/sw_config/flash_config/Fidelex_8MB/)
+- [`Macronix_8MB/`](/MCUXpresso/IRIS-W1/sw_config/flash_config/Macronix_8MB/)
 
-- **Fidelex_8MB:**  [Link](flash_drv/Fidelex_8MB/) 
-- **Macronix_8MB:** [Link](flash_drv/Macronix_8MB/) 
+> **Note:** Both **Fidelix 8MB** and **Fidelix 16MB** variants use the same configuration files.
 
-**NOTE**: We can use the same flash file, and .bin files for the **Fidelix 16 MB** variant as for the **8 MB** variant.
+---
 
-**NOTE:** please check [this](../EVK-IRIS-W1/examples/README.md) to indetifty vendor type on module.
+### [`flash_drv/`](/MCUXpresso/IRIS-W1/sw_config/flash_drv/)
+Includes **flash driver (mflash)** files for different flash types:
 
-### labtool 
+- [`Fidelex_8MB/`](/MCUXpresso/IRIS-W1/sw_config/flash_drv/Fidelex_8MB/)
+- [`Macronix_8MB/`](/MCUXpresso/IRIS-W1/sw_config/flash_drv/Macronix_8MB/)
 
-This document provides guidance on the usage of RW61x manufacturing software (Labtool) application. Labtool is a software application used to control and run various RF and regulatory compliance tests.
+Supports multiple SDK versions.
 
-### wifi_Calibration
+> **Note:** The same configurational driver files can be used for both **Fidelix 8MB** and **Fidelix 16MB** variants.
 
-This directory (**wifi_Calibration**) contains calibration data specifically for IRIS-W1 modules.
+> 🔍 See [README.md](/MCUXpresso/IRIS-W1/README.md#identifying-module-flash-memory) for instructions on identifying the **Flash vendor** used in your module.
 
-### wifi_txpower_cfg
+---
 
-This directory (**wifi_txpower_cfg**) provide infomation and example header file for setting the txpower limit specifically for IRIS-W1 modules.
+### [`labtool/`](/MCUXpresso/IRIS-W1/sw_config/labtool/)
+Provides configuration and support files for the **RW61x Labtool** — a manufacturing software utility used for:
+- RF control
+- Calibration
+- Regulatory compliance testing
+
+Includes:
+- `mcux_config.h`
+- Calibration files
+
+---
+
+### [`wifi_Calibration/`](/MCUXpresso/IRIS-W1/sw_config/wifi_Calibration/)
+Holds **Wi-Fi calibration headers** for different SDK versions and board configurations.
+
+- `wifi_cal_data_ext.h`
+- `wifi_cal_data_rw61x_1ant.h`
+
+---
+
+### [`wifi_txpower_cfg/`](/MCUXpresso/IRIS-W1/sw_config/wifi_txpower_cfg/)
+Contains Wi-Fi **transmit power limit settings** in header format. These settings are essential for ensuring the module complies with regional regulatory standards.
+
+- `wlan_txpwrlimit_cfg_WW_rw610.h`
+
+---
+
+## 🔗 Additional Notes
+
+- Be sure to select the correct SDK version and flash memory variant when integrating these files into your project.
+
+---
+
+## 📞 Support
+
+For more details, refer to NXP documentation or contact u-blox support.

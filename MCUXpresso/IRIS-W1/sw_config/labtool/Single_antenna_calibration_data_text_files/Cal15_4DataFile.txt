@@ -1,0 +1,5 @@
+[_15_4_Config]
+_15_4_Version=0x01
+_15_4_TxPowerLimit=30
+_15_4_Address=80.70.60.50.40.30.20.10
+_15_4_SPIClk=0

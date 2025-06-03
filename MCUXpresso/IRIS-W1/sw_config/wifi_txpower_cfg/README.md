@@ -1,22 +1,60 @@
+# 📡 Integration of Wi-Fi Tx-Power Limits for Wi-Fi Applications
 
-# Integration of Wi-Fi Tx-Power Limits to Wi-Fi CLI Application
+This document outlines the steps required to integrate u-blox-specific Wi-Fi transmit power limits into your Wi-Fi application using the NXP SDK.
 
-## Steps for Integration
+## 📁 Integration Steps
 
-1. **Download Instructions and Required Files**
-   - Visit the [NXP website](https://www.nxp.com/webapp/sps/download/license.jsp?colCode=RW61x-Regulatory_Tx_PowerTableUtil.v2p5&appType=file1&DOWNLOAD_ID=null) (login required) to download the instructions and necessary files to integrate custom Tx-Power limits into the SDK.
+Follow these steps to update and apply region-specific Tx-power configurations:
 
-2. **Create the Header File**
-   - Use the provided Excel sheet `RW610_Sample_TX_PowerTable_US.xslx` and follow the instructions from NXP to generate a header file named `wlan_txpwrlimit_cfg_US_rw610.h`.
+1. Navigate to the folder:
+   `SDK/components/wifi_bt_module/AzureWave/tx_pwr_limits/`
 
-3. **Modify Configuration in Wi-Fi CLI**
-   - In the `app_config.h` file of the Wi-Fi CLI application, change the line:
-     ```c
-     #define WIFI_BT_TX_PWR_LIMITS "wlan_txpwrlimit_cfg_WW_rw610.h"
+2. Replace the default power table file: `wlan_txpwrlimit_cfg_WW_rw610.h` with the **u-blox-specific** version i.e, available at: [wlan_txpwrlimit_cfg_WW_rw610.h](/MCUXpresso/IRIS-W1/sw_config/wifi_txpower_cfg/wlan_txpwrlimit_cfg_WW_rw610.h), that complies with your target region’s regulatory standards.
+
+3. Ensure this update is completed **before building** your Wi-Fi application.
+
+4. Compile and flash the updated Wi-Fi application onto the module.
+
+5. Select the appropriate country/region code to activate the corresponding certified power table.
+   For example, in the Wi-Fi CLI application:
+   - Set the region code using:
+     <details>
+     <summary><b><code>wlan-set-regioncode</code></b></summary>
+
+     <p style="color: grey;">
+
+     <b>Usage:</b><br>
+     <code>wlan-set-regioncode &lt;region-code&gt;</code><br><br>
+
+     <b>where, region code =</b><br>
+     <code>0x00</code> : World Wide Safe Mode<br>
+     <code>0x10</code> : US FCC, Singapore<br>
+     <code>0x30</code> : ETSI, Australia, Republic of Korea<br>
+     <code>0xFF</code> : Japan<br>
+
+     </p>
+     </details>
+   - View the configured region code using:
      ```
-     to:
-     ```c
-     #define WIFI_BT_TX_PWR_LIMITS "wlan_txpwrlimit_cfg_US_rw610.h"
+     wlan-get-regioncode
+     ```
+   - View the configured power limits per channel using:
+     ```
+     wlan-get-txpwrlimit <subband>
      ```
 
-By following these steps, you can successfully integrate custom Tx-Power limits into the Wi-Fi CLI application.
+## 🌐 Supported Regions
+
+The u-blox-specific power table currently includes certified configurations for:
+- FCC (United States)
+- ETSI (Europe)
+- Japan (JP)
+- World Wide (WW)
+
+Additional countries will be added as their certifications are completed.
+
+## 🛠 Troubleshooting
+
+If you experience issues or have questions:
+- Refer to the official SDK documentation.
+- Contact the u-blox support team for further assistance.

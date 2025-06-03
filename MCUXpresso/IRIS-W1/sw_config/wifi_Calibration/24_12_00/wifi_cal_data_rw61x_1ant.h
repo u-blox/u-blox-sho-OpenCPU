@@ -5,9 +5,9 @@
  *
  */
 
-/** @file wifi_cal_data_rw61x_2ant.h
+/** @file wifi_cal_data_rw61x_1ant.h
  *
- *  @brief  This file contains the antenna calibration data for rw61x 2 antenna board.
+ *  @brief  This file contains the antenna calibration data for rw61x 1 antenna board.
  */
 
 const uint8_t cal_data_rw610[] = {
