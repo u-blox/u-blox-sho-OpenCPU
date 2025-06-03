@@ -1,160 +1,145 @@
-# EVK-IRIS-W1
+# EVK-IRIS-W1 Setup Guide
 
-This README provides instructions for setting up, building, and running the application using MCUXpresso IDE with the latest SDK.
+This README provides step-by-step instructions for setting up, building, flashing, and running applications on the **EVK-IRIS-W1** development board using **MCUXpresso IDE** and the latest **NXP SDK**.
 
-## Required Tools
+---
 
-**Install MCUXpresso IDE**: Ensure that MCUXpresso IDE is installed on your system. If not, download and install it from the official [NXP website](https://www.nxp.com/design/design-center/software/development-software/mcuxpresso-software-and-tools-/mcuxpresso-integrated-development-environment-ide:MCUXpresso-IDE).
+## 🛠️ Required Tools
 
-**Download SDK**: Download the latest [SDK](https://mcuxpresso.nxp.com/en/welcome) (current version: 2.15.0) from the NXP website and install it in MCUXpresso IDE.
+- **MCUXpresso IDE**
+  Download and install from the official [NXP website](https://www.nxp.com/mcuxpresso/ide).
 
-**J-Link**: Download the J-Link software from Segger [here](https://www.segger.com/downloads/jlink/).
+- **NXP SDK (v25.03.00 or latest)**
+  Download from [MCUXpresso SDK Portal](https://mcuxpresso.nxp.com/en/welcome) and import into MCUXpresso IDE.
 
-## Instructions for Building and Flashing the Application on EVK-IRIS-W1
+- **SDK Documentation**
+  Access the latest documentation at [MCUXpresso SDK API Reference](https://mcuxpresso.nxp.com/mcuxsdk/latest/html/index.html).
 
-1. **Example Project**:
-   - Import the example (hello_world/FreeRTOS/wifi_cli) into your MCUXpresso IDE project.
-   
-2. **Update Pre-Setup Requirements**:
-   - Check [this section](#pre-setup-requirement) to set up flash configuration. (if you have updated flash config files in SDK, then ignore)
+- **J-Link Software**
+  Download from [Segger Downloads](https://www.segger.com/downloads/jlink/).
 
-3. **Build the Application**:
-   - Follow the standard build procedure in MCUXpresso IDE.
+---
 
-4. **Connect EVK to PC**:
-   - Connect your EVK (Evaluation Kit) to your PC using a USB-C cable.
+## 🚀 Getting Started with EVK-IRIS-W1
 
-5. **Debugging**:
-   - Use debug mode in MCUXpresso IDE to flash the application onto the EVK.
-   - The application will start at the main function. Use the play button to run the application.
+### 1. Import Example Project
 
-## Flashing Firmware
+- Import the `hello_world/FreeRTOS/wifi_cli` example into your MCUXpresso workspace.
 
-When using WiFi/BT applications, you need to flash the WiFi/BT Firmware separately from the application.
+### 2. Apply Pre-Setup Configuration
 
-### Flashing WiFi/BT Firmware
+- Refer to [Pre-Setup Requirement](#️-pre-setup-requirement) for flash memory and calibration setup based on the u-blox module variant.
 
-   you can find the latest Radio Firmware in the SDK as well    
-   
-   ```sh
-            ex. Wi-Fi Firmware location path ->  \rdrw612bga_wifi_cli\component\conn_fwloader\fw_bin
-   ```
+### 3. Build the Application
 
-**Using J-Link Lite Tool**:
+- Build the project using the standard build process in MCUXpresso IDE.
 
-   - Use the J-Link Lite tool to flash the WiFi/BT Firmware.
-   - **WiFi**: Flash `rw610_sb_wifi_vXX.bin` at address `0x08400000` using J-Link Lite.
-   - **Bluetooth**: Flash `rw61x_sb_ble_aXX.bin` at address `0x08540000` using J-Link Lite.
+### 4. Connect EVK-IRIS-W1
 
-**NOTE:** The WiFi/BT Firmware version depends on the chipset variant. Please use the appropriate version (e.g., a1 chipset -> XXXXXX_a1.bin). 
+- Connect the EVK-IRIS-W1 board to your PC via USB-C cable at USB 3-MCULINK port.
+- Make sure the board is set to **QSPI Flash boot mode**, and that the **SW8** and **SW3** DIP switches are in their default positions.
+- For more information related to documentation, refer to [Notes](#-notes).
 
-   ```sh
-Use j-link commander to identify the chipset variant, follow the  setups
+### 5. Debugging (Onboard Debugger)
 
+- By default onboard debugger (MCU-Link) has been enabled to program the module.
+- Use MCUXpresso IDE’s debug option to flash and run the application.
+
+---
+
+## 📡 Flashing Wi-Fi / Bluetooth Firmware
+
+Wi-Fi and Bluetooth firmware must be flashed separately from the main application.
+
+### Firmware Flash Addresses
+
+| Firmware | Binary Name | Flash Address |
+|----------|-------------|----------------|
+| Wi-Fi    | `rw610_sb_wifi_aXX.bin` | `0x08400000` |
+| Bluetooth| `rw61x_sb_ble_aXX.bin` | `0x08540000` |
+
+> **Note**: Firmware version (`aXX`) must match the module’s chipset variant. See [Identify Chipset Variant](#-identify-the-variant-of-the-chipset).
+
+### Flashing Tools
+
+- Use **J-Flash Lite** or the **JLink Commander** tool for flashing firmware.
+
+**Firmware Location in SDK**:
+```
+SDK/components/conn_fwloader/fw_bin
+```
+
+### Using Internal Debugger / Onboard Debugger
+
+- Connect EVK to your PC using a USB-C cable at USB 3-MCULINK port.
+- Use **J-Flash Lite / J-Link Commander** to flash Wi-Fi/BT firmware binaries.
+
+---
+
+## 🔍 Identify the Variant of the Chipset
+
+Use **J-Link Commander** to read the silicon variant:
+
+```shell
 J-Link> con
 Device> RW610
-TIF>S
-Speed><Enter>
-J-Link > mem32 45001114 1
+TIF> S
+Speed> <press enter>
+J-Link> mem32 45001114 1
+```
 
-Below is the hexadecimal representation of the chipset variant.
-A0 : 0x7000
-A1 : 0x7001
-A2 : 0x7002
+### Variant Hex Values
 
-   ```
+| Variant | Value    |
+|---------|----------|
+| A0      | `0x7000` |
+| A1      | `0x7001` |
+| A2      | `0x7002` |
 
+---
 
-### Flashing Application Firmware
+## 🔧 Flashing the Application Firmware
 
-**Flashing the Application**:
-   - After flashing the WiFi/BT Firmware, you can flash the application Firmware using the [same method mentioned above](#instructions-for-building-and-flashing-the-application-on-evk-iris-w1).
-   - Alternatively, pre-built application Firmware can be downloaded from GitHub and flashed using J-Link Lite.
+Once Wi-Fi/BT firmware is flashed:
 
-## Pre-Setup Requirement
+- Flash the application using MCUXpresso IDE or J-Flash Lite.
+- [Pre-built binaries](/MCUXpresso/IRIS-W1/compiled_binaries/) can also be used based on the module's Flash memory. For more information, refer to [Identify Module's Flash Memory](/MCUXpresso/IRIS-W1/README.md#identifying-module-flash-memory).
 
-Use the **flash_config.c** file from [this location](https://github.com/u-blox/u-blox-sho-OpenCPU/tree/master/MCUXpresso/IRIS-W1/sw_config/flash_config) as per the density and vendor preset on IRIS-W1 EVK.
+---
 
-1. **Replacing Flash Config File**:
-     - Replace the **flash_config.c** file located at **SDK_2_xx_xxx_RD-RW612-BGA\boards\rdrw612bga\flash_config\flash_config.c** in the SDK.
-2. **Replacing MFlash Config File**: 
-     - Replace the **mflash_drv.c** file located at **SDK_2_xx_xxx_RD-RW612-BGA\components\flash\mflash\rdrw612bga\mflash_drv.c** in the SDK based on the SDK versions.
-3. **Replacing wifi_cal_data File**: 
-     - Replace the **wifi_cal_data_ext.h** or **wifi_cal_data_rw61x_2ant.h** file located at **SDK_2_xx_xxx_RD-RW612-BGA\middleware\wifi_nxp\incl** in the SDK based on the SDK versions.
-     - For more information, please refer to [Readme](/MCUXpresso/IRIS-W1/sw_config/wifi_Calibration/README.md)
-4. **Replacing bt_Calibration File**: 
-     - Replace the **fwk_config.h** file located at **SDK_2_xx_xxx_RD-RW612-BGA\middleware\wireless\framework\platform\rw61x\configs** in the SDK based on the SDK versions.
-     - Replace the **fwk_platform_ble.c** file located at **SDK_2_xx_xxx_RD-RW612-BGA\middleware\wireless\framework\platform\rw61x** in the SDK based on the SDK versions.
-     - For more information, please refer to [Readme](/MCUXpresso/IRIS-W1/sw_config/BT_802_15_4_Calibration_Files/README.md)
-   
-**NOTE**: We can use the same flash file, and .bin files for the **Fidelix 16 MB** variant as for the **8 MB** variant.
+## ⚙️ Pre-Setup Requirement
 
-## Obtaining Device Identifiers (Serial Number, Module Type, MAC Address)
+Use the [software configuration files](/MCUXpresso/IRIS-W1/sw_config/) based on your module’s memory variant and SDK version. Replace the **Files** located in the SDK Location with the corresponding files from the **Replacement Source**, as detailed in the table below.
 
-When developing an application that requires access to the serial number, module type number, or MAC address of a device :
+| File Type | SDK Location | Replacement Source |
+|-----------|--------------|--------------------|
+| `flash_config.c` | `boards/rdrw612bga/flash_config` | [flash_config](/MCUXpresso/IRIS-W1/sw_config/flash_config/) |
+| `mflash_drv.c` | `components/flash/mflash/rdrw612bga` | [flash_drv](/MCUXpresso/IRIS-W1/sw_config/flash_drv/) |
+| `wifi_cal_data_rw61x_1ant.h` | `middleware/wifi_nxp/incl` | [wifi_Calibration](/MCUXpresso/IRIS-W1/sw_config/wifi_Calibration/) |
+| `fwk_platform_ble.c` | `middleware/wireless/framework/platform/rw61x` | [BT_802_15_4_Calibration_Files](/MCUXpresso/IRIS-W1/sw_config/BT_802_15_4_Calibration_Files/) |
+| `fwk_config.h` | `middleware/wireless/framework/platform/rw61x/configs` | [BT_802_15_4_Calibration_Files](/MCUXpresso/IRIS-W1/sw_config/BT_802_15_4_Calibration_Files/) |
 
-- To retrieve the module's Type Number and Serial Number using the romapi OTP APIs, follow these steps:
+> **Note**: The same flash configuration and binary files used for the 8 MB Fidelix variant are also compatible with the 16 MB Fidelix variant.
 
-- Type Number: Read from E-Fuse IDs 305-312.
-- Serial Number: Read from E-Fuse IDs 313-316.
+---
 
-Both values are programmed during production.
+## 🆔 Retrieving Device Identifiers
 
-### Type and Serial Number
+Each module has a pre-programmed **Serial Number**, **Module Type**, and **Wi-Fi MAC Address**.
 
-- To quickly verify the module's Type and Serial Numbers:
+➡️ **[View full guide on retrieving identifiers](/MCUXpresso/IRIS-W1/example_code/README.md)**
 
-1. Navigate to the file:
-	**SDK_2_16_000_RD-RW612-BGA/boards/rdrw612bga/driver_examples/romapi/otp/main.c**
-2. Replace the existing code with the provided code.[readOTP](/examples/Fidelex_8MB)
-3. Compile the demo application.
-4. Flash the compiled application onto the module.
-5. Press the reset button to display the Type Number and Serial Number via the UART Serial Console.
+---
 
-![Type and Serial Number Demo](../images/serial_type.png)
+## 🛠️ Recovery Options
 
-- To retrieve the module's Wi-Fi STA MAC Address, follow these steps using the provided APIs:
+If the IRIS-W1 becomes unresponsive, use the `blhost` tool to restore functionality.
+🔗 [Recovery Instructions](/MCUXpresso/IRIS-W1/recovery_tool/blhost/)
 
-- Initialize the Wi-Fi driver with the wlan_init(wlan_fw_bin, wlan_fw_bin_len) API.
-- Enable WLAN RF test mode using the wlan_set_rf_test_mode() API.
-- Read the Wi-Fi STA MAC Address via the wlan_get_rf_otp_mac_addr() API.
+---
 
-### MAC address
+## 📘 Notes
 
-**First Method**
+- For detailed information on using the EVK-IRIS-W1 and its hardware options, please refer to the **EVK User Guide** available on the [IRIS-W1-EVK Product Page](https://www.u-blox.com/en/product/evk-iris-w1?legacy=Current#Documentation-&-resources).
 
- To quickly verify the module's Wi-Fi STA MAC Address:
-
-1. Navigate to the file:
-	SDK_2_16_000_RD-RW612-BGA/boards/rdrw612bga/wifi_examples/wifi_test_mode/main.c
-2. Replace the existing code with the provided code.[readMAC](https://github.com/u-blox/u-blox-sho-OpenCPU/tree/master/MCUXpresso/IRIS-W1/EVK-IRIS-W1/examples/Fidelex_8MB)
-3. Compile the demo application.
-4. Flash the compiled application onto the module along with the rw61x_sb_wifi_a2.bin binary at address 0x08400000.
-5. Press the reset button to display the Wi-Fi STA MAC Address on the UART Serial Console.
-
-**NOTE** For more detailed information on the Wi-Fi Test Mode Application, refer to the UM11799-NXP-Wi-Fi-and-Bluetooth-Demo-Applications-for-RW61x.pdf document located at:
-	**SDK_2_16_000_RD-RW612-BGA/docs/wireless**
-
-![MAC-address Demo](../images/macdata.png)
-
-**Second Method**
-
-Alternatively, you can use the existing Wi-Fi Test Mode Application in the SDK to read the Wi-Fi STA MAC Address:
-
-1. Navigate to:
-	SDK_2_16_000_RD-RW612-BGA/boards/rdrw612bga/wifi_examples/wifi_test_mode
-2. Compile the Wi-Fi Test Mode Application.
-3. Flash the application onto the module along with the rw61x_sb_wifi_a2.bin binary at address 0x08400000.
-4. Press the reset button to view the Wi-Fi Test Mode logs on the console.
-5. Enter the following commands, one after the other:
-	wlan-set-rf-test-mode
-	wlan-get-rf-otp-mac-addr
-6. This will display the written Wi-Fi STA MAC Address.
-  
-## Recovery of IRIS-W1
-
-If you face any issues with IRIS-W1 and can't perform any operations, it might be in an unknown state. Use the blhost application to reset it. Find more information on [this page](https://github.com/u-blox/u-blox-sho-OpenCPU/tree/master/MCUXpresso/IRIS-W1/tools/blhost).
-
-## Note
-
-If you encounter any issues or have further questions, please refer to the documentation or contact the support team for assistance.
+- For additional help, refer to the official SDK documentation or contact the support team.

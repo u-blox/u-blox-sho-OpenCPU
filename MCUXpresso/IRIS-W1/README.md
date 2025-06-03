@@ -1,67 +1,93 @@
 # u-blox IRIS-W1 Module
 
-This repository contains the setup information and supported files for u-blox IRIS-W1 module:
+This repository contains setup information, configuration files, and example binaries for the u-blox IRIS-W1 module.
 
 ## Folder Structure
 
 ```shell
 .
 ├── EVK-IRIS-W1
+├── USB-IRIS-W1
+├── compiled_binaries
+├── example_code
 ├── images
-├── README.md
 ├── recovery_tool
-│   └── blhost
+│   └── blhost
 ├── sw_config
-│   ├── App_note_15_4_Radio
-│   ├── board_file
-│   ├── BT_802_15_4_Calibration_Files
-│   ├── flash_config
-│   ├── flash_drv
-│   ├── labtool
-│   ├── README.md
-│   ├── wifi_Calibration
-│   └── wifi_txpower_cfg
-└── USB-IRIS-W1
-
+│   ├── App_note_15_4_Radio
+│   ├── board_file
+│   ├── BT_802_15_4_Calibration_Files
+│   ├── flash_config
+│   ├── flash_drv
+│   ├── labtool
+│   ├── README.md
+│   ├── wifi_Calibration
+│   └── wifi_txpower_cfg
+└── README.md
 ```
 
-### [EVK-IRIS-W1](EVK-IRIS-W1/README.md)
+### [EVK-IRIS-W1](/MCUXpresso/IRIS-W1/EVK-IRIS-W1/README.md)
 
-Contains setup information and example .bin files for the EVK-IRIS-W1 module.
+Contains step-by-step instructions for setting up, building, flashing, and running applications on the **EVK-IRIS-W1** development board.
 
-### [recovery_tool](recovery_tool/blhost/)
+### [USB-IRIS-W1](/MCUXpresso/IRIS-W1/USB-IRIS-W1/README.md)
 
-**recovery_tool** recover the module from unknow-state using blhost utility.
+Contains step-by-step instructions for setting up, building, flashing, and running applications on the **USB-IRIS-W1** development board.
 
-- **blhost**: tools for blhost operations.
-- **IRIS_blhost.bat**: Batch script for IRIS blhost operations.
+### [compiled_binaries](/MCUXpresso/IRIS-W1/compiled_binaries/)
 
-**NOTE :** Use the appropriate blHost script based on the flash variant type(vendor).
+Contains pre-compiled binaries to quickly test the IRIS development boards / modules.
 
-### [sw_config](sw_config/README.md)
+### [example_code](/MCUXpresso/IRIS-W1/example_code/README.md)
 
-software configuration files.
+Contains instructions to retrieve key device identifiers such as the Serial Number, Module Type, and Wi-Fi MAC Address from an IRIS module.
 
-1. **App_note_15_4_Radio**: 
-	Application notes and configurations for 802.15.4 radios and build from NXP repo.
-2. **board_file**: 
-	EVK-IRIS-W1 board-specific files. (for onboard LEDs and SWs)
-3. **BT_802_15_4_Calibration_Files**: 
-	Bluetooth and 802.15.4 calibration data.
-4. **flash_config**: 
-	Configuration files for flash memory settings.
+### [recovery_tool](/MCUXpresso/IRIS-W1/recovery_tool/blhost/)
+
+Contains tools for recovering the module from an unknown state using the `blhost` utility.
+
+- **blhost**: Utility for performing blhost operations.
+- **IRIS_blhost.bat**: Windows batch script for IRIS module recovery.
+
+> **Note:** Use the correct `blhost` script depending on the flash vendor variant.
+
+### [sw_config](/MCUXpresso/IRIS-W1/sw_config/README.md)
+
+Contains software configuration files and calibration data.
+
+1. **App_note_15_4_Radio**:
+   Application notes and configuration files for 802.15.4 radios (sourced from the NXP repository).
+
+2. **board_files**:
+   Board-specific files for the EVK-IRIS-W1 (e.g., LEDs, switches).
+
+3. **BT_802_15_4_Calibration_Files**:
+   Calibration data for Bluetooth and 802.15.4.
+
+4. **flash_config**:
+   Flash memory configuration files.
+
 5. **flash_drv**:
-	 Drivers related to flash memory operations.
-6. **labtool**: 
-	Radio test Tools and utilities for lab environments.
-7. **wifi_Calibration**: 
-	Wi-Fi calibration files and data.
-8. **wifi_txpower_cfg**: 
-	Wi-Fi transmission power configuration files with example files.
+   Flash memory drivers.
 
+6. **labtool**:
+   Tools and utilities for radio testing in lab environments.
 
-**NOTE :** flash_config.c and mflash_drv.c file same for EVK and USB IRIS-W1.Use the appropriate config. files based on the flash variant type(vendor). [this](EVK-IRIS-W1/examples/README.md)
+7. **wifi_Calibration**:
+   Wi-Fi calibration data.
 
-### [USB-IRIS-W1](USB-IRIS-W1/README.md)
+8. **wifi_txpower_cfg**:
+   Wi-Fi transmit power configuration files and examples.
 
-Contains setup information and exmaple files for the USB-IRIS-W1 module.
+## Identifying Module Flash Memory
+
+### IRIS-W1:
+
+- Modules manufactured from build version **2346** (week 46 of 2023) onward use **Fidelix** flash memory.
+- Versions **2345** and earlier use **Macronix** flash memory.
+
+> **Note:** The same flash configuration and `binary` files used for the **8 MB** Fidelix variant are also compatible with the **16 MB** variant.
+
+## Documentation
+
+For detailed information on using the EVK-IRIS-W1 and USB-IRIS-W1 and its hardware configuration options, refer to the [EVK-IRIS-W1 User Guide](https://www.u-blox.com/en/product/evk-iris-w1?legacy=Current#Documentation-&-resources) and [USB-IRIS-W1 User Guide](https://www.u-blox.com/en/product/usb-iris-w1?legacy=Current#Documentation-&-resources) respectively on the u-blox portal.

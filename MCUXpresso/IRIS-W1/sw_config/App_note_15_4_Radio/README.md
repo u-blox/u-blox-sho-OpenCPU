@@ -45,24 +45,24 @@ Replace the following files with u-blox-specific versions:
 - **flash_config.c**:  
   Location: `ot-nxp/boards/rw612/rw612_rd/`
 
-Refer to this updated files.[this folder](../flash_config/)
+Refer to this updated files at [flash_config](../flash_config/)
 
 - **mflash_drv.c**:  
   Location: `ot-nxp/third_party/github_sdk/core/components/flash/mflash/rdrw612bga/`
 
-Refer to this updated files.[this folder](../flash_drv/)
+Refer to this updated files at [flash_drv](../flash_drv/)
 
 ### 2.4. Update Calibration Files
 
 Replace the following files with u-blox-specific versions:
 
-- **fwk_config.h**:  
+- **fwk_config.h**:
   Location: `ot-nxp/third_party/github_sdk/middleware/wireless/framework/platform/rw61x/configs/`
 
-- **fwk_platform_ble.c**:  
+- **fwk_platform_ble.c**:
   Location: `ot-nxp/third_party/github_sdk/middleware/wireless/framework/platform/rw61x/`
 
-Refer to this updated files.[SDK_2_16_100](../BT_802_15_4_Calibration_Files/SDK_2_16_100/), [SDK_2_16_000](../BT_802_15_4_Calibration_Files/SDK_2_16_000/)
+Refer to this updated files: [SDK_24_12_00](../BT_802_15_4_Calibration_Files/SDK_24_12_00/), [SDK_2_16_100](../BT_802_15_4_Calibration_Files/SDK_2_16_100/), [SDK_2_16_000](../BT_802_15_4_Calibration_Files/SDK_2_16_000/)
 
 ### 2.5. Build the Application
 
@@ -76,7 +76,7 @@ Build the `ot-cli` application:
 
 Flash the compiled binaries to the module:
 
-- **ot_cli binary**: Address `0x08000400`  
+- **ot_cli binary**: Address `0x08000400`
 - **Combo firmware**: Address `0x085e0000`
 
 ---
@@ -85,11 +85,13 @@ Flash the compiled binaries to the module:
 
 To develop a custom 802.15.4 radio application, it is essential to ensure that the calibration and EUI64 values are configured in accordance with the specifications of the IRIS modules.
 
-This procedure prepares and deploys the `ot-cli` application on a u-blox module by configuring memory, updating files, and applying calibration setting.
+### 3.1. Use Annex 100 for Calibration
 
-### 3.1. Use Annex 100 for Calibration & Configure Annex 104 Parameters
+Update the radio calibration settings for the u-blox module, as mentioned in the [Update Calibration Files](#24-update-calibration-files) section.
 
-Update the radio calibration settings for the u-blox module.
+### 3.2. Configure Annex 104 for Additional Parameters
+
+Utilize the radio_cli.c file located at:`ot-nxp/examples/utils/cli_addons/platform/radio_cli.c`. The following commands can be used within the ot-cli to set the MAC address and TX power limit:
 
 Example `ot-cli` commands:
 
@@ -105,3 +107,8 @@ radio_nxp seteui64 0xAA001122334455BB
 radio_nxp txpwrlimit 15
 ```
 
+## 🛠 Troubleshooting
+
+If you experience issues or have questions:
+- Refer to the official SDK documentation.
+- Contact the u-blox support team for further assistance.
