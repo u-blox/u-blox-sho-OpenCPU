@@ -10,7 +10,7 @@ Determine whether the board uses Fidelix or Macronix memory.
 
 Obtain the latest Labtool firmware from the [NXP website](https://nxp.com): MFG-RW61X-MF-BRG-U16-WIN-X86-x.x.xxx.xx.x.x.x (Login required).
 
-**NOTE:** The provided binaries are compiled using the uart_wifi_bridge application from SDK version 25.03.00 and have been tested with Labtool version MFG-RW61X-MF-BRG-U16-WIN-X86-2.0.0.35.0-18.80.6.p34 for various memory models. With newer Labtool versions (beyond MFG-RW61X-MF-BRG-U16-WIN-X86-2.0.0.35.0-18.80.6.p34), these binaries may or may not function correctly.
+**NOTE:** The provided binaries are compiled using the uart_wifi_bridge application from SDK version 25.06.00 and have been tested with Labtool version MFG-RW61X-MF-BRG-U16-WIN-X86-2.0.0.35.0-18.80.6.p34 for various memory models. With newer Labtool versions (beyond MFG-RW61X-MF-BRG-U16-WIN-X86-2.0.0.35.0-18.80.6.p34), these binaries may or may not function correctly.
 
 If the binaries fail to work, please follow the below steps to compile from source, always use the latest SDK version to compile uart_wifi_bridge binaries when working with the latest Labtool version. [Steps for building UART_Bridge Binaries](#steps-for-building-uart_bridge-binaries)
 
