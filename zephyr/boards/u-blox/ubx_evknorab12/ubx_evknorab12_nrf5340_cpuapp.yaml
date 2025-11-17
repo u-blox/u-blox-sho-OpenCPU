@@ -1,0 +1,25 @@
+identifier: ubx_evknorab12/nrf5340/cpuapp
+name: UBX-EVKNORAB12-NRF5340-application-MCU
+type: mcu
+arch: arm
+toolchain:
+  - gnuarmemb
+  - zephyr
+ram: 448
+flash: 1024
+supported:
+  - arduino_gpio
+  - arduino_i2c
+  - arduino_serial
+  - arduino_spi
+  - gpio
+  - i2c
+  - i2s
+  - pwm
+  - watchdog
+  - usb_device
+  - usbd
+  - netif:openthread
+  - gpio
+  - spi
+vendor: u-blox

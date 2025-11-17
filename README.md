@@ -48,6 +48,8 @@ GitHub repository.
 | XPLR-IOT-1                   | arm/ubx_xplriot1_nrf5340      | Tested with NCS v1.9.1 |
 | EVK-ANNA-B4                  | u-blox/ubx_evkannab4          | Tested with NCS v2.7.0 |
 | EVK-NORA-B2                  | u-blox/ubx_evknorab2          | Tested with NCS v2.9.0 |
+| EVK-NORA-B10                 | u-blox/ubx_evknorab10         | Tested with NCS v3.1.1 |
+| EVK-NORA-B12                 | u-blox/ubx_evknorab12         | Tested with NCS v3.1.1 |
 
 These board support packages are retained in the repository; however, they have been moved to an "archive" folder.
 
@@ -71,7 +73,7 @@ with mainline Zephyr.
 | MINI-NORA-B12 | Rev C and later hardware only |
 | XPLR-IOT-1    |  |
 
-Board support packages for the followng EVKs are not planned for submission to
+Board support packages for the following EVKs are not planned for submission to
 the Zephyr mainline project. They will remain here at the u-blox repository:
 
 | EVK board | Folder             | Remarks                     |

@@ -1,0 +1,9 @@
+board:
+  name: ubx_evknorab12
+  full_name: EVK-NORA-B12
+  vendor: u-blox
+  socs:
+  - name: 'nrf5340'
+    variants:
+    - name: 'ns'
+      cpucluster: 'cpuapp'
