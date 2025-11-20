@@ -1,0 +1,14 @@
+identifier: ubx_evknorab10/nrf5340/cpunet
+name: UBX-EVKNORAB10-NRF5340-network-MCU
+type: mcu
+arch: arm
+toolchain:
+  - gnuarmemb
+  - zephyr
+ram: 64
+flash: 256
+supported:
+  - arduino_gpio
+  - watchdog
+  - gpio
+vendor: u-blox

@@ -1,0 +1,34 @@
+/*
+ * u-blox EVK-NORA-B12 board configuration
+ *
+ * Copyright (c) 2023 u-blox AG
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/dts-v1/;
+#include <nordic/nrf5340_cpuapp_qkaa.dtsi>
+#include "ubx_evknorab12_cpuapp_common.dtsi"
+
+/ {
+	model = "u-blox EVK-NORA-B12 NRF5340 Application";
+	compatible = "nordic,ubx-evknorab12-nrf5340-cpuapp";
+
+	chosen {
+		zephyr,sram = &sram0_image;
+		zephyr,flash = &flash0;
+		zephyr,code-partition = &slot0_partition;
+		zephyr,sram-secure-partition = &sram0_s;
+		zephyr,sram-non-secure-partition = &sram0_ns;
+		zephyr,boot-mode = &boot_mode0;
+	};
+};
+
+&gpregret1 {
+	status = "okay";
+
+	boot_mode0: boot_mode@0 {
+		compatible = "zephyr,retention";
+		status = "okay";
+		reg = <0x0 0x1>;
+	};
+};
