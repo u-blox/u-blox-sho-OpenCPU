@@ -15,40 +15,43 @@
 	model = "u-blox EVK NORA-B2 nRF54L15 Application MCU";
 
 	chosen {
-		zephyr,code-partition = &slot0_partition;
-		zephyr,sram = &cpuapp_sram;
+		zephyr,code-partition = &slot0_ns_partition;
+		zephyr,sram = &sram0_ns;
+		zephyr,entropy = &psa_rng;
+	};
+
+	/delete-node/ rng;
+
+	psa_rng: psa-rng {
+		status = "okay";
 	};
 };
 
-&cpuapp_rram {
-	partitions {
-		compatible = "fixed-partitions";
+/ {
+	/*
+	 * Default SRAM planning when building for nRF54L15 with ARM TrustZone-M support
+	 * - Lowest 80 kB SRAM allocated to Secure image (sram0_s).
+	 * - Upper 80 kB SRAM allocated to Non-Secure image (sram0_ns).
+	 *
+	 * nRF54L15 has 256 kB of volatile memory (SRAM) but the last 96kB are reserved for
+	 * the FLPR MCU.
+	 * This static layout needs to be the same with the upstream TF-M layout in the
+	 * header flash_layout.h of the relevant platform. Any updates in the layout
+	 * needs to happen both in the flash_layout.h and in this file at the same time.
+	 */
+	reserved-memory {
 		#address-cells = <1>;
 		#size-cells = <1>;
-		boot_partition: partition@0 {
-			label = "mcuboot";
-			reg = <0x0 DT_SIZE_K(64)>;
+		ranges;
+
+		sram0_s: image_s@20000000 {
+			/* Secure image memory */
+			reg = <0x20000000 DT_SIZE_K(80)>;
 		};
-		slot0_partition: partition@10000 {
-			label = "image-0";
-			reg = <0x10000 DT_SIZE_K(324)>;
-		};
-		slot0_ns_partition: partition@61000 {
-			label = "image-0-nonsecure";
-			reg = <0x61000 DT_SIZE_K(324)>;
-		};
-		slot1_partition: partition@b2000 {
-			label = "image-1";
-			reg = <0xb2000 DT_SIZE_K(324)>;
-		};
-		slot1_ns_partition: partition@103000 {
-			label = "image-1-nonsecure";
-			reg = <0x103000 DT_SIZE_K(324)>;
-		};
-		/* 32k from 0x154000 to 0x15bfff reserved for TF-M partitions */
-		storage_partition: partition@15c000 {
-			label = "storage";
-			reg = <0x15c000 DT_SIZE_K(36)>;
+
+		sram0_ns: image_ns@20014000 {
+			/* Non-Secure image memory */
+			reg = <0x20014000 DT_SIZE_K(80)>;
 		};
 	};
 };
@@ -62,3 +65,6 @@
 	pinctrl-1 = <&uart30_sleep>;
 	pinctrl-names = "default", "sleep";
 };
+
+/* Include default memory partition configuration file */
+#include <nordic/nrf54l15_ns_partition.dtsi>

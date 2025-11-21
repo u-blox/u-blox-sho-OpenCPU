@@ -7,20 +7,24 @@
 /* This file is common to the secure and non-secure domain */
 
 #include <nordic/nrf54l15_cpuapp.dtsi>
-#include "ubx_evknorab2_nrf54l15-common.dtsi"
+#include "ubx_evknorab2_common.dtsi"
 
 / {
 	chosen {
 		zephyr,console = &uart20;
 		zephyr,shell-uart = &uart20;
 		zephyr,uart-mcumgr = &uart20;
+		zephyr,bt-mon-uart = &uart20;
+		zephyr,bt-c2h-uart = &uart20;
 		zephyr,flash-controller = &rram_controller;
 		zephyr,flash = &cpuapp_rram;
 		zephyr,ieee802154 = &ieee802154;
+		zephyr,boot-mode = &boot_mode0;
 	};
 
 	aliases {
-		spi-flash0 = &mx25r64;
+		mcuboot-button0 = &button0;
+		mcuboot-led0 = &led0;
 	};
 };
 
@@ -38,6 +42,14 @@
 	load-capacitance-femtofarad = <15000>;
 };
 
+&regulators {
+	status = "okay";
+};
+
+&vregmain {
+	status = "okay";
+	regulator-initial-mode = <NRF5X_REG_MODE_DCDC>;
+};
 
 &grtc {
 	owned-channels = <0 1 2 3 4 5 6 7 8 9 10 11>;
@@ -46,42 +58,12 @@
 	status = "okay";
 };
 
-&cpuapp_rram {
-	partitions {
-		compatible = "fixed-partitions";
-		#address-cells = <1>;
-		#size-cells = <1>;
-		boot_partition: partition@0 {
-			label = "mcuboot";
-			reg = <0x0 DT_SIZE_K(64)>;
-		};
-		slot0_partition: partition@10000 {
-			label = "image-0";
-			reg = <0x10000 DT_SIZE_K(324)>;
-		};
-		slot0_ns_partition: partition@61000 {
-			label = "image-0-nonsecure";
-			reg = <0x61000 DT_SIZE_K(324)>;
-		};
-		slot1_partition: partition@b2000 {
-			label = "image-1";
-			reg = <0xb2000 DT_SIZE_K(324)>;
-		};
-		slot1_ns_partition: partition@103000 {
-			label = "image-1-nonsecure";
-			reg = <0x103000 DT_SIZE_K(324)>;
-		};
-		/* 32k from 0x154000 to 0x15bfff reserved for TF-M partitions */
-		storage_partition: partition@15c000 {
-			label = "storage";
-			reg = <0x15c000 DT_SIZE_K(36)>;
-		};
-	};
-};
-
 &uart20 {
 	status = "okay";
-	hw-flow-control;
+};
+
+&nfct {
+	status = "okay";
 };
 
 &gpio0 {
@@ -120,6 +102,16 @@
 	status = "okay";
 };
 
+&gpregret1 {
+	status = "okay";
+
+	boot_mode0: boot_mode@0 {
+		compatible = "zephyr,retention";
+		status = "okay";
+		reg = <0x0 0x1>;
+	};
+};
+
 &spi00 {
 	status = "okay";
 	cs-gpios = <&gpio2 5 GPIO_ACTIVE_LOW>;
@@ -129,7 +121,7 @@
 
 	mx25r64: mx25r6435f@0 {
 		compatible = "jedec,spi-nor";
-		status = "disabled";
+		status = "okay";
 		reg = <0>;
 		spi-max-frequency = <8000000>;
 		jedec-id = [c2 28 17];

@@ -100,5 +100,5 @@
 /* Settings for module internal  HFXO xtal */
 &hfxo {
     load-capacitors = "internal";
-    load-capacitance-femtofarad = <15250>;
+    load-capacitance-femtofarad = <14250>;
 };
