@@ -97,8 +97,8 @@
 	pinctrl-names = "default", "sleep";
 };
 
-/* Settings for module internal  HFXO xtal */
-&hfxo {
-    load-capacitors = "internal";
-    load-capacitance-femtofarad = <14250>;
+/* Settings for board LFXO xtal */
+&lfxo {
+	load-capacitors = "internal";
+	load-capacitance-femtofarad = <15500>;
 };

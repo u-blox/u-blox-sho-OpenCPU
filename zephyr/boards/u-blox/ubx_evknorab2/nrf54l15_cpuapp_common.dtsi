@@ -32,14 +32,10 @@
 	status = "okay";
 };
 
-&lfxo {
-	load-capacitors = "internal";
-	load-capacitance-femtofarad = <15500>;
-};
-
+/* Settings for module internal  HFXO xtal */
 &hfxo {
-	load-capacitors = "internal";
-	load-capacitance-femtofarad = <15000>;
+    load-capacitors = "internal";
+    load-capacitance-femtofarad = <14250>;
 };
 
 &regulators {

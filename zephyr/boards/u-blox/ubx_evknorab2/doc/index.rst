@@ -49,7 +49,9 @@ EVK NORA-B2 has two crystal oscillators:
 * Low-frequency 32.768 kHz crystal oscillator (LFXO)
 
 The LFXO crystal oscillator can be configured to use either
-internal or external capacitors.
+internal or external capacitors. By default, the internal capacitors are used.
+For more information about configuring the oscillators, refer to the
+:nrf_clock_control: documentation.
 
 Supported Features
 ==================
