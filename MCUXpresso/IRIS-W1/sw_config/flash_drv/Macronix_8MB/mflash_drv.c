@@ -1,6 +1,6 @@
 /*
  * Copyright 2017-2022 NXP
- *
+ * (Macronix)
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
@@ -456,3 +456,4 @@ uint32_t mflash_drv_log2phys(void *ptr, uint32_t len)
     /* FLASH starts at MFLASH_BASE_ADDRESS */
     return ((uint32_t)ptr - MFLASH_BASE_ADDRESS);
 }
+
