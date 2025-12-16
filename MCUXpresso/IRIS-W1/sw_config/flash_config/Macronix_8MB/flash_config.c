@@ -1,7 +1,7 @@
 /*
  * Copyright 2021-2023 NXP
  * All rights reserved.
- *
+ * (Macronix)
  * SPDX-License-Identifier: BSD-3-Clause
  */
 #include "flash_config.h"
@@ -83,3 +83,4 @@ const fc_flexspi_nor_config_t flexspi_config = {
     .fcb_fill[0]        = 0xFFFFFFFF,
 };
 #endif /* BOOT_HEADER_ENABLE */
+
