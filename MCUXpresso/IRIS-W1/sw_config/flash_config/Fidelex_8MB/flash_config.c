@@ -1,7 +1,7 @@
 /*
  * Copyright 2021-2022 NXP
  * All rights reserved.
- *
+ * (Fidelex)
  * SPDX-License-Identifier: BSD-3-Clause
  */
 #include "flash_config.h"
@@ -77,3 +77,4 @@ const fc_flexspi_nor_config_t flexspi_config = {
 };
 
 #endif /* BOOT_HEADER_ENABLE */
+
