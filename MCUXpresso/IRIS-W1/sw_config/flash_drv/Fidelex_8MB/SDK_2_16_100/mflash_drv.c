@@ -1,6 +1,6 @@
 /*
  * Copyright 2017-2022 NXP
- *
+ * (Fidelex)
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
