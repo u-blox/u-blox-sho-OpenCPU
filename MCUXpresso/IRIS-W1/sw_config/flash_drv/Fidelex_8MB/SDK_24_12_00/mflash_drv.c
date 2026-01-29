@@ -1,6 +1,6 @@
 /*
  * Copyright 2017-2022, 2024 NXP
- *
+ * (Fidelex Flash Configuration for 8 or 16 MB)
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
@@ -309,7 +309,7 @@ static status_t flexspi_nor_read_data(FLEXSPI_Type *base, uint32_t startAddress,
     flashXfer.dataSize      = length;
 
     status = FLEXSPI_TransferBlocking(base, &flashXfer);
-    
+
     if(status == kStatus_Success)
     {
       status = flexspi_nor_wait_bus_busy(base);

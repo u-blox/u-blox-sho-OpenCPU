@@ -1,6 +1,6 @@
 /*
  * Copyright 2017-2022 NXP
- *
+ * (Fidelex Flash Configuration for 8 or 16 MB)
  * SPDX-License-Identifier: BSD-3-Clause
  */
 

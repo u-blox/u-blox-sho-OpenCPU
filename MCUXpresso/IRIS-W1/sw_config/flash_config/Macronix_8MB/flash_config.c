@@ -1,7 +1,7 @@
 /*
  * Copyright 2021-2023 NXP
  * All rights reserved.
- *
+ * (Macronix Flash Configuration for 8MB Flash)
  * SPDX-License-Identifier: BSD-3-Clause
  */
 #include "flash_config.h"
