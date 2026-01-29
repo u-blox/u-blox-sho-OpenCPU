@@ -1,6 +1,6 @@
 /*
  * Copyright 2017-2022 NXP
- *
+ * (Macronix Flash Configuration for 8MB Flash)
  * SPDX-License-Identifier: BSD-3-Clause
  */
 

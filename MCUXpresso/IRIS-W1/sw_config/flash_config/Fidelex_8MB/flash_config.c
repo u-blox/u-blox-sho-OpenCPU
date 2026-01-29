@@ -1,7 +1,7 @@
 /*
  * Copyright 2021-2022 NXP
  * All rights reserved.
- *
+ * (Fidelex Flash Configuration for 8 or 16 MB)
  * SPDX-License-Identifier: BSD-3-Clause
  */
 #include "flash_config.h"
