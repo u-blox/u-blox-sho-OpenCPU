@@ -24,6 +24,7 @@
 
 	pwmleds {
 		compatible = "pwm-leds";
+
 		pwm_led0: pwm_led_0 {
 			pwms = <&pwm0 0 PWM_MSEC(20) PWM_POLARITY_INVERTED>;
 		};
@@ -43,6 +44,7 @@
 	gpio_fwd: nrf-gpio-forwarder {
 		compatible = "nordic,nrf-gpio-forwarder";
 		status = "okay";
+
 		uart {
 			gpios = <&gpio1 1 0>, <&gpio1 0 0>, <&gpio0 11 0>, <&gpio0 10 0>;
 		};
@@ -70,6 +72,11 @@
 &lfxo {
 	load-capacitors = "internal";
 	load-capacitance-picofarad = <6>;
+};
+
+&hfxo {
+	load-capacitors = "internal";
+	load-capacitance-femtofarad = <20000>;
 };
 
 &adc {
@@ -120,6 +127,7 @@
 	pinctrl-0 = <&qspi_default>;
 	pinctrl-1 = <&qspi_sleep>;
 	pinctrl-names = "default", "sleep";
+
 	mx25r64: mx25r6435f@0 {
 		compatible = "nordic,qspi-nor";
 		reg = <0>;
@@ -129,12 +137,10 @@
 		readoc = "read4io";
 		sck-frequency = <8000000>;
 		jedec-id = [c2 28 17];
-		sfdp-bfp = [
-			e5 20 f1 ff  ff ff ff 03  44 eb 08 6b  08 3b 04 bb
-			ee ff ff ff  ff ff 00 ff  ff ff 00 ff  0c 20 0f 52
-			10 d8 00 ff  23 72 f5 00  82 ed 04 cc  44 83 68 44
-			30 b0 30 b0  f7 c4 d5 5c  00 be 29 ff  f0 d0 ff ff
-		];
+		sfdp-bfp = [e5 20 f1 ff  ff ff ff 03  44 eb 08 6b  08 3b 04 bb
+					ee ff ff ff  ff ff 00 ff  ff ff 00 ff  0c 20 0f 52
+					10 d8 00 ff  23 72 f5 00  82 ed 04 cc  44 83 68 44
+					30 b0 30 b0  f7 c4 d5 5c  00 be 29 ff  f0 d0 ff ff];
 		size = <67108864>;
 		has-dpd;
 		t-enter-dpd = <10000>;
@@ -170,5 +176,3 @@ zephyr_udc0: &usbd {
 	status = "okay";
 };
 
-/* Include default memory partition configuration file */
-#include <nordic/nrf5340_cpuapp_partition.dtsi>

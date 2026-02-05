@@ -31,9 +31,11 @@ project mainline repository: https://github.com/zephyrproject-rtos/zephyr
 | BMD-360-EVAL | u-blox/ubx_bmd360eval |
 | BMD-380-EVAL | u-blox/ubx_bmd380eval |
 | EVK-ANNA-B1  | u-blox/ubx_evkannab1  |
+| EVK-IRIS-W1  | u-blox/ubx_evk_iris_w1|
 | EVK-NINA-B1  | u-blox/ubx_evkninab1  |
 | EVK-NINA-B3  | u-blox/ubx_evkninab3  |
 | EVK-NINA-B4  | u-blox/ubx_evkninab4  |
+| EVK-NINA-B5  | u-blox/ubx_evkninab5  |
 
 Board support packages for the following boards are available here at the u-blox
 GitHub repository. 
@@ -45,9 +47,9 @@ GitHub repository.
 | MINI-NORA-B12 Rev C or later | arm/ubx_mininorab12_nrf5340   | Tested with NCS v2.6.0 |
 | XPLR-IOT-1                   | arm/ubx_xplriot1_nrf5340      | Tested with NCS v1.9.1 |
 | EVK-ANNA-B4                  | u-blox/ubx_evkannab4          | Tested with NCS v2.7.0 |
-| EVK-NORA-B2                  | u-blox/ubx_evknorab2          | Tested with NCS v2.9.0 |
-| EVK-NORA-B10                 | u-blox/ubx_evknorab10         | Tested with NCS v3.1.1 |
-| EVK-NORA-B12                 | u-blox/ubx_evknorab12         | Tested with NCS v3.1.1 |
+| EVK-NORA-B2                  | u-blox/ubx_evknorab2          | Tested with NCS v3.1.1 |
+| EVK-NORA-B10                 | u-blox/ubx_evknorab10         | Tested with NCS v3.2.1 |
+| EVK-NORA-B12                 | u-blox/ubx_evknorab12         | Tested with NCS v3.2.1 |
 
 These board support packages are retained in the repository; however, they have been moved to an "archive" folder.
 

@@ -32,3 +32,6 @@
 		reg = <0x0 0x1>;
 	};
 };
+
+/* Include default memory partition configuration file */
+#include <nordic/nrf5340_cpuapp_partition.dtsi>

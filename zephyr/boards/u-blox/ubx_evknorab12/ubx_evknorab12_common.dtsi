@@ -92,6 +92,7 @@
 		mcuboot-button0 = &button0;
 		mcuboot-led0 = &led0;
 	};
+
 	/* Enable the NORA-B12 FEM */
 	nrf_radio_fem: norab12_fem {
 		compatible = "skyworks,sky66112-11", "generic-fem-two-ctrl-pins";
