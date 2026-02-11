@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include "ubx_evknorab2_nrf54l15-pinctrl.dtsi"
+#include "ubx_evknorab2_nrf54l_05_10_15-pinctrl.dtsi"
 
 / {
 	leds {
@@ -54,7 +54,7 @@
 			zephyr,code = <INPUT_KEY_2>;
 		};
 		button3: button_3 {
-			gpios = <&gpio0 4 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;   /* 2 if R172 mounted R173 disconnected */
+			gpios = <&gpio0 2 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
 			label = "Push button 3";
 			zephyr,code = <INPUT_KEY_3>;
 		};
@@ -95,10 +95,4 @@
 	pinctrl-0 = <&pwm20_default>;
 	pinctrl-1 = <&pwm20_sleep>;
 	pinctrl-names = "default", "sleep";
-};
-
-/* Settings for board LFXO xtal */
-&lfxo {
-	load-capacitors = "internal";
-	load-capacitance-femtofarad = <15500>;
 };

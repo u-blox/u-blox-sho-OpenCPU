@@ -6,7 +6,9 @@
 
 /dts-v1/;
 #include <nordic/nrf54l15_cpuflpr.dtsi>
-#include "ubx_evknorab2_nrf54l15-common.dtsi"
+#include "ubx_evknorab2_common.dtsi"
+
+/delete-node/ &cpuflpr_sram;
 
 / {
 	model = "u-blox EVK NORA-B2 nRF54L15 FLPR MCU";
@@ -19,13 +21,17 @@
 		zephyr,flash = &cpuflpr_rram;
 		zephyr,sram = &cpuflpr_sram;
 	};
-};
 
-&cpuflpr_sram {
-	status = "okay";
-	/* size must be increased due to booting from SRAM */
-	reg = <0x20028000 DT_SIZE_K(96)>;
-	ranges = <0x0 0x20028000 0x18000>;
+	cpuflpr_sram: memory@20028000 {
+		compatible = "mmio-sram";
+		/* Size must be increased due to booting from SRAM */
+		reg = <0x20028000 DT_SIZE_K(96)>;
+		#address-cells = <1>;
+		#size-cells = <1>;
+		ranges = <0x0 0x20028000 0x18000>;
+		status = "okay";
+	};
+
 };
 
 &cpuflpr_rram {
@@ -33,6 +39,7 @@
 		compatible = "fixed-partitions";
 		#address-cells = <1>;
 		#size-cells = <1>;
+		ranges;
 
 		cpuflpr_code_partition: partition@0 {
 			label = "image-0";

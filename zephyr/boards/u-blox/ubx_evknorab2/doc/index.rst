@@ -8,15 +8,13 @@ Overview
 
 .. note::
 
-   All software for the NORA-B2 module is experimental and hardware availability
-   is restricted to the participants in the limited sampling program.
-   This board definition is preliminary. Tested using Zephyr samples blinky,
-   blinky_pwm, button. Other interfaces are untested.
+   Tested using Zephyr samples blinky, button, peripheral_lbs. 
 
-The NORA-B2 module is built on the nRF54L15 SoC from Nordic Semiconductor.
+The NORA-B2 module is built on the nRF54L15, nRF54L10 and nRF54L05 SoCs
+from Nordic Semiconductor, in different variants.
 
 The Development Kit hardware provides support for the Nordic Semiconductor
-nRF54L15 Arm Cortex-M33 CPU and the following devices:
+nRF54Lxx Arm Cortex-M33 CPU and the following devices:
 
 * :abbr:`SAADC (Successive Approximation Analog to Digital Converter)`
 * CLOCK
@@ -33,11 +31,6 @@ nRF54L15 Arm Cortex-M33 CPU and the following devices:
 * :abbr:`UARTE (Universal asynchronous receiver-transmitter)`
 * :abbr:`WDT (Watchdog Timer)`
 
-.. figure:: img/XXXXX.webp
-     :align: center
-     :alt: EVK NORA-B2
-
-     EVK NORA-B2
 
 Hardware
 ********
@@ -53,46 +46,6 @@ internal or external capacitors. By default, the internal capacitors are used.
 For more information about configuring the oscillators, refer to the
 :nrf_clock_control: documentation.
 
-Supported Features
-==================
-
-The ``ubx_evknorab2/nrf54l15/cpuapp`` board configuration supports the following
-hardware features:
-
-+-----------+------------+----------------------+
-| Interface | Controller | Driver/Component     |
-+===========+============+======================+
-| CLOCK     | on-chip    | clock_control        |
-+-----------+------------+----------------------+
-| GPIO      | on-chip    | gpio                 |
-+-----------+------------+----------------------+
-| GRTC      | on-chip    | counter              |
-+-----------+------------+----------------------+
-| MEMCONF   | on-chip    | retained_mem         |
-+-----------+------------+----------------------+
-| MPU       | on-chip    | arch/arm             |
-+-----------+------------+----------------------+
-| NVIC      | on-chip    | arch/arm             |
-+-----------+------------+----------------------+
-| PWM       | on-chip    | pwm                  |
-+-----------+------------+----------------------+
-| RRAM      | on-chip    | flash                |
-+-----------+------------+----------------------+
-| RTT       | Segger     | console              |
-+-----------+------------+----------------------+
-| SPI(M/S)  | on-chip    | spi                  |
-+-----------+------------+----------------------+
-| SPU       | on-chip    | system protection    |
-+-----------+------------+----------------------+
-| TWIM      | on-chip    | i2c                  |
-+-----------+------------+----------------------+
-| UARTE     | on-chip    | serial               |
-+-----------+------------+----------------------+
-| WDT       | on-chip    | watchdog             |
-+-----------+------------+----------------------+
-
-Other hardware features have not been enabled yet for this board.
-
 Programming and Debugging
 *************************
 
@@ -102,11 +55,11 @@ built, flashed, and debugged in the usual way. See
 building and running.
 
 Applications for the ``ubx_evknorab2/nrf54l15/cpuflpr`` board target need
-to be built as multicore configuration with code snippet called ``vpr_launcher``
-for the application core.
+to be built using sysbuild to include the ``vpr_launcher`` image for the 
+application core.
 
 Enter the following command to compile ``hello_world`` for the FLPR core::
- west build -p -b ubx_evknorab2/nrf54l15/cpuflpr --sysbuild -- -DSB_VPR_LAUNCHER=y
+ west build -p -b ubx_evknorab2/nrf54l15/cpuflpr --sysbuild
 
 Flashing
 ========
@@ -150,12 +103,38 @@ Next, build the sample by running the following command:
 Testing the LEDs and buttons in the EVK-NORA-B2
 ***********************************************
 
-Test the EVK NORA-B2 with a :zephyr:code-sample:`blinky` sample or a 
-:zephyr:code-sample:`buttons` sample.
+Test the EVK NORA-B2 with a :zephyr:code-sample:`blinky` sample .
+
+.. _nrf54l15dk_nrf54l05:
+
+nRF54L05 emulation on EVK NORA-B2
+*********************************
+
+The ``ubx_evknorab2/nrf54l05`` board is a modified version of the :zephyr:board:`ubx_evknorab2/nrf54l15`
+that enforces the limitations imposed by the nRF54L05 IC, which is a
+cost-reduced variant of the original nRF54L15. Since u-blox does not offer a
+development kit for the nRF54L05, you can use this board to develop for this
+IC while using the NORA-B2 Development Kit.
+
+See `NORA-B2 product page`_ for more information.
+
+
+.. _nrf54l15dk_nrf54l10:
+
+nRF54L10 emulation on EVK NORA-B2
+*********************************
+
+The ``ubx_evknorab2/nrf54l10`` board is a modified version of the :zephyr:board:`ubx_evknorab2/nrf54l15`
+that enforces the limitations imposed by the nRF54L10 IC, which is a
+cost-reduced variant of the original nRF54L15. Since u-blox does not offer a
+development kit for the nRF54L10 you can use this board to develop for this
+IC while using the NORA-B2 Development Kit.
+
+See `NORA-B2 product page`_ for more information.
 
 References
 **********
 
 .. target-notes::
 
-.. _NORA-B20 product page: https://www.u-blox.com/en/product/nora-b2-series
+.. _NORA-B2 product page: https://www.u-blox.com/en/product/nora-b2-series

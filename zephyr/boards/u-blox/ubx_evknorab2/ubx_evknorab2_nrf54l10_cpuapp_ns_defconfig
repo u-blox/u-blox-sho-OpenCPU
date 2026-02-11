@@ -1,4 +1,4 @@
-# Copyright (c) 2024 u-blox AG
+# Copyright (c) 2026 u-blox AG
 # SPDX-License-Identifier: Apache-2.0
 
 CONFIG_ARM_MPU=y
