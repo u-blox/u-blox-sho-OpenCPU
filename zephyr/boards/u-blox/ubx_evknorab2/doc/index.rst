@@ -112,9 +112,9 @@ nRF54L05 emulation on EVK NORA-B2
 
 The ``ubx_evknorab2/nrf54l05`` board is a modified version of the :zephyr:board:`ubx_evknorab2/nrf54l15`
 that enforces the limitations imposed by the nRF54L05 IC, which is a
-cost-reduced variant of the original nRF54L15. Since u-blox does not offer a
-development kit for the nRF54L05, you can use this board to develop for this
-IC while using the NORA-B2 Development Kit.
+cost-reduced variant of the original nRF54L15. This chipset is included in the NORA-B22 modules.
+Since u-blox does not offer a development kit for the nRF54L05, you can use this board to develop for the
+nRF54L05 IC while using the NORA-B2 Development Kit.
 
 See `NORA-B2 product page`_ for more information.
 
@@ -126,9 +126,9 @@ nRF54L10 emulation on EVK NORA-B2
 
 The ``ubx_evknorab2/nrf54l10`` board is a modified version of the :zephyr:board:`ubx_evknorab2/nrf54l15`
 that enforces the limitations imposed by the nRF54L10 IC, which is a
-cost-reduced variant of the original nRF54L15. Since u-blox does not offer a
-development kit for the nRF54L10 you can use this board to develop for this
-IC while using the NORA-B2 Development Kit.
+cost-reduced variant of the original nRF54L15. This chipset is included in the NORA-B21 modules.
+Since u-blox does not offer a development kit for the nRF54L10 you can use this board to develop for the
+nRF54L10 while using the NORA-B2 Development Kit.
 
 See `NORA-B2 product page`_ for more information.
 
