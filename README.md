@@ -47,7 +47,7 @@ GitHub repository.
 | MINI-NORA-B12 Rev C or later | arm/ubx_mininorab12_nrf5340   | Tested with NCS v2.6.0 |
 | XPLR-IOT-1                   | arm/ubx_xplriot1_nrf5340      | Tested with NCS v1.9.1 |
 | EVK-ANNA-B4                  | u-blox/ubx_evkannab4          | Tested with NCS v2.7.0 |
-| EVK-NORA-B2                  | u-blox/ubx_evknorab2          | Tested with NCS v3.1.1 |
+| EVK-NORA-B2                  | u-blox/ubx_evknorab2          | Tested with NCS v3.2.2 |
 | EVK-NORA-B10                 | u-blox/ubx_evknorab10         | Tested with NCS v3.2.1 |
 | EVK-NORA-B12                 | u-blox/ubx_evknorab12         | Tested with NCS v3.2.1 |
 
@@ -71,16 +71,17 @@ with mainline Zephyr.
 | EVK-ANNA-B4   |  |
 | EVK-NORA-B10  |  |
 | EVK-NORA-B12  |  |
-| MINI-NORA-B10 | Rev C and later hardware only |
-| MINI-NORA-B12 | Rev C and later hardware only |
-| XPLR-IOT-1    |  |
+| EVK-NORA-B2   |  |
 
 Board support packages for the following EVKs are not planned for submission to
 the Zephyr mainline project. They will remain here at the u-blox repository:
 
-| EVK board | Folder             | Remarks                     |
-|-----------|--------------------|-----------------------------|
-| R41Z-EVAL | ubx_r41zeval_kw41z | Tested with Zephyr v2.6-rc1 |
+| EVK board     | Folder                        | Remarks                     |
+|---------------|-------------------------------|-----------------------------|
+| R41Z-EVAL     | ubx_r41zeval_kw41z            | Tested with Zephyr v2.6-rc1 |
+| MINI-NORA-B10 | arm/ubx_mininorab10_nrf5340   | Tested with NCS v2.6.0      |
+| MINI-NORA-B12 | arm/ubx_mininorab12_nrf5340   | Tested with NCS v2.6.0      |
+| XPLR-IOT-1    | arm/ubx_xplriot1_nrf5340      | Tested with NCS v1.9.1      |
 
 Please store the board configuration directory in the
 
