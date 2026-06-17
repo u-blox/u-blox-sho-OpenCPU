@@ -47,6 +47,7 @@ Example: `wifi_change_channel_plan(0x3f);` for FCC regulatory domain.<br>
 |ISED|0x4A|
 |ETSI|0x5E|
 |MKK|0x7D|
+|ACMA|0x45|
 
 5. The change of channel plan should be done after the restart of Wi-Fi, in this example case Stattion (RTW_MODE_STA).
 
