@@ -26,33 +26,54 @@ This repository contains essential software configuration files, calibration dat
 ├── flash_config
 │   ├── Fidelex_8MB
 │   │   └── flash_config.c
-│   └── Macronix_8MB
-│        └── flash_config.c
+│   ├── Macronix_8MB
+│   │   └── flash_config.c
+│   └── Macronix_16MB
+│       └── flash_config.c
 ├── flash_drv
 │   ├── Fidelex_8MB
 │   │   ├── README.md
 │   │   ├── SDK_2_16_100
-│   │   │   └── mflash_drv.c
+│   │   │   ├── mflash_drv.c
+│   │   │   └── mflash_drv.h
 │   │   └── SDK_24_12_00
-│   │        └── mflash_drv.c
-│   └── Macronix_8MB
-│        └── mflash_drv.c
+│   │        ├── mflash_drv.c
+│   │        └── mflash_drv.h
+│   ├── Macronix_8MB
+│   │   ├── README.md
+│   │   ├── SDK_2_16_100
+│   │   │   ├── mflash_drv.c
+│   │   │   └── mflash_drv.h
+│   │   └── SDK_24_12_00
+│   │        ├── mflash_drv.c
+│   │        └── mflash_drv.h
+│   └── Macronix_16MB
+│       ├── README.md
+│       └── SDK_24_12_00
+│           ├── mflash_drv.c
+│           └── mflash_drv.h
 ├── labtool
 │   ├── mcux_config.h
 │   ├── Fidelex_8MB
 │   ├── Macronix_8MB
 │   ├── Single_antenna_calibration_data_text_files
 │   └── README.md
-├── README.md
+├── Linker_Scripts
+│   ├── README.md
+│   ├── Flash_8MB
+│   │   └── RW612_flash.ld
+│   └── Flash_16MB
+│       └── RW612_flash.ld
 ├── wifi_Calibration
 │   ├── README.md
 │   ├── SDK_2_16_100
 │   │   └── wifi_cal_data_ext.h
 │   └── SDK_24_12_00
 │       └── wifi_cal_data_rw61x_1ant.h
-└── wifi_txpower_cfg
-    ├── README.md
-    └── wlan_txpwrlimit_cfg_WW_rw610.h
+├── wifi_txpower_cfg
+│   ├── README.md
+│   └── wlan_txpwrlimit_cfg_WW_rw610.h
+└── README.md
 ```
 
 ---
@@ -85,6 +106,7 @@ Contains configuration files for different **flash memory vendors** used in IRIS
 
 - [`Fidelex_8MB/`](/MCUXpresso/IRIS-W1/sw_config/flash_config/Fidelex_8MB/)
 - [`Macronix_8MB/`](/MCUXpresso/IRIS-W1/sw_config/flash_config/Macronix_8MB/)
+- [`Macronix_16MB/`](/MCUXpresso/IRIS-W1/sw_config/flash_config/Macronix_16MB/)
 
 > **Note:** Both **Fidelix 8MB** and **Fidelix 16MB** variants use the same configuration files.
 
@@ -95,6 +117,7 @@ Includes **flash driver (mflash)** files for different flash types:
 
 - [`Fidelex_8MB/`](/MCUXpresso/IRIS-W1/sw_config/flash_drv/Fidelex_8MB/)
 - [`Macronix_8MB/`](/MCUXpresso/IRIS-W1/sw_config/flash_drv/Macronix_8MB/)
+- [`Macronix_16MB/`](/MCUXpresso/IRIS-W1/sw_config/flash_drv/Macronix_16MB/)
 
 Supports multiple SDK versions.
 
@@ -113,6 +136,14 @@ Provides configuration and support files for the **RW61x Labtool** — a manufac
 Includes:
 - `mcux_config.h`
 - Calibration files
+
+---
+
+### [`Linker_Scripts/`](/MCUXpresso/IRIS-W1/sw_config/Linker_Scripts/)
+Contains ARMGCC linker files for different **flash memory densities** used in IRIS-W1 modules:
+
+- [`Flash_8MB/`](/MCUXpresso/IRIS-W1/sw_config/Linker_Scripts/Flash_8MB/)
+- [`Flash_16MB/`](/MCUXpresso/IRIS-W1/sw_config/Linker_Scripts/Flash_16MB/)
 
 ---
 

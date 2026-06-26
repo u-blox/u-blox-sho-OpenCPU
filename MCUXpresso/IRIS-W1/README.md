@@ -20,9 +20,11 @@ This repository contains setup information, configuration files, and example bin
 │   ├── flash_config
 │   ├── flash_drv
 │   ├── labtool
-│   ├── README.md
+│   ├── Linker_Scripts
 │   ├── wifi_Calibration
-│   └── wifi_txpower_cfg
+│   ├── wifi_txpower_cfg
+│   └── README.md
+│
 └── README.md
 ```
 
@@ -73,10 +75,13 @@ Contains software configuration files and calibration data.
 6. **labtool**:
    Tools and utilities for radio testing in lab environments.
 
-7. **wifi_Calibration**:
+7. **Linker_Scripts**:
+   ARMGCC Linker scripts.
+
+8. **wifi_Calibration**:
    Wi-Fi calibration data.
 
-8. **wifi_txpower_cfg**:
+9. **wifi_txpower_cfg**:
    Wi-Fi transmit power configuration files and examples.
 
 ## Identifying Module Flash Memory
