@@ -119,6 +119,7 @@ Includes **flash driver (mflash)** files for different flash types:
 - [`Macronix_8MB/`](/MCUXpresso/IRIS-W1/sw_config/flash_drv/Macronix_8MB/)
 - [`Macronix_16MB/`](/MCUXpresso/IRIS-W1/sw_config/flash_drv/Macronix_16MB/)
 
+
 Supports multiple SDK versions.
 
 > **Note:** The same configurational driver files can be used for both **Fidelix 8MB** and **Fidelix 16MB** variants.
