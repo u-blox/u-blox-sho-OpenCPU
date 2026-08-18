@@ -1,31 +1,53 @@
 # Linker Scripts
 
-This repository contains ARMGCC linker scripts for **8 MB** and **16 MB** external Flash memory configurations, compatible with different SDK versions of the **RW612** chipset.
+Linker files for the **RW612** chipset, organized by the build toolchain. For IRIS-W1 modules, the linker setup is part of the required pre-setup condition and must be updated together with the flash configuration and flash driver files (`flash_config.c` and `mflash_drv.c`).
 
-Follow the instructions below to replace the appropriate linker script in your SDK project.
+Select the folder that matches your build environment:
 
-## Flash Memory Configurations
+| Toolchain / IDE | Folder | File type |
+|---|---|---|
+| ARMGCC (command-line `armgcc` build) | [`ARMGCC/`](ARMGCC/) | `.ld` |
+| MCUXpresso IDE (managed build) | [`MCUXpressoIDE/`](MCUXpressoIDE/) | `.ldt` |
 
-Replace the existing linker script file **`RW612_flash.ld`** located in your SDK application. For example:
+> **Important:** Use only the files for the toolchain you build with. MCUXpresso IDE does not consume the ARMGCC `.ld` file, and the `armgcc` build does not use the `.ldt` templates.
 
-```text
-SDK_2x_xx_xxx_RD-RW612-BGA/
-└── boards/
-    └── rdrw612bga/
-        └── demo_apps/
-            └── hello_world/
-                └── armgcc/
-                    └── RW612_flash.ld
+> **Pre-setup requirement:** The correct linker files are part of the project setup before building the application. They must match the module Flash density and the selected SDK toolchain.
+
+## Folder Structure
+
+```shell
+.
+├── ARMGCC
+│   ├── Flash_8MB
+│   │   └── RW612_flash.ld
+│   ├── Flash_16MB
+│   │   └── RW612_flash.ld
+│   └── README.md
+├── MCUXpressoIDE
+│   ├── main_text.ldt
+│   ├── main_data.ldt
+│   ├── end_text.ldt
+│   ├── symbols.ldt
+│   └── README.md
+└── README.md
 ```
 
-Replace it with the appropriate linker script based on your Flash memory size:
+## MCUXpresso IDE templates
 
-| Flash Memory Size | Linker Script |
-|-------------------|---------------|
-| **8 MB** | [`Flash_8MB/RW612_flash.ld`](/MCUXpresso/IRIS-W1/sw_config/Linker_Scripts/Flash_8MB/RW612_flash.ld) |
-| **16 MB** | [`Flash_16MB/RW612_flash.ld`](/MCUXpresso/IRIS-W1/sw_config/Linker_Scripts/Flash_16MB/RW612_flash.ld) |
+The MCUXpresso IDE folder contains the linker script templates used by the managed build flow:
 
-> **Note:** Make sure you use the linker script that matches the Flash memory size of your hardware.
+- `main_text.ldt`
+- `main_data.ldt`
+- `end_text.ldt`
+- `symbols.ldt`
+
+Copy these files into the project's `linkscripts` folder before building. This is part of the pre-setup requirement for MCUXpresso IDE projects.
+
+## Selecting the Flash Size
+
+Use the file set that matches the Flash density of your module. See [Identifying Module Flash Memory](/MCUXpresso/IRIS-W1/README.md#identifying-module-flash-memory) to determine the memory fitted on your module.
+
+> **NXP note:** Labtool is primarily a manufacturing / RF calibration tool. It is not the normal path for routine RF verification. For standard RF testing, use the NXP RF test applications such as `wifi_test_mode`, the EdgeFast BLE shell, or `ot_cli` as described in the [RF_Test guide](../RF_Test/README.md).
 
 ---
 

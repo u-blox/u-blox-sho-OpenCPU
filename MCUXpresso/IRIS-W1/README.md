@@ -19,7 +19,7 @@ This repository contains setup information, configuration files, and example bin
 │   ├── BT_802_15_4_Calibration_Files
 │   ├── flash_config
 │   ├── flash_drv
-│   ├── labtool
+│   ├── RF_Test
 │   ├── Linker_Scripts
 │   ├── wifi_Calibration
 │   ├── wifi_txpower_cfg
@@ -72,11 +72,11 @@ Contains software configuration files and calibration data.
 5. **flash_drv**:
    Flash memory drivers.
 
-6. **labtool**:
-   Tools and utilities for radio testing in lab environments.
+6. **RF_Test**:
+   Guidance for using the NXP SDK RF test applications for Wi-Fi, BLE, and 802.15.4.
 
 7. **Linker_Scripts**:
-   ARMGCC Linker scripts.
+   Linker scripts for ARMGCC (`.ld`) and linker templates for MCUXpresso IDE (`.ldt`).
 
 8. **wifi_Calibration**:
    Wi-Fi calibration data.

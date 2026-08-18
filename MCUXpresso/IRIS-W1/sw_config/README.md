@@ -52,18 +52,18 @@ This repository contains essential software configuration files, calibration dat
 │       └── SDK_24_12_00
 │           ├── mflash_drv.c
 │           └── mflash_drv.h
-├── labtool
-│   ├── mcux_config.h
-│   ├── Fidelex_8MB
-│   ├── Macronix_8MB
-│   ├── Single_antenna_calibration_data_text_files
+├── RF_Test
 │   └── README.md
 ├── Linker_Scripts
 │   ├── README.md
-│   ├── Flash_8MB
-│   │   └── RW612_flash.ld
-│   └── Flash_16MB
-│       └── RW612_flash.ld
+│   ├── ARMGCC
+│   │   ├── README.md
+│   │   ├── Flash_8MB
+│   │   │   └── RW612_flash.ld
+│   │   └── Flash_16MB
+│   │       └── RW612_flash.ld
+│   └── MCUXpressoIDE
+│       └── README.md
 ├── wifi_Calibration
 │   ├── README.md
 │   ├── SDK_2_16_100
@@ -128,23 +128,24 @@ Supports multiple SDK versions.
 
 ---
 
-### [`labtool/`](/MCUXpresso/IRIS-W1/sw_config/labtool/)
-Provides configuration and support files for the **RW61x Labtool** — a manufacturing software utility used for:
-- RF control
-- Calibration
-- Regulatory compliance testing
+### [`RF_Test/`](RF_Test/)
+Provides the recommended RF test workflow using standard NXP SDK applications instead of the old Labtool bundle:
 
-Includes:
-- `mcux_config.h`
-- Calibration files
+- `wifi_test_mode` for Wi-Fi RF verification
+- EdgeFast BLE shell for Bluetooth Low Energy RF testing
+- `ot_cli` for 802.15.4 RF testing through NXP vendor commands
+
+The NXP manufacturing environment is still required for RF calibration. See the [RF test guide](RF_Test/README.md) for the distinction between verification and calibration.
 
 ---
 
-### [`Linker_Scripts/`](/MCUXpresso/IRIS-W1/sw_config/Linker_Scripts/)
-Contains ARMGCC linker files for different **flash memory densities** used in IRIS-W1 modules:
+### [`Linker_Scripts/`](Linker_Scripts/)
+Contains linker files for the different **flash memory densities** used in IRIS-W1 modules, split by build environment:
 
-- [`Flash_8MB/`](/MCUXpresso/IRIS-W1/sw_config/Linker_Scripts/Flash_8MB/)
-- [`Flash_16MB/`](/MCUXpresso/IRIS-W1/sw_config/Linker_Scripts/Flash_16MB/)
+- [`ARMGCC/`](Linker_Scripts/ARMGCC/) — `.ld` scripts for `armgcc` builds (`Flash_8MB`, `Flash_16MB`)
+- [`MCUXpressoIDE/`](Linker_Scripts/MCUXpressoIDE/) — `.ldt` linker templates for MCUXpresso IDE projects
+
+> **Note:** Update the linker configuration whenever `flash_config.c` and `mflash_drv.c` are replaced, using the variant that matches your toolchain.
 
 ---
 

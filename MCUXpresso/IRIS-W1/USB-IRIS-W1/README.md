@@ -123,8 +123,14 @@ Use the [software configuration files](/MCUXpresso/IRIS-W1/sw_config/) based on 
 | `wifi_cal_data_rw61x_1ant.h` | `middleware/wifi_nxp/incl` | [wifi_Calibration](/MCUXpresso/IRIS-W1/sw_config/wifi_Calibration/) |
 | `fwk_platform_ble.c` | `middleware/wireless/framework/platform/rw61x` | [BT_802_15_4_Calibration_Files](/MCUXpresso/IRIS-W1/sw_config/BT_802_15_4_Calibration_Files/) |
 | `fwk_config.h` | `middleware/wireless/framework/platform/rw61x/configs` | [BT_802_15_4_Calibration_Files](/MCUXpresso/IRIS-W1/sw_config/BT_802_15_4_Calibration_Files/) |
+| `RW612_flash.ld` (ARMGCC builds) | `boards/rdrw612bga/<example>/armgcc` | [Linker_Scripts/ARMGCC](/MCUXpresso/IRIS-W1/sw_config/Linker_Scripts/ARMGCC/) |
+| `*.ldt` (MCUXpresso IDE builds) | `<project>/linkscripts` | [Linker_Scripts/MCUXpressoIDE](/MCUXpresso/IRIS-W1/sw_config/Linker_Scripts/MCUXpressoIDE/) |
 
+> **Note**: The linker configuration must match both the module's Flash density and the toolchain in use. Update it in the same step as `flash_config.c` and `mflash_drv.c`. This is part of the required pre-setup condition before building any IRIS-W1 application.
+>
 > **Note**: The same flash configuration and binary files used for the 8 MB Fidelix variant are also compatible with the 16 MB Fidelix variant.
+>
+> **NXP note:** Labtool is mainly used by the manufacturing / calibration process. It is not the standard path for routine RF verification. For normal RF testing, use the NXP RF test applications listed in the [RF_Test guide](/MCUXpresso/IRIS-W1/sw_config/RF_Test/README.md).
 
 ---
 
