@@ -27,8 +27,3 @@ Replace it with the appropriate linker script based on your Flash memory size:
 
 > **Note:** Make sure you use the linker script that matches the Flash memory size of your hardware.
 
----
-
-## Support
-
-If you encounter any issues, please refer to the SDK documentation or reach out for support.

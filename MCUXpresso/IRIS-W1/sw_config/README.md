@@ -63,7 +63,12 @@ This repository contains essential software configuration files, calibration dat
 │   │   └── Flash_16MB
 │   │       └── RW612_flash.ld
 │   └── MCUXpressoIDE
-│       └── README.md
+│       ├── README.md
+│       └── linkerscript
+│           ├── end_text.ldt
+│           ├── main_data.ldt
+│           ├── main_text.ldt
+│           └── symbols.ldt
 ├── wifi_Calibration
 │   ├── README.md
 │   ├── SDK_2_16_100
@@ -143,9 +148,9 @@ The NXP manufacturing environment is still required for RF calibration. See the 
 Contains linker files for the different **flash memory densities** used in IRIS-W1 modules, split by build environment:
 
 - [`ARMGCC/`](Linker_Scripts/ARMGCC/) — `.ld` scripts for `armgcc` builds (`Flash_8MB`, `Flash_16MB`)
-- [`MCUXpressoIDE/`](Linker_Scripts/MCUXpressoIDE/) — `.ldt` linker templates for MCUXpresso IDE projects
+- [`MCUXpressoIDE/`](Linker_Scripts/MCUXpressoIDE/) — `.ldt` linker templates in `linkerscript/` for MCUXpresso IDE projects
 
-> **Note:** Update the linker configuration whenever `flash_config.c` and `mflash_drv.c` are replaced, using the variant that matches your toolchain.
+**Important:** Each toolchain uses its own linker file. MCUXpresso IDE uses `.ldt` files. ARMGCC uses `.ld` files. Don't mix them.
 
 ---
 

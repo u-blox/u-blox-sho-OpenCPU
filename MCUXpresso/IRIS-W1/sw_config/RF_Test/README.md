@@ -1,16 +1,15 @@
 # IRIS-W1 RF Test Applications
 
-This guide describes the recommended workflow for routine RF verification of IRIS-W1 modules. Use the standard NXP SDK examples and shell applications listed below.
+This guide describes the recommended Radio test & verification of IRIS-W1 modules. use the standard NXP SDK examples and shell applications listed below.
 
 ## Recommendation at a glance
 
 | Radio | Recommended application | Main purpose |
 |---|---|---|
-| Wi-Fi | `wifi_test_mode` | Wi-Fi RF verification when an MFG environment is not required |
-| Bluetooth Low Energy | EdgeFast BLE shell application | BLE transmit and receive RF tests |
+| Wi-Fi | `wifi_test_mode` | Wi-Fi RF tests |
+| Bluetooth Low Energy | `EdgeFast BLE shell application` | BLE RF tests |
 | 802.15.4 | `ot_cli` | OpenThread CLI and NXP vendor RF test commands |
 
-Use the application that matches the radio under test. `wifi_cli` is intended for normal Wi-Fi connectivity and CLI demonstrations; it is not the primary RF test application.
 
 ## What each application is for
 
@@ -64,10 +63,8 @@ NXP support distinguishes routine RF verification from RF calibration:
 - Use `wifi_test_mode`, the EdgeFast BLE shell, or `ot_cli` for RF verification and functional measurements.
 - The NXP MFG environment remains necessary when performing RF calibration.
 
-Manufacturing-tool files are intentionally not included in this repository's normal RF test workflow. Obtain the current NXP manufacturing tools and follow the applicable NXP calibration procedure only for calibration work.
 
-## Scope and limitations
+## Note
 
-The NXP guidance states that Wi-Fi RF test mode should cover the required RF verification capabilities, but the exact command syntax depends on the SDK version and application build. Confirm the command set in the version of UM11799 shipped with the SDK being used.
+> **NXP note:** Labtool is mainly used by the manufacturing / calibration process. It is not the standard path for routine RF verification. For normal RF testing, use the NXP RF test applications listed in the [RF_Test guide](/MCUXpresso/IRIS-W1/sw_config/RF_Test/README.md).
 
-This folder is a usage guide. It does not contain complete MCUXpresso projects or replacement binaries for the NXP applications; those must be obtained from the matching NXP SDK or built from its examples.
