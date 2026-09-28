@@ -19,6 +19,13 @@ import subprocess
 from pathlib import Path
 from typing import Optional
 
+# Windows consoles default to cp1252 and raise UnicodeEncodeError on the status glyphs below.
+for _stream in (sys.stdout, sys.stderr):
+    try:
+        _stream.reconfigure(encoding="utf-8", errors="replace")
+    except (AttributeError, OSError):
+        pass
+
 try:
     import serial
     import serial.tools.list_ports

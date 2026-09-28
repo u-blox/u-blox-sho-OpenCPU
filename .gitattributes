@@ -1,0 +1,27 @@
+# Auto normalize line endings for cross-platform compatibility
+# Windows users: files will be checked out with CRLF
+# Linux/macOS users: files will be checked out with LF
+# Git repository stores everything with LF
+
+# Python scripts - always LF in repo, native on checkout
+*.py eol=lf
+*.sh eol=lf
+
+# Markdown documentation - LF in repo
+*.md eol=lf
+
+# JSON config files - LF in repo
+*.json eol=lf
+*.yaml eol=lf
+*.yml eol=lf
+
+# Batch/shell scripts - native line endings
+*.bat eol=crlf
+*.cmd eol=crlf
+*.ps1 eol=crlf
+
+# Binary files
+*.elf binary
+*.bin binary
+*.hex binary
+*.out binary

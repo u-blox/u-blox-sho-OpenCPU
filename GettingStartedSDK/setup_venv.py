@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 r"""
 Setup shared Python virtual environment for all u-blox build scripts.
 

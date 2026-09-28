@@ -624,7 +624,7 @@ Examples:
   python iris_w10_build.py all demo_apps/hello_world     # Full pipeline
         """
     )
-    build_parser.add_argument("--board", default=DEFAULT_BOARD,
+    parser.add_argument("--board", default=DEFAULT_BOARD,
                         help=f"MCUXpresso board target (default: {DEFAULT_BOARD})")
 
     subparsers = parser.add_subparsers(dest="command", help="Command")
