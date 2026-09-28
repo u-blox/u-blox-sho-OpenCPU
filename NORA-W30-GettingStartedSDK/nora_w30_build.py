@@ -192,6 +192,19 @@ def cmd_clone(args) -> int:
     
     return result.returncode
 
+def cmd_install(args) -> int:
+    """Verify Realtek SDK environment (tools already installed via system package manager)."""
+    print("\n✅ Environment Check for NORA-W30 (Realtek RTOS)\n")
+    print("Realtek SDK uses standard Linux tools (arm-none-eabi-gcc, make, git).")
+    print("These are installed via your system package manager (apt, yum, etc.).")
+    print("\nTo install missing tools, run:")
+    print("  Ubuntu/Debian: sudo apt install arm-none-eabi-gcc make git python3")
+    print("  Other Linux:   Use your package manager to install the above tools")
+    print("\nTo verify your installation, run:")
+    print("  python3 nora_w30_build.py doctor")
+    print()
+    return 0
+
 def cmd_build(args) -> int:
     """Build example application."""
     if not args.example:
@@ -281,6 +294,7 @@ def main():
 Examples:
   python nora_w30_build.py doctor              # Check environment
   python nora_w30_build.py clone               # Clone Realtek SDK
+  python nora_w30_build.py install             # Show tool installation info
   python nora_w30_build.py list                # List examples
   python nora_w30_build.py build ota           # Build example
   python nora_w30_build.py all ota             # Full pipeline
@@ -293,6 +307,7 @@ Note: Best on Linux or WSL2. Windows Cygwin is complex.
     
     subparsers.add_parser("doctor", help="Verify toolchain")
     subparsers.add_parser("clone", help="Clone Realtek SDK")
+    subparsers.add_parser("install", help="Show tool installation info")
     subparsers.add_parser("list", help="List examples")
     
     build_parser = subparsers.add_parser("build", help="Build example")
@@ -306,6 +321,7 @@ Note: Best on Linux or WSL2. Windows Cygwin is complex.
     commands = {
         "doctor": cmd_doctor,
         "clone": cmd_clone,
+        "install": cmd_install,
         "list": cmd_list,
         "build": cmd_build,
         "all": cmd_all,
