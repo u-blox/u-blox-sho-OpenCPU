@@ -47,7 +47,18 @@ def newest(patterns: List[str]) -> Optional[str]:
     """Find newest matching path from glob patterns."""
     candidates = []
     for pattern in patterns:
-        candidates.extend(Path().glob(pattern))
+        try:
+            if pattern.startswith(("C:/", "C:\\", "/")):
+                # Absolute path - check directly
+                p = Path(pattern)
+                if p.exists():
+                    candidates.append(p)
+            else:
+                # Relative path - use glob
+                candidates.extend(Path().glob(pattern))
+        except:
+            pass
+    
     if not candidates:
         return None
     candidates.sort(key=lambda p: str(p), reverse=True)
@@ -62,16 +73,18 @@ def detect_git() -> Optional[str]:
 
 def detect_make() -> Optional[str]:
     """Detect make."""
-    result = subprocess.run(["which", "make"], capture_output=True, text=True)
-    if result.returncode == 0:
-        return result.stdout.strip()
+    if host_kind() != "windows":
+        result = subprocess.run(["which", "make"], capture_output=True, text=True)
+        if result.returncode == 0:
+            return result.stdout.strip()
     return None
 
 def detect_arm_gcc() -> Optional[str]:
     """Detect arm-none-eabi-gcc."""
-    result = subprocess.run(["which", "arm-none-eabi-gcc"], capture_output=True, text=True)
-    if result.returncode == 0:
-        return result.stdout.strip()
+    if host_kind() != "windows":
+        result = subprocess.run(["which", "arm-none-eabi-gcc"], capture_output=True, text=True)
+        if result.returncode == 0:
+            return result.stdout.strip()
     return None
 
 def detect_python() -> Optional[str]:

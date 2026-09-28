@@ -60,7 +60,18 @@ def newest(patterns: List[str], exists_check: bool = True) -> Optional[str]:
     """Find newest matching path from glob patterns."""
     candidates = []
     for pattern in patterns:
-        candidates.extend(Path().glob(pattern))
+        try:
+            if pattern.startswith(("C:/", "C:\\", "/")):
+                # Absolute path - check directly
+                p = Path(pattern)
+                if p.exists():
+                    candidates.append(p)
+            else:
+                # Relative path - use glob
+                candidates.extend(Path().glob(pattern))
+        except:
+            pass
+    
     if not candidates:
         return None
     candidates.sort(key=lambda p: str(p), reverse=True)
@@ -71,16 +82,23 @@ def newest(patterns: List[str], exists_check: bool = True) -> Optional[str]:
 
 def detect_idf() -> Optional[str]:
     """Detect ESP-IDF installation."""
+    # Check config first
+    cfg = load_config()
+    if "idf_path" in cfg:
+        idf_path = cfg["idf_path"]
+        if Path(idf_path).exists():
+            return idf_path
+    
+    # Check common locations
     patterns = [
+        str(Path.cwd() / "esp-idf"),
         str(Path.home() / "esp" / "esp-idf"),
         "/opt/esp/esp-idf",
         "C:/esp/esp-idf",
-        "C:/Users/*/esp/esp-idf",
     ]
     for p in patterns:
-        expanded = os.path.expanduser(p)
-        if Path(expanded).exists():
-            return expanded
+        if Path(p).exists():
+            return p
     return None
 
 def detect_git() -> Optional[str]:
@@ -101,19 +119,27 @@ def detect_git() -> Optional[str]:
 
 def detect_make() -> Optional[str]:
     """Detect make/gmake."""
+    if host_kind() == "windows":
+        patterns = [
+            "C:/Program Files/make/bin/make.EXE",
+            "C:/Program Files (x86)/GnuWin32/bin/make.EXE",
+        ]
+        result = newest(patterns)
+        if result:
+            return short_path(result)
+    
     result = subprocess.run(["which", "make"], capture_output=True, text=True)
     if result.returncode == 0:
         return result.stdout.strip()
-    
-    if host_kind() == "windows":
-        patterns = ["C:/Program Files/make/bin/make.EXE"]
-        return newest(patterns)
     return None
 
 def detect_cmake() -> Optional[str]:
     """Detect CMake."""
     if host_kind() == "windows":
-        patterns = ["C:/Program Files/CMake/bin/cmake.EXE"]
+        patterns = [
+            "C:/Program Files/CMake/bin/cmake.EXE",
+            "C:/Program Files (x86)/CMake/bin/cmake.EXE",
+        ]
         result = newest(patterns)
         if result:
             return short_path(result)
@@ -189,18 +215,24 @@ def cmd_clone(args) -> int:
     """Clone ESP-IDF repository."""
     print("\n📥 Cloning ESP-IDF...\n")
     
-    git = detect_git()
-    if not git:
-        print("❌ Git not found!")
+    # Try git command directly (should be in PATH)
+    try:
+        git_cmd = ["git", "--version"]
+        subprocess.run(git_cmd, capture_output=True, check=True)
+    except:
+        print("❌ Git not found or not in PATH!")
         return 1
     
     idf_dir = Path.cwd() / "esp-idf"
     if idf_dir.exists():
         print(f"ℹ️  {idf_dir} already exists. Skipping clone.\n")
+        cfg = load_config()
+        cfg["idf_path"] = str(idf_dir)
+        save_config(cfg)
         return 0
     
     result = subprocess.run(
-        [git, "clone", "--depth", "1", "https://github.com/espressif/esp-idf.git"],
+        ["git", "clone", "--depth", "1", "https://github.com/espressif/esp-idf.git"],
         cwd=Path.cwd()
     )
     
@@ -233,8 +265,14 @@ def cmd_build(args) -> int:
     env = os.environ.copy()
     env["IDF_PATH"] = idf_dir
     
+    # Use full path to idf.py
+    idf_py = Path(idf_dir) / "tools" / "idf.py"
+    if not idf_py.exists():
+        print(f"❌ idf.py not found at {idf_py}")
+        return 1
+    
     result = subprocess.run(
-        [sys.executable, "idf.py", "build"],
+        [sys.executable, str(idf_py), "build"],
         cwd=example_path,
         env=env
     )
@@ -254,11 +292,21 @@ def cmd_list(args) -> int:
         return 1
     
     print("\n📚 Available Examples:\n")
-    for ex in sorted(examples_path.iterdir()):
-        if ex.is_dir():
-            cmakelists = ex / "CMakeLists.txt"
-            if cmakelists.exists():
-                print(f"  • {ex.name}")
+    
+    # Search recursively for CMakeLists.txt files
+    found = False
+    for cmake_file in sorted(examples_path.rglob("CMakeLists.txt")):
+        example_dir = cmake_file.parent
+        # Calculate relative path from examples folder
+        rel_path = example_dir.relative_to(examples_path)
+        # Only show directories with CMakeLists.txt (not nested cmake from components, etc)
+        depth = len(rel_path.parts)
+        if depth <= 2:  # Limit to /category/example level
+            print(f"  • {rel_path}")
+            found = True
+    
+    if not found:
+        print("  (No examples found)")
     print()
     return 0
 
