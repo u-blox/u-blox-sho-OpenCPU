@@ -1,6 +1,6 @@
-# Quick Build Cheatsheet — All Three NORA Variants
+# Quick Build Cheatsheet — All Variants
 
-Visual quick reference for building NORA-W50/W51, W30, and W40 firmware.
+Visual quick reference for building NORA-W50/W51, W30, W40 and IRIS-W1 firmware.
 
 ---
 
@@ -8,11 +8,11 @@ Visual quick reference for building NORA-W50/W51, W30, and W40 firmware.
 
 ### **NORA-W50/W51** (TI CC35x1E)
 ```bash
-cd ~/ti-w5
+cd ~/nora-w50-w51
 python nora_w50_w51_build.py configure
 python nora_w50_w51_build.py build-sdk --toolchain ticlang
 python nora_w50_w51_build.py build network_terminal --toolchain ticlang
-# Result: ~/ti-w5/wifi-examples/network_terminal/ticlang/Release/network_terminal.out
+# Result: ~/nora-w50-w51/wifi-examples/network_terminal/ticlang/Release/network_terminal.out
 # Time: ~15-20 min
 # Platform: Windows, WSL2, Linux
 ```
@@ -39,27 +39,39 @@ python nora_w40_build.py build get-started/hello_world
 # Platform: Windows, WSL2, Linux
 ```
 
+### **IRIS-W1** (NXP RW612 + MCUXpresso SDK)
+```bash
+cd ~/iris-w1
+python iris_w1_build.py install
+# Set ARMGCC_DIR once, then reopen the terminal
+python iris_w1_build.py clone
+python iris_w1_build.py build demo_apps/hello_world
+# Result: mcuxpresso-sdk/build/
+# Time: ~15 min (includes ~2 GB workspace fetch)
+# Platform: Windows, WSL2, Linux
+```
+
 ---
 
 ## Command Matrix
 
 ```
-┌─────────────────────────────────────────────────────────────────────────┐
-│                         BUILD COMMAND REFERENCE                         │
-├──────────────┬──────────────┬──────────────┬──────────────────────────────┤
-│ Operation    │ W50/W51 (TI) │ W30 (Realtek)│ W40 (ESP-IDF)                │
-├──────────────┼──────────────┼──────────────┼──────────────────────────────┤
-│ Check env    │ doctor       │ doctor       │ doctor                       │
-│ Get SDK      │ clone        │ clone        │ clone                        │
-│ Setup env    │ install      │ install      │ install                      │
-│ Config tools │ configure    │ (auto)       │ (auto)                       │
-│ Build libs   │ build-sdk    │ (auto)       │ (auto)                       │
-│ List examples│ list         │ list         │ list                         │
-│ Build one    │ build NAME   │ build NAME   │ build CAT/NAME               │
-│ Clean one    │ --clean flag │ clean NAME   │ clean NAME                   │
-│ Clean all    │ (manual)     │ clean --all  │ clean --all                  │
-│ All-in-one   │ all NAME     │ all NAME     │ all CAT/NAME*                │
-└──────────────┴──────────────┴──────────────┴──────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────────────────────────────┐
+│                              BUILD COMMAND REFERENCE                                    │
+├──────────────┬──────────────┬──────────────┬────────────────┬──────────────────────────┤
+│ Operation    │ W50/W51 (TI) │ W30 (Realtek)│ W40 (ESP-IDF)  │ IRIS-W1 (NXP)            │
+├──────────────┼──────────────┼──────────────┼────────────────┼──────────────────────────┤
+│ Check env    │ doctor       │ doctor       │ doctor         │ doctor                   │
+│ Get SDK      │ clone        │ clone        │ clone          │ clone                    │
+│ Setup env    │ install      │ install      │ install        │ install                  │
+│ Config tools │ configure    │ (auto)       │ (auto)         │ ARMGCC_DIR env var       │
+│ Build libs   │ build-sdk    │ (auto)       │ (auto)         │ (auto)                   │
+│ List examples│ list         │ list         │ list           │ list                     │
+│ Build one    │ build NAME   │ build NAME   │ build CAT/NAME │ build CAT/NAME           │
+│ Clean one    │ --clean flag │ clean NAME   │ clean NAME     │ clean  (or build -p)     │
+│ Clean all    │ (manual)     │ clean --all  │ clean --all    │ clean --all              │
+│ All-in-one   │ all NAME     │ all NAME     │ all CAT/NAME*  │ all CAT/NAME             │
+└──────────────┴──────────────┴──────────────┴────────────────┴──────────────────────────┘
 * W40 requires environment sourced first
 ```
 
@@ -85,6 +97,13 @@ python nora_w40_build.py build get-started/hello_world
 │ Platforms: Win/WSL2/Linux (all equal quality)                      │
 │ Status: ✅ Fully tested on Windows 11, Ubuntu 22.04, WSL2          │
 └─────────────────────┴──────────────────────────────────────────────────┘
+
+┌─────────────────────┬──────────────────────────────────────────────────┐
+│ IRIS-W1 (NXP)       │ Setup: 10-15 min  │  Build: ~5 min each   │ 20 min total
+│ Platforms: Win/WSL2/Linux                                           │
+│ Status: ⚠️  Tooling + workspace init verified on Windows 11.        │
+│         Full example build not yet verified end-to-end.             │
+└─────────────────────┴──────────────────────────────────────────────────┘
 ```
 
 ---
@@ -107,9 +126,14 @@ Create one folder per variant (recommended):
 │   └── .nora_w30_build.linux.json
 │
 └── nora-w40/                  # NORA-W40 (ESP-IDF)
-    ├── nora_w40_build.py
-    ├── esp-idf/
-    └── .nora_w40_build.windows.json  (or .wsl/.linux)
+│   ├── nora_w40_build.py
+│   ├── esp-idf/
+│   └── .nora_w40_build.windows.json  (or .wsl/.linux)
+│
+└── iris-w1/                   # IRIS-W1 (NXP RW612)
+    ├── iris_w1_build.py
+    ├── mcuxpresso-sdk/        # west workspace (manifests/ + mcuxsdk/)
+    └── .iris_w1_build.windows.json   (or .wsl/.linux)
 ```
 
 ---
@@ -256,6 +280,14 @@ source esp-idf/export.sh  # Linux/WSL2
 .\esp-idf\export.ps1      # Windows PowerShell
 ```
 
+**IRIS-W1:**
+```bash
+# Required — the MCUXpresso build system locates the compiler through this.
+# Point at the toolchain ROOT (the folder containing bin/), not bin/ itself.
+export ARMGCC_DIR=/usr                                    # Linux/WSL2
+setx ARMGCC_DIR "C:\Program Files (x86)\Arm GNU Toolchain arm-none-eabi\14.2 rel1"   # Windows
+```
+
 ---
 
 ## Disk Space Requirements
@@ -265,7 +297,10 @@ source esp-idf/export.sh  # Linux/WSL2
 | W50/W51 | 500 MB | 200 MB | ~700 MB |
 | W30 | 100 MB | 50 MB | ~150 MB |
 | W40 | 1.2 GB | 500 MB | ~1.7 GB |
-| **All Three** | - | - | **~2.6 GB** |
+| IRIS-W1 | 2 GB (board-targeted) | 300 MB | ~2.3 GB |
+| **All four** | - | - | **~4.9 GB** |
+
+> IRIS-W1 `clone --full` fetches the complete MCUXpresso SDK instead (~7–8 GB).
 
 ---
 
@@ -274,4 +309,5 @@ source esp-idf/export.sh  # Linux/WSL2
 - **W50/W51:** See [NORA-W50-W51-GettingStartedSDK/README.md](NORA-W50-W51-GettingStartedSDK/README.md)
 - **W30:** See [NORA-W30-GettingStartedSDK/README.md](NORA-W30-GettingStartedSDK/README.md)
 - **W40:** See [NORA-W40-GettingStartedSDK/README.md](NORA-W40-GettingStartedSDK/README.md)
-- **All Three:** See [BUILD_ALL_THREE_EXAMPLES.md](BUILD_ALL_THREE_EXAMPLES.md)
+- **IRIS-W1:** See [IRIS-W1-GettingStartedSDK/README.md](IRIS-W1-GettingStartedSDK/README.md)
+- **All Three:** See [BUILD_ALL_EXAMPLES.md](BUILD_ALL_EXAMPLES.md)

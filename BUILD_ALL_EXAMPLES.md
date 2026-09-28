@@ -1,6 +1,6 @@
-# Building NORA-W50/W51, W30, and W40 From Scratch
+# Building NORA-W50/W51, W30, W40 and IRIS-W1 From Scratch
 
-Complete examples showing how to build firmware for all three u-blox NORA modules from initial setup to working examples.
+Complete examples showing how to build firmware for all four u-blox Open CPU module families from initial setup to working examples.
 
 ---
 
@@ -18,7 +18,7 @@ Complete examples showing how to build firmware for all three u-blox NORA module
 
 ```bash
 # Step 1: Navigate to workspace
-cd ~/ti-w5    # or ./workspace on Windows/WSL2
+cd ~/nora-w50-w51    # or ./workspace on Windows/WSL2
 
 # Step 2: Check environment
 python nora_w50_w51_build.py doctor
@@ -49,7 +49,7 @@ python nora_w50_w51_build.py list
 
 # Step 8: Build an example
 python nora_w50_w51_build.py build network_terminal --toolchain ticlang
-# Output: ~/ti-w5/wifi-examples/network_terminal/ticlang/Release/network_terminal.out (17 MB)
+# Output: ~/nora-w50-w51/wifi-examples/network_terminal/ticlang/Release/network_terminal.out (17 MB)
 
 # Step 9: Or do entire pipeline in one command
 python nora_w50_w51_build.py all network_terminal --toolchain ticlang
@@ -195,19 +195,91 @@ python nora_w40_build.py clean --all                      # Remove entire ESP-ID
 
 ---
 
+## 4. IRIS-W1 (NXP RW612 / MCUXpresso SDK) — Windows/WSL2/Linux
+
+### Prerequisites
+- Python 3.10+, Git 2.25+
+- CMake 3.30+, Ninja 1.12.1+
+- Arm GNU Toolchain (`arm-none-eabi-gcc`)
+- `ARMGCC_DIR` environment variable pointing at the toolchain root
+- ~2 GB free disk space (board-targeted workspace)
+
+> On Windows the [MCUXpresso Installer](https://github.com/nxp-mcuxpresso/vscode-for-mcux/wiki/Dependency-Installation)
+> installs CMake, Ninja and Arm GCC in one step.
+
+### Complete Build Workflow
+
+```bash
+# Step 1: Navigate to workspace
+cd IRIS-W1-GettingStartedSDK
+
+# Step 2: Check environment
+python iris_w1_build.py doctor
+# Output: Python ✅, Git ✅, West ✅, CMake ✅, Ninja ✅, Arm GCC ✅, workspace ❌ (not yet)
+# Also reports whether ARMGCC_DIR is set
+
+# Step 3: Install west and check remaining toolchain
+python iris_w1_build.py install
+# Runs: pip install -U west
+# Reports: anything still missing + how to set ARMGCC_DIR
+
+# Step 4: Set ARMGCC_DIR (one time, then reopen the terminal)
+# Windows: setx ARMGCC_DIR "C:\Program Files (x86)\Arm GNU Toolchain arm-none-eabi\14.2 rel1"
+# Linux:   export ARMGCC_DIR="/usr"
+
+# Step 5: Initialise the SDK workspace (~2 GB, first time only)
+python iris_w1_build.py clone
+# Runs: west init -m https://github.com/nxp-mcuxpresso/mcuxsdk-manifests.git mcuxpresso-sdk
+#       west update_board --set board rdrw612bga
+# Fetches only the 63 repositories rdrw612bga needs, not the full ~7 GB SDK
+# Use --full for the complete SDK, or --revision v25.09.00 to pin a release
+
+# Step 6: List available examples
+python iris_w1_build.py list
+# Shows: demo_apps/hello_world, wifi_examples/wifi_cli, etc.
+
+# Step 7: Build an example
+python iris_w1_build.py build demo_apps/hello_world
+# Runs: west build -b rdrw612bga examples/demo_apps/hello_world --toolchain armgcc --config debug
+# Output: mcuxpresso-sdk/build/
+
+# Bare names work too when unambiguous:
+python iris_w1_build.py build hello_world
+
+# Step 8: Release build / pristine rebuild
+python iris_w1_build.py build hello_world --config release
+python iris_w1_build.py build hello_world -p
+
+# Step 9: Or use the full pipeline
+python iris_w1_build.py all demo_apps/hello_world
+# Runs: install → clone → build in sequence
+
+# Step 10: Clean if needed
+python iris_w1_build.py clean          # Remove build directory
+python iris_w1_build.py clean --all    # Remove entire workspace (~2 GB)
+```
+
+### Result
+✅ Firmware ready for flashing to IRIS-W1 via MCU-Link, J-Link/J-Flash Lite (`west flash -r linkserver`),
+or blhost for recovery. See [IRIS-W1-GettingStartedSDK/README.md](IRIS-W1-GettingStartedSDK/README.md)
+for u-blox board files, calibration data and flash addresses.
+
+---
+
 ## Side-by-Side Comparison
 
-| Step | W50/W51 (TI) | W30 (Realtek) | W40 (ESP-IDF) |
-|------|--------------|---------------|---------------|
-| Clone | `clone` | `clone` | `clone` |
-| Install | `install` (info) | `install` (info) | `install` (real) |
-| Configure | `configure` | (automatic) | (automatic) |
-| Library Setup | `build-sdk` | (auto) | (auto) |
-| List | `list` | `list` | `list` |
-| Build | `build <name>` | `build <name>` | `build <category>/<name>` |
-| Time | ~10-15 min (SDK) | ~5 min (example) | ~3 min (example) |
-| Output | `.out` (ELF) | `.axf` (ELF) | `.bin` (image) |
-| Platform | Windows/WSL2/Linux | Linux/WSL2 only | Windows/WSL2/Linux |
+| Step | W50/W51 (TI) | W30 (Realtek) | W40 (ESP-IDF) | IRIS-W1 (NXP) |
+|------|--------------|---------------|---------------|---------------|
+| Clone | `clone` | `clone` | `clone` | `clone` |
+| Install | `install` (info) | `install` (info) | `install` (real) | `install` (real) |
+| Configure | `configure` | (automatic) | (automatic) | `ARMGCC_DIR` env var |
+| Library Setup | `build-sdk` | (auto) | (auto) | (auto) |
+| List | `list` | `list` | `list` | `list` |
+| Build | `build <name>` | `build <name>` | `build <category>/<name>` | `build <category>/<name>` |
+| Time | ~10-15 min (SDK) | ~5 min (example) | ~3 min (example) | ~5 min (example) |
+| Output | `.out` (ELF) | `.axf` (ELF) | `.bin` (image) | `.elf` / `.bin` |
+| Platform | Windows/WSL2/Linux | Linux/WSL2 only | Windows/WSL2/Linux | Windows/WSL2/Linux |
+| Build system | CMake + Make | Make | CMake + idf.py | west + CMake + Ninja |
 
 ---
 
@@ -246,13 +318,26 @@ python nora_w40_build.py clean --all
 # Then: python nora_w40_build.py clone && python nora_w40_build.py install
 ```
 
+### IRIS-W1
+```bash
+# Pristine rebuild of one example
+python iris_w1_build.py build demo_apps/hello_world -p
+
+# Remove the build directory
+python iris_w1_build.py clean
+
+# Remove entire west workspace and restart
+python iris_w1_build.py clean --all
+# Then: python iris_w1_build.py clone
+```
+
 ---
 
 ## Quick Start Commands (Fastest Path)
 
 ### W50/W51 – Assume SDK already installed
 ```bash
-cd ~/ti-w5
+cd ~/nora-w50-w51
 python nora_w50_w51_build.py configure
 python nora_w50_w51_build.py build-sdk --toolchain ticlang
 python nora_w50_w51_build.py build network_terminal --toolchain ticlang
@@ -296,7 +381,7 @@ python nora_w40_build.py build get-started/hello_world
 
 **W50/W51:**
 ```
-~/ti-w5/
+~/nora-w50-w51/
 ├── wifi-examples/
 │   ├── network_terminal/ticlang/Release/network_terminal.out   ← Firmware
 │   └── ...

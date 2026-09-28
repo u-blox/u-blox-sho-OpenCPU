@@ -1,0 +1,15 @@
+build/
+dist/
+.venv/
+venv/
+*.pyc
+__pycache__/
+*.o
+*.a
+*.out
+*.bin
+*.elf
+*.map
+.iris_w1_build.*.json
+mcuxpresso-sdk/
+.west/
