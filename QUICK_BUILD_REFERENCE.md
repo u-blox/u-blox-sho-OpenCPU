@@ -51,18 +51,6 @@ python iris_w10_build.py build demo_apps/hello_world
 # Platform: Windows, WSL2, Linux
 ```
 
-### **IRIS-W1** (NXP RW612 + MCUXpresso SDK)
-```bash
-cd ~/iris-w1
-python iris_w1_build.py install
-# Set ARMGCC_DIR once, then reopen the terminal
-python iris_w1_build.py clone
-python iris_w1_build.py build demo_apps/hello_world
-# Result: mcuxpresso-sdk/build/
-# Time: ~15 min (includes ~2 GB workspace fetch)
-# Platform: Windows, WSL2, Linux
-```
-
 ---
 
 ## Command Matrix
@@ -71,18 +59,18 @@ python iris_w1_build.py build demo_apps/hello_world
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────┐
 │                              BUILD COMMAND REFERENCE                                                │
 ├──────────────┬──────────────┬──────────────┬────────────────┬────────────────┬──────────────────────┤
-│ Operation    │ W50/W51 (TI) │ W30 (Realtek)│ W40 (ESP-IDF)  │ IRIS-W10 (NXP) │ IRIS-W1 (NXP)        │
-├──────────────┼──────────────┼──────────────┼────────────────┼────────────────┼──────────────────────┤
-│ Check env    │ doctor       │ doctor       │ doctor         │ doctor         │ doctor               │
-│ Get SDK      │ clone        │ clone        │ clone          │ clone          │ clone                │
-│ Setup env    │ install      │ install      │ install        │ install        │ install              │
-│ Config tools │ configure    │ (auto)       │ (auto)         │ ARMGCC_DIR     │ ARMGCC_DIR env var   │
-│ Build libs   │ build-sdk    │ (auto)       │ (auto)         │ (auto)         │ (auto)               │
-│ List examples│ list         │ list         │ list           │ list           │ list                 │
-│ Build one    │ build NAME   │ build NAME   │ build CAT/NAME │ build CAT/NAME │ build CAT/NAME       │
-│ Clean one    │ --clean flag │ clean NAME   │ clean NAME     │ clean (or -p)  │ clean (or build -p)  │
-│ Clean all    │ (manual)     │ clean --all  │ clean --all    │ clean --all    │ clean --all          │
-│ All-in-one   │ all NAME     │ all NAME     │ all CAT/NAME*  │ all CAT/NAME   │ all CAT/NAME         │
+│ Operation    │ W50/W51 (TI) │ W30 (Realtek)│ W40 (ESP-IDF)  │ IRIS-W10 (NXP) │
+├──────────────┼──────────────┼──────────────┼────────────────┼────────────────┤
+│ Check env    │ doctor       │ doctor       │ doctor         │ doctor         │
+│ Get SDK      │ clone        │ clone        │ clone          │ clone          │
+│ Setup env    │ install      │ install      │ install        │ install        │
+│ Config tools │ configure    │ (auto)       │ (auto)         │ ARMGCC_DIR     │
+│ Build libs   │ build-sdk    │ (auto)       │ (auto)         │ (auto)         │
+│ List examples│ list         │ list         │ list           │ list           │
+│ Build one    │ build NAME   │ build NAME   │ build CAT/NAME │ build CAT/NAME │
+│ Clean one    │ --clean flag │ clean NAME   │ clean NAME     │ clean (or -p)  │
+│ Clean all    │ (manual)     │ clean --all  │ clean --all    │ clean --all    │
+│ All-in-one   │ all NAME     │ all NAME     │ all CAT/NAME*  │ all CAT/NAME   │
 └──────────────┴──────────────┴──────────────┴────────────────┴────────────────┴──────────────────────┘
 * W40 requires environment sourced first
 ```
@@ -116,12 +104,7 @@ python iris_w1_build.py build demo_apps/hello_world
 │ Status: ✅ Tooling + workspace init verified on Windows 11, Ubuntu. │
 └─────────────────────┴──────────────────────────────────────────────────┘
 
-┌─────────────────────┬──────────────────────────────────────────────────┐
-│ IRIS-W1 (NXP)       │ Setup: 10-15 min  │  Build: ~5 min each   │ 20 min total
-│ Platforms: Win/WSL2/Linux                                           │
-│ Status: ⚠️  Tooling + workspace init verified on Windows 11.        │
-│         Full example build not yet verified end-to-end.             │
-└─────────────────────┴──────────────────────────────────────────────────┘
+
 ```
 
 ---
@@ -148,15 +131,10 @@ Create one folder per variant (recommended):
 │   ├── esp-idf/
 │   └── .nora_w40_build.windows.json  (or .wsl/.linux)
 │
-├── iris-w10/                  # IRIS-W10 (NXP RW612/RW610)
-│   ├── iris_w10_build.py
-│   ├── mcuxpresso-sdk/        # west workspace (manifests/ + mcuxsdk/)
-│   └── .iris_w10_build.windows.json  (or .wsl/.linux)
-│
-└── iris-w1/                   # IRIS-W1 (NXP RW612)
-    ├── iris_w1_build.py
+└── iris-w10/                  # IRIS-W10 (NXP RW612/RW610)
+    ├── iris_w10_build.py
     ├── mcuxpresso-sdk/        # west workspace (manifests/ + mcuxsdk/)
-    └── .iris_w1_build.windows.json   (or .wsl/.linux)
+    └── .iris_w10_build.windows.json  (or .wsl/.linux)
 ```
 
 ---
@@ -311,15 +289,6 @@ export ARMGCC_DIR=/usr                                    # Linux/WSL2
 setx ARMGCC_DIR "C:\Program Files (x86)\Arm GNU Toolchain arm-none-eabi\14.2 rel1"   # Windows
 # (Then restart terminal)
 ```
-
-**IRIS-W1:**
-```bash
-# Required — the MCUXpresso build system locates the compiler through this.
-# Point at the toolchain ROOT (the folder containing bin/), not bin/ itself.
-export ARMGCC_DIR=/usr                                    # Linux/WSL2
-setx ARMGCC_DIR "C:\Program Files (x86)\Arm GNU Toolchain arm-none-eabi\14.2 rel1"   # Windows
-# (Then restart terminal)
-```
 ```
 
 ---
@@ -343,5 +312,5 @@ setx ARMGCC_DIR "C:\Program Files (x86)\Arm GNU Toolchain arm-none-eabi\14.2 rel
 - **W50/W51:** See [NORA-W50-W51-GettingStartedSDK/README.md](NORA-W50-W51-GettingStartedSDK/README.md)
 - **W30:** See [NORA-W30-GettingStartedSDK/README.md](NORA-W30-GettingStartedSDK/README.md)
 - **W40:** See [NORA-W40-GettingStartedSDK/README.md](NORA-W40-GettingStartedSDK/README.md)
-- **IRIS-W1:** See [IRIS-W1-GettingStartedSDK/README.md](IRIS-W1-GettingStartedSDK/README.md)
-- **All Three:** See [BUILD_ALL_EXAMPLES.md](BUILD_ALL_EXAMPLES.md)
+- **IRIS-W10:** See [IRIS-W10-GettingStartedSDK/README.md](IRIS-W10-GettingStartedSDK/README.md)
+- **All Variants:** See [BUILD_ALL_EXAMPLES.md](BUILD_ALL_EXAMPLES.md)

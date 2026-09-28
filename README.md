@@ -8,7 +8,6 @@ Choose your product or SDK:
 - **[NORA-W30 (Realtek RTL872x)](#nora-w30---getting-started-sdk)** — Wi-Fi 6 + Bluetooth LE, Linux/WSL2 optimized
 - **[NORA-W40 (Espressif ESP32-S3)](#nora-w40---getting-started-sdk)** — Wi-Fi 6 + Bluetooth LE, ESP-IDF, Windows & Linux
 - **[IRIS-W10 (NXP RW612/RW610)](#iris-w10---getting-started-sdk)** — Wi-Fi 6 + Bluetooth LE, MCUXpresso SDK, Windows/WSL2/Linux
-- **[IRIS-W1 (NXP RW612)](#iris-w1---getting-started-sdk)** — Wi-Fi 6 + Bluetooth LE + Thread, MCUXpresso SDK (alternative to W10)
 - **[nRF5 SDK](#nrf5-sdk)** — Bluetooth & Wi-Fi for ANNA, NINA, NORA-B, BMD series
 - **[Zephyr RTOS](#zephyr-rtos)** — BMD, MINI-NORA, EVK boards
 - **[RF Tools](#nina-w10-otp-and-rf-calibration)** — NINA-W10 OTP & RF calibration
@@ -132,20 +131,6 @@ Complete cross-platform build driver and comprehensive getting-started guide for
 - Evaluation boards: EVK-IRIS-W10, USB-IRIS-W10
 
 📖 **See [IRIS-W10-GettingStartedSDK/README.md](IRIS-W10-GettingStartedSDK/README.md) for complete setup instructions.**
-
-## IRIS-W1 - Getting Started SDK
-Complete cross-platform build driver and comprehensive getting-started guide for IRIS-W1 Open CPU modules (based on NXP RW612 SoC with Wi-Fi 6, Bluetooth LE 5.4, and IEEE 802.15.4 Thread).
-
-**What's included:**
-- **iris_w1_build.py**: Automated build orchestration (install → clone → build examples) for Windows, WSL2, and Linux
-- **README.md**: Full getting-started guide with prerequisites, build instructions, and example reference
-- Verified working with NXP MCUXpresso SDK v25.x and toolchains: CMake 3.30, Ninja 1.12.1, Arm GNU Toolchain, west
-- Variants: IRIS-W101 (external antenna), IRIS-W106 (PCB antenna); 8 MB or 16 MB flash
-- Evaluation boards: EVK-IRIS-W1, USB-IRIS-W1
-
-**Note:** IRIS-W10 is recommended for most new designs. IRIS-W1 is available as an alternative with identical SDK support.
-
-📖 **See [IRIS-W1-GettingStartedSDK/README.md](IRIS-W1-GettingStartedSDK/README.md) for complete setup instructions.**
 
 ## NINA-W10 OTP and RF Calibration
 Tools and examples for NINA-W10 series modules:

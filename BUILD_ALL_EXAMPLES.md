@@ -1,6 +1,6 @@
-# Building NORA-W50/W51, W30, W40, IRIS-W10 and IRIS-W1 From Scratch
+# Building NORA-W50/W51, W30, W40 and IRIS-W10 From Scratch
 
-Complete examples showing how to build firmware for all five u-blox Open CPU module families from initial setup to working examples.
+Complete examples showing how to build firmware for all four u-blox Open CPU module families from initial setup to working examples.
 
 ---
 
@@ -339,18 +339,18 @@ for u-blox board files, calibration data and flash addresses.
 
 ## Side-by-Side Comparison
 
-| Step | W50/W51 (TI) | W30 (Realtek) | W40 (ESP-IDF) | IRIS-W10 (NXP) | IRIS-W1 (NXP) |
-|------|--------------|---------------|---------------|----------------|---------------|
-| Clone | `clone` | `clone` | `clone` | `clone` | `clone` |
-| Install | `install` (info) | `install` (info) | `install` (real) | `install` (real) | `install` (real) |
-| Configure | `configure` | (automatic) | (automatic) | `ARMGCC_DIR` env var | `ARMGCC_DIR` env var |
-| Library Setup | `build-sdk` | (auto) | (auto) | (auto) | (auto) |
-| List | `list` | `list` | `list` | `list` | `list` |
-| Build | `build <name>` | `build <name>` | `build <category>/<name>` | `build <category>/<name>` | `build <category>/<name>` |
-| Time | ~10-15 min (SDK) | ~5 min (example) | ~3 min (example) | ~5 min (example) | ~5 min (example) |
-| Output | `.out` (ELF) | `.axf` (ELF) | `.bin` (image) | `.elf` / `.bin` | `.elf` / `.bin` |
-| Platform | Windows/WSL2/Linux | Linux/WSL2 only | Windows/WSL2/Linux | Windows/WSL2/Linux | Windows/WSL2/Linux |
-| Build system | CMake + Make | Make | CMake + idf.py | west + CMake + Ninja | west + CMake + Ninja |
+| Step | W50/W51 (TI) | W30 (Realtek) | W40 (ESP-IDF) | IRIS-W10 (NXP) |
+|------|--------------|---------------|---------------|----------------|
+| Clone | `clone` | `clone` | `clone` | `clone` |
+| Install | `install` (info) | `install` (info) | `install` (real) | `install` (real) |
+| Configure | `configure` | (automatic) | (automatic) | `ARMGCC_DIR` env var |
+| Library Setup | `build-sdk` | (auto) | (auto) | (auto) |
+| List | `list` | `list` | `list` | `list` |
+| Build | `build <name>` | `build <name>` | `build <category>/<name>` | `build <category>/<name>` |
+| Time | ~10-15 min (SDK) | ~5 min (example) | ~3 min (example) | ~5 min (example) |
+| Output | `.out` (ELF) | `.axf` (ELF) | `.bin` (image) | `.elf` / `.bin` |
+| Platform | Windows/WSL2/Linux | Linux/WSL2 only | Windows/WSL2/Linux | Windows/WSL2/Linux |
+| Build system | CMake + Make | Make | CMake + idf.py | west + CMake + Ninja |
 
 ---
 
@@ -402,19 +402,6 @@ python iris_w10_build.py clean --all
 # Then: python iris_w10_build.py clone
 ```
 
-### IRIS-W1
-```bash
-# Pristine rebuild of one example
-python iris_w1_build.py build demo_apps/hello_world -p
-
-# Remove the build directory
-python iris_w1_build.py clean
-
-# Remove entire west workspace and restart
-python iris_w1_build.py clean --all
-# Then: python iris_w1_build.py clone
-```
-
 ---
 
 ## Quick Start Commands (Fastest Path)
@@ -450,14 +437,6 @@ cd IRIS-W10-GettingStartedSDK
 python iris_w10_build.py install
 python iris_w10_build.py clone
 python iris_w10_build.py build demo_apps/hello_world
-```
-
-### IRIS-W1 – Assume ARMGCC_DIR set, tools installed
-```bash
-cd IRIS-W1-GettingStartedSDK
-python iris_w1_build.py install
-python iris_w1_build.py clone
-python iris_w1_build.py build demo_apps/hello_world
 ```
 
 ---
