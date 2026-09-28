@@ -63,6 +63,36 @@ python iris_w10_build.py doctor
 
 ## Installation & Setup
 
+### 0. (Recommended) Setup Shared Virtual Environment
+
+All u-blox build scripts share the same Python dependencies. Set up a shared virtual environment at the repo root (one-time setup):
+
+```bash
+cd ../..  # Go to repo root
+python setup_venv.py
+```
+
+Then activate it in your current terminal:
+
+**Windows CMD:**
+```batch
+.venv\Scripts\activate.bat
+```
+
+**Windows PowerShell:**
+```powershell
+.venv\Scripts\Activate.ps1
+```
+
+**Linux/macOS/WSL2:**
+```bash
+source .venv/bin/activate
+```
+
+To deactivate later: `deactivate`
+
+**Note:** This is recommended but optional. The scripts will warn if running outside a venv and still work with system Python.
+
 ### 1. Install Build Dependencies
 
 ```bash

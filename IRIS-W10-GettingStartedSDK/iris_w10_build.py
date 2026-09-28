@@ -39,6 +39,12 @@ DEFAULT_EXAMPLE = "examples/demo_apps/hello_world"
 # PLATFORM & ENVIRONMENT DETECTION
 # ============================================================================
 
+def is_venv_active() -> bool:
+    """Check if running inside a virtual environment."""
+    return hasattr(sys, 'real_prefix') or (
+        hasattr(sys, 'base_prefix') and sys.base_prefix != sys.prefix
+    )
+
 def host_kind() -> str:
     """Detect platform type: 'windows', 'wsl', or 'linux'."""
     system = platform.system()
@@ -99,7 +105,38 @@ def which(name: str) -> Optional[str]:
     return shutil.which(name)
 
 def detect_python() -> Optional[str]:
+    """Detect Python, preferring one that has pip installed."""
+    # Check current interpreter first
+    if _python_has_pip(sys.executable):
+        return sys.executable
+    
+    # On Windows with msys64, fall back to AppData Python or system Python
+    if host_kind() == "windows":
+        candidates = [
+            "C:/Users/" + os.environ.get("USERNAME", "").split("/")[-1] + "/AppData/Local/Python/bin/python.exe",
+            "C:/Program Files/Python3*/python.exe",
+            which("python3") or "",
+            which("python") or "",
+        ]
+        for candidate in candidates:
+            if candidate and Path(candidate).exists():
+                exe = str(Path(candidate).resolve())
+                if _python_has_pip(exe):
+                    return exe
+    
+    # Fallback: return current interpreter
     return sys.executable
+
+def _python_has_pip(python_exe: str) -> bool:
+    """Check if a Python executable has pip."""
+    try:
+        result = subprocess.run(
+            [python_exe, "-m", "pip", "--version"],
+            capture_output=True, text=True, timeout=5
+        )
+        return result.returncode == 0
+    except Exception:
+        return False
 
 def detect_git() -> Optional[str]:
     return which("git")
@@ -300,9 +337,14 @@ def cmd_install(args) -> int:
     """Install west and report on the remaining toolchain prerequisites."""
     print("\n🔧 Setting up IRIS-W10 build environment...\n")
 
+    python = detect_python()
+    if not python:
+        print("❌ Python not found on PATH")
+        return 1
+
     print("Installing/updating west...")
     result = subprocess.run(
-        [sys.executable, "-m", "pip", "install", "-U", "west"],
+        [python, "-m", "pip", "install", "-U", "west"],
     )
     if result.returncode != 0:
         print("\n❌ Failed to install west.")
@@ -491,6 +533,14 @@ def cmd_all(args) -> int:
 
 def main():
     import argparse
+
+    # Check if virtual environment is active (recommended but not required)
+    if not is_venv_active():
+        print("⚠️  Tip: Running outside virtual environment.")
+        print("   Consider setting up the shared venv for better isolation:")
+        print("   1. cd .. && python ../setup_venv.py")
+        print("   2. Then activate: .venv\\Scripts\\activate (Windows) or source .venv/bin/activate (Linux/macOS)")
+        print()
 
     parser = argparse.ArgumentParser(
         prog="iris_w10_build.py",
