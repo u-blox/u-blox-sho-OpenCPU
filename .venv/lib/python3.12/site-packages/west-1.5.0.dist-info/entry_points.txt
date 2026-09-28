@@ -1,2 +1,0 @@
-[console_scripts]
-west = west.app.main:main

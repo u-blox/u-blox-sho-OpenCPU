@@ -2,6 +2,13 @@
 
 This file helps GitHub Copilot understand the u-blox Getting Started SDK build infrastructure for IRIS-W10, NORA-W50/W51, NORA-W30, and NORA-W40.
 
+## Communication Preferences
+
+- **Emoji usage:** Minimal - focus on clear technical information without decorative elements
+- **Response style:** Concise and direct
+- **Documentation:** Straightforward without embellishment
+- **Focus:** Technical accuracy and efficiency
+
 ## Project Context
 
 **Repository:** u-blox-sho-OpenCPU (GitLab + GitHub mirror)  
@@ -91,6 +98,22 @@ def cmd_clean(args)        # Clean artifacts
 ## Common Build Workflows
 
 ### 1. First Time Setup
+### IMPORTANT: Always Activate .venv Before Building
+
+Before running any build commands, activate the virtual environment:
+
+**Windows (Git Bash/MSYS2):**
+```bash
+source .venv/Scripts/activate
+```
+
+**Linux/WSL2/macOS:**
+```bash
+source .venv/bin/activate
+```
+
+The prompt will show `(.venv)` when activated. All build scripts must run with .venv active to use correct Python dependencies.
+
 ```bash
 cd GettingStartedSDK
 python setup_venv.py
