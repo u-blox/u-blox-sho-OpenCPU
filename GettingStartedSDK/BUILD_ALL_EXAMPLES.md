@@ -69,35 +69,72 @@ python nora_w50_w51_build.py build --clean      # Clean example rebuild
 
 ### Prerequisites
 - Linux (native) OR WSL2 (Ubuntu recommended)
-- arm-none-eabi-gcc (sudo apt install arm-none-eabi-gcc)
+- arm-none-eabi-gcc
 - GNU Make
 - Git
 - Python 3.8+
+- Virtual environment with build dependencies
 
 **Note:** Windows native/Cygwin not recommended
 
 ### Complete Build Workflow
 
 ```bash
-# Step 1: Navigate to workspace (Linux/WSL2 only)
-cd ~/nora-w30-workspace
-# or on WSL2: ~/nora-w30 (keep in Linux filesystem for speed!)
+# Step 1: Navigate to GettingStartedSDK workspace
+cd GettingStartedSDK
 
-# Step 2: Check environment
-python3 nora_w30_build.py doctor
+# Step 2: Activate virtual environment (Linux/WSL2)
+source .venv/bin/activate
+# Confirm: prompt shows (.venv) prefix
+
+# Step 3: Check environment
+python scripts/nora_w30_build.py doctor
 # Output: Python [OK], Git [OK], Make [OK], Arm GCC [OK]
 
-# Step 3: If tools missing, install them
-python3 nora_w30_build.py install
-# Displays: sudo apt install arm-none-eabi-gcc make git python3
+# Step 4: Clone Ameba-D SDK
+python scripts/nora_w30_build.py clone
+# Clones: https://github.com/ambiot/ameba-rtos-d.git into ameba-rtos-d/
+# Detects checked-in ameba-rtos-d/ at workspace root first
 
-# Step 4: Clone Realtek RTOS SDK
-python3 nora_w30_build.py clone
-# Clones: https://github.com/ambiot/ameba-rtos.git (Ameba-RTOS)
-# Creates: realtek-rtos-sdk/ folder
+# Step 5: List available example sources
+python scripts/nora_w30_build.py list
+# Shows: ADC, Audio, BOD, CRYPTO, FLASH, GPIO, I2C, I2S, KEY, LCDC,
+#        PMC, RTC, SDIO, SPI, TIMER, UART, gdma, ir, rdp, watchdog, wlan
+# Note: These are example sources, not separate build targets
 
-# Step 5: List available examples
-python3 nora_w30_build.py list
+# Step 6: Build KM4 Firmware (project_hp, default)
+python scripts/nora_w30_build.py build
+# Output: km4_boot_all.bin, km4_km0_image2.bin, ram_1.bin
+# Location: ameba-rtos-d/project/realtek_amebaD_va0_example/GCC-RELEASE/project_hp/asdk/image/
+
+# Step 7: Or build KM0 Firmware (project_lp)
+python scripts/nora_w30_build.py build project_lp
+# Output: km0_boot_all.bin, km0_image2_all.bin, ram_1.bin
+# Location: ameba-rtos-d/project/realtek_amebaD_va0_example/GCC-RELEASE/project_lp/asdk/image/
+
+# Step 8: Clean build artifacts
+python scripts/nora_w30_build.py clean
+# Removes: build/ directories from both project_hp and project_lp
+
+# Step 9: Clean entire SDK
+python scripts/nora_w30_build.py clean --all
+# Removes: ameba-rtos-d/ directory entirely
+```
+
+### Build Architecture
+
+Ameba-D is a **dual-core SoC** with:
+- **KM0 Project** (Low-power core): Bootloader, power management
+- **KM4 Project** (High-performance core): Main application, WiFi stack
+
+Build outputs:
+- `km4_boot_all.bin` — KM4 bootloader (4 KB)
+- `km4_km0_image2.bin` — Dual-core application firmware
+- `ram_1.bin` — RAM overlay image
+- `xip_boot.bin` — Execute-in-place boot image
+
+### Result
+[OK] Ameba-D firmware images ready for flashing to NORA-W30 via UART ImageTool
 # Shows: hello_world, wifi_sta, ota, gpio_blink, etc.
 
 # Step 6: Build an example
@@ -122,76 +159,81 @@ python3 nora_w30_build.py clean --all           # Remove entire SDK (~500MB)
 
 ---
 
-## 3. NORA-W40 (ESP32-C6 + ESP-IDF) — Windows/WSL2/Linux
+## 3. NORA-W40 (ESP32-C6 + ESP-IDF v6.2) — Windows/WSL2/Linux
 
 ### Prerequisites
-- Python 3.9+ (or bundled with ESP-IDF)
-- Git
+- Python 3.9+
+- Git 2.20+
 - CMake 3.16+
 - GNU Make
-- Windows: MSYS2, Visual Studio Build Tools, or use WSL2
+- Virtual environment with build dependencies
+- Windows: MSYS2 or use WSL2 (recommended)
 - Linux/WSL2: standard build tools
 
 ### Complete Build Workflow
 
 ```bash
-# Step 1: Navigate to workspace
-cd ~/nora-w40-workspace
-# or anywhere with ~600MB free space for ESP-IDF
+# Step 1: Navigate to GettingStartedSDK workspace
+cd GettingStartedSDK
 
-# Step 2: Check environment
-python nora_w40_build.py doctor
-# Output: Python [OK], Git [OK], CMake [OK], Make [OK], ESP-IDF [FAIL] (not yet)
+# Step 2: Activate shared virtual environment
+source .venv/bin/activate              # Linux/WSL2
+# or on Windows: .venv\Scripts\activate
 
-# Step 3: Clone ESP-IDF (first time only, ~200MB)
-python nora_w40_build.py clone
-# Clones: https://github.com/espressif/esp-idf.git (full v5.x)
+# Step 3: Check environment
+python scripts/nora_w40_build.py doctor
+# Output: Python [OK], Git [OK], CMake [OK], Make [OK], ESP-IDF [FAIL] (not cloned yet)
+
+# Step 4: Clone ESP-IDF v6.2 (first time only, ~200MB)
+python scripts/nora_w40_build.py clone
+# Clones: https://github.com/espressif/esp-idf.git (v6.2)
 # Creates: esp-idf/ folder
-# Saves: esp-idf path to .nora_w40_build.{windows|wsl|linux}.json
+# Saves: config in targets/NORA-W40/config/build.{platform}.json
 
-# Step 4: Install ESP-IDF environment
-python nora_w40_build.py install
-# Windows: Runs esp-idf/install.bat
-#   - Sets up Python venv
-#   - Downloads ESP32-C6 toolchain (~600MB)
-#   - Installs build dependencies
-# 
-# Linux/WSL2: Runs esp-idf/install.sh
-#   - Same setup as Windows
+# Step 5: Install ESP-IDF environment (downloads ~600MB toolchain)
+python scripts/nora_w40_build.py install
+# Creates: ~/.espressif/python_env/idf6.2_py3.14_env/
+# Downloads: riscv32-esp-elf-16.1.0_20260609 toolchain
+# Takes: 10-15 minutes on first run
 
-# Step 5: List available examples
-python nora_w40_build.py list
-# Shows: get-started/hello_world, get-started/blink, network/http_server,
-#        bluetooth/ble_provisioning, storage/nvs_rw_value, etc.
+# Step 6: List available examples
+python scripts/nora_w40_build.py list
+# Shows: get-started/hello_world, get-started/blink, 
+#        network/http_server, bluetooth/ble_provisioning, etc.
 
-# Step 6: Build an example (MUST source environment first!)
-# Windows:
-#   In PowerShell at esp-idf/: .\export.ps1
-#   Then: cd NORA-W40-GettingStartedSDK && python nora_w40_build.py build get-started/hello_world
-#
-# Linux/WSL2:
-#   source esp-idf/export.sh
-#   cd NORA-W40-GettingStartedSDK && python nora_w40_build.py build get-started/hello_world
+# Step 7: Build hello_world example (RISC-V ESP32-C6)
+python scripts/nora_w40_build.py build hello_world
+# Auto-detects: ESP-IDF Python environment, RISC-V toolchain
+# Sets target: IDF_TARGET=esp32c6 (critical for correct CPU architecture)
+# Output: esp-idf/examples/get-started/hello_world/build/hello_world.elf, .bin (128 KB)
 
-# Output: esp-idf/examples/get-started/hello_world/build/hello_world.elf (~500KB)
-#         Also: hello_world.bin (firmware image)
+# Step 8: Build another example
+python scripts/nora_w40_build.py build network/http_server
+# Output: esp-idf/examples/network/http_server/build/http_server.bin
 
-# Step 7: Build another example
-python nora_w40_build.py build network/static_ip
-# Output: esp-idf/examples/network/static_ip/build/static_ip.bin
+# Step 9: Clean example build
+python scripts/nora_w40_build.py clean hello_world
+# Removes: build/ directory for that example
 
-# Step 8: Or use full pipeline (after environment sourced)
-python nora_w40_build.py all get-started/hello_world
-# Runs: clone → install → build in sequence
-# (Note: Must be in ESP-IDF environment first)
-
-# Step 9: Clean if needed
-python nora_w40_build.py clean get-started/hello_world   # Clean example build
-python nora_w40_build.py clean --all                      # Remove entire ESP-IDF (~1.2GB)
+# Step 10: Clean entire ESP-IDF
+python scripts/nora_w40_build.py clean --all
+# Removes: esp-idf/ directory (~600MB)
 ```
 
+### Critical NORA-W40 Details
+
+**CPU Architecture:** ESP32-C6 is **RISC-V** (not Xtensa like ESP32-S3)
+- **Toolchain:** riscv32-esp-elf (not xtensa-esp32s3-elf)
+- **Environment:** IDF_TARGET must be "esp32c6"
+- **Python Env:** Separate ESP-IDF Python (~/.espressif/python_env/idf6.2_py3.14_env/)
+
+**Build Output:**
+- hello_world.elf (512 KB) — Loadable image
+- hello_world.bin (128 KB) — Firmware image
+- Location: esp-idf/examples/get-started/hello_world/build/
+
 ### Result
-[OK] Firmware BIN ready for flashing to NORA-W40 via esptool.py or USB JTAG
+[OK] ESP32-C6 (RISC-V) firmware image ready for flashing to NORA-W40 via esptool.py
 
 ---
 

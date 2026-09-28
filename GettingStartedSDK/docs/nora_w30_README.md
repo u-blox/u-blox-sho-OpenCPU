@@ -63,91 +63,131 @@ If you must use Cygwin:
 The `nora_w30_build.py` script automates the build process:
 
 ```bash
-# 1. Check environment
-python3 nora_w30_build.py doctor
+# From GettingStartedSDK directory
+cd GettingStartedSDK
 
-# 2. Clone Realtek RTOS SDK
-python3 nora_w30_build.py clone
+# 1. Activate virtual environment
+source .venv/bin/activate          # Linux/WSL2
+# or on Windows: .venv\Scripts\activate
 
-# 3. List available examples
-python3 nora_w30_build.py list
+# 2. Check environment
+python scripts/nora_w30_build.py doctor
 
-# 4. Build an example
-python3 nora_w30_build.py build ota
+# 3. Clone Realtek Ameba-D SDK
+python scripts/nora_w30_build.py clone
 
-# 5. Full pipeline (clone + build)
-python3 nora_w30_build.py all ota
+# 4. List available example sources (included in firmware)
+python scripts/nora_w30_build.py list
+
+# 5. Build KM4 firmware (project_hp, default)
+python scripts/nora_w30_build.py build
+
+# 6. Or build KM0 firmware (project_lp)
+python scripts/nora_w30_build.py build project_lp
+
+# 7. Clean build artifacts
+python scripts/nora_w30_build.py clean
 ```
 
-**Note:** Use `python3` on Linux. On Windows/WSL2, use `python` or `python3` depending on PATH.
+**Output locations:**
+- KM4 firmware (project_hp): `ameba-rtos-d/project/realtek_amebaD_va0_example/GCC-RELEASE/project_hp/asdk/image/`
+- KM0 firmware (project_lp): `ameba-rtos-d/project/realtek_amebaD_va0_example/GCC-RELEASE/project_lp/asdk/image/`
+
+**Build artifacts:**
+- `km4_boot_all.bin` / `km0_boot_all.bin` — Bootloader (KM4 or KM0 project)
+- `km4_km0_image2.bin` / `km0_image2_all.bin` — Application firmware
+- `ram_1.bin` — RAM image
+- `xip_boot.bin` — XIP boot image
 
 ---
 
-## Manual Setup (Track B)
+## Understanding Ameba-D Architecture
 
-### Step 1: Clone Realtek SDK
+Ameba-D is a **dual-core Cortex-M SoC** with:
+- **KM0 core** (project_lp): Low-power core, runs bootloader and power management
+- **KM4 core** (project_hp): High-performance core, runs main application
 
-Option A: **Ameba-RTOS (recommended, open-source)**
+**Note:** The `example_sources/` directory contains example code that can be included in the firmware build by modifying configuration files (not separate compile targets).
+
+---
+
+## Manual Build (Track B)
+
+## Manual Build (Track B)
+
+### Step 1: Clone Ameba-D SDK
+
 ```bash
-git clone --depth=1 https://github.com/ambiot/ameba-rtos.git
-cd ameba-rtos
-```
-
-Option B: **Realtek Official SDK** (if available from Realtek)
-```bash
-# Contact Realtek for SDK access if not publicly available
+git clone https://github.com/ambiot/ameba-rtos-d.git
+cd ameba-rtos-d
 ```
 
 ### Step 2: Install Toolchain
 
 **Ubuntu/Debian:**
 ```bash
-sudo apt-get install gcc-arm-none-eabi make
+sudo apt-get install gcc-arm-none-eabi make git python3 libusb-1.0-0
 ```
 
-**WSL2:**
-Use the Linux command above.
+**WSL2 Ubuntu:**
+```bash
+sudo apt-get install gcc-arm-none-eabi make git python3 libusb-1.0-0
+```
 
-**Verify installation:**
+**Verify:**
 ```bash
 arm-none-eabi-gcc --version
 make --version
 ```
 
-### Step 3: Build an Example
+### Step 3: Build Firmware
 
-Most Realtek examples use a standard Makefile:
+Ameba-D builds the **complete firmware** (not individual examples):
 
+**Build KM4 Project (recommended for most applications):**
 ```bash
-cd ameba-rtos/examples/<example_name>
-# or
-cd ameba-rtos/project/realtek_amebaZ/<example_name>
-
-make
-# or
-make -j4  # Parallel build (4 jobs)
+cd project/realtek_amebaD_va0_example/GCC-RELEASE/project_hp
+make all
 ```
 
-### Step 4: Flash & Monitor
-
-**Identify serial port:**
+**Build KM0 Project (bootloader & power management):**
 ```bash
-ls /dev/tty* | grep USB
-# Usually /dev/ttyUSB0 or /dev/ttyACM0
+cd project/realtek_amebaD_va0_example/GCC-RELEASE/project_lp
+make all
 ```
 
-**Flash firmware:**
+**Build both (full dual-core firmware):**
 ```bash
-# Realtek uses a custom flash tool or bootloader
-# Typically via UART or USB
-# Check example README for specific instructions
-
-# Example: upload via serial (tool-dependent)
-python3 upload_tool.py -p /dev/ttyUSB0 -f output.bin
+cd project/realtek_amebaD_va0_example/GCC-RELEASE/project_lp
+make all
+cd ../project_hp
+make all
 ```
 
-**Monitor via serial:**
+### Step 4: Verify Build Output
+
+Check for generated images:
 ```bash
+ls -la project_hp/asdk/image/*.bin
+ls -la project_lp/asdk/image/*.bin
+```
+
+Expected files:
+- `km4_boot_all.bin` (project_hp)
+- `km4_km0_image2.bin` or `km0_km4_image2.bin`
+- `ram_1.bin`
+
+### Step 5: Flash Firmware
+
+Use Realtek's ImageTool (Windows) or command-line tools:
+
+```bash
+# Check Realtek ImageTool documentation for UART download mode
+# Typically: press UART_DL button, power cycle, release button
+# Then use ImageTool.exe to flash the .bin files
+```
+
+Refer to the official Realtek README for detailed flashing instructions.
 picocom /dev/ttyUSB0 -b 115200
 # Or
 screen /dev/ttyUSB0 115200
