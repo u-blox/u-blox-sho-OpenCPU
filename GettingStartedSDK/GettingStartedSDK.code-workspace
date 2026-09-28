@@ -215,6 +215,24 @@
         "console": "integratedTerminal",
         "cwd": "${workspaceFolder:GettingStartedSDK (Build Scripts & Infrastructure)}/esp-idf/examples/get-started/hello_world",
         "justMyCode": false
+      },
+      {
+        "name": "Serial Logger (all boards)",
+        "type": "debugpy",
+        "request": "launch",
+        "program": "${workspaceFolder:GettingStartedSDK (Build Scripts & Infrastructure)}/scripts/serial_logger.py",
+        "console": "integratedTerminal",
+        "cwd": "${workspaceFolder:GettingStartedSDK (Build Scripts & Infrastructure)}",
+        "justMyCode": false
+      },
+      {
+        "name": "Flash Helper (multi-board)",
+        "type": "debugpy",
+        "request": "launch",
+        "program": "${workspaceFolder:GettingStartedSDK (Build Scripts & Infrastructure)}/scripts/flash_helper.py",
+        "console": "integratedTerminal",
+        "cwd": "${workspaceFolder:GettingStartedSDK (Build Scripts & Infrastructure)}",
+        "justMyCode": false
       }
     ]
   }
