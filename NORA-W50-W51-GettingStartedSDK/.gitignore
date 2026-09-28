@@ -1,0 +1,14 @@
+# Cloned TI example repos (see ti_w5_build.py clone)
+workspace/
+
+# Per-host tool paths cached by ti_w5_build.py
+.ti_w5_build.*.json
+
+# Build output
+*.out
+*.axf
+*.bin
+*.hex
+*.obj
+*.map
+__pycache__/

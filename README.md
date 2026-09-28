@@ -98,6 +98,16 @@ This example includes examples on how to read OTP information as well as apply R
 ## MCUxpresso
 Examples and start-up softwares for IRIS EVK and USB IRIS EVK.
 
+## NORA-W50/W51 - Getting Started SDK
+Complete cross-platform build driver and comprehensive getting-started guide for NORA-W50/W51 Open CPU modules (based on TI CC35x1E SoC with Wi-Fi 6 and Bluetooth LE 5.4).
+
+Includes:
+- **ti_w5_build.py**: Automated build orchestration (clone → configure → build SDK → build examples) for Windows, WSL2, and Linux
+- **README.md**: Full getting-started guide with prerequisites, build instructions, and example reference
+- Verified working with TI SimpleLink Wi-Fi SDK 10.20.00.39 and toolchains: SysConfig 1.28.0, TI Arm Clang, Arm GNU Toolchain, CMake, and GNU Make
+
+See [NORA-W50-W51-GettingStartedSDK/README.md](NORA-W50-W51-GettingStartedSDK/README.md) for details.
+
 # Disclaimer
 Copyright &#x00a9; u-blox
 
