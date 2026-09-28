@@ -169,8 +169,10 @@ def detect_python() -> Optional[str]:
 # ============================================================================
 
 def config_file() -> Path:
-    """Get per-platform config file path."""
-    return Path.cwd() / f".nora_w40_build.{host_kind()}.json"
+    """Get per-platform config file path (stored in GettingStartedSDK root)."""
+    script_dir = Path(__file__).parent  # scripts/
+    sdk_root = script_dir.parent        # GettingStartedSDK/
+    return sdk_root / f".nora_w40_build.{host_kind()}.json"
 
 def load_config() -> Dict:
     """Load cached configuration."""

@@ -232,8 +232,10 @@ def examples_root(workspace: str) -> Optional[Path]:
 # ============================================================================
 
 def config_file() -> Path:
-    """Get per-platform config file path."""
-    return Path.cwd() / f".iris_w10_build.{host_kind()}.json"
+    """Get per-platform config file path (stored in GettingStartedSDK root)."""
+    script_dir = Path(__file__).parent  # scripts/
+    sdk_root = script_dir.parent        # GettingStartedSDK/
+    return sdk_root / f".iris_w10_build.{host_kind()}.json"
 
 def load_config() -> Dict:
     cfg_path = config_file()
