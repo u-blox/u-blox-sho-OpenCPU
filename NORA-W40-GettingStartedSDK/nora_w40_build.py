@@ -11,6 +11,7 @@ import sys
 import json
 import subprocess
 import platform
+import shutil
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
@@ -329,6 +330,47 @@ def cmd_build(args) -> int:
     
     return result.returncode
 
+def cmd_clean(args) -> int:
+    """Clean build artifacts."""
+    print("\n🧹 Cleaning build artifacts...\n")
+    
+    if args.all:
+        # Remove entire ESP-IDF directory
+        idf_dir = detect_idf()
+        if idf_dir and Path(idf_dir).exists():
+            print(f"Removing: {idf_dir}")
+            shutil.rmtree(idf_dir)
+            # Clear config
+            cfg = load_config()
+            cfg.pop("idf_path", None)
+            save_config(cfg)
+            print("✅ ESP-IDF removed.\n")
+        else:
+            print("ℹ️  ESP-IDF not found.\n")
+        return 0
+    
+    # Clean build directory for current example
+    if not args.example:
+        print("ℹ️  Specify example to clean, or use --all to remove ESP-IDF.\n")
+        return 0
+    
+    idf_dir = detect_idf()
+    if not idf_dir:
+        print("❌ ESP-IDF not found.\n")
+        return 1
+    
+    example_path = Path(idf_dir) / "examples" / args.example
+    build_dir = example_path / "build"
+    
+    if build_dir.exists():
+        print(f"Removing: {build_dir}")
+        shutil.rmtree(build_dir)
+        print("✅ Build directory cleaned.\n")
+    else:
+        print(f"ℹ️  Build directory not found: {build_dir}\n")
+    
+    return 0
+
 def cmd_list(args) -> int:
     """List available examples."""
     idf_dir = detect_idf()
@@ -394,6 +436,8 @@ Examples:
   python nora_w40_build.py install             # Install ESP-IDF environment
   python nora_w40_build.py list                # List examples
   python nora_w40_build.py build hello_world   # Build example
+  python nora_w40_build.py clean hello_world   # Clean example build
+  python nora_w40_build.py clean --all         # Remove ESP-IDF entirely
   python nora_w40_build.py all hello_world     # Full pipeline
         """
     )
@@ -404,6 +448,10 @@ Examples:
     subparsers.add_parser("clone", help="Clone ESP-IDF")
     subparsers.add_parser("install", help="Install ESP-IDF environment")
     subparsers.add_parser("list", help="List examples")
+    
+    clean_parser = subparsers.add_parser("clean", help="Clean build artifacts")
+    clean_parser.add_argument("example", nargs="?", help="Example name (optional)")
+    clean_parser.add_argument("--all", action="store_true", help="Remove entire ESP-IDF")
     
     build_parser = subparsers.add_parser("build", help="Build example")
     build_parser.add_argument("example", help="Example name")
@@ -418,6 +466,7 @@ Examples:
         "clone": cmd_clone,
         "install": cmd_install,
         "list": cmd_list,
+        "clean": cmd_clean,
         "build": cmd_build,
         "all": cmd_all,
     }

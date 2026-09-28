@@ -12,6 +12,7 @@ import sys
 import json
 import subprocess
 import platform
+import shutil
 from pathlib import Path
 from typing import Dict, List, Optional
 
@@ -205,6 +206,52 @@ def cmd_install(args) -> int:
     print()
     return 0
 
+def cmd_clean(args) -> int:
+    """Clean build artifacts."""
+    print("\n🧹 Cleaning build artifacts...\n")
+    
+    if args.all:
+        # Remove entire SDK directory
+        sdk_path = load_config().get("sdk_path")
+        if sdk_path and Path(sdk_path).exists():
+            print(f"Removing: {sdk_path}")
+            shutil.rmtree(sdk_path)
+            # Clear config
+            cfg = load_config()
+            cfg.pop("sdk_path", None)
+            save_config(cfg)
+            print("✅ Realtek SDK removed.\n")
+        else:
+            print("ℹ️  Realtek SDK not found.\n")
+        return 0
+    
+    # Clean build directory for current example
+    if not args.example:
+        print("ℹ️  Specify example to clean, or use --all to remove SDK.\n")
+        return 0
+    
+    sdk_path = load_config().get("sdk_path")
+    if not sdk_path:
+        print("❌ Realtek SDK not found.\n")
+        return 1
+    
+    example_dir = Path(sdk_path) / "examples" / args.example
+    
+    # Try to clean using make
+    if example_dir.exists():
+        print(f"Running make clean in: {example_dir}\n")
+        result = subprocess.run(
+            ["make", "clean"],
+            cwd=example_dir
+        )
+        if result.returncode == 0:
+            print("\n✅ Build directory cleaned.\n")
+        return result.returncode
+    else:
+        print(f"ℹ️  Example directory not found: {example_dir}\n")
+    
+    return 0
+
 def cmd_build(args) -> int:
     """Build example application."""
     if not args.example:
@@ -297,6 +344,8 @@ Examples:
   python nora_w30_build.py install             # Show tool installation info
   python nora_w30_build.py list                # List examples
   python nora_w30_build.py build ota           # Build example
+  python nora_w30_build.py clean ota           # Clean example build
+  python nora_w30_build.py clean --all         # Remove Realtek SDK entirely
   python nora_w30_build.py all ota             # Full pipeline
 
 Note: Best on Linux or WSL2. Windows Cygwin is complex.
@@ -309,6 +358,10 @@ Note: Best on Linux or WSL2. Windows Cygwin is complex.
     subparsers.add_parser("clone", help="Clone Realtek SDK")
     subparsers.add_parser("install", help="Show tool installation info")
     subparsers.add_parser("list", help="List examples")
+    
+    clean_parser = subparsers.add_parser("clean", help="Clean build artifacts")
+    clean_parser.add_argument("example", nargs="?", help="Example name (optional)")
+    clean_parser.add_argument("--all", action="store_true", help="Remove entire SDK")
     
     build_parser = subparsers.add_parser("build", help="Build example")
     build_parser.add_argument("example", help="Example name")
@@ -323,6 +376,7 @@ Note: Best on Linux or WSL2. Windows Cygwin is complex.
         "clone": cmd_clone,
         "install": cmd_install,
         "list": cmd_list,
+        "clean": cmd_clean,
         "build": cmd_build,
         "all": cmd_all,
     }
