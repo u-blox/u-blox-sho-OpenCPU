@@ -243,6 +243,56 @@ def cmd_clone(args) -> int:
         save_config(cfg)
     return result.returncode
 
+def cmd_install(args) -> int:
+    """Install ESP-IDF environment and dependencies."""
+    print("\n🔧 Installing ESP-IDF environment...\n")
+    
+    idf_dir = detect_idf()
+    if not idf_dir:
+        print("❌ ESP-IDF not found. Run 'python nora_w40_build.py clone' first.")
+        return 1
+    
+    idf_path = Path(idf_dir)
+    platform_type = host_kind()
+    
+    # Determine install script based on platform
+    if platform_type == "windows":
+        install_script = idf_path / "install.bat"
+        if not install_script.exists():
+            print(f"❌ Install script not found: {install_script}")
+            return 1
+        print(f"Running: {install_script}\n")
+        result = subprocess.run(
+            [str(install_script)],
+            cwd=idf_path,
+            shell=True
+        )
+    else:  # WSL2 or Linux
+        install_script = idf_path / "install.sh"
+        if not install_script.exists():
+            print(f"❌ Install script not found: {install_script}")
+            return 1
+        print(f"Running: {install_script}\n")
+        # Make script executable
+        os.chmod(install_script, 0o755)
+        result = subprocess.run(
+            [str(install_script)],
+            cwd=idf_path
+        )
+    
+    if result.returncode == 0:
+        print("\n✅ ESP-IDF environment installed successfully!")
+        print("\n📝 Next steps:")
+        if platform_type == "windows":
+            print("   • Open PowerShell in the ESP-IDF directory")
+            print("   • Run: .\\export.ps1")
+            print("   • Then you can build examples")
+        else:
+            print("   • Run: source .\\export.sh")
+            print("   • Then you can build examples")
+        print()
+    return result.returncode
+
 def cmd_build(args) -> int:
     """Build example application."""
     if not args.example:
@@ -311,9 +361,10 @@ def cmd_list(args) -> int:
     return 0
 
 def cmd_all(args) -> int:
-    """Full pipeline: clone → build."""
+    """Full pipeline: clone → install → build."""
     steps = [
         ("Clone ESP-IDF", lambda: cmd_clone(args)),
+        ("Install ESP-IDF Environment", lambda: cmd_install(args)),
         ("Build Example", lambda: cmd_build(args)),
     ]
     
@@ -340,6 +391,7 @@ def main():
 Examples:
   python nora_w40_build.py doctor              # Check environment
   python nora_w40_build.py clone               # Clone ESP-IDF
+  python nora_w40_build.py install             # Install ESP-IDF environment
   python nora_w40_build.py list                # List examples
   python nora_w40_build.py build hello_world   # Build example
   python nora_w40_build.py all hello_world     # Full pipeline
@@ -350,6 +402,7 @@ Examples:
     
     subparsers.add_parser("doctor", help="Verify toolchain")
     subparsers.add_parser("clone", help="Clone ESP-IDF")
+    subparsers.add_parser("install", help="Install ESP-IDF environment")
     subparsers.add_parser("list", help="List examples")
     
     build_parser = subparsers.add_parser("build", help="Build example")
@@ -363,6 +416,7 @@ Examples:
     commands = {
         "doctor": cmd_doctor,
         "clone": cmd_clone,
+        "install": cmd_install,
         "list": cmd_list,
         "build": cmd_build,
         "all": cmd_all,
