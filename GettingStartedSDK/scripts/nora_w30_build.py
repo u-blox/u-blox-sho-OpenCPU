@@ -183,7 +183,7 @@ def cmd_clone(args) -> int:
         return 0
     
     # Note: URL is placeholder; adjust to actual Realtek SDK repo
-    repo_url = "https://github.com/ambiot/ameba-rtos.git"  # Ameba (Realtek IoT) official repo
+    repo_url = "https://github.com/Ameba-AIoT/ameba-rtos.git"  # Ameba (Realtek IoT) official repo - corrected org name
     
     print(f"Cloning from: {repo_url}\n")
     

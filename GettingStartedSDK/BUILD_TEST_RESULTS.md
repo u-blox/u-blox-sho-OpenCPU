@@ -62,69 +62,75 @@ python GettingStartedSDK/scripts/iris_w10_build.py build demo_apps/hello_world
 - Build System: west + CMake + Ninja
 - Compiler: ARM GCC 15.2.1 (Build arm-15.86)
 
-### 🟡 NORA-W30 (Realtek RTL872x)
+### 🟡 NORA-W30 (Realtek RTL872x) - **WSL2 Blocker**
 
-**Status:** READY FOR BUILD (Setup required)
+**Status:** SDK Cloned ✅, Build Blocked by WSL2 Security Policy
 
 **Example to Build:** `wlan_sample`
 
-**Build Steps (Windows - requires WSL2 Ubuntu):**
+**Current Status:**
+- ✅ realtek-rtos-sdk/ cloned successfully from `Ameba-AIoT/ameba-rtos.git` (corrected org name)
+- ✅ SDK examples present (wlan_sample, ota, etc.)
+- ❌ WSL2 cannot launch: Error `0x80070569` (Logon failure)
+
+**Blocking Issue:**
+- Windows security policy prevents WSL2 VM startup
+- Error: "The user has not been granted the requested logon type"
+- Affects Virtual Machine Platform startup
+
+**To Fix WSL2 Security Issue:**
+1. Run Windows Administrator: `secpol.msc` (Local Security Policy)
+2. Navigate: Security Settings → Local Policies → User Rights Assignment
+3. Find: "Create virtual machines"
+4. Add: Your user account to this policy
+5. Restart computer
+
+**Build Steps (when WSL2 is fixed):**
 ```bash
 wsl -d Ubuntu-24.04 bash -c "cd /mnt/e/u-blox/u-blox-sho-OpenCPU/GettingStartedSDK && \
-  python scripts/nora_w30_build.py clone && \
   python scripts/nora_w30_build.py build wlan_sample"
 ```
-
-**Current Status:**
-- ✅ .git directory initialized in `realtek-rtos-sdk/` directory
-- ⚠️ SDK code not yet cloned (requires `nora_w30_build.py clone` command)
-- ⚠️ Tools detected in WSL2 (Python, Git, Make, Arm GCC)
-
-**Prerequisites:**
-- ✅ WSL2 with Ubuntu-24.04 installed and available
-- ✅ SDK repository path prepared
-- ⏳ Realtek SDK clone (run `nora_w30_build.py clone`)
 
 **Expected Output (when built):**
 - Path: `realtek-rtos-sdk/examples/wlan_sample/build/wlan_sample.bin`
 - Format: Realtek RTL872x firmware binary
 
-### 🟡 NORA-W40 (ESP32-C6)
+### 🟡 NORA-W40 (ESP32-C6) - **Terminal Blocker**
 
-**Status:** READY FOR BUILD (Setup required)
+**Status:** SDK Ready, Build Blocked by Terminal Type
 
 **Example to Build:** `hello_world`
 
-**Build Steps:**
-```bash
-cd GettingStartedSDK
-python scripts/nora_w40_build.py clone      # Clone ESP-IDF (if needed)
-python scripts/nora_w40_build.py install    # Install ESP-IDF tools
-python scripts/nora_w40_build.py build hello_world
+**Blocking Issue:**
+- Current environment: Git Bash / MSYS2 (with `MSYSTEM` var set)
+- ESP-IDF installer (`install.bat`) **rejects** MSYS2 environments
+- Error: "For Windows, ESP-IDF must be run in cmd.exe or PowerShell, not Git Bash"
+
+**To Build (REQUIRES Windows cmd.exe):**
+1. Open **Windows Command Prompt** (`cmd.exe`) — NOT Git Bash
+2. Run:
+```batch
+cd E:\u-blox\u-blox-sho-OpenCPU\GettingStartedSDK
+call esp-idf\export.bat
+cd esp-idf\examples\get-started\hello_world
+idf.py build
 ```
+3. Binary will be created at: `hello_world.elf` and `hello_world.bin`
 
 **Current Status:**
-- ✅ esp-idf directory present and cloned
-- ⏳ ESP-IDF installation not yet run (requires running `install.sh` or `install.bat`)
-- ⏳ Tools (Python, Git, CMake, Make) all available
-
-**Prerequisites:**
-- ✅ All build tools present (Python, Git, CMake, Make)
-- ⏳ ESP-IDF installation (run `nora_w40_build.py install`)
-- ⏳ Environment variables set (`IDF_PATH` and PATH modifications)
-
-**Expected Output (when built):**
-- Path: `esp-idf/examples/hello_world/build/hello_world.elf` or `.bin`
-- Format: Espressif ESP32-C6 firmware binary
+- ✅ esp-idf directory cloned with examples/
+- ✅ All build tools detected (Python, Git, CMake, Make)
+- ⏳ esp_pylib venv not initialized (blocked by terminal type)
+- ❌ Cannot build from Git Bash (MSYSTEM conflict)
 
 ## Summary Table
 
-| Platform | Status | Build Date | Example Built | Output File | Notes |
+| Platform | Status | Build Date | Example Built | Output File | Blocker |
 |----------|--------|---|---|---|---|
-| **IRIS-W10** | ✅ **VERIFIED** | 2026-09-28 | `demo_apps/hello_world` | `hello_world.elf` (258KB), `hello_world.bin` (29KB) | Successfully built with .venv |
-| **NORA-W50/W51** | ✅ **VERIFIED** | 2026-09-28 | `ble_wifi_provisioning` | `ble_wifi_provisioning.out` | Fully tested & working |
-| **NORA-W30** | 🟡 Ready | — | `wlan_sample` | `wlan_sample.bin` | Requires WSL2 SDK clone |
-| **NORA-W40** | 🟡 Ready | — | `hello_world` | `hello_world.elf` | Requires ESP-IDF install |
+| **IRIS-W10** | ✅ **VERIFIED** | 2026-09-28 | `demo_apps/hello_world` | `hello_world.elf` (258KB), `.bin` (29KB) | None |
+| **NORA-W50/W51** | ✅ **VERIFIED** | 2026-09-28 | `ble_wifi_provisioning` | `ble_wifi_provisioning.out` | None |
+| **NORA-W40** | 🟡 Ready (SDK) | — | `get-started/hello_world` | Not yet built | Terminal: Need cmd.exe (not Git Bash) |
+| **NORA-W30** | 🟡 Ready (SDK) | — | `wlan_sample` | Not yet built | WSL2: Security policy blocks VM startup |
 
 ## Build Infrastructure Quality
 
