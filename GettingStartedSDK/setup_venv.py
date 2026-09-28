@@ -2,7 +2,8 @@
 r"""
 Setup shared Python virtual environment for all u-blox build scripts.
 
-Run this once at repo root to create and configure the shared .venv:
+Run this from GettingStartedSDK/ to create and configure the shared .venv:
+    cd GettingStartedSDK
     python setup_venv.py
 
 Then activate it:
@@ -22,19 +23,34 @@ import os
 import sys
 import subprocess
 import platform
+import shutil
 
-def get_repo_root():
-    """Get repository root directory."""
+def get_sdk_root():
+    """Get GettingStartedSDK root directory (where this script is located)."""
     return os.path.dirname(os.path.abspath(__file__))
 
 def create_venv():
-    """Create virtual environment."""
-    repo_root = get_repo_root()
-    venv_path = os.path.join(repo_root, ".venv")
+    """Create virtual environment in GettingStartedSDK/.venv."""
+    sdk_root = get_sdk_root()
+    venv_path = os.path.join(sdk_root, ".venv")
     
+    # Check if venv already exists
     if os.path.exists(venv_path):
         print(f"✅ Virtual environment already exists: {venv_path}")
         return venv_path
+    
+    # Check if there's an old .venv at parent level (repo root) and offer to move it
+    parent_venv = os.path.join(os.path.dirname(sdk_root), ".venv")
+    if os.path.exists(parent_venv) and parent_venv != venv_path:
+        print(f"📦 Found old .venv at {parent_venv}")
+        print(f"   Moving to {venv_path}...")
+        try:
+            shutil.move(parent_venv, venv_path)
+            print(f"✅ Virtual environment moved successfully")
+            return venv_path
+        except Exception as e:
+            print(f"⚠️  Could not move old venv: {e}")
+            print(f"   You can manually move it later or create a new one")
     
     print(f"📦 Creating virtual environment at {venv_path}...")
     subprocess.check_call([sys.executable, "-m", "venv", venv_path])
@@ -93,10 +109,11 @@ def main():
         
         print(f"\n{'='*60}")
         print("✅ Setup complete!\n")
+        print(f"Virtual environment location: {venv_path}\n")
         print("Next step: Activate the virtual environment\n")
         print(f"  {activate_cmd}\n")
         print(f"Then run any build script, e.g.:\n")
-        print(f"  python IRIS-W10-GettingStartedSDK/iris_w10_build.py doctor")
+        print(f"  python scripts/iris_w10_build.py doctor")
         print(f"\nTo deactivate later, run:")
         print(f"  deactivate")
         print(f"{'='*60}\n")

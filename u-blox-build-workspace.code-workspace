@@ -1,0 +1,120 @@
+{
+  "folders": [
+    {
+      "path": ".",
+      "name": "u-blox Getting Started SDK"
+    },
+    {
+      "path": "GettingStartedSDK",
+      "name": "Build Scripts & Infrastructure"
+    }
+  ],
+  "settings": {
+    "python.defaultInterpreterPath": "${workspaceFolder:u-blox Getting Started SDK}/GettingStartedSDK/.venv/bin/python",
+    "python.linting.enabled": true,
+    "python.linting.pylintEnabled": true,
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "ms-python.python",
+    "[python]": {
+      "editor.defaultFormatter": "ms-python.python",
+      "editor.formatOnSave": true,
+      "editor.codeActionsOnSave": {
+        "source.organizeImports": "explicit"
+      }
+    },
+    "[markdown]": {
+      "editor.wordWrap": "on",
+      "editor.formatOnSave": true
+    },
+    "files.exclude": {
+      "**/mcuxpresso-sdk": true,
+      "**/esp-idf": true,
+      "**/.git": true,
+      "**/__pycache__": true,
+      "**/.pytest_cache": true,
+      "**/.venv": false
+    },
+    "search.exclude": {
+      "**/mcuxpresso-sdk": true,
+      "**/esp-idf": true,
+      "**/.venv": true
+    },
+    "terminal.integrated.env.linux": {
+      "PYTHONPATH": "${workspaceFolder:u-blox Getting Started SDK}/GettingStartedSDK"
+    },
+    "terminal.integrated.env.osx": {
+      "PYTHONPATH": "${workspaceFolder:u-blox Getting Started SDK}/GettingStartedSDK"
+    },
+    "terminal.integrated.env.windows": {
+      "PYTHONPATH": "${workspaceFolder:u-blox Getting Started SDK}/GettingStartedSDK"
+    }
+  },
+  "launch": {
+    "version": "0.2.0",
+    "configurations": [
+      {
+        "name": "Python: IRIS-W10 doctor",
+        "type": "python",
+        "request": "launch",
+        "program": "${workspaceFolder:u-blox Getting Started SDK}/GettingStartedSDK/scripts/iris_w10_build.py",
+        "args": ["doctor"],
+        "console": "integratedTerminal",
+        "cwd": "${workspaceFolder:u-blox Getting Started SDK}/GettingStartedSDK",
+        "justMyCode": true
+      },
+      {
+        "name": "Python: IRIS-W10 clone",
+        "type": "python",
+        "request": "launch",
+        "program": "${workspaceFolder:u-blox Getting Started SDK}/GettingStartedSDK/scripts/iris_w10_build.py",
+        "args": ["clone", "--full"],
+        "console": "integratedTerminal",
+        "cwd": "${workspaceFolder:u-blox Getting Started SDK}/GettingStartedSDK",
+        "justMyCode": true
+      },
+      {
+        "name": "Python: NORA-W50/W51 build ble_wifi_provisioning",
+        "type": "python",
+        "request": "launch",
+        "program": "${workspaceFolder:u-blox Getting Started SDK}/GettingStartedSDK/scripts/nora_w50_w51_build.py",
+        "args": ["build", "ble_wifi_provisioning"],
+        "console": "integratedTerminal",
+        "cwd": "${workspaceFolder:u-blox Getting Started SDK}/GettingStartedSDK",
+        "justMyCode": true
+      },
+      {
+        "name": "Python: NORA-W40 clone ESP-IDF",
+        "type": "python",
+        "request": "launch",
+        "program": "${workspaceFolder:u-blox Getting Started SDK}/GettingStartedSDK/scripts/nora_w40_build.py",
+        "args": ["clone"],
+        "console": "integratedTerminal",
+        "cwd": "${workspaceFolder:u-blox Getting Started SDK}/GettingStartedSDK",
+        "justMyCode": true
+      },
+      {
+        "name": "Python: Setup venv",
+        "type": "python",
+        "request": "launch",
+        "program": "${workspaceFolder:u-blox Getting Started SDK}/GettingStartedSDK/setup_venv.py",
+        "console": "integratedTerminal",
+        "cwd": "${workspaceFolder:u-blox Getting Started SDK}/GettingStartedSDK",
+        "justMyCode": true
+      }
+    ]
+  },
+  "extensions": {
+    "recommendations": [
+      "ms-python.python",
+      "ms-python.vscode-pylance",
+      "ms-vscode.makefile-tools",
+      "eamodio.gitlens",
+      "ms-vscode.remote-explorer",
+      "ms-vscode-remote.remote-wsl",
+      "ms-vscode-remote.remote-ssh",
+      "marus25.cortex-debug",
+      "ms-vscode.cmake-tools"
+    ]
+  },
+  "remoteAuthority": "local"
+}
