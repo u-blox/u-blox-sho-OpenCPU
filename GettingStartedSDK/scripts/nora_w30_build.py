@@ -16,6 +16,10 @@ import shutil
 from pathlib import Path
 from typing import Dict, List, Optional
 
+import target_paths
+
+TARGET = "nora_w30"
+
 # Windows consoles default to cp1252 and raise UnicodeEncodeError on the status glyphs below.
 for _stream in (sys.stdout, sys.stderr):
     try:
@@ -107,10 +111,8 @@ def detect_python() -> Optional[str]:
 # ============================================================================
 
 def config_file() -> Path:
-    """Get per-platform config file path (stored in GettingStartedSDK root)."""
-    script_dir = Path(__file__).parent  # scripts/
-    sdk_root = script_dir.parent        # GettingStartedSDK/
-    return sdk_root / f".nora_w30_build.{host_kind()}.json"
+    """Get per-platform config file path (targets/NORA-W30/config)."""
+    return target_paths.resolve_config(TARGET, host_kind())
 
 def load_config() -> Dict:
     """Load cached configuration."""
@@ -174,13 +176,14 @@ def cmd_clone(args) -> int:
         print("[FAIL] Git not found!")
         return 1
     
-    sdk_dir = Path.cwd() / "realtek-rtos-sdk"
+    sdk_dir = target_paths.sdk_dir(TARGET) / "realtek-rtos-sdk"
     if sdk_dir.exists():
         print(f"ℹ️  {sdk_dir} already exists. Skipping clone.\n")
         cfg = load_config()
         cfg["sdk_path"] = str(sdk_dir)
         save_config(cfg)
         return 0
+    target_paths.ensure(TARGET)
     
     # Note: NORA-W30 uses Realtek RTL8720DF which requires Ameba-D SDK (not main ameba-rtos)
     repo_url = "https://github.com/Ameba-AIoT/ameba-rtos-d.git"  # Ameba-D SDK (specifically for RTL8720DF used in NORA-W30)
@@ -189,7 +192,7 @@ def cmd_clone(args) -> int:
     
     result = subprocess.run(
         [git, "clone", "--depth", "1", repo_url, str(sdk_dir)],
-        cwd=Path.cwd()
+        cwd=sdk_dir.parent
     )
     
     if result.returncode == 0:

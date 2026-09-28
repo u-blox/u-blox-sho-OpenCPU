@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-NORA-W40 (ESP32-S3) Build Driver
+NORA-W40 (ESP32-C6) Build Driver
 Automated cross-platform build orchestration for NORA-W40 Open CPU modules using ESP-IDF.
 
 Supports: Windows, WSL2, Linux
@@ -14,6 +14,13 @@ import platform
 import shutil
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
+
+import target_paths
+
+TARGET = "nora_w40"
+
+# NORA-W40 is an ESP32-C6 (RISC-V), not the Xtensa ESP32 that idf.py assumes by default.
+IDF_TARGET = "esp32c6"
 
 # Windows consoles default to cp1252 and raise UnicodeEncodeError on the status glyphs below.
 for _stream in (sys.stdout, sys.stderr):
@@ -99,6 +106,8 @@ def detect_idf() -> Optional[str]:
     
     # Check common locations
     patterns = [
+        str(target_paths.sdk_dir(TARGET) / "esp-idf"),
+        str(target_paths.SDK_ROOT / "esp-idf"),
         str(Path.cwd() / "esp-idf"),
         str(Path.home() / "esp" / "esp-idf"),
         "/opt/esp/esp-idf",
@@ -169,10 +178,8 @@ def detect_python() -> Optional[str]:
 # ============================================================================
 
 def config_file() -> Path:
-    """Get per-platform config file path (stored in GettingStartedSDK root)."""
-    script_dir = Path(__file__).parent  # scripts/
-    sdk_root = script_dir.parent        # GettingStartedSDK/
-    return sdk_root / f".nora_w40_build.{host_kind()}.json"
+    """Get per-platform config file path (targets/NORA-W40/config)."""
+    return target_paths.resolve_config(TARGET, host_kind())
 
 def load_config() -> Dict:
     """Load cached configuration."""
@@ -233,17 +240,18 @@ def cmd_clone(args) -> int:
         print("[FAIL] Git not found or not in PATH!")
         return 1
     
-    idf_dir = Path.cwd() / "esp-idf"
+    idf_dir = target_paths.sdk_dir(TARGET) / "esp-idf"
     if idf_dir.exists():
         print(f"ℹ️  {idf_dir} already exists. Skipping clone.\n")
         cfg = load_config()
         cfg["idf_path"] = str(idf_dir)
         save_config(cfg)
         return 0
-    
+    target_paths.ensure(TARGET)
+
     result = subprocess.run(
-        ["git", "clone", "--depth", "1", "https://github.com/espressif/esp-idf.git"],
-        cwd=Path.cwd()
+        ["git", "clone", "--depth", "1", "https://github.com/espressif/esp-idf.git", str(idf_dir)],
+        cwd=idf_dir.parent
     )
     
     if result.returncode == 0:
@@ -265,6 +273,10 @@ def cmd_install(args) -> int:
     idf_path = Path(idf_dir)
     platform_type = host_kind()
     
+    # The installer calls idf_tools.py, which refuses to run when MSYSTEM is set.
+    env = os.environ.copy()
+    env.pop("MSYSTEM", None)
+    
     # Determine install script based on platform
     if platform_type == "windows":
         install_script = idf_path / "install.bat"
@@ -275,7 +287,8 @@ def cmd_install(args) -> int:
         result = subprocess.run(
             [str(install_script)],
             cwd=idf_path,
-            shell=True
+            shell=True,
+            env=env
         )
     else:  # WSL2 or Linux
         install_script = idf_path / "install.sh"
@@ -287,7 +300,8 @@ def cmd_install(args) -> int:
         os.chmod(install_script, 0o755)
         result = subprocess.run(
             [str(install_script)],
-            cwd=idf_path
+            cwd=idf_path,
+            env=env
         )
     
     if result.returncode == 0:
@@ -303,6 +317,125 @@ def cmd_install(args) -> int:
         print()
     return result.returncode
 
+def detect_idf_python(idf_dir):
+    """Find ESP-IDF's own Python env; idf.py cannot run from the repo venv.
+
+    Installs vary between a Scripts/ and a bin/ layout, and a stale env may sit
+    beside a good one, so candidates are validated with ESP-IDF's own checker.
+    """
+    bases = []
+    explicit = os.environ.get("IDF_PYTHON_ENV_PATH")
+    if explicit:
+        bases.append(Path(explicit))
+    tools_path = os.environ.get("IDF_TOOLS_PATH")
+    root = Path(tools_path) if tools_path else Path.home() / ".espressif"
+    bases.extend(sorted((root / "python_env").glob("*_env"), reverse=True))
+
+    checker = Path(idf_dir) / "tools" / "idf_tools.py"
+    probe_env = os.environ.copy()
+    probe_env["IDF_PATH"] = idf_dir
+    probe_env.pop("MSYSTEM", None)
+
+    for base in bases:
+        for rel in ("Scripts/python.exe", "bin/python.exe", "bin/python3", "bin/python"):
+            exe = base / rel
+            if not exe.is_file():
+                continue
+            if not checker.is_file():
+                return str(exe)
+            probe = subprocess.run(
+                [str(exe), str(checker), "check-python-dependencies"],
+                capture_output=True, env=probe_env,
+            )
+            if probe.returncode == 0:
+                return str(exe)
+    return None
+
+
+def idf_environment(idf_dir, idf_python):
+    """Build the environment export.sh would set up, so the toolchain is on PATH."""
+    env = os.environ.copy()
+    env["IDF_PATH"] = idf_dir
+    # idf.py and idf_tools.py hard-refuse to run when MSYSTEM is set. Git Bash
+    # re-injects it into native child processes, but an explicit env block wins.
+    env.pop("MSYSTEM", None)
+    idf_tools = Path(idf_dir) / "tools" / "idf_tools.py"
+    if not idf_tools.is_file():
+        return env
+
+    result = subprocess.run(
+        [idf_python, str(idf_tools), "export", "--format", "key-value"],
+        capture_output=True, text=True, env=env,
+    )
+    if result.returncode != 0:
+        return env
+
+    for line in result.stdout.splitlines():
+        if "=" not in line:
+            continue
+        key, value = line.split("=", 1)
+        value = value.replace("%PATH%", env.get("PATH", ""))
+        value = value.replace("$PATH", env.get("PATH", ""))
+        env[key] = value
+    return env
+
+
+def current_target(example_path):
+    """Read CONFIG_IDF_TARGET out of an example's generated sdkconfig."""
+    sdkconfig = example_path / "sdkconfig"
+    if not sdkconfig.is_file():
+        return None
+    for line in sdkconfig.read_text(encoding="utf-8", errors="ignore").splitlines():
+        if line.startswith("CONFIG_IDF_TARGET="):
+            return line.split("=", 1)[1].strip().strip('"')
+    return None
+
+
+def resolve_example(idf_dir, name):
+    """Map an example name to its directory.
+
+    ESP-IDF nests examples under a category ('get-started/hello_world'), so a
+    bare leaf name is also searched for recursively.
+    Returns (path, None) on success or (None, message) on failure.
+    """
+    examples_root = Path(idf_dir) / "examples"
+    if not examples_root.is_dir():
+        return None, f"Examples directory not found at {examples_root}"
+
+    direct = examples_root / name
+    if (direct / "CMakeLists.txt").is_file():
+        return direct, None
+
+    leaf = Path(name).name
+    matches = sorted(
+        p.parent for p in examples_root.rglob(f"{leaf}/CMakeLists.txt")
+    )
+    if len(matches) == 1:
+        return matches[0], None
+    if not matches:
+        return None, (
+            f"Example '{name}' not found under {examples_root}.\n"
+            "       Run 'python nora_w40_build.py list' to see what is available."
+        )
+
+    # Real examples live near the top; deeper hits are build-system fixtures.
+    def depth(p):
+        return len(p.relative_to(examples_root).parts)
+
+    best = min(depth(m) for m in matches)
+    top = [m for m in matches if depth(m) == best]
+    if len(top) == 1:
+        return top[0], None
+
+    listing = "\n".join(
+        f"         {m.relative_to(examples_root).as_posix()}" for m in top
+    )
+    return None, (
+        f"Example '{name}' is ambiguous, {len(top)} matches:\n{listing}\n"
+        "       Re-run with the full path shown above."
+    )
+
+
 def cmd_build(args) -> int:
     """Build example application."""
     if not args.example:
@@ -314,16 +447,20 @@ def cmd_build(args) -> int:
         print("[FAIL] ESP-IDF not found. Run 'python nora_w40_build.py clone' first.")
         return 1
     
-    example_path = Path(idf_dir) / "examples" / args.example
-    if not example_path.exists():
-        print(f"[FAIL] Example '{args.example}' not found at {example_path}")
+    example_path, error = resolve_example(idf_dir, args.example)
+    if error:
+        print(f"[FAIL] {error}")
         return 1
     
     print(f"\n🔨 Building example: {args.example}\n")
     
-    # Set IDF_PATH and call idf.py
-    env = os.environ.copy()
-    env["IDF_PATH"] = idf_dir
+    idf_python = detect_idf_python(idf_dir)
+    if not idf_python:
+        print("[FAIL] ESP-IDF Python environment not found or incomplete.")
+        print("       Run: python nora_w40_build.py install")
+        return 1
+    
+    env = idf_environment(idf_dir, idf_python)
     
     # Use full path to idf.py
     idf_py = Path(idf_dir) / "tools" / "idf.py"
@@ -331,8 +468,20 @@ def cmd_build(args) -> int:
         print(f"[FAIL] idf.py not found at {idf_py}")
         return 1
     
+    # Without this idf.py would silently default to the original ESP32.
+    if current_target(example_path) != IDF_TARGET:
+        print(f"Setting target to {IDF_TARGET}...")
+        result = subprocess.run(
+            [idf_python, str(idf_py), "set-target", IDF_TARGET],
+            cwd=example_path,
+            env=env
+        )
+        if result.returncode != 0:
+            print(f"[FAIL] Could not set target to {IDF_TARGET}.")
+            return result.returncode
+    
     result = subprocess.run(
-        [sys.executable, str(idf_py), "build"],
+        [idf_python, str(idf_py), "build"],
         cwd=example_path,
         env=env
     )
@@ -368,7 +517,11 @@ def cmd_clean(args) -> int:
         print("[FAIL] ESP-IDF not found.\n")
         return 1
     
-    example_path = Path(idf_dir) / "examples" / args.example
+    example_path, error = resolve_example(idf_dir, args.example)
+    if error:
+        print(f"[FAIL] {error}")
+        return 1
+
     build_dir = example_path / "build"
     
     if build_dir.exists():
@@ -436,7 +589,7 @@ def main():
     import argparse
     
     parser = argparse.ArgumentParser(
-        description="NORA-W40 (ESP32-S3) Build Driver",
+        description="NORA-W40 (ESP32-C6) Build Driver",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:

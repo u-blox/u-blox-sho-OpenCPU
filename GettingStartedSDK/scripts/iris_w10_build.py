@@ -18,6 +18,9 @@ from typing import Dict, List, Optional
 
 # Import serial logger
 import serial_logger
+import target_paths
+
+TARGET = "iris_w10"
 
 # Windows consoles default to cp1252 and raise UnicodeEncodeError on the status glyphs below.
 for _stream in (sys.stdout, sys.stderr):
@@ -217,7 +220,13 @@ def detect_workspace() -> Optional[str]:
     if "workspace" in cfg and (Path(cfg["workspace"]) / ".west").exists():
         return cfg["workspace"]
 
-    for candidate in (Path.cwd() / WORKSPACE_NAME, Path.cwd()):
+    candidates = (
+        target_paths.sdk_dir(TARGET) / WORKSPACE_NAME,
+        target_paths.SDK_ROOT / WORKSPACE_NAME,
+        Path.cwd() / WORKSPACE_NAME,
+        Path.cwd(),
+    )
+    for candidate in candidates:
         if (candidate / ".west").exists():
             return str(candidate)
     return None
@@ -235,10 +244,8 @@ def examples_root(workspace: str) -> Optional[Path]:
 # ============================================================================
 
 def config_file() -> Path:
-    """Get per-platform config file path (stored in GettingStartedSDK root)."""
-    script_dir = Path(__file__).parent  # scripts/
-    sdk_root = script_dir.parent        # GettingStartedSDK/
-    return sdk_root / f".iris_w10_build.{host_kind()}.json"
+    """Get per-platform config file path (targets/IRIS-W10/config)."""
+    return target_paths.resolve_config(TARGET, host_kind())
 
 def load_config() -> Dict:
     cfg_path = config_file()
@@ -307,15 +314,16 @@ def cmd_clone(args) -> int:
         print("[FAIL] west not found. Run 'python iris_w10_build.py install' first.")
         return 1
 
-    workspace = Path.cwd() / WORKSPACE_NAME
+    workspace = target_paths.sdk_dir(TARGET) / WORKSPACE_NAME
     if (workspace / ".west").exists():
         print(f"ℹ️  {workspace} already initialised. Skipping west init.\n")
     else:
+        target_paths.ensure(TARGET)
         init = west + ["init", "-m", MANIFEST_URL, WORKSPACE_NAME]
         if args.revision:
             init += ["--mr", args.revision]
         print(f"Running: {' '.join(init)}\n")
-        result = subprocess.run(init, cwd=Path.cwd())
+        result = subprocess.run(init, cwd=workspace.parent)
         if result.returncode != 0:
             return result.returncode
 

@@ -2,7 +2,7 @@
 
 ## Overview
 
-NORA-W40 modules are based on the **Espressif ESP32-S3** SoC with Wi-Fi 6 (802.11ax) and Bluetooth LE 5.3. This guide covers building and deploying firmware using the latest **ESP-IDF** (Espressif IoT Development Framework).
+NORA-W40 modules are based on the **Espressif ESP32-C6** SoC with 2.4 GHz Wi-Fi 6 (802.11ax) and Bluetooth LE 5.3. This guide covers building and deploying firmware using the latest **ESP-IDF** (Espressif IoT Development Framework).
 
 **Key Features:**
 - Dual-core Xtensa processor @ 240 MHz
@@ -343,7 +343,7 @@ See [ESP-IDF API Reference](https://docs.espressif.com/projects/esp-idf/en/lates
 ## Documentation & Resources
 
 - **ESP-IDF Official Docs:** https://docs.espressif.com/projects/esp-idf/
-- **ESP32-S3 Datasheet:** https://www.espressif.com/en/products/socs/esp32-s3/overview
+- **ESP32-C6 Datasheet:** https://www.espressif.com/en/products/socs/esp32-c6/overview
 - **ESP-IDF Examples:** https://github.com/espressif/esp-idf/tree/master/examples
 - **Espressif GitHub:** https://github.com/espressif/esp-idf
 - **u-blox NORA-W40 Datasheet:** https://www.u-blox.com/

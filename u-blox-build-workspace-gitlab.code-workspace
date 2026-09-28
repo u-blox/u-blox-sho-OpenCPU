@@ -1,0 +1,279 @@
+{
+  "folders": [
+    {
+      "path": ".",
+      "name": "u-blox Getting Started SDK"
+    },
+    {
+      "path": "GettingStartedSDK",
+      "name": "Build Scripts & Infrastructure"
+    }
+  ],
+  "settings": {
+    "python.defaultInterpreterPath": "${workspaceFolder:u-blox Getting Started SDK}/GettingStartedSDK/.venv/bin/python",
+    "python.linting.enabled": true,
+    "python.linting.pylintEnabled": true,
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "ms-python.python",
+    "[python]": {
+      "editor.defaultFormatter": "ms-python.python",
+      "editor.formatOnSave": true,
+      "editor.codeActionsOnSave": {
+        "source.organizeImports": "explicit"
+      }
+    },
+    "[markdown]": {
+      "editor.wordWrap": "on",
+      "editor.formatOnSave": true
+    },
+    "files.exclude": {
+      "**/mcuxpresso-sdk": true,
+      "**/esp-idf": true,
+      "**/.git": true,
+      "**/__pycache__": true,
+      "**/.pytest_cache": true,
+      "**/.venv": false
+    },
+    "search.exclude": {
+      "**/mcuxpresso-sdk": true,
+      "**/esp-idf": true,
+      "**/.venv": true,
+      "**/targets/*/sdk/**": true
+    },
+    "files.watcherExclude": {
+      "**/targets/*/sdk/**": true
+    },
+    "terminal.integrated.env.linux": {
+      "PYTHONPATH": "${workspaceFolder:u-blox Getting Started SDK}/GettingStartedSDK"
+    },
+    "terminal.integrated.env.osx": {
+      "PYTHONPATH": "${workspaceFolder:u-blox Getting Started SDK}/GettingStartedSDK"
+    },
+    "terminal.integrated.env.windows": {
+      "PYTHONPATH": "${workspaceFolder:u-blox Getting Started SDK}/GettingStartedSDK"
+    }
+  },
+  "launch": {
+    "version": "0.2.0",
+    "configurations": [
+      {
+        "name": "Python: IRIS-W10 doctor",
+        "type": "debugpy",
+        "request": "launch",
+        "program": "${workspaceFolder:u-blox Getting Started SDK}/GettingStartedSDK/scripts/iris_w10_build.py",
+        "args": ["doctor"],
+        "console": "integratedTerminal",
+        "cwd": "${workspaceFolder:u-blox Getting Started SDK}/GettingStartedSDK",
+        "justMyCode": true
+      },
+      {
+        "name": "Python: IRIS-W10 clone",
+        "type": "debugpy",
+        "request": "launch",
+        "program": "${workspaceFolder:u-blox Getting Started SDK}/GettingStartedSDK/scripts/iris_w10_build.py",
+        "args": ["clone", "--full"],
+        "console": "integratedTerminal",
+        "cwd": "${workspaceFolder:u-blox Getting Started SDK}/GettingStartedSDK",
+        "justMyCode": true
+      },
+      {
+        "name": "Python: NORA-W50/W51 build ble_wifi_provisioning",
+        "type": "debugpy",
+        "request": "launch",
+        "program": "${workspaceFolder:u-blox Getting Started SDK}/GettingStartedSDK/scripts/nora_w50_w51_build.py",
+        "args": ["build", "ble_wifi_provisioning"],
+        "console": "integratedTerminal",
+        "cwd": "${workspaceFolder:u-blox Getting Started SDK}/GettingStartedSDK",
+        "justMyCode": true
+      },
+      {
+        "name": "Python: NORA-W40 clone ESP-IDF",
+        "type": "debugpy",
+        "request": "launch",
+        "program": "${workspaceFolder:u-blox Getting Started SDK}/GettingStartedSDK/scripts/nora_w40_build.py",
+        "args": ["clone"],
+        "console": "integratedTerminal",
+        "cwd": "${workspaceFolder:u-blox Getting Started SDK}/GettingStartedSDK",
+        "justMyCode": true
+      },
+      {
+        "name": "Python: Setup venv",
+        "type": "debugpy",
+        "request": "launch",
+        "program": "${workspaceFolder:u-blox Getting Started SDK}/GettingStartedSDK/setup_venv.py",
+        "console": "integratedTerminal",
+        "cwd": "${workspaceFolder:u-blox Getting Started SDK}/GettingStartedSDK",
+        "justMyCode": true
+      },
+      {
+        "name": "Cortex Debug: IRIS-W16x (J-Link)",
+        "type": "cortex-debug",
+        "request": "launch",
+        "servertype": "jlink",
+        "device": "RW612",
+        "interface": "swd",
+        "ipAddress": "localhost",
+        "port": 2331,
+        "preLaunchTask": "Build IRIS-W16x",
+        "cwd": "${workspaceFolder:Build Scripts & Infrastructure}",
+        "executable": "${workspaceFolder:Build Scripts & Infrastructure}/iris_w16x_build/IRIS_W16X_SW.elf",
+        "showDevDebugOutput": false,
+        "preLaunchCommands": [
+          "set print pretty on"
+        ],
+        "postLaunchCommands": [
+          "break main"
+        ]
+      },
+      {
+        "name": "Cortex Debug: IRIS-W10 (J-Link/MCU-Link)",
+        "type": "cortex-debug",
+        "request": "launch",
+        "servertype": "jlink",
+        "device": "RW612",
+        "interface": "swd",
+        "ipAddress": "localhost",
+        "port": 2331,
+        "cwd": "${workspaceFolder:Build Scripts & Infrastructure}/mcuxpresso-sdk",
+        "executable": "${workspaceFolder:Build Scripts & Infrastructure}/mcuxpresso-sdk/build/zephyr.elf",
+        "showDevDebugOutput": false,
+        "preLaunchCommands": [
+          "set print pretty on"
+        ]
+      },
+      {
+        "name": "Cortex Debug: NORA-W56x (XDS110)",
+        "type": "cortex-debug",
+        "request": "launch",
+        "servertype": "xds110",
+        "device": "CC3520SF",
+        "interface": "jtag",
+        "ipAddress": "localhost",
+        "port": 55000,
+        "cwd": "${workspaceFolder:Build Scripts & Infrastructure}",
+        "executable": "${workspaceFolder:Build Scripts & Infrastructure}/nora_w56x_build/NORA_W56X_u_connect_xpress.elf",
+        "showDevDebugOutput": false,
+        "preLaunchCommands": [
+          "set print pretty on"
+        ]
+      },
+      {
+        "name": "Cortex Debug: NORA-W36x (J-Link)",
+        "type": "cortex-debug",
+        "request": "launch",
+        "servertype": "jlink",
+        "device": "RTL8721D",
+        "interface": "swd",
+        "ipAddress": "localhost",
+        "port": 2331,
+        "cwd": "${workspaceFolder:Build Scripts & Infrastructure}",
+        "executable": "${workspaceFolder:Build Scripts & Infrastructure}/nora_w36x_build/km4_image.elf",
+        "showDevDebugOutput": false,
+        "preLaunchCommands": [
+          "set print pretty on"
+        ]
+      },
+      {
+        "name": "ESP-IDF: NORA-W40 Debug",
+        "type": "debugpy",
+        "request": "launch",
+        "program": "${workspaceFolder:Build Scripts & Infrastructure}/esp-idf/tools/idf.py",
+        "args": ["monitor", "--print-filter=*"],
+        "console": "integratedTerminal",
+        "cwd": "${workspaceFolder:Build Scripts & Infrastructure}/nora_w40_build",
+        "justMyCode": true
+      }
+    ]
+  },
+  "extensions": {
+    "recommendations": [
+      "ms-python.python",
+      "ms-python.vscode-pylance",
+      "ms-vscode.makefile-tools",
+      "gitlab.gitlab-workflow",
+      "ms-vscode.remote-explorer",
+      "ms-vscode-remote.remote-wsl",
+      "ms-vscode-remote.remote-ssh",
+      "marus25.cortex-debug",
+      "ms-vscode.cmake-tools",
+      "ms-vscode.extension-pack-for-java"
+    ]
+  },
+  "tasks": {
+    "version": "2.0.0",
+    "tasks": [
+      {
+        "label": "Build IRIS-W16x",
+        "type": "shell",
+        "command": "python",
+        "args": [
+          "${workspaceFolder:Build Scripts & Infrastructure}/scripts/iris_w10_build.py",
+          "build",
+          "demo_apps/hello_world"
+        ],
+        "group": {
+          "kind": "build",
+          "isDefault": false
+        },
+        "presentation": {
+          "reveal": "always",
+          "panel": "shared"
+        }
+      },
+      {
+        "label": "Build NORA-W56x",
+        "type": "shell",
+        "command": "python",
+        "args": [
+          "${workspaceFolder:Build Scripts & Infrastructure}/scripts/nora_w50_w51_build.py",
+          "build",
+          "ble_wifi_provisioning"
+        ],
+        "group": {
+          "kind": "build",
+          "isDefault": false
+        },
+        "presentation": {
+          "reveal": "always",
+          "panel": "shared"
+        }
+      },
+      {
+        "label": "Build NORA-W36x",
+        "type": "shell",
+        "command": "python",
+        "args": [
+          "${workspaceFolder:Build Scripts & Infrastructure}/scripts/nora_w30_build.py",
+          "build",
+          "demo"
+        ],
+        "group": {
+          "kind": "build",
+          "isDefault": false
+        },
+        "presentation": {
+          "reveal": "always",
+          "panel": "shared"
+        }
+      },
+      {
+        "label": "Verify All Tools",
+        "type": "shell",
+        "command": "python",
+        "args": [
+          "${workspaceFolder:Build Scripts & Infrastructure}/scripts/iris_w10_build.py",
+          "doctor"
+        ],
+        "group": {
+          "kind": "build",
+          "isDefault": true
+        },
+        "presentation": {
+          "reveal": "always",
+          "panel": "shared"
+        }
+      }
+    ]
+  },
+  "remoteAuthority": "local"
+}

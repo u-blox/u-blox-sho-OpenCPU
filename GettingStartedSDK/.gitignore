@@ -16,11 +16,27 @@ __pycache__/
 *.elf
 *.map
 
-# Config cache (per-platform)
+# Config cache (per-platform, legacy root location)
 .iris_w10_build.*.json
+.nora_w30_build.*.json
+.nora_w40_build.*.json
+.nora_w50_w51_build.*.json
 
-# MCUXpresso SDK workspace (large multi-GB)
+# Per-target base folders: track the skeleton, ignore everything generated.
+# The directories are re-included first because git will not descend into an
+# excluded directory to pick the .gitkeep back up.
+!targets/*/sdk/
+!targets/*/config/
+targets/*/sdk/*
+targets/*/config/*
+!targets/*/sdk/.gitkeep
+!targets/*/config/.gitkeep
+
+# Vendor SDKs. Fetched on demand by each target's `clone` command, never
+# committed: together they are several GB and each user only needs their own.
 mcuxpresso-sdk/
+esp-idf/
+ameba-rtos-d/
 
 # west metadata
 .west/

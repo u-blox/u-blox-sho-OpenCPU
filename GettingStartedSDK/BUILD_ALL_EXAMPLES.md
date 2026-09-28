@@ -122,7 +122,7 @@ python3 nora_w30_build.py clean --all           # Remove entire SDK (~500MB)
 
 ---
 
-## 3. NORA-W40 (ESP32-S3 + ESP-IDF) — Windows/WSL2/Linux
+## 3. NORA-W40 (ESP32-C6 + ESP-IDF) — Windows/WSL2/Linux
 
 ### Prerequisites
 - Python 3.9+ (or bundled with ESP-IDF)
@@ -153,7 +153,7 @@ python nora_w40_build.py clone
 python nora_w40_build.py install
 # Windows: Runs esp-idf/install.bat
 #   - Sets up Python venv
-#   - Downloads ESP32-S3 toolchain (~600MB)
+#   - Downloads ESP32-C6 toolchain (~600MB)
 #   - Installs build dependencies
 # 
 # Linux/WSL2: Runs esp-idf/install.sh

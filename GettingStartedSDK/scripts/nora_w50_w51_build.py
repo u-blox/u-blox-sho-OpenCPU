@@ -34,6 +34,9 @@ from pathlib import Path
 
 # Import serial logger
 import serial_logger
+import target_paths
+
+TARGET = "nora_w50_w51"
 
 SCRIPT_DIR = Path(__file__).resolve().parent.parent  # GettingStartedSDK root
 
@@ -248,7 +251,7 @@ def detect_tools() -> dict[str, str]:
 # --------------------------------------------------------------------------- #
 
 def config_file() -> Path:
-    return SCRIPT_DIR / f".nora_w50_w51_build.{HOST}.json"
+    return target_paths.resolve_config(TARGET, HOST)
 
 
 def load_config() -> dict:
@@ -283,7 +286,7 @@ def default_workspace() -> Path:
     if HOST == "wsl":
         # /mnt/<drive> builds are painfully slow under WSL2.
         return Path.home() / "nora-w50-w51"
-    return SCRIPT_DIR / "workspace"
+    return target_paths.sdk_dir(TARGET)
 
 
 def workspace_of(args) -> Path:

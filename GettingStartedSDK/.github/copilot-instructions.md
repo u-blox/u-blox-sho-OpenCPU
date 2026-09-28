@@ -2,9 +2,16 @@
 
 This file helps GitHub Copilot understand the u-blox Getting Started SDK build infrastructure for IRIS-W10, NORA-W50/W51, NORA-W30, and NORA-W40.
 
+## Communication Preferences
+
+- **Emoji usage:** Minimal - focus on clear technical information without decorative elements
+- **Response style:** Concise and direct
+- **Documentation:** Straightforward without embellishment
+- **Focus:** Technical accuracy and efficiency
+
 ## Project Context
 
-**Repository:** u-blox-sho-OpenCPU (GitLab + GitHub mirror)  
+**Repository:** u-blox-sho-OpenCPU (GitLab)  
 **Primary Work:** Building firmware for 4 u-blox WiFi/Bluetooth modules  
 **Build Infrastructure:** GettingStartedSDK/ folder with consolidated scripts  
 **Current Branch:** cmag_getting_started_sdk (review branch) or master
@@ -16,30 +23,53 @@ This file helps GitHub Copilot understand the u-blox Getting Started SDK build i
 | **IRIS-W10** | NXP RW612/RW610 | MCUXpresso SDK (west/CMake) | rdrw612bga | Wi-Fi 6, Bluetooth LE 5.4, optional Thread |
 | **NORA-W50/W51** | TI CC35XX | SimpleLink WiFi SDK | LP_EM_CC35X1 | Wi-Fi 6E, Bluetooth LE 5.4 |
 | **NORA-W30** | Realtek RTL872x | Realtek RTOS SDK | N/A | Wi-Fi, Bluetooth (needs WSL2/Linux) |
-| **NORA-W40** | Espressif ESP32-C6 | ESP-IDF | esp32c6 | Wi-Fi 6E, Bluetooth LE 5.3 |
+| **NORA-W40** | Espressif ESP32-C6 | ESP-IDF | esp32c6 | Wi-Fi 6 (2.4 GHz), Bluetooth LE 5.3, Thread/Zigbee |
+
+NORA-W40 uses ESP32-C6 (ESP32-C6FH4/FH8). ESP32-S3 is the previous generation
+(NORA-W1/W2) and must not be used for NORA-W40.
 
 ## Directory Structure
 
 ```
-GettingStartedSDK/
+GettingStartedSDK/                  Workspace root
+├── .github/
+│   └── copilot-instructions.md    This file
 ├── .venv/                          Virtual environment (Python packages)
 ├── scripts/                        Build driver scripts
+│   ├── target_paths.py            Shared per-target directory layout
 │   ├── iris_w10_build.py          NXP RW612/RW610 builder
 │   ├── nora_w50_w51_build.py      TI CC35XX builder
 │   ├── nora_w30_build.py          Realtek RTL872x builder
-│   └── nora_w40_build.py          Espressif ESP32-C6 builder
+│   ├── nora_w40_build.py          Espressif ESP32-C6 builder
+│   ├── flash_helper.py            Flashing helper
+│   └── serial_logger.py           Serial console logger
+├── targets/                        Per-target base folders (generated content)
+│   ├── IRIS-W10/{sdk,config}/
+│   ├── NORA-W30/{sdk,config}/
+│   ├── NORA-W40/{sdk,config}/
+│   └── NORA-W50-W51/{sdk,config}/
+├── ameba-rtos-d/                  Vendor SDK, fetched on demand (NORA-W30)
+├── esp-idf/                       Vendor SDK, fetched on demand (NORA-W40)
+├── mcuxpresso-sdk/                Vendor SDK, fetched on demand (IRIS-W10)
 ├── docs/                          Module-specific README files
 │   ├── iris_w10_README.md
 │   ├── nora_w50_w51_README.md
 │   ├── nora_w30_README.md
 │   └── nora_w40_README.md
 ├── setup_venv.py                  Virtual environment initializer
+├── migrate_venv.sh / .bat         Moves a stray repo-root .venv into here
 ├── VENV_SETUP.md                  venv setup guide
+├── WORKSPACE_SETUP.md             VS Code workspace guide
 ├── BUILD_ALL_EXAMPLES.md          Comprehensive build guide
 ├── QUICK_BUILD_REFERENCE.md       Quick cheat sheet
-├── REVIEWERS_GUIDE.md             Review instructions for team
-└── .iris_w10_build.{os}.json      Config caches (auto-generated)
+└── REVIEWERS_GUIDE.md             Review instructions for team
 ```
+
+Only `README.md`, `.gitattributes` and the `.code-workspace` files belong at the
+repository root. The root is shared with unrelated projects (`nRF5_SDK/`,
+`zephyr/`, `MCUXpresso/`, `*-OutputPower/`), so SDK files must not be added
+there. The `.code-workspace` files are multi-root (`"."` plus
+`"GettingStartedSDK"`) and must stay at the root to keep both paths valid.
 
 ## Build System Architecture
 
@@ -51,11 +81,16 @@ GettingStartedSDK/
    - Contains: west (MCUXpresso manager), build dependencies
    - Setup: `python setup_venv.py` from GettingStartedSDK/
 
-2. **Configuration Management**
-   - Each script has per-platform config: `.{script_name}.{platform}.json`
-   - Stored in GettingStartedSDK/ root
-   - Tracks: SDK workspace paths, user preferences
-   - Auto-loaded when script runs
+2. **Per-Target Base Folders (targets/)**
+   - `scripts/target_paths.py` is the single source of truth for the layout
+   - `targets/<TARGET>/sdk/` holds on-demand SDK clones and west workspaces
+   - `targets/<TARGET>/config/build.<host>.json` holds the per-platform tool cache
+   - Vendor SDKs are never committed. They are gitignored and fetched by each
+     target's `clone` command, so a fresh clone stays small and a user only
+     downloads the SDK for the module they actually own. Scripts must therefore
+     detect an SDK at either the repo root or `targets/<TARGET>/sdk/`.
+   - Build artifacts stay in their vendor-native locations (west, idf.py and
+     Realtek make each expect to find their own output in-tree)
 
 3. **Cross-Platform Support**
    - Windows (Git Bash/MSYS2, CMD, PowerShell)
@@ -76,7 +111,7 @@ def host_kind() -> str:
 def detect_python(), detect_git(), detect_west(), detect_cmake(), etc.
 
 # 3. Configuration Cache
-def config_file() -> Path
+def config_file() -> Path      # delegates to target_paths.resolve_config()
 def load_config() -> Dict
 def save_config(cfg: Dict)
 
@@ -89,6 +124,22 @@ def cmd_clean(args)        # Clean artifacts
 ```
 
 ## Common Build Workflows
+
+### IMPORTANT: Always Activate .venv Before Building
+
+Before running any build commands, activate the virtual environment:
+
+**Windows (Git Bash/MSYS2):**
+```bash
+source .venv/Scripts/activate
+```
+
+**Linux/WSL2/macOS:**
+```bash
+source .venv/bin/activate
+```
+
+The prompt will show `(.venv)` when activated. All build scripts must run with .venv active to use correct Python dependencies.
 
 ### 1. First Time Setup
 ```bash
@@ -131,16 +182,17 @@ python scripts/nora_w30_build.py build wlan_sample
 | Variable | Module | Value | Example |
 |----------|--------|-------|---------|
 | ARMGCC_DIR | IRIS-W10 | Path to Arm GNU Toolchain root | `/c/Program Files/Arm/GNU Toolchain mingw-w64-x86_64-arm-none-eabi` |
+| NORA_W50_W51_WORKSPACE | NORA-W50/W51 | Override workspace location | `~/nora-w50-w51` |
 | MSYSTEM | Git Bash | UCRT64 or MINGW64 | `UCRT64` (auto-detected) |
 
 ## Output Artifacts
 
 | Module | Build Output | Location |
 |--------|--------------|----------|
-| IRIS-W10 | zephyr.elf, zephyr.bin | GettingStartedSDK/mcuxpresso-sdk/build/ |
-| NORA-W50/W51 | *.out | C:/ti/simplelink_wifi_sdk_10_20_00_39/examples/.../ticlang/ |
-| NORA-W40 | hello_world.elf, hello_world.bin | GettingStartedSDK/esp-idf-workspace/build/ |
-| NORA-W30 | *.bin | GettingStartedSDK/workspace/ |
+| IRIS-W10 | zephyr.elf, zephyr.bin | `<west workspace>/build/` |
+| NORA-W50/W51 | *.out | `<examples>/<rtos>/<board>/<toolchain>/` |
+| NORA-W40 | *.elf, *.bin | `<esp-idf>/examples/<example>/build/` |
+| NORA-W30 | *.bin | in-source, under the example directory |
 
 ## Common Issues & Solutions
 
@@ -179,20 +231,24 @@ python scripts/nora_w30_build.py build wlan_sample
 
 ### Error Handling
 - Return 0 for success, 1 for failure
-- Print status with emoji indicators ([OK], [FAIL], [WARNING], 📥, etc.)
+- Print plain-text status indicators: `[OK]`, `[FAIL]`, `[WARNING]`
+- Do not add decorative emoji to script output
 - Show helpful error messages, not just tracebacks
 - Log full output for large operations (SDK clone)
 
 ### Path Handling
 - Use `Path()` from pathlib for all file operations
-- Relative paths when possible (scripts find their own location)
-- `Path(__file__).parent.parent` to get GettingStartedSDK/ from scripts/
+- Anchor paths to the script location, never to `Path.cwd()`; a script must
+  behave identically no matter which directory it is invoked from
+- Use `scripts/target_paths.py` for anything under `targets/`
 - Short paths on Windows to avoid spaces (short_path() function)
 
 ### Configuration
 - JSON format for configs
-- Store in GettingStartedSDK/ root (not working directory)
-- Platform-specific: `.{script_name}.{platform}.json`
+- Store via `target_paths.resolve_config(TARGET)`, which returns
+  `targets/<TARGET>/config/build.<host>.json`
+- Legacy `.{script_name}.{platform}.json` files at the SDK root are migrated
+  automatically on first run
 - Auto-load/save to track user choices between runs
 
 ## When to Use Each Script
@@ -219,6 +275,9 @@ Use MCP when:
 - Needing hardware specs or pin configurations
 - Looking for application notes or examples
 - Understanding limitations (Wi-Fi 6 vs 6E, Thread vs non-Thread, etc.)
+
+Prefer the MCP over repository comments when the two disagree about hardware
+facts; module docstrings have been wrong before.
 
 ## Testing and Verification
 
@@ -260,7 +319,7 @@ Use MCP when:
 - **IRIS-W10:** hello_world.elf (258 KB) and hello_world.bin (29 KB) built successfully
 - **NORA-W50/W51:** ble_wifi_provisioning.out built successfully
 
-### 🟡 Ready for Build
+### Ready for Build
 - **NORA-W40:** Requires ESP-IDF installation (`python scripts/nora_w40_build.py install`)
 - **NORA-W30:** Requires WSL2 Realtek SDK clone (`wsl -d Ubuntu-24.04 bash -c "... python scripts/nora_w30_build.py clone"`)
 
@@ -287,7 +346,6 @@ See BUILD_TEST_RESULTS.md for detailed status and BUILD_ALL_EXAMPLES.md for comp
 | QUICK_BUILD_REFERENCE.md | Command cheat sheet |
 | REVIEWERS_GUIDE.md | Team review procedures |
 | VENV_SETUP.md | Virtual environment guide |
-| MASTER_REVERT_INSTRUCTIONS.md | Git revert procedures for admin |
 
 ## Helpful Copilot Tasks
 
@@ -320,6 +378,7 @@ Here are things you can ask Copilot for help with:
 
 ---
 
+**Location:** GettingStartedSDK/.github/copilot-instructions.md (workspace root)  
 **Last Updated:** 2026-09-28  
 **Branch:** cmag_getting_started_sdk (under review)  
 **Status:** [OK] IRIS-W10 & NORA-W50/W51 builds verified — W30/W40 ready for build — Hardware testing pending
