@@ -15,6 +15,13 @@ import shutil
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
+# Windows consoles default to cp1252 and raise UnicodeEncodeError on the status glyphs below.
+for _stream in (sys.stdout, sys.stderr):
+    try:
+        _stream.reconfigure(encoding="utf-8", errors="replace")
+    except (AttributeError, OSError):
+        pass
+
 # ============================================================================
 # PLATFORM & ENVIRONMENT DETECTION
 # ============================================================================
@@ -170,14 +177,14 @@ def load_config() -> Dict:
     cfg_path = config_file()
     if cfg_path.exists():
         try:
-            return json.loads(cfg_path.read_text())
+            return json.loads(cfg_path.read_text(encoding="utf-8"))
         except:
             pass
     return {}
 
 def save_config(cfg: Dict) -> None:
     """Save configuration to cache."""
-    config_file().write_text(json.dumps(cfg, indent=2))
+    config_file().write_text(json.dumps(cfg, indent=2), encoding="utf-8")
 
 # ============================================================================
 # COMMANDS
