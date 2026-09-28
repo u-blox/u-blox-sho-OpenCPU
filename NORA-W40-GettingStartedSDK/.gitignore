@@ -1,0 +1,16 @@
+build/
+dist/
+sdkconfig.old
+sdkconfig.json
+.venv/
+venv/
+*.pyc
+__pycache__/
+*.o
+*.a
+*.out
+*.bin
+*.elf
+*.map
+.nora_w40_build.*.json
+esp-idf/
