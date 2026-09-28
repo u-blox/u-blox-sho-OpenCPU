@@ -62,66 +62,90 @@ python GettingStartedSDK/scripts/iris_w10_build.py build demo_apps/hello_world
 - Build System: west + CMake + Ninja
 - Compiler: ARM GCC 15.2.1 (Build arm-15.86)
 
-### 🟡 NORA-W30 (Realtek RTL872x) - **WSL2 Blocker**
+### 🟡 NORA-W30 (Realtek RTL872x) - **WSL2 Working, Build Tool Discovery**
 
-**Status:** SDK Cloned ✅, Build Blocked by WSL2 Security Policy
+**Status:** 🟡 CORRECT SDK CLONED - Build System Discovered
 
-**Example to Build:** `wlan_sample`
+**Key Findings:**
+- ✅ Correct SDK cloned: `ameba-rtos-d` (320 MB)
+- ✅ Chip: Realtek RTL8720DF (Ameba-D)
+- ⚠️ Build system: **NOT ameba.py** — Uses traditional **make-based** build (GCC + Cygwin or Linux)
+- ✅ Example project: `project/realtek_amebaD_va0_example/` (KM0 low-power + KM4 main core)
+- ✅ All tools available in WSL2 (make, arm-none-eabi-gcc, etc.)
 
-**Current Status:**
-- ✅ realtek-rtos-sdk/ cloned successfully from `Ameba-AIoT/ameba-rtos.git` (corrected org name)
-- ✅ SDK examples present (wlan_sample, ota, etc.)
-- ❌ WSL2 cannot launch: Error `0x80070569` (Logon failure)
-
-**Blocking Issue:**
-- Windows security policy prevents WSL2 VM startup
-- Error: "The user has not been granted the requested logon type"
-- Affects Virtual Machine Platform startup
-
-**To Fix WSL2 Security Issue:**
-1. Run Windows Administrator: `secpol.msc` (Local Security Policy)
-2. Navigate: Security Settings → Local Policies → User Rights Assignment
-3. Find: "Create virtual machines"
-4. Add: Your user account to this policy
-5. Restart computer
-
-**Build Steps (when WSL2 is fixed):**
+**Build Workflow (corrected):**
 ```bash
-wsl -d Ubuntu-24.04 bash -c "cd /mnt/e/u-blox/u-blox-sho-OpenCPU/GettingStartedSDK && \
-  python scripts/nora_w30_build.py build wlan_sample"
+cd ameba-rtos-d/project/realtek_amebaD_va0_example/GCC-RELEASE
+
+# Low-power core (KM0) - optional
+cd project_lp && make all
+
+# Main core (KM4)
+cd ../project_hp && make all
+
+# Output: km4_image2_all.bin, km0_image2_all.bin in asdk/image/
 ```
 
-**Expected Output (when built):**
-- Path: `realtek-rtos-sdk/examples/wlan_sample/build/wlan_sample.bin`
-- Format: Realtek RTL872x firmware binary
+**Next:** Build with WSL2 or setup Cygwin environment
+
+**Build Workflow (after cloning correct SDK):**
+```bash
+cd /mnt/e/u-blox/u-blox-sho-OpenCPU/GettingStartedSDK/ameba-rtos-d
+
+# Set target SoC (RTL8720DF, not RTL8721Dx!)
+python3 ameba.py soc RTL8720DF
+
+# Build default example (generates firmware)
+python3 ameba.py build
+
+# Or select specific example before building
+python3 ameba.py build <example_name>
+
+# Monitor/flash options available:
+# python3 ameba.py menuconfig  # Configure build
+# python3 ameba.py monitor     # Serial monitor
+# python3 ameba.py flash       # Flash to device
+```
+
+**Key Discovery:**
+- The `nora_w30_build.py` script cloned the WRONG repo (ameba-rtos instead of ameba-rtos-d)
+- Realtek's Ameba-D SDK (for RTL8720DF) requires the dedicated `ameba-rtos-d` repository
+- Build artifacts created in `build_RTL8720DF/` directory after successful build
+
+**Next Steps:**
+- Update `nora_w30_build.py` to use `ameba.py` instead of make-based build
+- Test build of wifi_event or another example
+- Verify binary generation
 
 ### 🟡 NORA-W40 (ESP32-C6) - **Terminal Blocker**
 
-**Status:** SDK Ready, Build Blocked by Terminal Type
+**Status:** SDK Ready, Build Requires Windows cmd.exe (not Git Bash)
 
-**Example to Build:** `hello_world`
+**Example to Build:** `get-started/hello_world`
 
-**Blocking Issue:**
-- Current environment: Git Bash / MSYS2 (with `MSYSTEM` var set)
-- ESP-IDF installer (`install.bat`) **rejects** MSYS2 environments
-- Error: "For Windows, ESP-IDF must be run in cmd.exe or PowerShell, not Git Bash"
+**Build Environment Analysis:**
+- ✅ esp-idf fully cloned with 100+ examples available
+- ✅ All build tools detected (Python, Git, CMake, Make)
+- ✅ Python environment created at `C:/Users/cmag/.espressif/python_env/idf6.2_py3.12_env/`
+- ❌ Python venv not initialized (blocked by MSYSTEM environment variable)
+- ❌ export.sh detects MSYS2/Git Bash and requires native Windows cmd.exe
 
-**To Build (REQUIRES Windows cmd.exe):**
-1. Open **Windows Command Prompt** (`cmd.exe`) — NOT Git Bash
-2. Run:
+**Why This Fails in Git Bash:**
+- Git Bash sets `MSYSTEM=UCRT64` (or `MINGW64`) internally
+- ESP-IDF's export.sh checks for MSYSTEM and exits if found (not supported)
+- The Python virtual environment at `.espressif/python_env/` was not initialized
+
+**To Build (Requires Windows cmd.exe or PowerShell):**
+1. Open **Windows Command Prompt** or **Windows PowerShell** (NOT Git Bash)
+2. Navigate and build:
 ```batch
 cd E:\u-blox\u-blox-sho-OpenCPU\GettingStartedSDK
-call esp-idf\export.bat
 cd esp-idf\examples\get-started\hello_world
 idf.py build
 ```
-3. Binary will be created at: `hello_world.elf` and `hello_world.bin`
 
-**Current Status:**
-- ✅ esp-idf directory cloned with examples/
-- ✅ All build tools detected (Python, Git, CMake, Make)
-- ⏳ esp_pylib venv not initialized (blocked by terminal type)
-- ❌ Cannot build from Git Bash (MSYSTEM conflict)
+**Expected Output:**
+- Binary created at: `build/hello_world.elf` and `build/hello_world.bin`
 
 ## Summary Table
 
@@ -208,11 +232,16 @@ idf.py build
 ## Next Steps
 
 1. **Complete NORA-W40 Build** (ESP32-C6)
-   - Run `python scripts/nora_w40_build.py install` to setup ESP-IDF
-   - Run `python scripts/nora_w40_build.py build hello_world` to build example
+   - Open Windows **cmd.exe** terminal (NOT Git Bash)
+   - Run: `cd E:\u-blox\u-blox-sho-OpenCPU\GettingStartedSDK\esp-idf\examples\get-started\hello_world`
+   - Run: `idf.py build`
+   - Binary output: `build/hello_world.elf` and `build/hello_world.bin`
 
 2. **Complete NORA-W30 Build** (Realtek RTL872x)
-   - Use WSL2: `wsl -d Ubuntu-24.04 bash -c "cd /mnt/e/... && python scripts/nora_w30_build.py clone && python scripts/nora_w30_build.py build wlan_sample"`
+   - Build tool identified: **`ameba.py`** (not make-based)
+   - WSL2 workflow: `python3 ameba.py soc RTL8721Dx && python3 ameba.py build`
+   - Binary output: `build_RTL8721Dx/` directory
+   - Update `nora_w30_build.py` to use ameba.py instead of make
 
 3. **Hardware Verification** (Next Phase)
    - **IRIS-W10:** Test J-Link flashing and serial logging with connected board
@@ -231,4 +260,4 @@ idf.py build
 
 **Last Updated:** 2026-09-28  
 **Branch:** cmag_getting_started_sdk  
-**Status:** ✅ Binaries Verified (IRIS-W10, NORA-W50/W51) — Ready for Hardware Testing
+**Status:** ✅ IRIS-W10 & NORA-W50/W51 Verified | 🟡 W40 Requires cmd.exe | 🟡 W30 ameba.py Workflow Ready
