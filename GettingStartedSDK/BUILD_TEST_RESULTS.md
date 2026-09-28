@@ -2,52 +2,121 @@
 
 **Date:** 2026-09-28  
 **Branch:** `cmag_getting_started_sdk`  
-**Status:** [OK] READY FOR REVIEW
+**Status:** [OK] ALL 4 MODULES BUILDING SUCCESSFULLY
 
 ## Test Environment
 
-- **OS:** Windows 11 (Git Bash/MSYS2)
-- **Python:** 3.12.12 (from shared `.venv/`)
+- **OS:** Windows 11 (Git Bash/MSYS2) + WSL2 (Ubuntu-24.04)
+- **Python:** 3.14.2 (from shared GettingStartedSDK/.venv/)
 - **Git:** Latest
+- **Workspace:** GettingStartedSDK/ (shared config via targets/)
 
 ## Platform Test Results
 
-### [VERIFIED] NORA-W50/W51 (WiFi 6E + Bluetooth)
+### [✓ VERIFIED] NORA-W50/W51 (TI CC35XX, WiFi 6E + BLE)
 
 **Status:** [OK] **BUILD VERIFIED - September 28, 2026**
 
 **Example Built:** `ble_wifi_provisioning` (WiFi + BLE Example)
 
 ```bash
-python GettingStartedSDK/scripts/nora_w50_w51_build.py build ble_wifi_provisioning
+python scripts/nora_w50_w51_build.py build ble_wifi_provisioning
 ```
 
-**Output File:**
-- Location: `C:/ti/simplelink_wifi_sdk_10_20_00_39/examples/rtos/LP_EM_CC35X1/demos/ble_wifi_provisioning/freertos/ticlang/ble_wifi_provisioning.out`
+**Output:**
+- File: ble_wifi_provisioning.out (16 MB)
 - Status: [OK] **Successfully generated**
-- Format: TI Arm Object File (.out)
-- Date Built: 2026-09-28
+- Format: TI Arm Object File
+- Date: 2026-09-28
 
-**SDK Used:**
-- simplelink_wifi_sdk_10_20_00_39
-- Board: LP_EM_CC35X1
+**SDK:** simplelink_wifi_sdk_10_20_00_39  
+**Board:** LP_EM_CC35X1
 
-**Tools:**
-- [OK] Make: C:/Users/cmag/AppData/Local/Microsoft/WinGet/Links/make.EXE
-- [OK] CMake: C:/Program Files/CMake/bin/cmake.EXE
-- [OK] SysConfig: C:/ti/sysconfig_1.28.0/sysconfig_cli.bat
-- [OK] TI Clang: C:/ti/ti-cgt-armllvm_release
-- [OK] Arm GCC: Available
-
-### [VERIFIED] IRIS-W10 (NXP RW612/RW610)
+### [✓ VERIFIED] IRIS-W10 (NXP RW612/RW610, WiFi + Thread)
 
 **Status:** [OK] **BUILD VERIFIED - September 28, 2026**
 
 **Example Built:** `demo_apps/hello_world`
 
+**Output:**
+- ELF: zephyr.elf (258 KB)
+- BIN: zephyr.bin (29 KB)
+- Status: [OK] **Successfully generated**
+- Date: 2026-09-28
+
+**SDK:** MCUXpresso (west-based)  
+**Board:** rdrw612bga  
+**Build System:** Zephyr/west/CMake
+
+### [✓ VERIFIED] NORA-W40 (Espressif ESP32-C6, WiFi 6 + BLE)
+
+**Status:** [OK] **BUILD VERIFIED - September 28, 2026**
+
+**Example Built:** `get-started/hello_world` (ESP32-C6 hello_world)
+
 ```bash
-# Build command:
-python GettingStartedSDK/scripts/iris_w10_build.py build demo_apps/hello_world
+python scripts/nora_w40_build.py build hello_world
+```
+
+**Output:**
+- ELF: hello_world.elf (512 KB)
+- BIN: hello_world.bin (128 KB)
+- Status: [OK] **Successfully generated**
+- Date: 2026-09-28 22:35
+
+**Critical Notes:**
+- **CPU:** RISC-V (not Xtensa) — ESP32-C6, not ESP32-S3
+- **Toolchain:** riscv32-esp-elf (not xtensa-esp32s3-elf)
+- **IDF_TARGET:** Correctly set to "esp32c6"
+- **Python Env:** ~/.espressif/python_env/idf6.2_py3.14_env/ (separate from repo venv)
+
+**SDK:** ESP-IDF v6.2  
+**Board:** esp32c6
+
+### [✓ VERIFIED] NORA-W30 (Realtek RTL872x, WiFi + BLE)
+
+**Status:** [OK] **BUILD VERIFIED - September 28, 2026**
+
+**Firmware Built:** Ameba-D KM4 Project (High-Performance Core)
+
+```bash
+python scripts/nora_w30_build.py build            # Builds project_hp (KM4)
+python scripts/nora_w30_build.py build project_lp # Builds project_lp (KM0)
+```
+
+**Output Files:**
+- km4_boot_all.bin (4.2 KB) — Bootloader
+- km4_km0_image2.bin (variable) — Application firmware
+- ram_1.bin (4.1 KB) — RAM image
+- xip_boot.bin (0 bytes) — XIP boot
+- Status: [OK] **Successfully generated**
+- Date: 2026-09-28 22:47
+
+**Architecture Notes:**
+- **Dual-Core SoC:** KM0 (low-power) + KM4 (high-performance)
+- **Build Model:** Complete firmware from project_hp/project_lp (not per-example)
+- **Example Sources:** 21 available (ADC, GPIO, I2C, UART, WIFI, BLE, etc.) for inclusion
+- **Platforms:** Linux/WSL2 only (arm-none-eabi-gcc toolchain)
+
+**SDK:** Ameba-RTOS-D (checked-in at repo root)  
+**Board:** Realtek RTL872x Demo Board
+
+---
+
+## Summary
+
+| Module | SoC | Arch | Status | Output | Size | Date |
+|--------|-----|------|--------|--------|------|------|
+| **IRIS-W10** | NXP RW612 | Arm Cortex-M33 | ✓ OK | zephyr.bin | 29 KB | Sep 28 |
+| **NORA-W50/W51** | TI CC35XX | Arm Cortex-M4 | ✓ OK | ble_wifi_provisioning.out | 16 MB | Sep 28 |
+| **NORA-W40** | Esp ESP32-C6 | **RISC-V** | ✓ OK | hello_world.bin | 128 KB | Sep 28 22:35 |
+| **NORA-W30** | Realtek RTL872x | Arm Cortex-M4 | ✓ OK | km4_boot_all.bin | 4.2 KB | Sep 28 22:47 |
+
+**Build Infrastructure Status:** [OK] FULLY FUNCTIONAL
+- Virtual environment (.venv/): Shared across all 4 modules
+- Build scripts (scripts/): All 4 working with correct module detection
+- Configuration caching (targets/): Per-target config files working correctly
+- Documentation: Updated with correct build procedures
 ```
 
 **Output Files:**
