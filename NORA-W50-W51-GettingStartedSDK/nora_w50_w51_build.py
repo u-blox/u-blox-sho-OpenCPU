@@ -9,15 +9,15 @@ Works on Windows, WSL2 and native Linux. It can use either:
 
 Typical flow:
 
-    python ti_w5_build.py doctor                    # what is installed / missing
-    python ti_w5_build.py configure                 # write tool paths into imports.mak
-    python ti_w5_build.py build-sdk                 # build SDK libraries (slow, once)
-    python ti_w5_build.py list                      # show available examples
-    python ti_w5_build.py build network_terminal
+    python nora_w50_w51_build.py doctor                    # what is installed / missing
+    python nora_w50_w51_build.py configure                 # write tool paths into imports.mak
+    python nora_w50_w51_build.py build-sdk                 # build SDK libraries (slow, once)
+    python nora_w50_w51_build.py list                      # show available examples
+    python nora_w50_w51_build.py build network_terminal
 
 If you have no installed SDK, get one with:
 
-    python ti_w5_build.py clone
+    python nora_w50_w51_build.py clone
 """
 
 from __future__ import annotations
@@ -33,6 +33,13 @@ import sys
 from pathlib import Path
 
 SCRIPT_DIR = Path(__file__).resolve().parent
+
+# Windows consoles default to cp1252 and raise UnicodeEncodeError on the status glyphs below.
+for _stream in (sys.stdout, sys.stderr):
+    try:
+        _stream.reconfigure(encoding="utf-8", errors="replace")
+    except (AttributeError, OSError):
+        pass
 
 DEFAULT_BOARD = "LP_EM_CC35X1"
 
@@ -79,7 +86,7 @@ class Fail(Exception):
 
 
 def log(msg: str) -> None:
-    print(f"[ti-w5] {msg}", flush=True)
+    print(f"[nora-w50-w51] {msg}", flush=True)
 
 
 def run(cmd: list[str], cwd: Path | None = None, check: bool = True) -> int:
@@ -238,13 +245,13 @@ def detect_tools() -> dict[str, str]:
 # --------------------------------------------------------------------------- #
 
 def config_file() -> Path:
-    return SCRIPT_DIR / f".ti_w5_build.{HOST}.json"
+    return SCRIPT_DIR / f".nora_w50_w51_build.{HOST}.json"
 
 
 def load_config() -> dict:
     f = config_file()
     try:
-        return json.loads(f.read_text()) if f.exists() else {}
+        return json.loads(f.read_text(encoding="utf-8")) if f.exists() else {}
     except json.JSONDecodeError:
         return {}
 
@@ -252,7 +259,7 @@ def load_config() -> dict:
 def save_config(**updates) -> None:
     cfg = load_config()
     cfg.update({k: v for k, v in updates.items() if v is not None})
-    config_file().write_text(json.dumps(cfg, indent=2, sort_keys=True) + "\n")
+    config_file().write_text(json.dumps(cfg, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 
 
 def resolve_tools(args) -> dict[str, str]:
@@ -267,12 +274,12 @@ def resolve_tools(args) -> dict[str, str]:
 
 
 def default_workspace() -> Path:
-    env = os.environ.get("TI_W5_WORKSPACE")
+    env = os.environ.get("NORA_W50_W51_WORKSPACE")
     if env:
         return Path(env).expanduser().resolve()
     if HOST == "wsl":
         # /mnt/<drive> builds are painfully slow under WSL2.
-        return Path.home() / "ti-w5"
+        return Path.home() / "nora-w50-w51"
     return SCRIPT_DIR / "workspace"
 
 
@@ -341,7 +348,7 @@ def active_tree(args) -> Tree:
         raise Fail(
             "no SDK found. Either install the TI SimpleLink Wi-Fi SDK "
             "(https://www.ti.com/tool/download/SIMPLELINK-WIFI-SDK), "
-            "or run: python ti_w5_build.py clone"
+            "or run: python nora_w50_w51_build.py clone"
         )
 
     wanted = getattr(args, "source", None) or load_config().get("source")
@@ -479,7 +486,7 @@ def cmd_doctor(args) -> None:
     if missing:
         print("\nmissing: " + ", ".join(missing))
         print("See README.md section 2 for download links, or pass explicit paths:")
-        print("  python ti_w5_build.py configure --gcc_armcompiler <dir>")
+        print("  python nora_w50_w51_build.py configure --gcc_armcompiler <dir>")
     else:
         print("\nall required tools found.")
     print()
@@ -504,6 +511,21 @@ def cmd_clone(args) -> None:
             run(["git", "clone", "--recurse-submodules", url, str(dest)])
 
     save_config(workspace=str(ws))
+
+
+def cmd_install(args) -> None:
+    """Show TI toolchain installation info."""
+    log("✅ Environment Setup for NORA-W50/W51 (TI SimpleLink)\n")
+    log("TI toolchain consists of separate installers:\n")
+    log("  1. SysConfig      → https://www.ti.com/tool/SYSCONFIG")
+    log("  2. TI Arm Clang   → https://www.ti.com/tool/download/ARM-CGT-CLANG")
+    log("  3. Arm GNU        → https://developer.arm.com/downloads/-/arm-gnu-toolchain-downloads")
+    log("  4. CMake          → https://cmake.org/download")
+    log("  5. SimpleLink SDK → https://www.ti.com/tool/download/SIMPLELINK-WIFI-SDK")
+    log("      or clone:    → https://github.com/TexasInstruments/simplelink-wifi-sdk\n")
+    log("To verify installation, run:")
+    log("  python nora_w50_w51_build.py doctor\n")
+    log("For detailed setup instructions, see README.md section 2.\n")
 
 
 def cmd_configure(args) -> None:
@@ -614,12 +636,12 @@ def cmd_all(args) -> None:
 
 def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(
-        prog="ti_w5_build.py",
+        prog="nora_w50_w51_build.py",
         description=__doc__,
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     p.add_argument("--workspace", help="where cloned repos live "
-                                       "(default: ~/ti-w5 on WSL, ./workspace otherwise)")
+                                       "(default: ~/nora-w50-w51 on WSL, ./workspace otherwise)")
     p.add_argument("--sdk", help="use this SDK root directly")
     p.add_argument("--source", choices=["installed", *REPOS], help="which SDK tree to use")
     for key in TOOL_KEYS:
@@ -644,6 +666,8 @@ def build_parser() -> argparse.ArgumentParser:
     sp = add("clone", cmd_clone, "clone TI example repos (SDK included as submodule)")
     sp.add_argument("--repo", choices=[*REPOS, "both"], default="both")
     sp.add_argument("--update", action="store_true", help="pull latest if already cloned")
+
+    add("install", cmd_install, "show TI toolchain installation info")
 
     add("configure", cmd_configure, "write tool paths into imports.mak (backs up as .orig)")
 
