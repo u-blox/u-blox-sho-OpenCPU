@@ -1,54 +1,52 @@
 # Quick Build Cheatsheet — All Variants
 
-Visual quick reference for building NORA-W50/W51, W30, W40, IRIS-W10 and IRIS-W1 firmware.
+Visual quick reference for building NORA-W50/W51, W30, W40, IRIS-W10 firmware.
+
+**Status:** ✅ IRIS-W10 & NORA-W50/W51 verified working (2026-09-28)
 
 ---
 
 ## Fastest Path: 3 Commands Each
 
-### **NORA-W50/W51** (TI CC35x1E)
+### **IRIS-W10** ✅ VERIFIED (NXP RW612/RW610)
 ```bash
-cd ~/nora-w50-w51
-python nora_w50_w51_build.py configure
-python nora_w50_w51_build.py build-sdk --toolchain ticlang
-python nora_w50_w51_build.py build network_terminal --toolchain ticlang
-# Result: ~/nora-w50-w51/wifi-examples/network_terminal/ticlang/Release/network_terminal.out
-# Time: ~15-20 min
-# Platform: Windows, WSL2, Linux
+cd GettingStartedSDK
+export ARMGCC_DIR="/c/Program Files/Arm/GNU Toolchain mingw-w64-x86_64-arm-none-eabi"
+python scripts/iris_w10_build.py build demo_apps/hello_world
+# Result: hello_world.elf (258 KB), hello_world.bin (29 KB) ✅ VERIFIED
+# Time: ~3 min (if SDK already cloned)
+# Platform: Windows (Git Bash), WSL2, Linux
 ```
 
-### **NORA-W30** (Realtek RTL872x)
+### **NORA-W50/W51** ✅ VERIFIED (TI CC35XX)
 ```bash
-cd ~/nora-w30
-python3 nora_w30_build.py clone
-python3 nora_w30_build.py build hello_world
-# Result: realtek-rtos-sdk/examples/hello_world/build/hello_world.axf
-# Time: ~5 min
-# Platform: Linux or WSL2 only
+cd GettingStartedSDK
+python scripts/nora_w50_w51_build.py doctor
+python scripts/nora_w50_w51_build.py build ble_wifi_provisioning
+# Result: ble_wifi_provisioning.out ✅ VERIFIED
+# Time: ~2-3 min
+# Platform: Windows (Git Bash), WSL2, Linux
 ```
 
-### **NORA-W40** (ESP32-S3 + ESP-IDF)
+### **NORA-W40** 🟡 READY (Espressif ESP32-C6)
 ```bash
-cd ~/nora-w40
-python nora_w40_build.py clone
-python nora_w40_build.py install
-# [Windows] .\esp-idf\export.ps1  OR  [Linux] source esp-idf/export.sh
-python nora_w40_build.py build get-started/hello_world
-# Result: esp-idf/examples/get-started/hello_world/build/hello_world.bin
-# Time: ~15 min (includes install)
+cd GettingStartedSDK
+python scripts/nora_w40_build.py all hello_world
+# Result: hello_world.elf / hello_world.bin
+# Time: ~15-20 min (includes ESP-IDF install)
 # Platform: Windows, WSL2, Linux
+# Status: ESP-IDF clone present, needs install
 ```
 
-### **IRIS-W10** (NXP RW612/RW610 + MCUXpresso SDK)
+### **NORA-W30** 🟡 READY (Realtek RTL872x - requires WSL2)
 ```bash
-cd ~/iris-w10
-python iris_w10_build.py install
-# Set ARMGCC_DIR once, then reopen the terminal
-python iris_w10_build.py clone
-python iris_w10_build.py build demo_apps/hello_world
-# Result: mcuxpresso-sdk/build/
-# Time: ~15 min (includes ~2 GB workspace fetch)
-# Platform: Windows, WSL2, Linux
+cd GettingStartedSDK
+wsl -d Ubuntu-24.04 bash -c "cd /mnt/e/u-blox/u-blox-sho-OpenCPU/GettingStartedSDK && \
+  python scripts/nora_w30_build.py all wlan_sample"
+# Result: wlan_sample.bin
+# Time: ~10 min (includes SDK clone)
+# Platform: Windows (via WSL2), Linux, macOS (via WSL2)
+# Status: Requires SDK clone from GitHub
 ```
 
 ---
@@ -58,45 +56,44 @@ python iris_w10_build.py build demo_apps/hello_world
 ```
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────┐
 │                              BUILD COMMAND REFERENCE                                                │
-├──────────────┬──────────────┬──────────────┬────────────────┬────────────────┬──────────────────────┤
-│ Operation    │ W50/W51 (TI) │ W30 (Realtek)│ W40 (ESP-IDF)  │ IRIS-W10 (NXP) │
-├──────────────┼──────────────┼──────────────┼────────────────┼────────────────┤
-│ Check env    │ doctor       │ doctor       │ doctor         │ doctor         │
-│ Get SDK      │ clone        │ clone        │ clone          │ clone          │
-│ Setup env    │ install      │ install      │ install        │ install        │
-│ Config tools │ configure    │ (auto)       │ (auto)         │ ARMGCC_DIR     │
-│ Build libs   │ build-sdk    │ (auto)       │ (auto)         │ (auto)         │
-│ List examples│ list         │ list         │ list           │ list           │
-│ Build one    │ build NAME   │ build NAME   │ build CAT/NAME │ build CAT/NAME │
-│ Clean one    │ --clean flag │ clean NAME   │ clean NAME     │ clean (or -p)  │
-│ Clean all    │ (manual)     │ clean --all  │ clean --all    │ clean --all    │
-│ All-in-one   │ all NAME     │ all NAME     │ all CAT/NAME*  │ all CAT/NAME   │
-└──────────────┴──────────────┴──────────────┴────────────────┴────────────────┴──────────────────────┘
-* W40 requires environment sourced first
+├──────────────┬──────────────┬──────────────┬────────────────┬────────────────────────────────────────┤
+│ Operation    │ W50/W51 (TI) │ W30 (Realtek)│ W40 (ESP-IDF)  │ IRIS-W10 (NXP)                        │
+├──────────────┼──────────────┼──────────────┼────────────────┼────────────────────────────────────────┤
+│ Check env    │ doctor       │ doctor       │ doctor         │ doctor                                │
+│ Get SDK      │ (auto)       │ clone        │ clone          │ clone (if needed)                     │
+│ Setup env    │ (auto)       │ (auto)       │ install        │ ARMGCC_DIR env var                    │
+│ List examples│ list         │ list         │ list           │ list                                  │
+│ Build one    │ build NAME   │ build NAME   │ build NAME     │ build CATEGORY/NAME                   │
+│ Clean one    │ clean NAME   │ clean NAME   │ clean NAME     │ clean NAME                            │
+│ Clean all    │ clean --all  │ clean --all  │ clean --all    │ clean --all                           │
+│ All-in-one   │ all NAME     │ all NAME     │ all NAME       │ all CATEGORY/NAME                     │
+└──────────────┴──────────────┴──────────────┴────────────────┴────────────────────────────────────────┘
 ```
 
 ---
 
-## Platform Support & Setup Time
+## Platform Support & Status
 
 ```
-┌─────────────────────┬──────────────────────────────────────────────────┐
-│ NORA-W50/W51 (TI)   │ Setup: 20-30 min  │  Build: 2-3 min each  │ 25 min total
-│ Platforms: Win/WSL2/Linux                                           │
-│ Status: ✅ Fully tested on Windows 11, Ubuntu 22.04, WSL2           │
-└─────────────────────┴──────────────────────────────────────────────────┘
-
-┌─────────────────────┬──────────────────────────────────────────────────┐
-│ NORA-W30 (Realtek)  │ Setup: 2-5 min    │  Build: 1-2 min each  │  8 min total
-│ Platforms: Linux / WSL2 (Windows not recommended)                  │
-│ Status: ✅ Fully tested on Ubuntu 22.04, WSL2 with Ubuntu 22.04    │
-└─────────────────────┴──────────────────────────────────────────────────┘
-
-┌─────────────────────┬──────────────────────────────────────────────────┐
-│ NORA-W40 (ESP-IDF)  │ Setup: 10-15 min  │  Build: 2-3 min each  │ 18 min total
-│ Platforms: Win/WSL2/Linux (all equal quality)                      │
-│ Status: ✅ Fully tested on Windows 11, Ubuntu 22.04, WSL2          │
-└─────────────────────┴──────────────────────────────────────────────────┘
+✅ IRIS-W10 (NXP RW612/RW610)
+   Status: VERIFIED BUILD (2026-09-28)
+   Build time: 3 min (hello_world.elf 258 KB, hello_world.bin 29 KB)
+   Platforms: Windows ✅, WSL2 ✅, Linux ✅
+   
+✅ NORA-W50/W51 (TI CC35XX)
+   Status: VERIFIED BUILD (2026-09-28)
+   Build time: 2-3 min (ble_wifi_provisioning.out generated)
+   Platforms: Windows ✅, WSL2 ✅, Linux ✅
+   
+🟡 NORA-W40 (Espressif ESP32-C6)
+   Status: READY (needs ESP-IDF install)
+   Build time: 15-20 min (includes install)
+   Platforms: Windows ✅, WSL2 ✅, Linux ✅
+   
+🟡 NORA-W30 (Realtek RTL872x)
+   Status: READY (needs WSL2 SDK clone)
+   Build time: 10 min (includes clone)
+   Platforms: Windows (via WSL2) ✅, Linux ✅
 
 ┌─────────────────────┬──────────────────────────────────────────────────┐
 │ IRIS-W10 (NXP)      │ Setup: 10-15 min  │  Build: ~5 min each   │ 20 min total

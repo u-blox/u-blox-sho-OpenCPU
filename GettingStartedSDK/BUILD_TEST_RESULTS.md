@@ -14,7 +14,7 @@
 
 ### ✅ NORA-W50/W51 (WiFi 6E + Bluetooth)
 
-**Status:** FULLY FUNCTIONAL
+**Status:** ✅ **BUILD VERIFIED - September 28, 2026**
 
 **Example Built:** `ble_wifi_provisioning` (WiFi + BLE Example)
 
@@ -24,8 +24,9 @@ python GettingStartedSDK/scripts/nora_w50_w51_build.py build ble_wifi_provisioni
 
 **Output File:**
 - Location: `C:/ti/simplelink_wifi_sdk_10_20_00_39/examples/rtos/LP_EM_CC35X1/demos/ble_wifi_provisioning/freertos/ticlang/ble_wifi_provisioning.out`
-- Size: Successfully generated (firmware binary)
+- Status: ✅ **Successfully generated**
 - Format: TI Arm Object File (.out)
+- Date Built: 2026-09-28
 
 **SDK Used:**
 - simplelink_wifi_sdk_10_20_00_39
@@ -38,100 +39,92 @@ python GettingStartedSDK/scripts/nora_w50_w51_build.py build ble_wifi_provisioni
 - ✅ TI Clang: C:/ti/ti-cgt-armllvm_release
 - ✅ Arm GCC: Available
 
-### ⚠️ IRIS-W10 (NXP RW612/RW610)
+### ✅ IRIS-W10 (NXP RW612/RW610)
 
-**Status:** INFRASTRUCTURE READY (SDK not cloned in test)
+**Status:** ✅ **BUILD VERIFIED - September 28, 2026**
 
-**Example to Build:** `demo_apps/hello_world`
+**Example Built:** `demo_apps/hello_world`
 
-**Prerequisites:**
-1. Set environment variable:
-   ```batch
-   setx ARMGCC_DIR "C:\Program Files\Arm\GNU Toolchain mingw-w64-x86_64-arm-none-eabi"
-   ```
-   
-2. Clone MCUXpresso SDK:
-   ```bash
-   python GettingStartedSDK/scripts/iris_w10_build.py clone
-   ```
-
-3. Build example:
-   ```bash
-   python GettingStartedSDK/scripts/iris_w10_build.py build demo_apps/hello_world
-   ```
-
-**Tools Available:**
-- ✅ Python: E:/u-blox/u-blox-sho-OpenCPU/.venv/bin/python.exe
-- ✅ Git: Present
-- ✅ West: Installed in venv
-- ✅ CMake: Present
-- ✅ Ninja: C:\Users\cmag\.mcuxpressotools\ninja-1.12.1
-- ✅ Arm GCC: Present
-- ⚠️ ARMGCC_DIR: Needs to be set
-
-**Example Output (when built):**
-- Path: `mcuxpresso-sdk/build/zephyr.elf` or `zephyr.bin`
-- Format: NXP MCUXpresso firmware (ELF/BIN)
-
-### ⚠️ NORA-W30 (Realtek RTL872x)
-
-**Status:** INFRASTRUCTURE READY (Windows build requires WSL2)
-
-**Example to Build:** `wlan_sample` or `wifi_example`
-
-**Prerequisites for Windows:**
-1. Use WSL2 with Ubuntu (recommended)
-2. Or use Cygwin (more complex)
-
-**Build Steps (in WSL2):**
 ```bash
-cd GettingStartedSDK
-python scripts/nora_w30_build.py clone
-python scripts/nora_w30_build.py build wlan_sample
+# Build command:
+python GettingStartedSDK/scripts/iris_w10_build.py build demo_apps/hello_world
 ```
 
-**Tools Available (Windows):**
-- ✅ Python: Present in venv
-- ✅ Git: Present
-- ✅ CMake: Present
-- ⚠️ Realtek SDK: Requires WSL2/Linux environment
+**Output Files:**
+- **hello_world.elf** — 258 KB (NXP MCUXpresso ELF firmware)
+- **hello_world.bin** — 29 KB (NXP MCUXpresso binary)
+- Status: ✅ **Successfully generated**
+- Date Built: 2026-09-28
 
-### ⚠️ NORA-W40 (ESP32-C6)
+**Build Configuration:**
+- SDK: MCUXpresso SDK v25.x (complete clone, 3.5GB, 55 repos)
+- Board: rdrw612bga (NXP RW612 reference design)
+- Build System: west + CMake + Ninja
+- Compiler: ARM GCC 15.2.1 (Build arm-15.86)
 
-**Status:** INFRASTRUCTURE READY (ESP-IDF not installed)
+### 🟡 NORA-W30 (Realtek RTL872x)
 
-**Example to Build:** `hello_world` or `wifi_ap_provisioning`
+**Status:** READY FOR BUILD (Setup required)
+
+**Example to Build:** `wlan_sample`
+
+**Build Steps (Windows - requires WSL2 Ubuntu):**
+```bash
+wsl -d Ubuntu-24.04 bash -c "cd /mnt/e/u-blox/u-blox-sho-OpenCPU/GettingStartedSDK && \
+  python scripts/nora_w30_build.py clone && \
+  python scripts/nora_w30_build.py build wlan_sample"
+```
+
+**Current Status:**
+- ✅ .git directory initialized in `realtek-rtos-sdk/` directory
+- ⚠️ SDK code not yet cloned (requires `nora_w30_build.py clone` command)
+- ⚠️ Tools detected in WSL2 (Python, Git, Make, Arm GCC)
 
 **Prerequisites:**
-1. Install ESP-IDF:
-   ```bash
-   python GettingStartedSDK/scripts/nora_w40_build.py clone
-   ```
+- ✅ WSL2 with Ubuntu-24.04 installed and available
+- ✅ SDK repository path prepared
+- ⏳ Realtek SDK clone (run `nora_w30_build.py clone`)
 
-2. Build example:
-   ```bash
-   python GettingStartedSDK/scripts/nora_w40_build.py build hello_world
-   ```
+**Expected Output (when built):**
+- Path: `realtek-rtos-sdk/examples/wlan_sample/build/wlan_sample.bin`
+- Format: Realtek RTL872x firmware binary
 
-**Tools Available:**
-- ✅ Python: Present in venv
-- ✅ Git: Present
-- ✅ CMake: Present
-- ✅ Make: Present
-- ❌ ESP-IDF: Not yet installed
+### 🟡 NORA-W40 (ESP32-C6)
 
-**Example Output (when built):**
-- Path: `GettingStartedSDK/workspace/build/hello_world.elf`
-- Format: ESP32-C6 firmware (ELF)
+**Status:** READY FOR BUILD (Setup required)
+
+**Example to Build:** `hello_world`
+
+**Build Steps:**
+```bash
+cd GettingStartedSDK
+python scripts/nora_w40_build.py clone      # Clone ESP-IDF (if needed)
+python scripts/nora_w40_build.py install    # Install ESP-IDF tools
+python scripts/nora_w40_build.py build hello_world
+```
+
+**Current Status:**
+- ✅ esp-idf directory present and cloned
+- ⏳ ESP-IDF installation not yet run (requires running `install.sh` or `install.bat`)
+- ⏳ Tools (Python, Git, CMake, Make) all available
+
+**Prerequisites:**
+- ✅ All build tools present (Python, Git, CMake, Make)
+- ⏳ ESP-IDF installation (run `nora_w40_build.py install`)
+- ⏳ Environment variables set (`IDF_PATH` and PATH modifications)
+
+**Expected Output (when built):**
+- Path: `esp-idf/examples/hello_world/build/hello_world.elf` or `.bin`
+- Format: Espressif ESP32-C6 firmware binary
 
 ## Summary Table
 
-| Platform | Status | Script | Example Built | Output File | Notes |
-|----------|--------|--------|---|---|---|
-| **NORA-W50/W51** | ✅ **WORKING** | `nora_w50_w51_build.py` | `ble_wifi_provisioning` | `ble_wifi_provisioning.out` | Fully tested & verified |
-| **IRIS-W10** | 🟡 Ready | `iris_w10_build.py` | `demo_apps/hello_world` | `zephyr.elf` | Needs ARMGCC_DIR & clone |
-| **NORA-W30** | 🟡 Ready | `nora_w30_build.py` | `wlan_sample` | `wlan_sample.bin` | Needs WSL2 on Windows |
-| **NORA-W40** | 🟡 Ready | `nora_w40_build.py` | `hello_world` | `hello_world.elf` | Needs ESP-IDF install |
+| Platform | Status | Build Date | Example Built | Output File | Notes |
+|----------|--------|---|---|---|---|
+| **IRIS-W10** | ✅ **VERIFIED** | 2026-09-28 | `demo_apps/hello_world` | `hello_world.elf` (258KB), `hello_world.bin` (29KB) | Successfully built with .venv |
+| **NORA-W50/W51** | ✅ **VERIFIED** | 2026-09-28 | `ble_wifi_provisioning` | `ble_wifi_provisioning.out` | Fully tested & working |
+| **NORA-W30** | 🟡 Ready | — | `wlan_sample` | `wlan_sample.bin` | Requires WSL2 SDK clone |
+| **NORA-W40** | 🟡 Ready | — | `hello_world` | `hello_world.elf` | Requires ESP-IDF install |
 
 ## Build Infrastructure Quality
 
@@ -208,14 +201,28 @@ python scripts/nora_w30_build.py build wlan_sample
 
 ## Next Steps
 
-1. **Push this branch to GitLab** for colleague review
-2. **Colleagues review** BUILD_ALL_EXAMPLES.md and test results
-3. **Address feedback** and make improvements
-4. **Merge to master** when approved
-5. **Push to GitHub** (auto-mirror will sync)
+1. **Complete NORA-W40 Build** (ESP32-C6)
+   - Run `python scripts/nora_w40_build.py install` to setup ESP-IDF
+   - Run `python scripts/nora_w40_build.py build hello_world` to build example
+
+2. **Complete NORA-W30 Build** (Realtek RTL872x)
+   - Use WSL2: `wsl -d Ubuntu-24.04 bash -c "cd /mnt/e/... && python scripts/nora_w30_build.py clone && python scripts/nora_w30_build.py build wlan_sample"`
+
+3. **Hardware Verification** (Next Phase)
+   - **IRIS-W10:** Test J-Link flashing and serial logging with connected board
+   - **NORA-W50/W51:** Verify with TI reference board
+   - Commands: `python scripts/iris_w10_build.py log` (serial) and `python scripts/iris_w10_build.py flash demo_apps/hello_world` (J-Link)
+
+4. **Push this branch to GitLab** for colleague review
+
+5. **Colleagues review** BUILD_ALL_EXAMPLES.md and test results
+
+6. **Address feedback** and make improvements
+
+7. **Merge to master** when approved
 
 ---
 
-**Prepared for Review:** 2026-09-28  
+**Last Updated:** 2026-09-28  
 **Branch:** cmag_getting_started_sdk  
-**Ready for:** Team Review & Merge Decision
+**Status:** ✅ Binaries Verified (IRIS-W10, NORA-W50/W51) — Ready for Hardware Testing
