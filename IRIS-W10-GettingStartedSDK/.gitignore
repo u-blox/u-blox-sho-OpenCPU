@@ -1,0 +1,26 @@
+# Build artifacts
+build/
+dist/
+
+# Python virtual environments
+.venv/
+venv/
+*.pyc
+__pycache__/
+
+# Object files & libraries
+*.o
+*.a
+*.out
+*.bin
+*.elf
+*.map
+
+# Config cache (per-platform)
+.iris_w10_build.*.json
+
+# MCUXpresso SDK workspace (large multi-GB)
+mcuxpresso-sdk/
+
+# west metadata
+.west/

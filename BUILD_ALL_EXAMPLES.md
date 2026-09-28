@@ -1,6 +1,6 @@
-# Building NORA-W50/W51, W30, W40 and IRIS-W1 From Scratch
+# Building NORA-W50/W51, W30, W40, IRIS-W10 and IRIS-W1 From Scratch
 
-Complete examples showing how to build firmware for all four u-blox Open CPU module families from initial setup to working examples.
+Complete examples showing how to build firmware for all five u-blox Open CPU module families from initial setup to working examples.
 
 ---
 
@@ -266,20 +266,91 @@ for u-blox board files, calibration data and flash addresses.
 
 ---
 
+## 5. IRIS-W10 (NXP RW612/RW610 / MCUXpresso SDK) — Windows/WSL2/Linux
+
+### Prerequisites
+- Python 3.10+, Git 2.25+
+- CMake 3.30+, Ninja 1.12.1+
+- Arm GNU Toolchain (`arm-none-eabi-gcc`)
+- `ARMGCC_DIR` environment variable pointing at the toolchain root
+- ~2 GB free disk space (board-targeted workspace)
+
+> On Windows the [MCUXpresso Installer](https://github.com/nxp-mcuxpresso/vscode-for-mcux/wiki/Dependency-Installation)
+> installs CMake, Ninja and Arm GCC in one step.
+
+### Complete Build Workflow
+
+```bash
+# Step 1: Navigate to workspace
+cd IRIS-W10-GettingStartedSDK
+
+# Step 2: Check environment
+python iris_w10_build.py doctor
+# Output: Python ✅, Git ✅, West ✅, CMake ✅, Ninja ✅, Arm GCC ✅, workspace ❌ (not yet)
+# Also reports whether ARMGCC_DIR is set
+
+# Step 3: Install west and check remaining toolchain
+python iris_w10_build.py install
+# Runs: pip install -U west
+# Reports: anything still missing + how to set ARMGCC_DIR
+
+# Step 4: Set ARMGCC_DIR (one time, then reopen the terminal)
+# Windows: setx ARMGCC_DIR "C:\Program Files (x86)\Arm GNU Toolchain arm-none-eabi\14.2 rel1"
+# Linux:   export ARMGCC_DIR="/usr"
+
+# Step 5: Initialise the SDK workspace (~2 GB, first time only)
+python iris_w10_build.py clone
+# Runs: west init -m https://github.com/nxp-mcuxpresso/mcuxsdk-manifests.git mcuxpresso-sdk
+#       west update_board --set board rdrw612bga
+# Fetches only the 63 repositories rdrw612bga needs, not the full ~7 GB SDK
+# Use --full for the complete SDK, or --revision v25.09.00 to pin a release
+
+# Step 6: List available examples
+python iris_w10_build.py list
+# Shows: demo_apps/hello_world, wifi_examples/wifi_cli, etc.
+
+# Step 7: Build an example
+python iris_w10_build.py build demo_apps/hello_world
+# Runs: west build -b rdrw612bga examples/demo_apps/hello_world --toolchain armgcc --config debug
+# Output: mcuxpresso-sdk/build/
+
+# Bare names work too when unambiguous:
+python iris_w10_build.py build hello_world
+
+# Step 8: Release build / pristine rebuild
+python iris_w10_build.py build hello_world --config release
+python iris_w10_build.py build hello_world -p
+
+# Step 9: Or use the full pipeline
+python iris_w10_build.py all demo_apps/hello_world
+# Runs: install → clone → build in sequence
+
+# Step 10: Clean if needed
+python iris_w10_build.py clean          # Remove build directory
+python iris_w10_build.py clean --all    # Remove entire workspace (~2 GB)
+```
+
+### Result
+✅ Firmware ready for flashing to IRIS-W10 via MCU-Link, J-Link/J-Flash Lite (`west flash -r linkserver`),
+or blhost for recovery. See [IRIS-W10-GettingStartedSDK/README.md](IRIS-W10-GettingStartedSDK/README.md)
+for u-blox board files, calibration data and flash addresses.
+
+---
+
 ## Side-by-Side Comparison
 
-| Step | W50/W51 (TI) | W30 (Realtek) | W40 (ESP-IDF) | IRIS-W1 (NXP) |
-|------|--------------|---------------|---------------|---------------|
-| Clone | `clone` | `clone` | `clone` | `clone` |
-| Install | `install` (info) | `install` (info) | `install` (real) | `install` (real) |
-| Configure | `configure` | (automatic) | (automatic) | `ARMGCC_DIR` env var |
-| Library Setup | `build-sdk` | (auto) | (auto) | (auto) |
-| List | `list` | `list` | `list` | `list` |
-| Build | `build <name>` | `build <name>` | `build <category>/<name>` | `build <category>/<name>` |
-| Time | ~10-15 min (SDK) | ~5 min (example) | ~3 min (example) | ~5 min (example) |
-| Output | `.out` (ELF) | `.axf` (ELF) | `.bin` (image) | `.elf` / `.bin` |
-| Platform | Windows/WSL2/Linux | Linux/WSL2 only | Windows/WSL2/Linux | Windows/WSL2/Linux |
-| Build system | CMake + Make | Make | CMake + idf.py | west + CMake + Ninja |
+| Step | W50/W51 (TI) | W30 (Realtek) | W40 (ESP-IDF) | IRIS-W10 (NXP) | IRIS-W1 (NXP) |
+|------|--------------|---------------|---------------|----------------|---------------|
+| Clone | `clone` | `clone` | `clone` | `clone` | `clone` |
+| Install | `install` (info) | `install` (info) | `install` (real) | `install` (real) | `install` (real) |
+| Configure | `configure` | (automatic) | (automatic) | `ARMGCC_DIR` env var | `ARMGCC_DIR` env var |
+| Library Setup | `build-sdk` | (auto) | (auto) | (auto) | (auto) |
+| List | `list` | `list` | `list` | `list` | `list` |
+| Build | `build <name>` | `build <name>` | `build <category>/<name>` | `build <category>/<name>` | `build <category>/<name>` |
+| Time | ~10-15 min (SDK) | ~5 min (example) | ~3 min (example) | ~5 min (example) | ~5 min (example) |
+| Output | `.out` (ELF) | `.axf` (ELF) | `.bin` (image) | `.elf` / `.bin` | `.elf` / `.bin` |
+| Platform | Windows/WSL2/Linux | Linux/WSL2 only | Windows/WSL2/Linux | Windows/WSL2/Linux | Windows/WSL2/Linux |
+| Build system | CMake + Make | Make | CMake + idf.py | west + CMake + Ninja | west + CMake + Ninja |
 
 ---
 
@@ -316,6 +387,19 @@ python nora_w40_build.py clean get-started/hello_world
 # Remove entire ESP-IDF and restart
 python nora_w40_build.py clean --all
 # Then: python nora_w40_build.py clone && python nora_w40_build.py install
+```
+
+### IRIS-W10
+```bash
+# Pristine rebuild of one example
+python iris_w10_build.py build demo_apps/hello_world -p
+
+# Remove the build directory
+python iris_w10_build.py clean
+
+# Remove entire west workspace and restart
+python iris_w10_build.py clean --all
+# Then: python iris_w10_build.py clone
 ```
 
 ### IRIS-W1
@@ -358,6 +442,22 @@ python nora_w40_build.py install
 # On Windows: .\esp-idf\export.ps1
 # On Linux:   source esp-idf/export.sh
 python nora_w40_build.py build get-started/hello_world
+```
+
+### IRIS-W10 – Assume ARMGCC_DIR set, tools installed
+```bash
+cd IRIS-W10-GettingStartedSDK
+python iris_w10_build.py install
+python iris_w10_build.py clone
+python iris_w10_build.py build demo_apps/hello_world
+```
+
+### IRIS-W1 – Assume ARMGCC_DIR set, tools installed
+```bash
+cd IRIS-W1-GettingStartedSDK
+python iris_w1_build.py install
+python iris_w1_build.py clone
+python iris_w1_build.py build demo_apps/hello_world
 ```
 
 ---

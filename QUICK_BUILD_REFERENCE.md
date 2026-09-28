@@ -1,6 +1,6 @@
 # Quick Build Cheatsheet — All Variants
 
-Visual quick reference for building NORA-W50/W51, W30, W40 and IRIS-W1 firmware.
+Visual quick reference for building NORA-W50/W51, W30, W40, IRIS-W10 and IRIS-W1 firmware.
 
 ---
 
@@ -39,6 +39,18 @@ python nora_w40_build.py build get-started/hello_world
 # Platform: Windows, WSL2, Linux
 ```
 
+### **IRIS-W10** (NXP RW612/RW610 + MCUXpresso SDK)
+```bash
+cd ~/iris-w10
+python iris_w10_build.py install
+# Set ARMGCC_DIR once, then reopen the terminal
+python iris_w10_build.py clone
+python iris_w10_build.py build demo_apps/hello_world
+# Result: mcuxpresso-sdk/build/
+# Time: ~15 min (includes ~2 GB workspace fetch)
+# Platform: Windows, WSL2, Linux
+```
+
 ### **IRIS-W1** (NXP RW612 + MCUXpresso SDK)
 ```bash
 cd ~/iris-w1
@@ -56,22 +68,22 @@ python iris_w1_build.py build demo_apps/hello_world
 ## Command Matrix
 
 ```
-┌─────────────────────────────────────────────────────────────────────────────────────────┐
-│                              BUILD COMMAND REFERENCE                                    │
-├──────────────┬──────────────┬──────────────┬────────────────┬──────────────────────────┤
-│ Operation    │ W50/W51 (TI) │ W30 (Realtek)│ W40 (ESP-IDF)  │ IRIS-W1 (NXP)            │
-├──────────────┼──────────────┼──────────────┼────────────────┼──────────────────────────┤
-│ Check env    │ doctor       │ doctor       │ doctor         │ doctor                   │
-│ Get SDK      │ clone        │ clone        │ clone          │ clone                    │
-│ Setup env    │ install      │ install      │ install        │ install                  │
-│ Config tools │ configure    │ (auto)       │ (auto)         │ ARMGCC_DIR env var       │
-│ Build libs   │ build-sdk    │ (auto)       │ (auto)         │ (auto)                   │
-│ List examples│ list         │ list         │ list           │ list                     │
-│ Build one    │ build NAME   │ build NAME   │ build CAT/NAME │ build CAT/NAME           │
-│ Clean one    │ --clean flag │ clean NAME   │ clean NAME     │ clean  (or build -p)     │
-│ Clean all    │ (manual)     │ clean --all  │ clean --all    │ clean --all              │
-│ All-in-one   │ all NAME     │ all NAME     │ all CAT/NAME*  │ all CAT/NAME             │
-└──────────────┴──────────────┴──────────────┴────────────────┴──────────────────────────┘
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│                              BUILD COMMAND REFERENCE                                                │
+├──────────────┬──────────────┬──────────────┬────────────────┬────────────────┬──────────────────────┤
+│ Operation    │ W50/W51 (TI) │ W30 (Realtek)│ W40 (ESP-IDF)  │ IRIS-W10 (NXP) │ IRIS-W1 (NXP)        │
+├──────────────┼──────────────┼──────────────┼────────────────┼────────────────┼──────────────────────┤
+│ Check env    │ doctor       │ doctor       │ doctor         │ doctor         │ doctor               │
+│ Get SDK      │ clone        │ clone        │ clone          │ clone          │ clone                │
+│ Setup env    │ install      │ install      │ install        │ install        │ install              │
+│ Config tools │ configure    │ (auto)       │ (auto)         │ ARMGCC_DIR     │ ARMGCC_DIR env var   │
+│ Build libs   │ build-sdk    │ (auto)       │ (auto)         │ (auto)         │ (auto)               │
+│ List examples│ list         │ list         │ list           │ list           │ list                 │
+│ Build one    │ build NAME   │ build NAME   │ build CAT/NAME │ build CAT/NAME │ build CAT/NAME       │
+│ Clean one    │ --clean flag │ clean NAME   │ clean NAME     │ clean (or -p)  │ clean (or build -p)  │
+│ Clean all    │ (manual)     │ clean --all  │ clean --all    │ clean --all    │ clean --all          │
+│ All-in-one   │ all NAME     │ all NAME     │ all CAT/NAME*  │ all CAT/NAME   │ all CAT/NAME         │
+└──────────────┴──────────────┴──────────────┴────────────────┴────────────────┴──────────────────────┘
 * W40 requires environment sourced first
 ```
 
@@ -96,6 +108,12 @@ python iris_w1_build.py build demo_apps/hello_world
 │ NORA-W40 (ESP-IDF)  │ Setup: 10-15 min  │  Build: 2-3 min each  │ 18 min total
 │ Platforms: Win/WSL2/Linux (all equal quality)                      │
 │ Status: ✅ Fully tested on Windows 11, Ubuntu 22.04, WSL2          │
+└─────────────────────┴──────────────────────────────────────────────────┘
+
+┌─────────────────────┬──────────────────────────────────────────────────┐
+│ IRIS-W10 (NXP)      │ Setup: 10-15 min  │  Build: ~5 min each   │ 20 min total
+│ Platforms: Win/WSL2/Linux                                           │
+│ Status: ✅ Tooling + workspace init verified on Windows 11, Ubuntu. │
 └─────────────────────┴──────────────────────────────────────────────────┘
 
 ┌─────────────────────┬──────────────────────────────────────────────────┐
@@ -125,10 +143,15 @@ Create one folder per variant (recommended):
 │   ├── realtek-rtos-sdk/
 │   └── .nora_w30_build.linux.json
 │
-└── nora-w40/                  # NORA-W40 (ESP-IDF)
+├── nora-w40/                  # NORA-W40 (ESP-IDF)
 │   ├── nora_w40_build.py
 │   ├── esp-idf/
 │   └── .nora_w40_build.windows.json  (or .wsl/.linux)
+│
+├── iris-w10/                  # IRIS-W10 (NXP RW612/RW610)
+│   ├── iris_w10_build.py
+│   ├── mcuxpresso-sdk/        # west workspace (manifests/ + mcuxsdk/)
+│   └── .iris_w10_build.windows.json  (or .wsl/.linux)
 │
 └── iris-w1/                   # IRIS-W1 (NXP RW612)
     ├── iris_w1_build.py
@@ -280,12 +303,23 @@ source esp-idf/export.sh  # Linux/WSL2
 .\esp-idf\export.ps1      # Windows PowerShell
 ```
 
+**IRIS-W10:**
+```bash
+# Required — the MCUXpresso build system locates the compiler through this.
+# Point at the toolchain ROOT (the folder containing bin/), not bin/ itself.
+export ARMGCC_DIR=/usr                                    # Linux/WSL2
+setx ARMGCC_DIR "C:\Program Files (x86)\Arm GNU Toolchain arm-none-eabi\14.2 rel1"   # Windows
+# (Then restart terminal)
+```
+
 **IRIS-W1:**
 ```bash
 # Required — the MCUXpresso build system locates the compiler through this.
 # Point at the toolchain ROOT (the folder containing bin/), not bin/ itself.
 export ARMGCC_DIR=/usr                                    # Linux/WSL2
 setx ARMGCC_DIR "C:\Program Files (x86)\Arm GNU Toolchain arm-none-eabi\14.2 rel1"   # Windows
+# (Then restart terminal)
+```
 ```
 
 ---
