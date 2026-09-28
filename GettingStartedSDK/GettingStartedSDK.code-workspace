@@ -195,6 +195,18 @@
         "cwd": "${workspaceFolder:GettingStartedSDK (Build Scripts & Infrastructure)}"
       },
       {
+        "name": "Cortex Debug: NORA-W40 (OpenOCD/ESP-Prog)",
+        "type": "cortex-debug",
+        "request": "launch",
+        "servertype": "openocd",
+        "device": "esp32c6",
+        "interface": "jtag",
+        "ipAddress": "localhost",
+        "port": 3333,
+        "cwd": "${workspaceFolder:GettingStartedSDK (Build Scripts & Infrastructure)}/esp-idf/examples/get-started/hello_world",
+        "executable": "${workspaceFolder:GettingStartedSDK (Build Scripts & Infrastructure)}/esp-idf/examples/get-started/hello_world/build/hello_world.elf"
+      },
+      {
         "name": "ESP-IDF Monitor: NORA-W40",
         "type": "debugpy",
         "request": "launch",
