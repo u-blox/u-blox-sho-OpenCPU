@@ -5,6 +5,8 @@ Repository with reference code for u-blox Open CPU modules.
 Choose your product or SDK:
 
 - **[NORA-W50/W51 (TI CC35x1E + FreeRTOS)](#nora-w5051---getting-started-sdk)** — Wi-Fi 6 + Bluetooth LE with automated build tools
+- **[NORA-W30 (Realtek RTL872x)](#nora-w30---getting-started-sdk)** — Wi-Fi 6 + Bluetooth LE, Linux/WSL2 optimized
+- **[NORA-W40 (Espressif ESP32-S3)](#nora-w40---getting-started-sdk)** — Wi-Fi 6 + Bluetooth LE, ESP-IDF, Windows & Linux
 - **[nRF5 SDK](#nrf5-sdk)** — Bluetooth & Wi-Fi for ANNA, NINA, NORA-B, BMD series
 - **[Zephyr RTOS](#zephyr-rtos)** — BMD, MINI-NORA, EVK boards
 - **[MCUxpresso](#mcuxpresso)** — IRIS EVK examples
@@ -20,6 +22,28 @@ Complete cross-platform build driver and comprehensive getting-started guide for
 - Verified working with TI SimpleLink Wi-Fi SDK 10.20.00.39 and toolchains: SysConfig 1.28.0, TI Arm Clang, Arm GNU Toolchain, CMake, and GNU Make
 
 📖 **See [NORA-W50-W51-GettingStartedSDK/README.md](NORA-W50-W51-GettingStartedSDK/README.md) for complete setup instructions.**
+
+## NORA-W30 - Getting Started SDK
+Complete cross-platform build driver and comprehensive getting-started guide for NORA-W30 Open CPU modules (based on Realtek RTL872x SoC with Wi-Fi 6 and Bluetooth LE 5.3).
+
+**What's included:**
+- **nora_w30_build.py**: Automated build orchestration (clone → configure → build) for Linux/WSL2
+- **README.md**: Full getting-started guide with prerequisites, build instructions, and example reference
+- Native Linux support; Windows via WSL2 recommended; Cygwin not supported
+- Verified with Ameba-RTOS and Realtek toolchain
+
+📖 **See [NORA-W30-GettingStartedSDK/README.md](NORA-W30-GettingStartedSDK/README.md) for complete setup instructions.**
+
+## NORA-W40 - Getting Started SDK
+Complete cross-platform build driver and comprehensive getting-started guide for NORA-W40 Open CPU modules (based on Espressif ESP32-S3 SoC with Wi-Fi 6 and Bluetooth LE 5.3).
+
+**What's included:**
+- **nora_w40_build.py**: Automated build orchestration (clone → configure → build examples) for Windows, WSL2, and Linux
+- **README.md**: Full getting-started guide with prerequisites, build instructions, ESP-IDF examples, and custom app development
+- Excellent support on both Windows (native) and Linux with latest ESP-IDF v5.x
+- Verified with Espressif ESP-IDF toolchain
+
+📖 **See [NORA-W40-GettingStartedSDK/README.md](NORA-W40-GettingStartedSDK/README.md) for complete setup instructions.**
 
 ## nRF5 SDK
 Bluetooth and Wi-Fi enabled modules with Nordic nRF5 SDK support.
