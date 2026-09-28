@@ -1,0 +1,112 @@
+{
+  "folders": [
+    {
+      "path": ".",
+      "name": "GettingStartedSDK (Build Scripts & Infrastructure)"
+    },
+    {
+      "path": "..",
+      "name": "Repository Root (Documentation & Extras)"
+    }
+  ],
+  "settings": {
+    "python.defaultInterpreterPath": "${workspaceFolder:GettingStartedSDK (Build Scripts & Infrastructure)}/.venv/bin/python",
+    "python.linting.enabled": true,
+    "python.linting.pylintEnabled": true,
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "ms-python.python",
+    "[python]": {
+      "editor.defaultFormatter": "ms-python.python",
+      "editor.formatOnSave": true,
+      "editor.codeActionsOnSave": {
+        "source.organizeImports": "explicit"
+      }
+    },
+    "[markdown]": {
+      "editor.wordWrap": "on",
+      "editor.formatOnSave": true
+    },
+    "files.exclude": {
+      "**/mcuxpresso-sdk": true,
+      "**/esp-idf": true,
+      "**/ameba-rtos-d": false,
+      "**/.git": true,
+      "**/__pycache__": true,
+      "**/.pytest_cache": true,
+      "**/.venv": false
+    },
+    "search.exclude": {
+      "**/mcuxpresso-sdk": true,
+      "**/esp-idf": true,
+      "**/ameba-rtos-d": true,
+      "**/.venv": true,
+      "**/targets/*/sdk/**": true
+    },
+    "files.watcherExclude": {
+      "**/targets/*/sdk/**": true,
+      "**/ameba-rtos-d/**": true,
+      "**/esp-idf/**": true,
+      "**/mcuxpresso-sdk/**": true
+    },
+    "terminal.integrated.env.linux": {
+      "PYTHONPATH": "${workspaceFolder:GettingStartedSDK (Build Scripts & Infrastructure)}"
+    },
+    "terminal.integrated.env.osx": {
+      "PYTHONPATH": "${workspaceFolder:GettingStartedSDK (Build Scripts & Infrastructure)}"
+    },
+    "terminal.integrated.env.windows": {
+      "PYTHONPATH": "${workspaceFolder:GettingStartedSDK (Build Scripts & Infrastructure)}"
+    }
+  },
+  "extensions": {
+    "recommendations": [
+      "ms-python.python",
+      "ms-python.vscode-pylance",
+      "ms-cmake-tools.cmake-tools",
+      "ms-vscode.cmake-language-support",
+      "marus25.cortex-debug",
+      "gitlab.gitlab-workflow"
+    ]
+  },
+  "launch": {
+    "version": "0.2.0",
+    "configurations": [
+      {
+        "name": "IRIS-W10 (nora_w10_build.py)",
+        "type": "debugpy",
+        "request": "launch",
+        "program": "${workspaceFolder:GettingStartedSDK (Build Scripts & Infrastructure)}/scripts/iris_w10_build.py",
+        "console": "integratedTerminal",
+        "args": ["build", "hello_world"],
+        "justMyCode": false
+      },
+      {
+        "name": "NORA-W50/W51 (nora_w50_w51_build.py)",
+        "type": "debugpy",
+        "request": "launch",
+        "program": "${workspaceFolder:GettingStartedSDK (Build Scripts & Infrastructure)}/scripts/nora_w50_w51_build.py",
+        "console": "integratedTerminal",
+        "args": ["list"],
+        "justMyCode": false
+      },
+      {
+        "name": "NORA-W30 (nora_w30_build.py)",
+        "type": "debugpy",
+        "request": "launch",
+        "program": "${workspaceFolder:GettingStartedSDK (Build Scripts & Infrastructure)}/scripts/nora_w30_build.py",
+        "console": "integratedTerminal",
+        "args": ["doctor"],
+        "justMyCode": false
+      },
+      {
+        "name": "NORA-W40 (nora_w40_build.py)",
+        "type": "debugpy",
+        "request": "launch",
+        "program": "${workspaceFolder:GettingStartedSDK (Build Scripts & Infrastructure)}/scripts/nora_w40_build.py",
+        "console": "integratedTerminal",
+        "args": ["build", "hello_world"],
+        "justMyCode": false
+      }
+    ]
+  }
+}
