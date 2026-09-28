@@ -87,6 +87,28 @@ def install_west(venv_path):
     subprocess.check_call([pip_exe, "install", "-U", "west"])
     print("✅ west installed successfully")
 
+def install_optional_dependencies(venv_path):
+    """Install optional dependencies for serial logging and flashing."""
+    pip_exe = get_pip_executable(venv_path)
+    
+    if not os.path.exists(pip_exe):
+        return
+    
+    print("📥 Installing optional dependencies (pyserial, pylink)...")
+    try:
+        # Install pyserial for serial port communication
+        subprocess.run([pip_exe, "install", "pyserial"], check=True, capture_output=True)
+        print("   ✅ pyserial (for serial logging)")
+    except:
+        print("   ⚠️  pyserial installation skipped (optional)")
+    
+    try:
+        # Install pylink for J-Link flashing
+        subprocess.run([pip_exe, "install", "pylink-square"], check=True, capture_output=True)
+        print("   ✅ pylink-square (for J-Link flashing)")
+    except:
+        print("   ⚠️  pylink-square installation skipped (optional)")
+
 def get_activation_command():
     """Get activation command for this platform."""
     if platform.system() == "Windows":
@@ -104,6 +126,7 @@ def main():
     try:
         venv_path = create_venv()
         install_west(venv_path)
+        install_optional_dependencies(venv_path)
         
         activate_cmd = get_activation_command()
         

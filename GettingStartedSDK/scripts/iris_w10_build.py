@@ -16,6 +16,9 @@ import shutil
 from pathlib import Path
 from typing import Dict, List, Optional
 
+# Import serial logger
+import serial_logger
+
 # Windows consoles default to cp1252 and raise UnicodeEncodeError on the status glyphs below.
 for _stream in (sys.stdout, sys.stderr):
     try:
@@ -413,6 +416,61 @@ def cmd_list(args) -> int:
     print(f"  west list_project -p examples/<path> -t {DEFAULT_TOOLCHAIN}\n")
     return 0
 
+def cmd_log(args) -> int:
+    """Open serial monitor for debugging output at 115200 baud."""
+    port = getattr(args, 'port', None)
+    
+    print("\n📡 IRIS-W10 Serial Monitor (115200 baud)")
+    print("   Use Ctrl+C to exit\n")
+    
+    return serial_logger.open_serial_monitor(port, 115200)
+
+def cmd_flash(args) -> int:
+    """Flash firmware using J-Link debugger."""
+    print("\n🔗 IRIS-W10 Flash Utility (J-Link/MCU-Link)\n")
+    
+    import flash_helper
+    
+    # Determine firmware file
+    if not args.example:
+        print("❌ Please specify example to flash")
+        return 1
+    
+    workspace = detect_workspace()
+    if not workspace:
+        print("❌ SDK workspace not found. Run 'python iris_w10_build.py clone' first.")
+        return 1
+    
+    example_path = resolve_example(workspace, args.example)
+    if not example_path:
+        print(f"❌ Example '{args.example}' not found.")
+        return 1
+    
+    # Determine build directory
+    build_config = "release" if args.config == "release" else "debug"
+    build_root = Path(workspace) / "build" / build_config
+    
+    if not build_root.exists():
+        print(f"❌ Build directory not found: {build_root}")
+        print(f"   Build with: python iris_w10_build.py build {args.example}")
+        return 1
+    
+    # Look for firmware files (prefer .hex for J-Link)
+    hex_file = build_root / "zephyr.hex"
+    bin_file = build_root / "zephyr.bin"
+    
+    if not hex_file.exists() and not bin_file.exists():
+        print(f"❌ No firmware found in {build_root}")
+        print(f"   Build with: python iris_w10_build.py build {args.example}")
+        return 1
+    
+    # Flash using J-Link
+    firmware_file = hex_file if hex_file.exists() else bin_file
+    print(f"📝 Firmware: {firmware_file.name}")
+    print(f"   Device: {args.board}\n")
+    
+    return flash_helper.flash_jlink(args.board, str(firmware_file), serial=args.serial)
+
 def resolve_example(workspace: str, name: str) -> Optional[Path]:
     """Map a user-supplied example name to a directory in the workspace."""
     root = examples_root(workspace)
@@ -557,12 +615,16 @@ Examples:
   python iris_w10_build.py list                          # List examples
   python iris_w10_build.py build demo_apps/hello_world   # Build example
   python iris_w10_build.py build hello_world --config release
+  python iris_w10_build.py log                           # Open serial monitor (auto-detect port)
+  python iris_w10_build.py log COM11                     # Open serial monitor on specific port
+  python iris_w10_build.py flash demo_apps/hello_world   # Flash via J-Link (auto-detect)
+  python iris_w10_build.py flash hello_world --serial 1234567
   python iris_w10_build.py clean                         # Remove build directory
   python iris_w10_build.py clean --all                   # Remove entire workspace
   python iris_w10_build.py all demo_apps/hello_world     # Full pipeline
         """
     )
-    parser.add_argument("--board", default=DEFAULT_BOARD,
+    build_parser.add_argument("--board", default=DEFAULT_BOARD,
                         help=f"MCUXpresso board target (default: {DEFAULT_BOARD})")
 
     subparsers = parser.add_subparsers(dest="command", help="Command")
@@ -576,6 +638,10 @@ Examples:
 
     subparsers.add_parser("install", help="Install west and report toolchain status")
     subparsers.add_parser("list", help="List examples")
+    
+    log_parser = subparsers.add_parser("log", help="Open serial monitor for debugging output")
+    log_parser.add_argument("port", nargs="?", default=None, 
+                           help="Serial port (auto-detected if not specified)")
 
     clean_parser = subparsers.add_parser("clean", help="Clean build artifacts")
     clean_parser.add_argument("--all", action="store_true", help="Remove entire workspace")
@@ -586,6 +652,11 @@ Examples:
     build_parser.add_argument("--toolchain", default=DEFAULT_TOOLCHAIN,
                               help=f"toolchain (default: {DEFAULT_TOOLCHAIN})")
     build_parser.add_argument("-p", "--pristine", action="store_true", help="force a clean rebuild")
+
+    flash_parser = subparsers.add_parser("flash", help="Flash example to device using J-Link")
+    flash_parser.add_argument("example", help="Example path or name")
+    flash_parser.add_argument("--config", default="debug", help="debug or release (default: debug)")
+    flash_parser.add_argument("--serial", help="J-Link serial number (auto-detected if not specified)")
 
     all_parser = subparsers.add_parser("all", help="Full pipeline")
     all_parser.add_argument("example", nargs="?", default=DEFAULT_EXAMPLE, help="Example path or name")
@@ -602,8 +673,10 @@ Examples:
         "clone": cmd_clone,
         "install": cmd_install,
         "list": cmd_list,
+        "log": cmd_log,
         "clean": cmd_clean,
         "build": cmd_build,
+        "flash": cmd_flash,
         "all": cmd_all,
     }
 

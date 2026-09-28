@@ -32,6 +32,9 @@ import subprocess
 import sys
 from pathlib import Path
 
+# Import serial logger
+import serial_logger
+
 SCRIPT_DIR = Path(__file__).resolve().parent.parent  # GettingStartedSDK root
 
 # Windows consoles default to cp1252 and raise UnicodeEncodeError on the status glyphs below.
@@ -630,6 +633,52 @@ def cmd_all(args) -> None:
     cmd_build(args)
 
 
+def cmd_log(args) -> None:
+    """Open serial monitor for debugging output."""
+    port = getattr(args, 'port', None)
+    
+    print("\n📡 NORA-W50/W51 Serial Monitor (115200 baud)")
+    print("   Use Ctrl+C to exit\n")
+    
+    import serial_logger
+    serial_logger.open_serial_monitor(port, 115200)
+
+
+def cmd_flash(args) -> None:
+    """Flash firmware using XDS110 or other debugger."""
+    print("\n🔗 NORA-W50/W51 Flash Utility (XDS110)\n")
+    
+    import flash_helper
+    
+    # Find build output
+    tree = active_tree(args)
+    examples = find_examples(tree, args.board)
+    
+    if args.example not in examples:
+        print(f"❌ Example not found: {args.example}")
+        print(f"   Available: {', '.join(examples.keys())}")
+        return
+    
+    bdir = build_dir(examples[args.example], args.toolchain)
+    
+    # Look for firmware files
+    firmware_files = sorted(p for p in bdir.iterdir() 
+                           if p.suffix in (".out", ".axf", ".bin", ".hex"))
+    
+    if not firmware_files:
+        print(f"❌ No firmware found in {bdir}")
+        print("   Build first with: python nora_w50_w51_build.py build {args.example}")
+        return
+    
+    firmware = firmware_files[0]
+    print(f"📝 Flashing: {firmware.name}")
+    print(f"   Location: {bdir}\n")
+    
+    # Flash using XDS110
+    result = flash_helper.flash_xds110(str(firmware), args.serial)
+    sys.exit(result)
+
+
 # --------------------------------------------------------------------------- #
 # CLI
 # --------------------------------------------------------------------------- #
@@ -691,6 +740,16 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("--repo", choices=[*REPOS, "both"], default="both")
     sp.add_argument("--update", action="store_true")
     add_build_opts(sp)
+
+    sp = add("log", cmd_log, "open serial monitor for debugging (115200 baud, auto-detect port)")
+    sp.add_argument("port", nargs="?", default=None, help="serial port (auto-detected if not specified)")
+
+    sp = add("flash", cmd_flash, "flash firmware using XDS110 debugger")
+    sp.add_argument("example", help="example name to flash")
+    sp.add_argument("--serial", help="XDS110 serial number")
+    sp.add_argument("--board", default=DEFAULT_BOARD, help=f"default: {DEFAULT_BOARD}")
+    sp.add_argument("--toolchain", choices=["ticlang", "gcc"], default="ticlang")
+
     return p
 
 
