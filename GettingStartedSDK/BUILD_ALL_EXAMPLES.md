@@ -195,7 +195,7 @@ python nora_w40_build.py clean --all                      # Remove entire ESP-ID
 
 ---
 
-## 4. IRIS-W1 (NXP RW612 / MCUXpresso SDK) — Windows/WSL2/Linux
+## 4. IRIS-W10 (NXP RW612/RW610 / MCUXpresso SDK) — Windows/WSL2/Linux
 
 ### Prerequisites
 - Python 3.10+, Git 2.25+
@@ -211,15 +211,15 @@ python nora_w40_build.py clean --all                      # Remove entire ESP-ID
 
 ```bash
 # Step 1: Navigate to workspace
-cd IRIS-W1-GettingStartedSDK
+cd GettingStartedSDK
 
 # Step 2: Check environment
-python iris_w1_build.py doctor
+python scripts/iris_w10_build.py doctor
 # Output: Python [OK], Git [OK], West [OK], CMake [OK], Ninja [OK], Arm GCC [OK], workspace [FAIL] (not yet)
 # Also reports whether ARMGCC_DIR is set
 
 # Step 3: Install west and check remaining toolchain
-python iris_w1_build.py install
+python scripts/iris_w10_build.py install
 # Runs: pip install -U west
 # Reports: anything still missing + how to set ARMGCC_DIR
 
@@ -228,30 +228,30 @@ python iris_w1_build.py install
 # Linux:   export ARMGCC_DIR="/usr"
 
 # Step 5: Initialise the SDK workspace (~2 GB, first time only)
-python iris_w1_build.py clone
+python scripts/iris_w10_build.py clone
 # Runs: west init -m https://github.com/nxp-mcuxpresso/mcuxsdk-manifests.git mcuxpresso-sdk
 #       west update_board --set board rdrw612bga
 # Fetches only the 63 repositories rdrw612bga needs, not the full ~7 GB SDK
 # Use --full for the complete SDK, or --revision v25.09.00 to pin a release
 
 # Step 6: List available examples
-python iris_w1_build.py list
+python scripts/iris_w10_build.py list
 # Shows: demo_apps/hello_world, wifi_examples/wifi_cli, etc.
 
 # Step 7: Build an example
-python iris_w1_build.py build demo_apps/hello_world
+python scripts/iris_w10_build.py build demo_apps/hello_world
 # Runs: west build -b rdrw612bga examples/demo_apps/hello_world --toolchain armgcc --config debug
 # Output: mcuxpresso-sdk/build/
 
 # Bare names work too when unambiguous:
-python iris_w1_build.py build hello_world
+python scripts/iris_w10_build.py build hello_world
 
 # Step 8: Release build / pristine rebuild
-python iris_w1_build.py build hello_world --config release
-python iris_w1_build.py build hello_world -p
+python scripts/iris_w10_build.py build hello_world --config release
+python scripts/iris_w10_build.py build hello_world -p
 
 # Step 9: Or use the full pipeline
-python iris_w1_build.py all demo_apps/hello_world
+python scripts/iris_w10_build.py all demo_apps/hello_world
 # Runs: install → clone → build in sequence
 
 # Step 10: Clean if needed

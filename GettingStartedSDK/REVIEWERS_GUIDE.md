@@ -100,7 +100,9 @@ python GettingStartedSDK/scripts/nora_w40_build.py build hello_world
   - `BUILD_TEST_RESULTS.md` - This review document
 
 - **Each Build Script**:
-  - Check `config_file()` function - config stored in `GettingStartedSDK/` root
+  - Check `config_file()` function - now delegates to `target_paths.py`
+  - Configs stored per-target: `targets/<TARGET>/config/build.<host>.json`
+  - Legacy root dotfiles (`.iris_w10_build.*.json`) auto-migrated on first run
   - Check `detect_python()` function - handles venv activation
   - Review error handling and tool detection logic
 
@@ -127,8 +129,14 @@ repo/
 ```
 repo/
 └── GettingStartedSDK/
-    ├── scripts/ (4 build drivers)
+    ├── scripts/ (4 build drivers + target_paths.py)
+    ├── targets/ (per-target base folders: sdk/, config/)
+    │   ├── IRIS-W10/
+    │   ├── NORA-W30/
+    │   ├── NORA-W40/
+    │   └── NORA-W50-W51/
     ├── docs/ (4 variant READMEs)
+    ├── .github/ (consolidated instructions)
     ├── setup_venv.py
     ├── BUILD_ALL_EXAMPLES.md
     ├── QUICK_BUILD_REFERENCE.md
@@ -136,7 +144,7 @@ repo/
 ```
 
 ### [OK] Shared Python Environment
-- Single `.venv/` at repo root
+- Single `.venv/` at `GettingStartedSDK/.venv/`
 - `setup_venv.py` initializes venv for all variants
 - Installs `west` for MCUXpresso SDK management
 - Works on Windows, WSL2, and Linux
@@ -153,7 +161,7 @@ repo/
 - [ ] **Build Scripts**: Do all 4 scripts work correctly?
 - [ ] **Documentation**: Are the READMEs clear and complete?
 - [ ] **Venv Setup**: Does `setup_venv.py` work on your system?
-- [ ] **Config Files**: Are `.iris_w10_build.*.json` files created in the right location?
+- [ ] **Config Files**: Are `targets/<TARGET>/config/build.<host>.json` files created?
 - [ ] **Cross-Platform**: Can you test on multiple platforms (Windows, WSL2, Linux)?
 - [ ] **Examples**: Did you successfully build at least one example per variant?
 - [ ] **Output Files**: Are firmware binaries created in expected locations?

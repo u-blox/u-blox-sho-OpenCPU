@@ -5,7 +5,7 @@
 NORA-W40 modules are based on the **Espressif ESP32-C6** SoC with 2.4 GHz Wi-Fi 6 (802.11ax) and Bluetooth LE 5.3. This guide covers building and deploying firmware using the latest **ESP-IDF** (Espressif IoT Development Framework).
 
 **Key Features:**
-- Dual-core Xtensa processor @ 240 MHz
+- Dual-core RISC-V processor @ 160 MHz
 - 2.4 GHz Wi-Fi 6 + Bluetooth LE 5.3
 - 8 MB internal flash, up to 16 MB external flash
 - Excellent Windows & Linux support
@@ -13,7 +13,7 @@ NORA-W40 modules are based on the **Espressif ESP32-C6** SoC with 2.4 GHz Wi-Fi 
 **SDK:** ESP-IDF v5.x (latest stable)  
 **Platforms:** Windows (native), WSL2, Linux (Ubuntu/Debian)  
 **Build System:** CMake + GNU Make  
-**Toolchain:** xtensa-esp32s3-elf (installed via esp-idf-tools)
+**Toolchain:** riscv32-esp-elf (installed via esp-idf-tools)
 
 ---
 
@@ -336,7 +336,7 @@ my-app/
 - **Timer:** `driver/timer.h`
 - **NVS (flash storage):** `nvs_flash.h`
 
-See [ESP-IDF API Reference](https://docs.espressif.com/projects/esp-idf/en/latest/esp32s3/api-reference/index.html).
+See [ESP-IDF API Reference](https://docs.espressif.com/projects/esp-idf/en/latest/esp32c6/api-reference/index.html).
 
 ---
 
@@ -367,7 +367,7 @@ See [ESP-IDF API Reference](https://docs.espressif.com/projects/esp-idf/en/lates
 
 [OK] **ESP-IDF Version:** v5.2.x (latest stable)
 
-[OK] **Toolchain:** xtensa-esp32s3-elf (bundled with ESP-IDF tools)
+[OK] **Toolchain:** riscv32-esp-elf (bundled with ESP-IDF tools)
 
 ---
 
