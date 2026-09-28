@@ -431,14 +431,14 @@ WSL2 file access from Windows Explorer:
 
 ## Verified Setup
 
-✅ **Tested on:**
+[OK] **Tested on:**
 - Ubuntu 24.04 LTS (native)
 - Ubuntu 22.04 LTS (WSL2 on Windows 11)
 - Debian 12 (bookworm)
 
-✅ **Toolchain:** arm-none-eabi-gcc 12.x+
+[OK] **Toolchain:** arm-none-eabi-gcc 12.x+
 
-✅ **SDK:** Ameba-RTOS (latest stable)
+[OK] **SDK:** Ameba-RTOS (latest stable)
 
 ---
 

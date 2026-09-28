@@ -112,7 +112,7 @@ python GettingStartedSDK/scripts/nora_w40_build.py build hello_world
 
 ## What's New (Since Consolidation)
 
-### ✅ Consolidated Structure
+### [OK] Consolidated Structure
 **Before:**
 ```
 repo/
@@ -135,17 +135,17 @@ repo/
     └── BUILD_TEST_RESULTS.md
 ```
 
-### ✅ Shared Python Environment
+### [OK] Shared Python Environment
 - Single `.venv/` at repo root
 - `setup_venv.py` initializes venv for all variants
 - Installs `west` for MCUXpresso SDK management
 - Works on Windows, WSL2, and Linux
 
-### ✅ Verified Working
-- NORA-W50/W51: ✅ Tested - builds WiFi provisioning example
-- IRIS-W10: ✅ Ready - needs SDK clone
-- NORA-W30: ✅ Ready - WSL2 environment
-- NORA-W40: ✅ Ready - needs ESP-IDF
+### [OK] Verified Working
+- NORA-W50/W51: [OK] Tested - builds WiFi provisioning example
+- IRIS-W10: [OK] Ready - needs SDK clone
+- NORA-W30: [OK] Ready - WSL2 environment
+- NORA-W40: [OK] Ready - needs ESP-IDF
 
 ## Review Checklist
 

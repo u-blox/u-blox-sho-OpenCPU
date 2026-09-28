@@ -2,28 +2,28 @@
 
 Visual quick reference for building NORA-W50/W51, W30, W40, IRIS-W10 firmware.
 
-**Status:** ✅ IRIS-W10 & NORA-W50/W51 verified working (2026-09-28)
+**Status:** [OK] IRIS-W10 & NORA-W50/W51 verified working (2026-09-28)
 
 ---
 
 ## Fastest Path: 3 Commands Each
 
-### **IRIS-W10** ✅ VERIFIED (NXP RW612/RW610)
+### **IRIS-W10** [VERIFIED] (NXP RW612/RW610)
 ```bash
 cd GettingStartedSDK
 export ARMGCC_DIR="/c/Program Files/Arm/GNU Toolchain mingw-w64-x86_64-arm-none-eabi"
 python scripts/iris_w10_build.py build demo_apps/hello_world
-# Result: hello_world.elf (258 KB), hello_world.bin (29 KB) ✅ VERIFIED
+# Result: hello_world.elf (258 KB), hello_world.bin (29 KB) [VERIFIED]
 # Time: ~3 min (if SDK already cloned)
 # Platform: Windows (Git Bash), WSL2, Linux
 ```
 
-### **NORA-W50/W51** ✅ VERIFIED (TI CC35XX)
+### **NORA-W50/W51** [VERIFIED] (TI CC35XX)
 ```bash
 cd GettingStartedSDK
 python scripts/nora_w50_w51_build.py doctor
 python scripts/nora_w50_w51_build.py build ble_wifi_provisioning
-# Result: ble_wifi_provisioning.out ✅ VERIFIED
+# Result: ble_wifi_provisioning.out [VERIFIED]
 # Time: ~2-3 min
 # Platform: Windows (Git Bash), WSL2, Linux
 ```
@@ -38,15 +38,17 @@ python scripts/nora_w40_build.py all hello_world
 # Status: ESP-IDF clone present, needs install
 ```
 
-### **NORA-W30** 🟡 READY (Realtek RTL872x - requires WSL2)
+### **NORA-W30** 🟡 NEEDS RE-CLONE (Realtek RTL8720DF - requires WSL2)
 ```bash
+# CORRECTION: Must clone ameba-rtos-d (NOT ameba-rtos)
+# Chip: RTL8720DF (Ameba-D), not RTL8721Dx
 cd GettingStartedSDK
-wsl -d Ubuntu-24.04 bash -c "cd /mnt/e/u-blox/u-blox-sho-OpenCPU/GettingStartedSDK && \
-  python scripts/nora_w30_build.py all wlan_sample"
+python scripts/nora_w30_build.py all wlan_sample
+# Will now clone correct repo: ameba-rtos-d
 # Result: wlan_sample.bin
 # Time: ~10 min (includes SDK clone)
 # Platform: Windows (via WSL2), Linux, macOS (via WSL2)
-# Status: Requires SDK clone from GitHub
+# Status: Script updated to use correct SDK
 ```
 
 ---
@@ -75,30 +77,30 @@ wsl -d Ubuntu-24.04 bash -c "cd /mnt/e/u-blox/u-blox-sho-OpenCPU/GettingStartedS
 ## Platform Support & Status
 
 ```
-✅ IRIS-W10 (NXP RW612/RW610)
+[OK] IRIS-W10 (NXP RW612/RW610)
    Status: VERIFIED BUILD (2026-09-28)
    Build time: 3 min (hello_world.elf 258 KB, hello_world.bin 29 KB)
-   Platforms: Windows ✅, WSL2 ✅, Linux ✅
+   Platforms: Windows [OK], WSL2 [OK], Linux [OK]
    
-✅ NORA-W50/W51 (TI CC35XX)
+[OK] NORA-W50/W51 (TI CC35XX)
    Status: VERIFIED BUILD (2026-09-28)
    Build time: 2-3 min (ble_wifi_provisioning.out generated)
-   Platforms: Windows ✅, WSL2 ✅, Linux ✅
+   Platforms: Windows [OK], WSL2 [OK], Linux [OK]
    
 🟡 NORA-W40 (Espressif ESP32-C6)
    Status: READY (needs ESP-IDF install)
    Build time: 15-20 min (includes install)
-   Platforms: Windows ✅, WSL2 ✅, Linux ✅
+   Platforms: Windows [OK], WSL2 [OK], Linux [OK]
    
 🟡 NORA-W30 (Realtek RTL872x)
    Status: READY (needs WSL2 SDK clone)
    Build time: 10 min (includes clone)
-   Platforms: Windows (via WSL2) ✅, Linux ✅
+   Platforms: Windows (via WSL2) [OK], Linux [OK]
 
 ┌─────────────────────┬──────────────────────────────────────────────────┐
 │ IRIS-W10 (NXP)      │ Setup: 10-15 min  │  Build: ~5 min each   │ 20 min total
 │ Platforms: Win/WSL2/Linux                                           │
-│ Status: ✅ Tooling + workspace init verified on Windows 11, Ubuntu. │
+│ Status: [OK] Tooling + workspace init verified on Windows 11, Ubuntu. │
 └─────────────────────┴──────────────────────────────────────────────────┘
 
 

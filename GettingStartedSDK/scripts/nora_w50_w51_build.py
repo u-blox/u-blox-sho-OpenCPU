@@ -518,7 +518,7 @@ def cmd_clone(args) -> None:
 
 def cmd_install(args) -> None:
     """Show TI toolchain installation info."""
-    log("✅ Environment Setup for NORA-W50/W51 (TI SimpleLink)\n")
+    log("[OK] Environment Setup for NORA-W50/W51 (TI SimpleLink)\n")
     log("TI toolchain consists of separate installers:\n")
     log("  1. SysConfig      → https://www.ti.com/tool/SYSCONFIG")
     log("  2. TI Arm Clang   → https://www.ti.com/tool/download/ARM-CGT-CLANG")
@@ -655,7 +655,7 @@ def cmd_flash(args) -> None:
     examples = find_examples(tree, args.board)
     
     if args.example not in examples:
-        print(f"❌ Example not found: {args.example}")
+        print(f"[FAIL] Example not found: {args.example}")
         print(f"   Available: {', '.join(examples.keys())}")
         return
     
@@ -666,7 +666,7 @@ def cmd_flash(args) -> None:
                            if p.suffix in (".out", ".axf", ".bin", ".hex"))
     
     if not firmware_files:
-        print(f"❌ No firmware found in {bdir}")
+        print(f"[FAIL] No firmware found in {bdir}")
         print("   Build first with: python nora_w50_w51_build.py build {args.example}")
         return
     

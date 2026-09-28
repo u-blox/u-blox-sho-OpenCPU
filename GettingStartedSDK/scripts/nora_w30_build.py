@@ -136,7 +136,7 @@ def cmd_doctor(args) -> int:
     print(f"\n🔍 NORA-W30 Build Environment Check ({current_host})\n")
     
     if current_host == "windows":
-        print("⚠️  Windows detected.")
+        print("[NOTE] Windows detected.")
         print("    Realtek SDK build on Windows requires WSL2 or Cygwin.")
         print("    Recommend: Use WSL2 with Ubuntu instead.\n")
         return 1
@@ -150,7 +150,7 @@ def cmd_doctor(args) -> int:
     
     all_ok = True
     for name, path in tools.items():
-        status = "✅" if path else "❌"
+        status = "[OK]" if path else "[FAIL]"
         print(f"  {status} {name:15} {path or 'NOT FOUND'}")
         if not path:
             all_ok = False
@@ -159,10 +159,10 @@ def cmd_doctor(args) -> int:
     print(f"Config: {config_file()}")
     
     if all_ok:
-        print("\n✅ All tools detected!\n")
+        print("\n[OK] All tools detected!\n")
         return 0
     else:
-        print("\n⚠️  Some tools missing. See README for setup instructions.\n")
+        print("\n[WARNING] Some tools missing. See README for setup instructions.\n")
         return 1
 
 def cmd_clone(args) -> int:
@@ -171,7 +171,7 @@ def cmd_clone(args) -> int:
     
     git = detect_git()
     if not git:
-        print("❌ Git not found!")
+        print("[FAIL] Git not found!")
         return 1
     
     sdk_dir = Path.cwd() / "realtek-rtos-sdk"
@@ -182,8 +182,8 @@ def cmd_clone(args) -> int:
         save_config(cfg)
         return 0
     
-    # Note: URL is placeholder; adjust to actual Realtek SDK repo
-    repo_url = "https://github.com/Ameba-AIoT/ameba-rtos.git"  # Ameba (Realtek IoT) official repo - corrected org name
+    # Note: NORA-W30 uses Realtek RTL8720DF which requires Ameba-D SDK (not main ameba-rtos)
+    repo_url = "https://github.com/Ameba-AIoT/ameba-rtos-d.git"  # Ameba-D SDK (specifically for RTL8720DF used in NORA-W30)
     
     print(f"Cloning from: {repo_url}\n")
     
@@ -193,18 +193,18 @@ def cmd_clone(args) -> int:
     )
     
     if result.returncode == 0:
-        print("\n✅ Realtek SDK cloned successfully!\n")
+        print("\n[OK] Realtek SDK cloned successfully!\n")
         cfg = load_config()
         cfg["sdk_path"] = str(sdk_dir)
         save_config(cfg)
     else:
-        print("\n❌ Clone failed. Check URL and network connection.\n")
+        print("\n[FAIL] Clone failed. Check URL and network connection.\n")
     
     return result.returncode
 
 def cmd_install(args) -> int:
     """Verify Realtek SDK environment (tools already installed via system package manager)."""
-    print("\n✅ Environment Check for NORA-W30 (Realtek RTOS)\n")
+    print("\n[OK] Environment Check for NORA-W30 (Realtek RTOS)\n")
     print("Realtek SDK uses standard Linux tools (arm-none-eabi-gcc, make, git).")
     print("These are installed via your system package manager (apt, yum, etc.).")
     print("\nTo install missing tools, run:")
@@ -229,7 +229,7 @@ def cmd_clean(args) -> int:
             cfg = load_config()
             cfg.pop("sdk_path", None)
             save_config(cfg)
-            print("✅ Realtek SDK removed.\n")
+            print("[OK] Realtek SDK removed.\n")
         else:
             print("ℹ️  Realtek SDK not found.\n")
         return 0
@@ -241,7 +241,7 @@ def cmd_clean(args) -> int:
     
     sdk_path = load_config().get("sdk_path")
     if not sdk_path:
-        print("❌ Realtek SDK not found.\n")
+        print("[FAIL] Realtek SDK not found.\n")
         return 1
     
     example_dir = Path(sdk_path) / "examples" / args.example
@@ -254,7 +254,7 @@ def cmd_clean(args) -> int:
             cwd=example_dir
         )
         if result.returncode == 0:
-            print("\n✅ Build directory cleaned.\n")
+            print("\n[OK] Build directory cleaned.\n")
         return result.returncode
     else:
         print(f"ℹ️  Example directory not found: {example_dir}\n")
@@ -264,12 +264,12 @@ def cmd_clean(args) -> int:
 def cmd_build(args) -> int:
     """Build example application."""
     if not args.example:
-        print("❌ Please specify an example name (e.g., 'ota')")
+        print("[FAIL] Please specify an example name (e.g., 'ota')")
         return 1
     
     sdk_path = load_config().get("sdk_path")
     if not sdk_path or not Path(sdk_path).exists():
-        print("❌ Realtek SDK not found. Run 'python nora_w30_build.py clone' first.")
+        print("[FAIL] Realtek SDK not found. Run 'python nora_w30_build.py clone' first.")
         return 1
     
     # Realtek SDK structure varies; adjust paths as needed
@@ -279,7 +279,7 @@ def cmd_build(args) -> int:
         example_dir = Path(sdk_path) / "project" / "realtek_amebaZ" / args.example
     
     if not example_dir.exists():
-        print(f"❌ Example '{args.example}' not found.")
+        print(f"[FAIL] Example '{args.example}' not found.")
         return 1
     
     print(f"\n🔨 Building example: {args.example}\n")
@@ -300,7 +300,7 @@ def cmd_list(args) -> int:
     """List available examples."""
     sdk_path = load_config().get("sdk_path")
     if not sdk_path or not Path(sdk_path).exists():
-        print("❌ Realtek SDK not found.")
+        print("[FAIL] Realtek SDK not found.")
         return 1
     
     examples_path = Path(sdk_path) / "examples"
@@ -308,7 +308,7 @@ def cmd_list(args) -> int:
         examples_path = Path(sdk_path) / "project" / "realtek_amebaZ"
     
     if not examples_path.exists():
-        print("❌ Examples directory not found.")
+        print("[FAIL] Examples directory not found.")
         return 1
     
     print("\n📚 Available Examples:\n")
@@ -330,10 +330,10 @@ def cmd_all(args) -> int:
     for name, step in steps:
         print(f"\n{'='*50}\n{name}\n{'='*50}")
         if step() != 0:
-            print(f"\n❌ {name} failed!")
+            print(f"\n[FAIL] {name} failed!")
             return 1
     
-    print("\n✅ Pipeline complete!\n")
+    print("\n[OK] Pipeline complete!\n")
     return 0
 
 # ============================================================================

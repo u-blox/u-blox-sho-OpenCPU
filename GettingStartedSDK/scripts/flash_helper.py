@@ -107,12 +107,12 @@ def flash_jlink(device: str, firmware_file: str, address: int = 0, serial: Optio
         serial: J-Link serial number (auto-detected if None)
     """
     if not HAS_PYLINK:
-        print("❌ pylink not installed. Install with: pip install pylink-square")
+        print("[FAIL] pylink not installed. Install with: pip install pylink-square")
         return 1
     
     fw_path = Path(firmware_file)
     if not fw_path.exists():
-        print(f"❌ Firmware file not found: {firmware_file}")
+        print(f"[FAIL] Firmware file not found: {firmware_file}")
         return 1
     
     try:
@@ -133,10 +133,10 @@ def flash_jlink(device: str, firmware_file: str, address: int = 0, serial: Optio
             time.sleep(0.1)
             jlink.set_reset_pin_high()
             
-            print("✅ Flash complete!\n")
+            print("[OK] Flash complete!\n")
             return 0
     except Exception as e:
-        print(f"❌ Flash failed: {e}\n")
+        print(f"[FAIL] Flash failed: {e}\n")
         return 1
 
 
@@ -168,10 +168,10 @@ def flash_xds110(firmware_file: str, device_serial: Optional[str] = None) -> int
         result = subprocess.run(cmd)
         
         if result.returncode == 0:
-            print("✅ Flash complete!\n")
+            print("[OK] Flash complete!\n")
         return result.returncode
     except Exception as e:
-        print(f"❌ Flash failed: {e}\n")
+        print(f"[FAIL] Flash failed: {e}\n")
         return 1
 
 
@@ -185,10 +185,10 @@ def flash_uart_dfu(port: str, firmware_file: str, baudrate: int = 115200) -> int
         baudrate: Serial baud rate
     """
     if not HAS_PYSERIAL:
-        print("❌ pyserial not installed. Install with: pip install pyserial")
+        print("[FAIL] pyserial not installed. Install with: pip install pyserial")
         return 1
     
-    print(f"⚠️  UART DFU flashing not yet implemented for {firmware_file}")
+    print(f"[WARNING] UART DFU flashing not yet implemented for {firmware_file}")
     print("   Use Realtek's flash tools directly")
     return 1
 
@@ -213,7 +213,7 @@ def flash_esptool(firmware_file: str, port: Optional[str] = None, baudrate: int 
                     port = ports[0].device
         
         if not port:
-            print("❌ No serial port found for ESP32")
+            print("[FAIL] No serial port found for ESP32")
             return 1
         
         cmd = [
@@ -229,13 +229,13 @@ def flash_esptool(firmware_file: str, port: Optional[str] = None, baudrate: int 
         result = subprocess.run(cmd)
         
         if result.returncode == 0:
-            print("✅ Flash complete!\n")
+            print("[OK] Flash complete!\n")
         return result.returncode
     except ImportError:
-        print("❌ esptool not installed. Install with: pip install esptool")
+        print("[FAIL] esptool not installed. Install with: pip install esptool")
         return 1
     except Exception as e:
-        print(f"❌ Flash failed: {e}\n")
+        print(f"[FAIL] Flash failed: {e}\n")
         return 1
 
 
@@ -299,9 +299,9 @@ Examples:
     if args.auto:
         debugger, devices = auto_detect_debugger()
         if not debugger:
-            print("❌ No debugger detected")
+            print("[FAIL] No debugger detected")
             return 1
-        print(f"✅ Auto-detected: {debugger}")
+        print(f"[OK] Auto-detected: {debugger}")
         if devices:
             for dev in devices:
                 print(f"   {dev}")
@@ -312,20 +312,20 @@ Examples:
     try:
         if args.jlink:
             if not args.device:
-                print("❌ --device required for J-Link")
+                print("[FAIL] --device required for J-Link")
                 return 1
             return flash_jlink(args.device, args.file, args.address, args.serial)
         elif args.xds110:
             return flash_xds110(args.file, args.serial)
         elif args.uart_dfu:
             if not args.port:
-                print("❌ --port required for UART DFU")
+                print("[FAIL] --port required for UART DFU")
                 return 1
             return flash_uart_dfu(args.port, args.file, args.baudrate)
         elif args.esptool:
             return flash_esptool(args.file, args.port, args.baudrate)
     except Exception as e:
-        print(f"❌ Error: {e}")
+        print(f"[FAIL] Error: {e}")
         return 1
     
     return 0

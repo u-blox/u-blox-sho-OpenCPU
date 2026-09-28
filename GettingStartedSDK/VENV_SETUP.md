@@ -1,6 +1,6 @@
 # Virtual Environment (venv) Consolidation
 
-**Status:** ✅ .venv now lives in GettingStartedSDK/ directory
+**Status:** [OK] .venv now lives in GettingStartedSDK/ directory
 
 ## Why This Change?
 
@@ -41,10 +41,10 @@ python setup_venv.py
 ```
 
 The script will:
-1. ✅ Detect if you have an old .venv at the repo root
-2. ✅ Automatically move it to GettingStartedSDK/.venv
-3. ✅ Create a new one if needed
-4. ✅ Install 'west' in the venv
+1. [OK] Detect if you have an old .venv at the repo root
+2. [OK] Automatically move it to GettingStartedSDK/.venv
+3. [OK] Create a new one if needed
+4. [OK] Install 'west' in the venv
 
 ### Option 2: Manual Migration
 
@@ -116,17 +116,17 @@ python GettingStartedSDK/scripts/iris_w10_build.py doctor
 ## What Changed
 
 ### setup_venv.py
-- ✅ Now explicitly creates .venv in GettingStartedSDK/
-- ✅ Automatically detects and moves old .venv from repo root
-- ✅ Updated documentation
+- [OK] Now explicitly creates .venv in GettingStartedSDK/
+- [OK] Automatically detects and moves old .venv from repo root
+- [OK] Updated documentation
 
 ### Build Scripts
-- ✅ No changes needed - they work with venv in any location
-- ✅ Scripts use relative paths for configuration, not venv paths
+- [OK] No changes needed - they work with venv in any location
+- [OK] Scripts use relative paths for configuration, not venv paths
 
 ### Helper Scripts
-- ✅ migrate_venv.sh - For Linux/macOS/WSL
-- ✅ migrate_venv.bat - For Windows CMD
+- [OK] migrate_venv.sh - For Linux/macOS/WSL
+- [OK] migrate_venv.bat - For Windows CMD
 
 ## Troubleshooting
 

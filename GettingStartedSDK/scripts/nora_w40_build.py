@@ -206,7 +206,7 @@ def cmd_doctor(args) -> int:
     
     all_ok = True
     for name, path in tools.items():
-        status = "✅" if path else "❌"
+        status = "[OK]" if path else "[FAIL]"
         print(f"  {status} {name:15} {path or 'NOT FOUND'}")
         if not path:
             all_ok = False
@@ -215,10 +215,10 @@ def cmd_doctor(args) -> int:
     print(f"Config: {config_file()}")
     
     if all_ok:
-        print("\n✅ All tools detected!\n")
+        print("\n[OK] All tools detected!\n")
         return 0
     else:
-        print("\n⚠️  Some tools missing. See README for setup instructions.\n")
+        print("\n[WARNING]  Some tools missing. See README for setup instructions.\n")
         return 1
 
 def cmd_clone(args) -> int:
@@ -230,7 +230,7 @@ def cmd_clone(args) -> int:
         git_cmd = ["git", "--version"]
         subprocess.run(git_cmd, capture_output=True, check=True)
     except:
-        print("❌ Git not found or not in PATH!")
+        print("[FAIL] Git not found or not in PATH!")
         return 1
     
     idf_dir = Path.cwd() / "esp-idf"
@@ -247,7 +247,7 @@ def cmd_clone(args) -> int:
     )
     
     if result.returncode == 0:
-        print("\n✅ ESP-IDF cloned successfully!\n")
+        print("\n[OK] ESP-IDF cloned successfully!\n")
         cfg = load_config()
         cfg["idf_path"] = str(idf_dir)
         save_config(cfg)
@@ -259,7 +259,7 @@ def cmd_install(args) -> int:
     
     idf_dir = detect_idf()
     if not idf_dir:
-        print("❌ ESP-IDF not found. Run 'python nora_w40_build.py clone' first.")
+        print("[FAIL] ESP-IDF not found. Run 'python nora_w40_build.py clone' first.")
         return 1
     
     idf_path = Path(idf_dir)
@@ -269,7 +269,7 @@ def cmd_install(args) -> int:
     if platform_type == "windows":
         install_script = idf_path / "install.bat"
         if not install_script.exists():
-            print(f"❌ Install script not found: {install_script}")
+            print(f"[FAIL] Install script not found: {install_script}")
             return 1
         print(f"Running: {install_script}\n")
         result = subprocess.run(
@@ -280,7 +280,7 @@ def cmd_install(args) -> int:
     else:  # WSL2 or Linux
         install_script = idf_path / "install.sh"
         if not install_script.exists():
-            print(f"❌ Install script not found: {install_script}")
+            print(f"[FAIL] Install script not found: {install_script}")
             return 1
         print(f"Running: {install_script}\n")
         # Make script executable
@@ -291,7 +291,7 @@ def cmd_install(args) -> int:
         )
     
     if result.returncode == 0:
-        print("\n✅ ESP-IDF environment installed successfully!")
+        print("\n[OK] ESP-IDF environment installed successfully!")
         print("\n📝 Next steps:")
         if platform_type == "windows":
             print("   • Open PowerShell in the ESP-IDF directory")
@@ -306,17 +306,17 @@ def cmd_install(args) -> int:
 def cmd_build(args) -> int:
     """Build example application."""
     if not args.example:
-        print("❌ Please specify an example name (e.g., 'hello_world')")
+        print("[FAIL] Please specify an example name (e.g., 'hello_world')")
         return 1
     
     idf_dir = detect_idf()
     if not idf_dir:
-        print("❌ ESP-IDF not found. Run 'python nora_w40_build.py clone' first.")
+        print("[FAIL] ESP-IDF not found. Run 'python nora_w40_build.py clone' first.")
         return 1
     
     example_path = Path(idf_dir) / "examples" / args.example
     if not example_path.exists():
-        print(f"❌ Example '{args.example}' not found at {example_path}")
+        print(f"[FAIL] Example '{args.example}' not found at {example_path}")
         return 1
     
     print(f"\n🔨 Building example: {args.example}\n")
@@ -328,7 +328,7 @@ def cmd_build(args) -> int:
     # Use full path to idf.py
     idf_py = Path(idf_dir) / "tools" / "idf.py"
     if not idf_py.exists():
-        print(f"❌ idf.py not found at {idf_py}")
+        print(f"[FAIL] idf.py not found at {idf_py}")
         return 1
     
     result = subprocess.run(
@@ -353,7 +353,7 @@ def cmd_clean(args) -> int:
             cfg = load_config()
             cfg.pop("idf_path", None)
             save_config(cfg)
-            print("✅ ESP-IDF removed.\n")
+            print("[OK] ESP-IDF removed.\n")
         else:
             print("ℹ️  ESP-IDF not found.\n")
         return 0
@@ -365,7 +365,7 @@ def cmd_clean(args) -> int:
     
     idf_dir = detect_idf()
     if not idf_dir:
-        print("❌ ESP-IDF not found.\n")
+        print("[FAIL] ESP-IDF not found.\n")
         return 1
     
     example_path = Path(idf_dir) / "examples" / args.example
@@ -374,7 +374,7 @@ def cmd_clean(args) -> int:
     if build_dir.exists():
         print(f"Removing: {build_dir}")
         shutil.rmtree(build_dir)
-        print("✅ Build directory cleaned.\n")
+        print("[OK] Build directory cleaned.\n")
     else:
         print(f"ℹ️  Build directory not found: {build_dir}\n")
     
@@ -384,12 +384,12 @@ def cmd_list(args) -> int:
     """List available examples."""
     idf_dir = detect_idf()
     if not idf_dir:
-        print("❌ ESP-IDF not found.")
+        print("[FAIL] ESP-IDF not found.")
         return 1
     
     examples_path = Path(idf_dir) / "examples"
     if not examples_path.exists():
-        print("❌ Examples directory not found.")
+        print("[FAIL] Examples directory not found.")
         return 1
     
     print("\n📚 Available Examples:\n")
@@ -422,10 +422,10 @@ def cmd_all(args) -> int:
     for name, step in steps:
         print(f"\n{'='*50}\n{name}\n{'='*50}")
         if step() != 0:
-            print(f"\n❌ {name} failed!")
+            print(f"\n[FAIL] {name} failed!")
             return 1
     
-    print("\n✅ Pipeline complete!\n")
+    print("\n[OK] Pipeline complete!\n")
     return 0
 
 # ============================================================================

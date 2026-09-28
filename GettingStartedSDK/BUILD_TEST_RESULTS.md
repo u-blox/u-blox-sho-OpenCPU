@@ -2,7 +2,7 @@
 
 **Date:** 2026-09-28  
 **Branch:** `cmag_getting_started_sdk`  
-**Status:** ✅ READY FOR REVIEW
+**Status:** [OK] READY FOR REVIEW
 
 ## Test Environment
 
@@ -12,9 +12,9 @@
 
 ## Platform Test Results
 
-### ✅ NORA-W50/W51 (WiFi 6E + Bluetooth)
+### [OK] NORA-W50/W51 (WiFi 6E + Bluetooth)
 
-**Status:** ✅ **BUILD VERIFIED - September 28, 2026**
+**Status:** [OK] **BUILD VERIFIED - September 28, 2026**
 
 **Example Built:** `ble_wifi_provisioning` (WiFi + BLE Example)
 
@@ -24,7 +24,7 @@ python GettingStartedSDK/scripts/nora_w50_w51_build.py build ble_wifi_provisioni
 
 **Output File:**
 - Location: `C:/ti/simplelink_wifi_sdk_10_20_00_39/examples/rtos/LP_EM_CC35X1/demos/ble_wifi_provisioning/freertos/ticlang/ble_wifi_provisioning.out`
-- Status: ✅ **Successfully generated**
+- Status: [OK] **Successfully generated**
 - Format: TI Arm Object File (.out)
 - Date Built: 2026-09-28
 
@@ -33,15 +33,15 @@ python GettingStartedSDK/scripts/nora_w50_w51_build.py build ble_wifi_provisioni
 - Board: LP_EM_CC35X1
 
 **Tools:**
-- ✅ Make: C:/Users/cmag/AppData/Local/Microsoft/WinGet/Links/make.EXE
-- ✅ CMake: C:/Program Files/CMake/bin/cmake.EXE
-- ✅ SysConfig: C:/ti/sysconfig_1.28.0/sysconfig_cli.bat
-- ✅ TI Clang: C:/ti/ti-cgt-armllvm_release
-- ✅ Arm GCC: Available
+- [OK] Make: C:/Users/cmag/AppData/Local/Microsoft/WinGet/Links/make.EXE
+- [OK] CMake: C:/Program Files/CMake/bin/cmake.EXE
+- [OK] SysConfig: C:/ti/sysconfig_1.28.0/sysconfig_cli.bat
+- [OK] TI Clang: C:/ti/ti-cgt-armllvm_release
+- [OK] Arm GCC: Available
 
-### ✅ IRIS-W10 (NXP RW612/RW610)
+### [OK] IRIS-W10 (NXP RW612/RW610)
 
-**Status:** ✅ **BUILD VERIFIED - September 28, 2026**
+**Status:** [OK] **BUILD VERIFIED - September 28, 2026**
 
 **Example Built:** `demo_apps/hello_world`
 
@@ -53,7 +53,7 @@ python GettingStartedSDK/scripts/iris_w10_build.py build demo_apps/hello_world
 **Output Files:**
 - **hello_world.elf** — 258 KB (NXP MCUXpresso ELF firmware)
 - **hello_world.bin** — 29 KB (NXP MCUXpresso binary)
-- Status: ✅ **Successfully generated**
+- Status: [OK] **Successfully generated**
 - Date Built: 2026-09-28
 
 **Build Configuration:**
@@ -67,11 +67,11 @@ python GettingStartedSDK/scripts/iris_w10_build.py build demo_apps/hello_world
 **Status:** 🟡 CORRECT SDK CLONED - Build System Discovered
 
 **Key Findings:**
-- ✅ Correct SDK cloned: `ameba-rtos-d` (320 MB)
-- ✅ Chip: Realtek RTL8720DF (Ameba-D)
-- ⚠️ Build system: **NOT ameba.py** — Uses traditional **make-based** build (GCC + Cygwin or Linux)
-- ✅ Example project: `project/realtek_amebaD_va0_example/` (KM0 low-power + KM4 main core)
-- ✅ All tools available in WSL2 (make, arm-none-eabi-gcc, etc.)
+- [OK] Correct SDK cloned: `ameba-rtos-d` (320 MB)
+- [OK] Chip: Realtek RTL8720DF (Ameba-D)
+- [WARNING] Build system: **NOT ameba.py** — Uses traditional **make-based** build (GCC + Cygwin or Linux)
+- [OK] Example project: `project/realtek_amebaD_va0_example/` (KM0 low-power + KM4 main core)
+- [OK] All tools available in WSL2 (make, arm-none-eabi-gcc, etc.)
 
 **Build Workflow (corrected):**
 ```bash
@@ -124,11 +124,11 @@ python3 ameba.py build <example_name>
 **Example to Build:** `get-started/hello_world`
 
 **Build Environment Analysis:**
-- ✅ esp-idf fully cloned with 100+ examples available
-- ✅ All build tools detected (Python, Git, CMake, Make)
-- ✅ Python environment created at `C:/Users/cmag/.espressif/python_env/idf6.2_py3.12_env/`
-- ❌ Python venv not initialized (blocked by MSYSTEM environment variable)
-- ❌ export.sh detects MSYS2/Git Bash and requires native Windows cmd.exe
+- [OK] esp-idf fully cloned with 100+ examples available
+- [OK] All build tools detected (Python, Git, CMake, Make)
+- [OK] Python environment created at `C:/Users/cmag/.espressif/python_env/idf6.2_py3.12_env/`
+- [FAIL] Python venv not initialized (blocked by MSYSTEM environment variable)
+- [FAIL] export.sh detects MSYS2/Git Bash and requires native Windows cmd.exe
 
 **Why This Fails in Git Bash:**
 - Git Bash sets `MSYSTEM=UCRT64` (or `MINGW64`) internally
@@ -151,14 +151,14 @@ idf.py build
 
 | Platform | Status | Build Date | Example Built | Output File | Blocker |
 |----------|--------|---|---|---|---|
-| **IRIS-W10** | ✅ **VERIFIED** | 2026-09-28 | `demo_apps/hello_world` | `hello_world.elf` (258KB), `.bin` (29KB) | None |
-| **NORA-W50/W51** | ✅ **VERIFIED** | 2026-09-28 | `ble_wifi_provisioning` | `ble_wifi_provisioning.out` | None |
+| **IRIS-W10** | [OK] **VERIFIED** | 2026-09-28 | `demo_apps/hello_world` | `hello_world.elf` (258KB), `.bin` (29KB) | None |
+| **NORA-W50/W51** | [OK] **VERIFIED** | 2026-09-28 | `ble_wifi_provisioning` | `ble_wifi_provisioning.out` | None |
 | **NORA-W40** | 🟡 Ready (SDK) | — | `get-started/hello_world` | Not yet built | Terminal: Need cmd.exe (not Git Bash) |
 | **NORA-W30** | 🟡 Ready (SDK) | — | `wlan_sample` | Not yet built | WSL2: Security policy blocks VM startup |
 
 ## Build Infrastructure Quality
 
-### ✅ Strengths
+### [OK] Strengths
 
 1. **Unified Structure**
    - Single `GettingStartedSDK/` folder
@@ -172,9 +172,9 @@ idf.py build
    - Works across platforms (Windows, WSL2, Linux)
 
 3. **Cross-Platform Support**
-   - Git Bash/MSYS2 (Windows) ✅
-   - WSL2 (Windows Subsystem for Linux) ✅
-   - Native Linux ✅
+   - Git Bash/MSYS2 (Windows) [OK]
+   - WSL2 (Windows Subsystem for Linux) [OK]
+   - Native Linux [OK]
 
 4. **Configuration Management**
    - Per-platform config files
@@ -188,7 +188,7 @@ idf.py build
    - Individual variant READMEs
    - Step-by-step instructions
 
-### ⚠️ Areas for Improvement
+### [WARNING] Areas for Improvement
 
 1. **ARMGCC_DIR Setup**
    - IRIS-W10 requires manual environment variable
@@ -207,11 +207,11 @@ idf.py build
 
 ### Before Publishing
 
-1. ✅ Test IRIS-W10 build (set ARMGCC_DIR and run `clone`)
-2. ✅ Test NORA-W30 in WSL2 environment
-3. ✅ Test NORA-W40 with ESP-IDF installed
-4. ✅ Update documentation with any findings
-5. ✅ Review and approve by team before merge to master
+1. [OK] Test IRIS-W10 build (set ARMGCC_DIR and run `clone`)
+2. [OK] Test NORA-W30 in WSL2 environment
+3. [OK] Test NORA-W40 with ESP-IDF installed
+4. [OK] Update documentation with any findings
+5. [OK] Review and approve by team before merge to master
 
 ### After Publishing
 
@@ -223,11 +223,11 @@ idf.py build
 
 ## Files Modified
 
-- ✅ `GettingStartedSDK/` - Consolidated structure
-- ✅ `GettingStartedSDK/setup_venv.py` - Shared venv setup
-- ✅ `GettingStartedSDK/scripts/` - All build scripts
-- ✅ `GettingStartedSDK/docs/` - All documentation
-- ✅ Old folders removed (IRIS-W10-GettingStartedSDK, NORA-*-GettingStartedSDK)
+- [OK] `GettingStartedSDK/` - Consolidated structure
+- [OK] `GettingStartedSDK/setup_venv.py` - Shared venv setup
+- [OK] `GettingStartedSDK/scripts/` - All build scripts
+- [OK] `GettingStartedSDK/docs/` - All documentation
+- [OK] Old folders removed (IRIS-W10-GettingStartedSDK, NORA-*-GettingStartedSDK)
 
 ## Next Steps
 
@@ -260,4 +260,4 @@ idf.py build
 
 **Last Updated:** 2026-09-28  
 **Branch:** cmag_getting_started_sdk  
-**Status:** ✅ IRIS-W10 & NORA-W50/W51 Verified | 🟡 W40 Requires cmd.exe | 🟡 W30 ameba.py Workflow Ready
+**Status:** [OK] IRIS-W10 & NORA-W50/W51 Verified | 🟡 W40 Requires cmd.exe | 🟡 W30 ameba.py Workflow Ready

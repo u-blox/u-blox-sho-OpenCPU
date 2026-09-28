@@ -61,7 +61,7 @@ python nora_w50_w51_build.py build --clean      # Clean example rebuild
 ```
 
 ### Result
-✅ Firmware image ready for flashing to NORA-W50/W51 via XDS110 or serial bootloader
+[OK] Firmware image ready for flashing to NORA-W50/W51 via XDS110 or serial bootloader
 
 ---
 
@@ -85,7 +85,7 @@ cd ~/nora-w30-workspace
 
 # Step 2: Check environment
 python3 nora_w30_build.py doctor
-# Output: Python ✅, Git ✅, Make ✅, Arm GCC ✅
+# Output: Python [OK], Git [OK], Make [OK], Arm GCC [OK]
 
 # Step 3: If tools missing, install them
 python3 nora_w30_build.py install
@@ -118,7 +118,7 @@ python3 nora_w30_build.py clean --all           # Remove entire SDK (~500MB)
 ```
 
 ### Result
-✅ Firmware ELF ready for flashing to NORA-W30 via UART with Realtek flash tool
+[OK] Firmware ELF ready for flashing to NORA-W30 via UART with Realtek flash tool
 
 ---
 
@@ -141,7 +141,7 @@ cd ~/nora-w40-workspace
 
 # Step 2: Check environment
 python nora_w40_build.py doctor
-# Output: Python ✅, Git ✅, CMake ✅, Make ✅, ESP-IDF ❌ (not yet)
+# Output: Python [OK], Git [OK], CMake [OK], Make [OK], ESP-IDF [FAIL] (not yet)
 
 # Step 3: Clone ESP-IDF (first time only, ~200MB)
 python nora_w40_build.py clone
@@ -191,7 +191,7 @@ python nora_w40_build.py clean --all                      # Remove entire ESP-ID
 ```
 
 ### Result
-✅ Firmware BIN ready for flashing to NORA-W40 via esptool.py or USB JTAG
+[OK] Firmware BIN ready for flashing to NORA-W40 via esptool.py or USB JTAG
 
 ---
 
@@ -215,7 +215,7 @@ cd IRIS-W1-GettingStartedSDK
 
 # Step 2: Check environment
 python iris_w1_build.py doctor
-# Output: Python ✅, Git ✅, West ✅, CMake ✅, Ninja ✅, Arm GCC ✅, workspace ❌ (not yet)
+# Output: Python [OK], Git [OK], West [OK], CMake [OK], Ninja [OK], Arm GCC [OK], workspace [FAIL] (not yet)
 # Also reports whether ARMGCC_DIR is set
 
 # Step 3: Install west and check remaining toolchain
@@ -260,7 +260,7 @@ python iris_w1_build.py clean --all    # Remove entire workspace (~2 GB)
 ```
 
 ### Result
-✅ Firmware ready for flashing to IRIS-W1 via MCU-Link, J-Link/J-Flash Lite (`west flash -r linkserver`),
+[OK] Firmware ready for flashing to IRIS-W1 via MCU-Link, J-Link/J-Flash Lite (`west flash -r linkserver`),
 or blhost for recovery. See [IRIS-W1-GettingStartedSDK/README.md](IRIS-W1-GettingStartedSDK/README.md)
 for u-blox board files, calibration data and flash addresses.
 
@@ -286,7 +286,7 @@ cd IRIS-W10-GettingStartedSDK
 
 # Step 2: Check environment
 python iris_w10_build.py doctor
-# Output: Python ✅, Git ✅, West ✅, CMake ✅, Ninja ✅, Arm GCC ✅, workspace ❌ (not yet)
+# Output: Python [OK], Git [OK], West [OK], CMake [OK], Ninja [OK], Arm GCC [OK], workspace [FAIL] (not yet)
 # Also reports whether ARMGCC_DIR is set
 
 # Step 3: Install west and check remaining toolchain
@@ -331,7 +331,7 @@ python iris_w10_build.py clean --all    # Remove entire workspace (~2 GB)
 ```
 
 ### Result
-✅ Firmware ready for flashing to IRIS-W10 via MCU-Link, J-Link/J-Flash Lite (`west flash -r linkserver`),
+[OK] Firmware ready for flashing to IRIS-W10 via MCU-Link, J-Link/J-Flash Lite (`west flash -r linkserver`),
 or blhost for recovery. See [IRIS-W10-GettingStartedSDK/README.md](IRIS-W10-GettingStartedSDK/README.md)
 for u-blox board files, calibration data and flash addresses.
 

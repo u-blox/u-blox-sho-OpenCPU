@@ -32,12 +32,12 @@ python iris_w10_build.py build demo_apps/hello_world  # Build example
 
 | Tool | Version | Windows | WSL2 | Linux |
 |------|---------|---------|------|-------|
-| Python | 3.10+ | ✅ | ✅ | ✅ |
-| Git | 2.25+ | ✅ | ✅ | ✅ |
+| Python | 3.10+ | [OK] | [OK] | [OK] |
+| Git | 2.25+ | [OK] | [OK] | [OK] |
 | west | 1.2.0+ | (pip) | (pip) | (pip) |
-| CMake | 3.30+ | ✅ | ✅ | ✅ |
-| Ninja | 1.12.1+ | ✅ | ✅ | ✅ |
-| **Arm GNU Toolchain** | 13.2.0+ | ✅ | ✅ | ✅ |
+| CMake | 3.30+ | [OK] | [OK] | [OK] |
+| Ninja | 1.12.1+ | [OK] | [OK] | [OK] |
+| **Arm GNU Toolchain** | 13.2.0+ | [OK] | [OK] | [OK] |
 
 ### Environment Variables
 
@@ -100,8 +100,8 @@ python iris_w10_build.py install
 ```
 
 This will:
-- ✅ Install `west` via pip
-- ⚠️ Report on any missing tools (CMake, Ninja, Arm GCC)
+- [OK] Install `west` via pip
+- [WARNING] Report on any missing tools (CMake, Ninja, Arm GCC)
 
 **Missing tools?** Install manually:
 
@@ -229,13 +229,13 @@ Key files:
 
 ### west not found
 ```
-❌ west not found. Run 'python iris_w10_build.py install' first.
+[FAIL] west not found. Run 'python iris_w10_build.py install' first.
 ```
 **Fix:** Run `python -m pip install -U west`
 
 ### ARMGCC_DIR not set
 ```
-⚠️ ARMGCC_DIR is not set; the build will likely fail.
+[WARNING] ARMGCC_DIR is not set; the build will likely fail.
 ```
 **Fix:** Set the environment variable and open a new terminal:
 ```bash
@@ -285,10 +285,10 @@ python iris_w10_build.py clone --full
 
 | Platform | Support | Notes |
 |----------|---------|-------|
-| Windows 11 | ✅ | Requires ARMGCC_DIR env var |
-| WSL2 | ✅ | Recommended for Windows users |
-| Ubuntu 22.04 LTS | ✅ | `sudo apt install gcc-arm-none-eabi` |
-| macOS | ⚠️ | Not tested; Arm GNU Toolchain may require Homebrew |
+| Windows 11 | [OK] | Requires ARMGCC_DIR env var |
+| WSL2 | [OK] | Recommended for Windows users |
+| Ubuntu 22.04 LTS | [OK] | `sudo apt install gcc-arm-none-eabi` |
+| macOS | [WARNING] | Not tested; Arm GNU Toolchain may require Homebrew |
 
 ## Resources
 

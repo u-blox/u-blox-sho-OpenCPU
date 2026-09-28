@@ -360,14 +360,14 @@ See [ESP-IDF API Reference](https://docs.espressif.com/projects/esp-idf/en/lates
 
 ## Verified Setup
 
-✅ **Tested on:**
+[OK] **Tested on:**
 - Windows 11 (22H2) with Python 3.12, CMake 3.28, Git 2.53
 - Ubuntu 24.04 LTS (native & WSL2)
 - Debian 12 (bookworm)
 
-✅ **ESP-IDF Version:** v5.2.x (latest stable)
+[OK] **ESP-IDF Version:** v5.2.x (latest stable)
 
-✅ **Toolchain:** xtensa-esp32s3-elf (bundled with ESP-IDF tools)
+[OK] **Toolchain:** xtensa-esp32s3-elf (bundled with ESP-IDF tools)
 
 ---
 

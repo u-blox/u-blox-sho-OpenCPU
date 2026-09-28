@@ -271,13 +271,14 @@ def cmd_doctor(args) -> int:
 
     all_ok = True
     for name, path in tools.items():
-        status = "✅" if path else "❌"
+        status = "[OK]" if path else "[FAIL]"
         print(f"  {status} {name:15} {path or 'NOT FOUND'}")
         if not path:
             all_ok = False
 
     workspace = detect_workspace()
-    print(f"  {'✅' if workspace else '❌'} {'SDK workspace':15} {workspace or 'NOT FOUND'}")
+    status = '[OK]' if workspace else '[FAIL]'
+    print(f"  {status} {'SDK workspace':15} {workspace or 'NOT FOUND'}")
     if not workspace:
         all_ok = False
 
@@ -288,13 +289,13 @@ def cmd_doctor(args) -> int:
     print(f"Config:     {config_file()}")
 
     if not armgcc_dir:
-        print("\n⚠️  ARMGCC_DIR is not set. The MCUXpresso build system needs it to")
+        print("\n[WARNING] ARMGCC_DIR is not set. The MCUXpresso build system needs it to")
         print("    locate the Arm GNU toolchain. Run 'install' for instructions.")
 
     if all_ok and armgcc_dir:
-        print("\n✅ All tools detected!\n")
+        print("\n[OK] All tools detected!\n")
         return 0
-    print("\n⚠️  Some tools missing. See README for setup instructions.\n")
+    print("\n[WARNING] Some tools missing. See README for setup instructions.\n")
     return 1
 
 def cmd_clone(args) -> int:
@@ -303,7 +304,7 @@ def cmd_clone(args) -> int:
 
     west = west_cmd()
     if not west:
-        print("❌ west not found. Run 'python iris_w10_build.py install' first.")
+        print("[FAIL] west not found. Run 'python iris_w10_build.py install' first.")
         return 1
 
     workspace = Path.cwd() / WORKSPACE_NAME
@@ -328,10 +329,10 @@ def cmd_clone(args) -> int:
 
     if result.returncode != 0:
         if not args.full:
-            print("\n⚠️  Targeted update failed. Retry with --full to fetch the whole SDK.")
+            print("\n[WARNING] Targeted update failed. Retry with --full to fetch the whole SDK.")
         return result.returncode
 
-    print("\n✅ SDK workspace ready!\n")
+    print("\n[OK] SDK workspace ready!\n")
     cfg = load_config()
     cfg["workspace"] = str(workspace)
     cfg["board"] = args.board
@@ -344,7 +345,7 @@ def cmd_install(args) -> int:
 
     python = detect_python()
     if not python:
-        print("❌ Python not found on PATH")
+        print("[FAIL] Python not found on PATH")
         return 1
 
     print("Installing/updating west...")
@@ -352,9 +353,9 @@ def cmd_install(args) -> int:
         [python, "-m", "pip", "install", "-U", "west"],
     )
     if result.returncode != 0:
-        print("\n❌ Failed to install west.")
+        print("\n[FAIL] Failed to install west.")
         return result.returncode
-    print("✅ west installed.\n")
+    print("[OK] west installed.\n")
 
     missing = []
     for name, path in (("CMake", detect_cmake()),
@@ -364,7 +365,7 @@ def cmd_install(args) -> int:
             missing.append(name)
 
     if missing:
-        print(f"⚠️  Still missing: {', '.join(missing)}\n")
+        print(f"[WARNING] Still missing: {', '.join(missing)}\n")
         print("These are not pip-installable. Install them as follows:\n")
         if host_kind() == "windows":
             print("  CMake    → https://cmake.org/download (3.30+)")
@@ -375,7 +376,7 @@ def cmd_install(args) -> int:
         else:
             print("  sudo apt install cmake ninja-build gcc-arm-none-eabi")
     else:
-        print("✅ CMake, Ninja and Arm GCC already present.\n")
+        print("[OK] CMake, Ninja and Arm GCC already present.\n")
 
     if not os.environ.get("ARMGCC_DIR"):
         print("\n📝 Set ARMGCC_DIR so the SDK build system finds the toolchain:\n")
@@ -392,12 +393,12 @@ def cmd_list(args) -> int:
     """List available examples."""
     workspace = detect_workspace()
     if not workspace:
-        print("❌ SDK workspace not found. Run 'python iris_w10_build.py clone' first.")
+        print("[FAIL] SDK workspace not found. Run 'python iris_w10_build.py clone' first.")
         return 1
 
     root = examples_root(workspace)
     if not root:
-        print("❌ Examples directory not found in the workspace.")
+        print("[FAIL] Examples directory not found in the workspace.")
         return 1
 
     print(f"\n📚 Available Examples (board: {args.board}):\n")
@@ -433,17 +434,17 @@ def cmd_flash(args) -> int:
     
     # Determine firmware file
     if not args.example:
-        print("❌ Please specify example to flash")
+        print("[FAIL] Please specify example to flash")
         return 1
     
     workspace = detect_workspace()
     if not workspace:
-        print("❌ SDK workspace not found. Run 'python iris_w10_build.py clone' first.")
+        print("[FAIL] SDK workspace not found. Run 'python iris_w10_build.py clone' first.")
         return 1
     
     example_path = resolve_example(workspace, args.example)
     if not example_path:
-        print(f"❌ Example '{args.example}' not found.")
+        print(f"[FAIL] Example '{args.example}' not found.")
         return 1
     
     # Determine build directory
@@ -451,7 +452,7 @@ def cmd_flash(args) -> int:
     build_root = Path(workspace) / "build" / build_config
     
     if not build_root.exists():
-        print(f"❌ Build directory not found: {build_root}")
+        print(f"[FAIL] Build directory not found: {build_root}")
         print(f"   Build with: python iris_w10_build.py build {args.example}")
         return 1
     
@@ -460,7 +461,7 @@ def cmd_flash(args) -> int:
     bin_file = build_root / "zephyr.bin"
     
     if not hex_file.exists() and not bin_file.exists():
-        print(f"❌ No firmware found in {build_root}")
+        print(f"[FAIL] No firmware found in {build_root}")
         print(f"   Build with: python iris_w10_build.py build {args.example}")
         return 1
     
@@ -486,7 +487,7 @@ def resolve_example(workspace: str, name: str) -> Optional[Path]:
     if len(matches) == 1:
         return matches[0]
     if len(matches) > 1:
-        print(f"⚠️  '{name}' is ambiguous. Matches:")
+        print(f"[WARNING] '{name}' is ambiguous. Matches:")
         for m in sorted(matches):
             print(f"     {m.relative_to(root).as_posix()}")
         return None
@@ -495,26 +496,26 @@ def resolve_example(workspace: str, name: str) -> Optional[Path]:
 def cmd_build(args) -> int:
     """Build an example application with west."""
     if not args.example:
-        print("❌ Please specify an example (e.g., 'demo_apps/hello_world')")
+        print("[FAIL] Please specify an example (e.g., 'demo_apps/hello_world')")
         return 1
 
     workspace = detect_workspace()
     if not workspace:
-        print("❌ SDK workspace not found. Run 'python iris_w10_build.py clone' first.")
+        print("[FAIL] SDK workspace not found. Run 'python iris_w10_build.py clone' first.")
         return 1
 
     west = west_cmd()
     if not west:
-        print("❌ west not found. Run 'python iris_w10_build.py install' first.")
+        print("[FAIL] west not found. Run 'python iris_w10_build.py install' first.")
         return 1
 
     example_path = resolve_example(workspace, args.example)
     if not example_path:
-        print(f"❌ Example '{args.example}' not found. Try 'list' to see what is available.")
+        print(f"[FAIL] Example '{args.example}' not found. Try 'list' to see what is available.")
         return 1
 
     if not os.environ.get("ARMGCC_DIR") and args.toolchain == "armgcc":
-        print("⚠️  ARMGCC_DIR is not set; the build will likely fail.")
+        print("[WARNING] ARMGCC_DIR is not set; the build will likely fail.")
         print("    Run 'python iris_w10_build.py install' for instructions.\n")
 
     rel = example_path.relative_to(workspace).as_posix()
@@ -534,7 +535,7 @@ def cmd_build(args) -> int:
     result = subprocess.run(cmd, cwd=workspace)
 
     if result.returncode == 0:
-        print(f"\n✅ Build complete. Artefacts under {workspace}/build\n")
+        print(f"\n[OK] Build complete. Artefacts under {workspace}/build\n")
         print("Flash with:  west flash -r linkserver     (or J-Link / J-Flash Lite)")
         print()
     return result.returncode
@@ -552,20 +553,20 @@ def cmd_clean(args) -> int:
             cfg = load_config()
             cfg.pop("workspace", None)
             save_config(cfg)
-            print("✅ SDK workspace removed.\n")
+            print("[OK] SDK workspace removed.\n")
         else:
             print("ℹ️  SDK workspace not found.\n")
         return 0
 
     if not workspace:
-        print("❌ SDK workspace not found.\n")
+        print("[FAIL] SDK workspace not found.\n")
         return 1
 
     build_dir = Path(workspace) / "build"
     if build_dir.exists():
         print(f"Removing: {build_dir}")
         shutil.rmtree(build_dir)
-        print("✅ Build directory cleaned.\n")
+        print("[OK] Build directory cleaned.\n")
     else:
         print(f"ℹ️  Build directory not found: {build_dir}\n")
     return 0
@@ -581,10 +582,10 @@ def cmd_all(args) -> int:
     for name, step in steps:
         print(f"\n{'='*50}\n{name}\n{'='*50}")
         if step() != 0:
-            print(f"\n❌ {name} failed!")
+            print(f"\n[FAIL] {name} failed!")
             return 1
 
-    print("\n✅ Pipeline complete!\n")
+    print("\n[OK] Pipeline complete!\n")
     return 0
 
 # ============================================================================
@@ -596,7 +597,7 @@ def main():
 
     # Check if virtual environment is active (recommended but not required)
     if not is_venv_active():
-        print("⚠️  Tip: Running outside virtual environment.")
+        print("[TIP] Running outside virtual environment.")
         print("   Consider setting up the shared venv for better isolation:")
         print("   1. cd .. && python ../setup_venv.py")
         print("   2. Then activate: .venv\\Scripts\\activate (Windows) or source .venv/bin/activate (Linux/macOS)")
