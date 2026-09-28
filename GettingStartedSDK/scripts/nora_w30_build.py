@@ -176,6 +176,16 @@ def cmd_clone(args) -> int:
         print("[FAIL] Git not found!")
         return 1
     
+    # First check if SDK is already checked-in at the workspace root
+    checked_in_sdk = target_paths.SDK_ROOT / "ameba-rtos-d"
+    if checked_in_sdk.exists():
+        print(f"ℹ️  Found checked-in SDK at: {checked_in_sdk}\n")
+        cfg = load_config()
+        cfg["sdk_path"] = str(checked_in_sdk)
+        save_config(cfg)
+        return 0
+    
+    # Fall back to target-specific location
     sdk_dir = target_paths.sdk_dir(TARGET) / "realtek-rtos-sdk"
     if sdk_dir.exists():
         print(f"ℹ️  {sdk_dir} already exists. Skipping clone.\n")
@@ -247,7 +257,29 @@ def cmd_clean(args) -> int:
         print("[FAIL] Realtek SDK not found.\n")
         return 1
     
-    example_dir = Path(sdk_path) / "examples" / args.example
+    sdk_path = Path(sdk_path)
+    
+    # Try Ameba-D structure first
+    example_sources = sdk_path / "project" / "realtek_amebaD_va0_example" / "example_sources"
+    if example_sources.exists():
+        example_dir = example_sources / args.example
+        if example_dir.exists():
+            print(f"Running make clean for: {args.example}\n")
+            result = subprocess.run(
+                ["make", "-C", str(example_sources), "clean"],
+                cwd=example_sources
+            )
+            if result.returncode == 0:
+                print("\n[OK] Build directory cleaned.\n")
+            return result.returncode
+        else:
+            print(f"ℹ️  Example directory not found: {example_dir}\n")
+            return 0
+    
+    # Fall back to alternative paths
+    example_dir = sdk_path / "examples" / args.example
+    if not example_dir.exists():
+        example_dir = sdk_path / "project" / "realtek_amebaZ" / args.example
     
     # Try to clean using make
     if example_dir.exists():
@@ -267,7 +299,7 @@ def cmd_clean(args) -> int:
 def cmd_build(args) -> int:
     """Build example application."""
     if not args.example:
-        print("[FAIL] Please specify an example name (e.g., 'ota')")
+        print("[FAIL] Please specify an example name (e.g., 'GPIO' or 'wlan')")
         return 1
     
     sdk_path = load_config().get("sdk_path")
@@ -275,11 +307,34 @@ def cmd_build(args) -> int:
         print("[FAIL] Realtek SDK not found. Run 'python nora_w30_build.py clone' first.")
         return 1
     
-    # Realtek SDK structure varies; adjust paths as needed
-    example_dir = Path(sdk_path) / "examples" / args.example
+    sdk_path = Path(sdk_path)
+    
+    # Try Ameba-D structure first (checked-in SDK or downloaded)
+    example_sources = sdk_path / "project" / "realtek_amebaD_va0_example" / "example_sources"
+    if example_sources.exists():
+        example_dir = example_sources / args.example
+        if example_dir.exists():
+            print(f"\n🔨 Building example: {args.example}\n")
+            env = os.environ.copy()
+            env["SDK_ROOT"] = str(sdk_path)
+            result = subprocess.run(
+                ["make", "-C", str(example_sources)],
+                cwd=example_sources,
+                env=env
+            )
+            return result.returncode
+        else:
+            print(f"[FAIL] Example '{args.example}' not found in: {example_sources}")
+            print("Available examples:")
+            for ex in sorted(example_sources.iterdir()):
+                if ex.is_dir():
+                    print(f"  • {ex.name}")
+            return 1
+    
+    # Fall back to alternative Realtek structures
+    example_dir = sdk_path / "examples" / args.example
     if not example_dir.exists():
-        # Try alternative structure
-        example_dir = Path(sdk_path) / "project" / "realtek_amebaZ" / args.example
+        example_dir = sdk_path / "project" / "realtek_amebaZ" / args.example
     
     if not example_dir.exists():
         print(f"[FAIL] Example '{args.example}' not found.")
@@ -306,9 +361,22 @@ def cmd_list(args) -> int:
         print("[FAIL] Realtek SDK not found.")
         return 1
     
-    examples_path = Path(sdk_path) / "examples"
+    sdk_path = Path(sdk_path)
+    
+    # Try Ameba-D structure first (checked-in SDK or downloaded)
+    example_sources = sdk_path / "project" / "realtek_amebaD_va0_example" / "example_sources"
+    if example_sources.exists():
+        print("\n📚 Available Examples (Ameba-D):\n")
+        for ex in sorted(example_sources.iterdir()):
+            if ex.is_dir():
+                print(f"  • {ex.name}")
+        print()
+        return 0
+    
+    # Fall back to alternative paths
+    examples_path = sdk_path / "examples"
     if not examples_path.exists():
-        examples_path = Path(sdk_path) / "project" / "realtek_amebaZ"
+        examples_path = sdk_path / "project" / "realtek_amebaZ"
     
     if not examples_path.exists():
         print("[FAIL] Examples directory not found.")
