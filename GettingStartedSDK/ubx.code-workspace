@@ -145,7 +145,7 @@
         "name": "Python: Setup venv",
         "type": "debugpy",
         "request": "launch",
-        "program": "${workspaceFolder:GettingStartedSDK (Build Scripts & Infrastructure)}/setup_venv.py",
+        "program": "${workspaceFolder:GettingStartedSDK (Build Scripts & Infrastructure)}/scripts/setup_venv.py",
         "console": "integratedTerminal",
         "cwd": "${workspaceFolder:GettingStartedSDK (Build Scripts & Infrastructure)}",
         "justMyCode": false

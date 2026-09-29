@@ -65,11 +65,11 @@ python iris_w10_build.py doctor
 
 ### 0. (Recommended) Setup Shared Virtual Environment
 
-All u-blox build scripts share the same Python dependencies. Set up a shared virtual environment at the repo root (one-time setup):
+All u-blox build scripts share the same Python dependencies. Set up the shared virtual environment (one-time setup):
 
 ```bash
-cd ../..  # Go to repo root
-python setup_venv.py
+cd ..  # Go to the GettingStartedSDK root
+python scripts/setup_venv.py
 ```
 
 Then activate it in your current terminal:
@@ -302,5 +302,5 @@ python iris_w10_build.py clone --full
 ## See Also
 
 - [IRIS-W1 Getting Started](../IRIS-W1-GettingStartedSDK/README.md) — Alternative RW612 variant
-- [BUILD_ALL_EXAMPLES.md](../BUILD_ALL_EXAMPLES.md) — Cross-variant build guide
-- [QUICK_BUILD_REFERENCE.md](../QUICK_BUILD_REFERENCE.md) — Command cheatsheet for all variants
+- [BUILD_ALL_EXAMPLES.md](BUILD_ALL_EXAMPLES.md) — Cross-variant build guide
+- [QUICK_BUILD_REFERENCE.md](QUICK_BUILD_REFERENCE.md) — Command cheatsheet for all variants

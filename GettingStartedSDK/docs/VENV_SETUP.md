@@ -14,19 +14,21 @@
 u-blox-sho-OpenCPU/
 ├── GettingStartedSDK/
 │   ├── .venv/                    ← Virtual environment HERE
+│   ├── ubx-sdk.cmd / .sh         ← SDK launcher
 │   ├── scripts/
+│   │   ├── ubx.py
+│   │   ├── setup_venv.py         ← Run this from GettingStartedSDK/
+│   │   ├── migrate_venv.sh / .bat
 │   │   ├── iris_w10_build.py
 │   │   ├── nora_w50_w51_build.py
 │   │   ├── nora_w30_build.py
 │   │   └── nora_w40_build.py
+│   ├── matter/
 │   ├── docs/
-│   ├── setup_venv.py             ← Run this from GettingStartedSDK/
-│   ├── BUILD_ALL_EXAMPLES.md
-│   └── [other docs]
+│   └── README.md
 │
 ├── NORA-W*-OutputPower/          ← Other unrelated folders
-├── [other repo files]
-└── migrate_venv.sh / migrate_venv.bat  ← Helper scripts
+└── [other repo files]
 ```
 
 ## How to Setup
@@ -37,7 +39,7 @@ If you have an old .venv at the repo root, just run setup_venv.py and it will au
 
 ```bash
 cd GettingStartedSDK
-python setup_venv.py
+python scripts/setup_venv.py
 ```
 
 The script will:
@@ -52,12 +54,12 @@ If automatic migration fails, use the helper scripts:
 
 **Linux/macOS/WSL:**
 ```bash
-./migrate_venv.sh
+./scripts/migrate_venv.sh
 ```
 
 **Windows:**
 ```cmd
-migrate_venv.bat
+scripts\migrate_venv.bat
 ```
 
 ### Option 3: Manual Move
@@ -134,10 +136,10 @@ python GettingStartedSDK/scripts/iris_w10_build.py doctor
 ```bash
 # Option 1: Run setup_venv.py again
 cd GettingStartedSDK
-python setup_venv.py
+python scripts/setup_venv.py
 
 # Option 2: Use migration script
-./migrate_venv.sh  # or migrate_venv.bat on Windows
+./scripts/migrate_venv.sh  # or scripts\migrate_venv.bat on Windows
 
 # Option 3: Manual deletion
 rm -rf .venv  # from repo root
@@ -148,7 +150,7 @@ This means the venv might be corrupted. Delete it and recreate:
 ```bash
 cd GettingStartedSDK
 rm -rf .venv
-python setup_venv.py
+python scripts/setup_venv.py
 ```
 
 ### Scripts still looking for old location?

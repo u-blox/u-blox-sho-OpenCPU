@@ -35,14 +35,27 @@ GettingStartedSDK/                  Workspace root
 ├── .github/
 │   └── copilot-instructions.md    This file
 ├── .venv/                          Virtual environment (Python packages)
+├── ubx-sdk.cmd / ubx-sdk.sh        SDK launcher - the entry point users run
+├── ubx-matter.cmd / ubx-matter.sh  Optional Matter launcher (separate on purpose)
+├── ubx.code-workspace              VS Code workspace (multi-root)
+├── README.md                       Overview + quick start
 ├── scripts/                        Build driver scripts
+│   ├── ubx.py                      Shared launcher core (flag surface, WSL2 hop)
+│   ├── ubx_sdk.py                  SDK entry point (ubx.main())
+│   ├── ubx_matter.py              Matter entry point (ubx.main(matter=True))
+│   ├── matter_build.py            Matter driver for all 4 targets
 │   ├── target_paths.py            Shared per-target directory layout
 │   ├── iris_w10_build.py          NXP RW612/RW610 builder
 │   ├── nora_w50_w51_build.py      TI CC35XX builder
 │   ├── nora_w30_build.py          Realtek RTL872x builder
 │   ├── nora_w40_build.py          Espressif ESP32-C6 builder
 │   ├── flash_helper.py            Flashing helper
-│   └── serial_logger.py           Serial console logger
+│   ├── serial_logger.py           Serial console logger
+│   ├── setup_venv.py              Virtual environment initializer
+│   └── migrate_venv.sh / .bat     Moves a stray repo-root .venv into here
+├── matter/                         Matter app sources, per target (optional)
+│   ├── README.md
+│   └── {IRIS-W10,NORA-W30,NORA-W40,NORA-W50-W51}/
 ├── targets/                        Per-target base folders (generated content)
 │   ├── IRIS-W10/{sdk,config}/
 │   ├── NORA-W30/{sdk,config}/
@@ -51,35 +64,45 @@ GettingStartedSDK/                  Workspace root
 ├── ameba-rtos-d/                  Vendor SDK, fetched on demand (NORA-W30)
 ├── esp-idf/                       Vendor SDK, fetched on demand (NORA-W40)
 ├── mcuxpresso-sdk/                Vendor SDK, fetched on demand (IRIS-W10)
-├── docs/                          Module-specific README files
-│   ├── iris_w10_README.md
-│   ├── nora_w50_w51_README.md
-│   ├── nora_w30_README.md
-│   └── nora_w40_README.md
-├── setup_venv.py                  Virtual environment initializer
-├── migrate_venv.sh / .bat         Moves a stray repo-root .venv into here
-├── VENV_SETUP.md                  venv setup guide
-├── WORKSPACE_SETUP.md             VS Code workspace guide
-├── BUILD_ALL_EXAMPLES.md          Comprehensive build guide
-├── QUICK_BUILD_REFERENCE.md       Quick cheat sheet
-└── REVIEWERS_GUIDE.md             Review instructions for team
+└── docs/                           All other documentation
+    ├── iris_w10_README.md
+    ├── nora_w50_w51_README.md
+    ├── nora_w30_README.md
+    ├── nora_w40_README.md
+    ├── BUILD_ALL_EXAMPLES.md      Comprehensive build guide
+    ├── QUICK_BUILD_REFERENCE.md   Quick cheat sheet
+    ├── REVIEWERS_GUIDE.md         Review instructions for team
+    ├── VENV_SETUP.md              venv setup guide
+    └── WORKSPACE_SETUP.md         VS Code workspace guide
 ```
 
-Only `README.md`, `.gitattributes` and the `.code-workspace` files belong at the
-repository root. The root is shared with unrelated projects (`nRF5_SDK/`,
-`zephyr/`, `MCUXpresso/`, `*-OutputPower/`), so SDK files must not be added
-there. The `.code-workspace` files are multi-root (`"."` plus
-`"GettingStartedSDK"`) and must stay at the root to keep both paths valid.
+The GettingStartedSDK root is kept deliberately minimal: the two launcher
+pairs, `ubx.code-workspace`, `README.md` and the folders above. Do not add
+loose `.md` or `.bat` files to the root - docs go in `docs/`, scripts go in
+`scripts/`.
+
+Naming rule: anything shared by both launchers is plain `ubx`
+(`ubx.py`, `ubx.code-workspace`); anything layer-specific is suffixed
+(`ubx-sdk.*`, `ubx-matter.*`).
+
+Only `README.md` and `.gitattributes` belong at the repository root. The root
+is shared with unrelated projects (`nRF5_SDK/`, `zephyr/`, `MCUXpresso/`,
+`*-OutputPower/`), so SDK files must not be added there.
+`GettingStartedSDK/ubx.code-workspace` is multi-root (`"."` plus `".."`), so it
+opens both the SDK and the repository root from its own folder.
 
 ## Build System Architecture
 
 ### Shared Components
 
-1. **Virtual Environment (.venv/)**
+2. **Virtual Environment (.venv/)**
    - Shared by all 4 variant scripts
    - Location: GettingStartedSDK/.venv/
    - Contains: west (MCUXpresso manager), build dependencies
-   - Setup: `python setup_venv.py` from GettingStartedSDK/
+   - Setup: `python scripts/setup_venv.py` from GettingStartedSDK/
+   - The launcher picks it up automatically; a Windows venv is never used from
+     WSL and vice versa because the shims probe for `Scripts/python.exe` vs
+     `bin/python`
 
 2. **Per-Target Base Folders (targets/)**
    - `scripts/target_paths.py` is the single source of truth for the layout
@@ -125,57 +148,78 @@ def cmd_clean(args)        # Clean artifacts
 
 ## Common Build Workflows
 
-### IMPORTANT: Always Activate .venv Before Building
+### Always go through the launcher
 
-Before running any build commands, activate the virtual environment:
+`ubx-sdk.cmd` (Windows) and `ubx-sdk.sh` (Linux/WSL2/macOS) are the user-facing
+entry points. They are thin shims: they pick the shared `.venv` if it exists,
+then forward to `scripts/ubx_sdk.py`, which calls into `scripts/ubx.py` - the
+shared core that owns the flag surface, the fixed action order and the
+automatic WSL2 hop. Suggest launcher commands to users, not raw
+`python scripts/...` invocations. Reach for the per-target driver directly only
+when debugging that driver. Matter has its own shim pair,
+`ubx-matter.cmd` / `ubx-matter.sh`.
 
-**Windows (Git Bash/MSYS2):**
-```bash
-source .venv/Scripts/activate
-```
-
-**Linux/WSL2/macOS:**
-```bash
-source .venv/bin/activate
-```
-
-The prompt will show `(.venv)` when activated. All build scripts must run with .venv active to use correct Python dependencies.
+Flags are combinable and always execute in this order:
+`--doctor` -> `--clone` -> `--install` -> `--build-sdk` -> `--clean` ->
+`--build` -> `--flash` -> `--log`. Anything after a bare `--` is passed
+verbatim to the underlying driver.
 
 ### 1. First Time Setup
 ```bash
 cd GettingStartedSDK
-python setup_venv.py
-source .venv/bin/activate  # or appropriate activation for your platform
+python scripts/setup_venv.py   # optional; the launcher also works without it
 ```
 
 ### 2. Build IRIS-W10 Example
 ```bash
 export ARMGCC_DIR="/c/Program Files/Arm/GNU Toolchain mingw-w64-x86_64-arm-none-eabi"
-python scripts/iris_w10_build.py doctor
-python scripts/iris_w10_build.py clone --full  # or --board-only
-python scripts/iris_w10_build.py build demo_apps/hello_world
+./ubx-sdk.sh iris-w10 --doctor
+./ubx-sdk.sh iris-w10 --clone --full          # omit --full for RW612 only
+./ubx-sdk.sh iris-w10 --build demo_apps/hello_world --flash --log
 ```
 
 ### 3. Build NORA-W50/W51 Example
 ```bash
-python scripts/nora_w50_w51_build.py doctor
-python scripts/nora_w50_w51_build.py build ble_wifi_provisioning
+./ubx-sdk.sh nora-w50-w51 --doctor
+./ubx-sdk.sh nora-w50-w51 --clone --build-sdk --build ble_wifi_provisioning
 ```
 
 ### 4. Build NORA-W40 (ESP32-C6)
 ```bash
-python scripts/nora_w40_build.py clone
-python scripts/nora_w40_build.py build hello_world
+./ubx-sdk.sh nora-w40 --clone --install --build hello_world
 ```
 
 ### 5. Build NORA-W30 (Realtek - needs WSL2)
 ```bash
-# From WSL2/Linux terminal
-cd /mnt/e/u-blox/u-blox-sho-OpenCPU/GettingStartedSDK
-source .venv/bin/activate
-python scripts/nora_w30_build.py clone
-python scripts/nora_w30_build.py build wlan_sample
+# Works from Windows too: the launcher hops into WSL2 by itself.
+./ubx-sdk.sh nora-w30 --clone --build project_hp
 ```
+
+### 6. Matter (optional, separate launcher)
+```bash
+./ubx-matter.sh nora-w40 --doctor
+./ubx-matter.sh nora-w40 --clone
+./ubx-matter.sh nora-w40 --build thermometer
+```
+
+Matter is deliberately kept off the plain SDK flag surface: most users never
+build it and the SDKs are multi-GB. `ubx-sdk --help` does not list Matter
+flags, and `ubx-sdk <target> --matter` fails with a pointer to `ubx-matter`.
+Both shims
+share `scripts/ubx.py`; `scripts/ubx_matter.py` just calls
+`ubx.main(matter=True)`, which selects `scripts/matter_build.py` as the driver
+and a Matter-specific help text.
+
+Matter SDKs (connectedhomeip, esp-matter, ameba-rtos-matter) are fetched into
+`targets/<TARGET>/sdk/matter/`, or under `UBX_MATTER_ROOT` when that is set -
+required under WSL2, because these toolchains must not be built from a
+`/mnt/<drive>` path. App sources live in `matter/<TARGET>/<app>/` with a
+`build.sh` accepting `setup`/`build`/`clean`. NORA-W50/W51 has no public Matter
+SDK yet; the driver says so explicitly instead of pretending otherwise.
+
+Reference implementations to port from live in the `u-connectMatter` repo under
+`companion/` - do not use u-connectClient or u-connectXpress as a starting
+point.
 
 ## Environment Variables
 
@@ -183,6 +227,7 @@ python scripts/nora_w30_build.py build wlan_sample
 |----------|--------|-------|---------|
 | ARMGCC_DIR | IRIS-W10 | Path to Arm GNU Toolchain root | `/c/Program Files/Arm/GNU Toolchain mingw-w64-x86_64-arm-none-eabi` |
 | NORA_W50_W51_WORKSPACE | NORA-W50/W51 | Override workspace location | `~/nora-w50-w51` |
+| UBX_MATTER_ROOT | Matter (all) | Where Matter SDKs are cloned | `~/ubx-matter` |
 | MSYSTEM | Git Bash | UCRT64 or MINGW64 | `UCRT64` (auto-detected) |
 
 ## Output Artifacts
@@ -251,16 +296,22 @@ python scripts/nora_w30_build.py build wlan_sample
   automatically on first run
 - Auto-load/save to track user choices between runs
 
-## When to Use Each Script
+## When to Use Each Command
 
-| Task | Script | Command |
-|------|--------|---------|
-| Verify tools installed | any | `python scripts/{script} doctor` |
-| Download SDK | {module}_build.py | `python scripts/{script} clone` |
-| List examples | {module}_build.py | `python scripts/{script} list` |
-| Build example | {module}_build.py | `python scripts/{script} build {example}` |
-| Clean build | {module}_build.py | `python scripts/{script} clean` |
-| Full pipeline | {module}_build.py | `python scripts/{script} all` |
+`<target>` is one of `iris-w10`, `nora-w30`, `nora-w40`, `nora-w50-w51`.
+
+| Task | Command |
+|------|---------|
+| Verify tools installed | `./ubx-sdk.sh <target> --doctor` |
+| Download SDK | `./ubx-sdk.sh <target> --clone` |
+| Install the SDK's tool env | `./ubx-sdk.sh <target> --install` |
+| List examples | `./ubx-sdk.sh <target> --list` |
+| Build example | `./ubx-sdk.sh <target> --build <example>` |
+| Clean build | `./ubx-sdk.sh <target> --clean` |
+| Remove the SDK | `./ubx-sdk.sh <target> --clean-all` |
+| Flash + log | `./ubx-sdk.sh <target> --flash --log` |
+| Full pipeline | `./ubx-sdk.sh <target> --clone --install --build <example>` |
+| Matter equivalent | `./ubx-matter.sh <target> --doctor` etc. (separate launcher) |
 
 ## Integration with u-blox MCP
 
@@ -284,7 +335,7 @@ facts; module docstrings have been wrong before.
 ### Unit Tests
 - Each build script has `cmd_doctor()` - verifies tools
 - Check docs/README for module-specific requirements
-- REVIEWERS_GUIDE.md has full test procedures
+- docs/REVIEWERS_GUIDE.md has full test procedures
 
 ### Integration Tests
 - Build empty/hello_world example for each module
@@ -320,32 +371,34 @@ facts; module docstrings have been wrong before.
 - **NORA-W50/W51:** ble_wifi_provisioning.out built successfully
 
 ### Ready for Build
-- **NORA-W40:** Requires ESP-IDF installation (`python scripts/nora_w40_build.py install`)
-- **NORA-W30:** Requires WSL2 Realtek SDK clone (`wsl -d Ubuntu-24.04 bash -c "... python scripts/nora_w30_build.py clone"`)
+- **NORA-W40:** Requires ESP-IDF installation (`./ubx-sdk.sh nora-w40 --install`)
+- **NORA-W30:** Requires WSL2 Realtek SDK clone (`./ubx-sdk.sh nora-w30 --clone`, hops into WSL2 automatically)
 
 ### Hardware Verification (Next Phase)
 When hardware is connected, test:
-1. **IRIS-W10 Serial Logging:** `python scripts/iris_w10_build.py log`
-2. **IRIS-W10 J-Link Flash:** `python scripts/iris_w10_build.py flash demo_apps/hello_world`
+1. **IRIS-W10 Serial Logging:** `./ubx-sdk.sh iris-w10 --log`
+2. **IRIS-W10 J-Link Flash:** `./ubx-sdk.sh iris-w10 --flash demo_apps/hello_world`
 3. **NORA-W50/W51 Hardware Test:** (TI reference board validation)
 4. **NORA-W30 Hardware Test:** (Realtek RTL872x validation on WSL2)
 5. **NORA-W40 Hardware Test:** (Espressif ESP32-C6 validation)
 
-See BUILD_TEST_RESULTS.md for detailed status and BUILD_ALL_EXAMPLES.md for complete build workflows.
+See docs/BUILD_TEST_RESULTS.md for detailed status and docs/BUILD_ALL_EXAMPLES.md for complete build workflows.
 
 ## Documentation Files
 
 | File | Purpose |
 |------|---------|
-| README.md (main) | Overview, quick start for all modules |
+| README.md | GettingStartedSDK overview, quick start for all modules |
+| matter/README.md | Matter apps, SDK map, how to add an app |
 | docs/iris_w10_README.md | IRIS-W10 detailed guide |
 | docs/nora_w50_w51_README.md | NORA-W50/W51 detailed guide |
 | docs/nora_w30_README.md | NORA-W30 WSL2 setup |
 | docs/nora_w40_README.md | NORA-W40 ESP-IDF setup |
-| BUILD_ALL_EXAMPLES.md | Complete building guide for all 4 |
-| QUICK_BUILD_REFERENCE.md | Command cheat sheet |
-| REVIEWERS_GUIDE.md | Team review procedures |
-| VENV_SETUP.md | Virtual environment guide |
+| docs/BUILD_ALL_EXAMPLES.md | Complete building guide for all 4 |
+| docs/QUICK_BUILD_REFERENCE.md | Command cheat sheet |
+| docs/REVIEWERS_GUIDE.md | Team review procedures |
+| docs/VENV_SETUP.md | Virtual environment guide |
+| docs/WORKSPACE_SETUP.md | VS Code workspace guide |
 
 ## Helpful Copilot Tasks
 

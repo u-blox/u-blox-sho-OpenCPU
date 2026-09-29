@@ -18,7 +18,7 @@ git checkout cmag_getting_started_sdk
 
 ```bash
 # Create shared Python virtual environment
-python GettingStartedSDK/setup_venv.py
+python GettingStartedSDK/scripts/setup_venv.py
 
 # Activate venv
 # Windows CMD:   .venv\Scripts\activate.bat
@@ -31,21 +31,24 @@ python GettingStartedSDK/setup_venv.py
 ```bash
 # Check new consolidated layout
 ls -la GettingStartedSDK/
-# Should see: scripts/, docs/, setup_venv.py, BUILD_ALL_EXAMPLES.md, etc.
+# Should see: ubx-sdk.cmd, ubx-sdk.sh, ubx-matter.cmd, ubx-matter.sh,
+#             scripts/, matter/, docs/, targets/, README.md
 ```
 
 ### 4. Test Infrastructure
 
 #### Test NORA-W50/W51 (Fully Working)
 ```bash
+cd GettingStartedSDK
+
 # List available examples
-python GettingStartedSDK/scripts/nora_w50_w51_build.py list
+./ubx-sdk.sh nora-w50-w51 --list
 
 # Build a simple example
-python GettingStartedSDK/scripts/nora_w50_w51_build.py build empty
+./ubx-sdk.sh nora-w50-w51 --build empty
 
 # Build WiFi example
-python GettingStartedSDK/scripts/nora_w50_w51_build.py build ble_wifi_provisioning
+./ubx-sdk.sh nora-w50-w51 --build ble_wifi_provisioning
 ```
 
 #### Test IRIS-W10 (NXP MCUXpresso)
@@ -129,23 +132,24 @@ repo/
 ```
 repo/
 └── GettingStartedSDK/
-    ├── scripts/ (4 build drivers + target_paths.py)
+    ├── ubx-sdk.cmd / .sh (single launcher for every target)
+    ├── ubx-matter.cmd / .sh (optional Matter layer)
+    ├── scripts/ (ubx.py, ubx_sdk.py, ubx_matter.py, matter_build.py,
+    │           4 build drivers, target_paths.py, setup_venv.py, migrate_venv.*)
+    ├── matter/ (per-target Matter apps)
     ├── targets/ (per-target base folders: sdk/, config/)
     │   ├── IRIS-W10/
     │   ├── NORA-W30/
     │   ├── NORA-W40/
     │   └── NORA-W50-W51/
-    ├── docs/ (4 variant READMEs)
+    ├── docs/ (4 variant READMEs + build guides)
     ├── .github/ (consolidated instructions)
-    ├── setup_venv.py
-    ├── BUILD_ALL_EXAMPLES.md
-    ├── QUICK_BUILD_REFERENCE.md
-    └── BUILD_TEST_RESULTS.md
+    └── README.md
 ```
 
 ### [OK] Shared Python Environment
 - Single `.venv/` at `GettingStartedSDK/.venv/`
-- `setup_venv.py` initializes venv for all variants
+- `scripts/setup_venv.py` initializes venv for all variants
 - Installs `west` for MCUXpresso SDK management
 - Works on Windows, WSL2, and Linux
 

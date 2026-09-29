@@ -2,8 +2,8 @@
 REM Helper script to migrate .venv from repo root to GettingStartedSDK/
 
 setlocal enabledelayedexpansion
-REM This script lives in GettingStartedSDK\, so the repo root is its parent.
-set "SDK_DIR=%~dp0"
+REM This script lives in GettingStartedSDK\scripts\.
+for %%I in ("%~dp0..") do set "SDK_DIR=%%~fI\"
 for %%I in ("%SDK_DIR%..") do set "REPO_ROOT=%%~fI\"
 set "OLD_VENV=%REPO_ROOT%.venv"
 set "NEW_VENV=%SDK_DIR%.venv"

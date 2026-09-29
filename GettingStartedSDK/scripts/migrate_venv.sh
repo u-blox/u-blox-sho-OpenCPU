@@ -1,8 +1,8 @@
 #!/bin/bash
 # Helper script to migrate .venv from repo root to GettingStartedSDK/
 
-# This script lives in GettingStartedSDK/, so the repo root is its parent.
-SDK_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# This script lives in GettingStartedSDK/scripts/.
+SDK_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 REPO_ROOT="$(cd "$SDK_DIR/.." && pwd)"
 OLD_VENV="$REPO_ROOT/.venv"
 NEW_VENV="$SDK_DIR/.venv"

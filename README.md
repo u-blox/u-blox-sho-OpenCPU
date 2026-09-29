@@ -2,11 +2,17 @@
 Repository with reference code for u-blox Open CPU modules.
 
 ## Quick Start Guide
+
+All four Wi-Fi/Bluetooth Open CPU modules share one build entry point:
+[`GettingStartedSDK/`](GettingStartedSDK/README.md) — `ubx-sdk.cmd` on Windows,
+`./ubx-sdk.sh` on Linux/WSL2/macOS, plus an optional `ubx-matter` launcher for
+Matter apps on the same silicon.
+
 Choose your product or SDK:
 
 - **[NORA-W50/W51 (TI CC35x1E + FreeRTOS)](#nora-w5051---getting-started-sdk)** — Wi-Fi 6 + Bluetooth LE with automated build tools
 - **[NORA-W30 (Realtek RTL872x)](#nora-w30---getting-started-sdk)** — Wi-Fi 6 + Bluetooth LE, Linux/WSL2 optimized
-- **[NORA-W40 (Espressif ESP32-S3)](#nora-w40---getting-started-sdk)** — Wi-Fi 6 + Bluetooth LE, ESP-IDF, Windows & Linux
+- **[NORA-W40 (Espressif ESP32-C6)](#nora-w40---getting-started-sdk)** — Wi-Fi 6 + Bluetooth LE, ESP-IDF, Windows & Linux
 - **[IRIS-W10 (NXP RW612/RW610)](#iris-w10---getting-started-sdk)** — Wi-Fi 6 + Bluetooth LE, MCUXpresso SDK, Windows/WSL2/Linux
 - **[nRF5 SDK](#nrf5-sdk)** — Bluetooth & Wi-Fi for ANNA, NINA, NORA-B, BMD series
 - **[Zephyr RTOS](#zephyr-rtos)** — BMD, MINI-NORA, EVK boards
@@ -21,7 +27,7 @@ Complete cross-platform build driver and comprehensive getting-started guide for
 - **README.md**: Full getting-started guide with prerequisites, build instructions, and example reference
 - Verified working with TI SimpleLink Wi-Fi SDK 10.20.00.39 and toolchains: SysConfig 1.28.0, TI Arm Clang, Arm GNU Toolchain, CMake, and GNU Make
 
-📖 **See [NORA-W50-W51-GettingStartedSDK/README.md](NORA-W50-W51-GettingStartedSDK/README.md) for complete setup instructions.**
+📖 **See [GettingStartedSDK/docs/nora_w50_w51_README.md](GettingStartedSDK/docs/nora_w50_w51_README.md) for complete setup instructions** — build with `GettingStartedSDK/ubx-sdk.cmd nora-w50-w51 --doctor`.
 
 ## NORA-W30 - Getting Started SDK
 Complete cross-platform build driver and comprehensive getting-started guide for NORA-W30 Open CPU modules (based on Realtek RTL872x SoC with Wi-Fi 6 and Bluetooth LE 5.3).
@@ -32,10 +38,10 @@ Complete cross-platform build driver and comprehensive getting-started guide for
 - Native Linux support; Windows via WSL2 recommended; Cygwin not supported
 - Verified with Ameba-RTOS and Realtek toolchain
 
-📖 **See [NORA-W30-GettingStartedSDK/README.md](NORA-W30-GettingStartedSDK/README.md) for complete setup instructions.**
+📖 **See [GettingStartedSDK/docs/nora_w30_README.md](GettingStartedSDK/docs/nora_w30_README.md) for complete setup instructions** — build with `GettingStartedSDK/ubx-sdk.cmd nora-w30 --doctor`.
 
 ## NORA-W40 - Getting Started SDK
-Complete cross-platform build driver and comprehensive getting-started guide for NORA-W40 Open CPU modules (based on Espressif ESP32-S3 SoC with Wi-Fi 6 and Bluetooth LE 5.3).
+Complete cross-platform build driver and comprehensive getting-started guide for NORA-W40 Open CPU modules (based on Espressif ESP32-C6 SoC with Wi-Fi 6 and Bluetooth LE 5.3).
 
 **What's included:**
 - **nora_w40_build.py**: Automated build orchestration (clone → configure → build examples) for Windows, WSL2, and Linux
@@ -43,7 +49,7 @@ Complete cross-platform build driver and comprehensive getting-started guide for
 - Excellent support on both Windows (native) and Linux with latest ESP-IDF v5.x
 - Verified with Espressif ESP-IDF toolchain
 
-📖 **See [NORA-W40-GettingStartedSDK/README.md](NORA-W40-GettingStartedSDK/README.md) for complete setup instructions.**
+📖 **See [GettingStartedSDK/docs/nora_w40_README.md](GettingStartedSDK/docs/nora_w40_README.md) for complete setup instructions** — build with `GettingStartedSDK/ubx-sdk.cmd nora-w40 --doctor`.
 
 ## nRF5 SDK
 Bluetooth and Wi-Fi enabled modules with Nordic nRF5 SDK support.
@@ -130,7 +136,7 @@ Complete cross-platform build driver and comprehensive getting-started guide for
 - Variants: IRIS-W101 (external antenna), IRIS-W106 (PCB antenna); 8 MB or 16 MB flash
 - Evaluation boards: EVK-IRIS-W10, USB-IRIS-W10
 
-📖 **See [IRIS-W10-GettingStartedSDK/README.md](IRIS-W10-GettingStartedSDK/README.md) for complete setup instructions.**
+📖 **See [GettingStartedSDK/docs/iris_w10_README.md](GettingStartedSDK/docs/iris_w10_README.md) for complete setup instructions** — build with `GettingStartedSDK/ubx-sdk.cmd iris-w10 --doctor`.
 
 ## NINA-W10 OTP and RF Calibration
 Tools and examples for NINA-W10 series modules:

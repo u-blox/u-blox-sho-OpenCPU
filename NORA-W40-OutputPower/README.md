@@ -43,9 +43,9 @@ f it shows that means the RF calibration with updated values work correctly.
 
 ## Compiling
 
-Set the device target esp32 by running the command bellow:
+Set the device target by running the command bellow:
 
-`idf.py set-target esp32-s3`
+`idf.py set-target esp32c6`
 
 Open the project configuration menu:
 

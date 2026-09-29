@@ -607,7 +607,7 @@ def main():
     if not is_venv_active():
         print("[TIP] Running outside virtual environment.")
         print("   Consider setting up the shared venv for better isolation:")
-        print("   1. cd .. && python ../setup_venv.py")
+        print("   1. cd .. && python ../scripts/setup_venv.py")
         print("   2. Then activate: .venv\\Scripts\\activate (Windows) or source .venv/bin/activate (Linux/macOS)")
         print()
 
