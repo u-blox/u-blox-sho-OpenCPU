@@ -6,11 +6,11 @@ Mirrors the per-target SDK drivers, but for the Matter layer: the Matter SDK
 for a target is fetched on demand into ``targets/<TARGET>/sdk/matter/`` and the
 application sources live in ``matter/<TARGET>/<app>/``.
 
-    python scripts/matter_build.py nora-w40 doctor
-    python scripts/matter_build.py nora-w40 clone
-    python scripts/matter_build.py nora-w40 build thermometer
+    python scripts/matter_build.py nora-w4 doctor
+    python scripts/matter_build.py nora-w4 clone
+    python scripts/matter_build.py nora-w4 build thermometer
 
-Usually invoked via the Matter launcher: ``ubx-matter nora-w40 --doctor``.
+Usually invoked via the Matter launcher: ``ubx-matter nora-w4 --doctor``.
 """
 
 from __future__ import annotations
@@ -51,23 +51,23 @@ class MatterTarget:
 
 
 TARGETS: dict[str, MatterTarget] = {
-    "iris-w10": MatterTarget(
-        key="iris-w10",
-        slug="iris_w10",
-        folder="IRIS-W10",
-        label="IRIS-W10 (NXP RW612) Matter",
+    "iris-w1": MatterTarget(
+        key="iris-w1",
+        slug="iris_w1",
+        folder="IRIS-W1",
+        label="IRIS-W1 (NXP RW612) Matter",
         repos=(
-            Repo("connectedhomeip", "https://github.com/project-chip/connectedhomeip.git",
-                 "master", "~10 GB after NXP submodules", submodules=False),
+            Repo("connectedhomeip", "https://github.com/NXP/matter.git",
+                 "v1.6.0.0.1", "~10 GB after submodules", submodules=False),
         ),
         linux_only=True,
-        note="Builds the upstream connectedhomeip NXP rt/rw61x app (GN + ninja).",
+        note="Builds the NXP connectedhomeip fork, examples/*/nxp/rt/rw61x (GN + ninja).",
     ),
-    "nora-w30": MatterTarget(
-        key="nora-w30",
-        slug="nora_w30",
-        folder="NORA-W30",
-        label="NORA-W30 (Realtek RTL8720DF) Matter",
+    "nora-w3": MatterTarget(
+        key="nora-w3",
+        slug="nora_w3",
+        folder="NORA-W3",
+        label="NORA-W3 (Realtek RTL8720DF) Matter",
         repos=(
             Repo("ameba-rtos-d", "https://github.com/Ameba-AIoT/ameba-rtos-d.git",
                  "master", "~2 GB"),
@@ -77,11 +77,11 @@ TARGETS: dict[str, MatterTarget] = {
         linux_only=True,
         note="ameba-rtos-matter must be synced into ameba-rtos-d before building.",
     ),
-    "nora-w40": MatterTarget(
-        key="nora-w40",
-        slug="nora_w40",
-        folder="NORA-W40",
-        label="NORA-W40 (Espressif ESP32-C6) Matter",
+    "nora-w4": MatterTarget(
+        key="nora-w4",
+        slug="nora_w4",
+        folder="NORA-W4",
+        label="NORA-W4 (Espressif ESP32-C6) Matter",
         repos=(
             Repo("esp-idf", "https://github.com/espressif/esp-idf.git",
                  "v5.4.1", "~3 GB", submodules=True),
@@ -91,14 +91,17 @@ TARGETS: dict[str, MatterTarget] = {
         linux_only=True,
         note="Espressif only supports esp-matter on Linux/WSL2, not native Windows.",
     ),
-    "nora-w50-w51": MatterTarget(
-        key="nora-w50-w51",
-        slug="nora_w50_w51",
-        folder="NORA-W50-W51",
-        label="NORA-W50/W51 (TI CC35XX) Matter",
-        repos=(),
-        linux_only=False,
-        note="No public Matter SDK for CC35XX yet; track TI's SimpleLink releases.",
+    "nora-w5": MatterTarget(
+        key="nora-w5",
+        slug="nora_w5",
+        folder="NORA-W5",
+        label="NORA-W5 (TI CC3551E) Matter",
+        repos=(
+            Repo("ti-matter", "https://github.com/TexasInstruments/matter.git",
+                 "matter-v1.5-ti-1.1", "~8 GB after submodules", submodules=True),
+        ),
+        linux_only=True,
+        note="TI connectedhomeip fork, CC3551E on LP-EM-CC35X1. Ubuntu 22.04 only.",
     ),
 }
 
@@ -145,8 +148,6 @@ def cmd_doctor(target: MatterTarget, args) -> int:
         print(f"[{'OK' if path else 'FAIL'}] {tool:<8} {path or 'not found'}")
 
     print()
-    if not target.repos:
-        print("[WARNING] No Matter SDK is defined for this target yet.")
     for repo in target.repos:
         dest = matter_root(target) / repo.name
         state = "present" if (dest / ".git").exists() else "missing"
@@ -176,11 +177,6 @@ def cmd_list(target: MatterTarget, args) -> int:
 
 
 def cmd_clone(target: MatterTarget, args) -> int:
-    if not target.repos:
-        print(f"[FAIL] No Matter SDK is available for {target.label} yet.")
-        print(f"       {target.note}")
-        return 1
-
     root = matter_root(target)
     root.mkdir(parents=True, exist_ok=True)
     total = ", ".join(f"{r.name} {r.size_hint}" for r in target.repos)
@@ -258,9 +254,6 @@ def cmd_clean(target: MatterTarget, args) -> int:
 
 
 def cmd_install(target: MatterTarget, args) -> int:
-    if not target.repos:
-        print(f"[FAIL] No Matter SDK is available for {target.label} yet.")
-        return 1
     root = matter_root(target)
     missing = [r.name for r in target.repos if not (root / r.name / ".git").exists()]
     if missing:

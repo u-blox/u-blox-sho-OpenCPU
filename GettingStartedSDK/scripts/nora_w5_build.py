@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Build TI SimpleLink Wi-Fi SDK examples for NORA-W50/W51 (TI CC35x1E).
+Build TI SimpleLink Wi-Fi SDK examples for NORA-W5 (TI CC35x1E).
 
 Works on Windows, WSL2 and native Linux. It can use either:
 
@@ -9,15 +9,15 @@ Works on Windows, WSL2 and native Linux. It can use either:
 
 Typical flow:
 
-    python nora_w50_w51_build.py doctor                    # what is installed / missing
-    python nora_w50_w51_build.py configure                 # write tool paths into imports.mak
-    python nora_w50_w51_build.py build-sdk                 # build SDK libraries (slow, once)
-    python nora_w50_w51_build.py list                      # show available examples
-    python nora_w50_w51_build.py build network_terminal
+    python nora_w5_build.py doctor                    # what is installed / missing
+    python nora_w5_build.py configure                 # write tool paths into imports.mak
+    python nora_w5_build.py build-sdk                 # build SDK libraries (slow, once)
+    python nora_w5_build.py list                      # show available examples
+    python nora_w5_build.py build network_terminal
 
 If you have no installed SDK, get one with:
 
-    python nora_w50_w51_build.py clone
+    python nora_w5_build.py clone
 """
 
 from __future__ import annotations
@@ -36,7 +36,7 @@ from pathlib import Path
 import serial_logger
 import target_paths
 
-TARGET = "nora_w50_w51"
+TARGET = "nora_w5"
 
 SCRIPT_DIR = Path(__file__).resolve().parent.parent  # GettingStartedSDK root
 
@@ -92,7 +92,7 @@ class Fail(Exception):
 
 
 def log(msg: str) -> None:
-    print(f"[nora-w50-w51] {msg}", flush=True)
+    print(f"[nora-w5] {msg}", flush=True)
 
 
 def run(cmd: list[str], cwd: Path | None = None, check: bool = True) -> int:
@@ -280,12 +280,12 @@ def resolve_tools(args) -> dict[str, str]:
 
 
 def default_workspace() -> Path:
-    env = os.environ.get("NORA_W50_W51_WORKSPACE")
+    env = os.environ.get("NORA_W5_WORKSPACE")
     if env:
         return Path(env).expanduser().resolve()
     if HOST == "wsl":
         # /mnt/<drive> builds are painfully slow under WSL2.
-        return Path.home() / "nora-w50-w51"
+        return Path.home() / "nora-w5"
     return target_paths.sdk_dir(TARGET)
 
 
@@ -354,7 +354,7 @@ def active_tree(args) -> Tree:
         raise Fail(
             "no SDK found. Either install the TI SimpleLink Wi-Fi SDK "
             "(https://www.ti.com/tool/download/SIMPLELINK-WIFI-SDK), "
-            "or run: python nora_w50_w51_build.py clone"
+            "or run: python nora_w5_build.py clone"
         )
 
     wanted = getattr(args, "source", None) or load_config().get("source")
@@ -492,7 +492,7 @@ def cmd_doctor(args) -> None:
     if missing:
         print("\nmissing: " + ", ".join(missing))
         print("See README.md section 2 for download links, or pass explicit paths:")
-        print("  python nora_w50_w51_build.py configure --gcc_armcompiler <dir>")
+        print("  python nora_w5_build.py configure --gcc_armcompiler <dir>")
     else:
         print("\nall required tools found.")
     print()
@@ -521,16 +521,16 @@ def cmd_clone(args) -> None:
 
 def cmd_install(args) -> None:
     """Show TI toolchain installation info."""
-    log("[OK] Environment Setup for NORA-W50/W51 (TI SimpleLink)\n")
+    log("[OK] Environment Setup for NORA-W5 (TI SimpleLink)\n")
     log("TI toolchain consists of separate installers:\n")
-    log("  1. SysConfig      → https://www.ti.com/tool/SYSCONFIG")
-    log("  2. TI Arm Clang   → https://www.ti.com/tool/download/ARM-CGT-CLANG")
-    log("  3. Arm GNU        → https://developer.arm.com/downloads/-/arm-gnu-toolchain-downloads")
-    log("  4. CMake          → https://cmake.org/download")
-    log("  5. SimpleLink SDK → https://www.ti.com/tool/download/SIMPLELINK-WIFI-SDK")
-    log("      or clone:    → https://github.com/TexasInstruments/simplelink-wifi-sdk\n")
+    log("  1. SysConfig      -> https://www.ti.com/tool/SYSCONFIG")
+    log("  2. TI Arm Clang   -> https://www.ti.com/tool/download/ARM-CGT-CLANG")
+    log("  3. Arm GNU        -> https://developer.arm.com/downloads/-/arm-gnu-toolchain-downloads")
+    log("  4. CMake          -> https://cmake.org/download")
+    log("  5. SimpleLink SDK -> https://www.ti.com/tool/download/SIMPLELINK-WIFI-SDK")
+    log("      or clone:    -> https://github.com/TexasInstruments/simplelink-wifi-sdk\n")
     log("To verify installation, run:")
-    log("  python nora_w50_w51_build.py doctor\n")
+    log("  python nora_w5_build.py doctor\n")
     log("For detailed setup instructions, see README.md section 2.\n")
 
 
@@ -636,50 +636,49 @@ def cmd_all(args) -> None:
     cmd_build(args)
 
 
-def cmd_log(args) -> None:
+def cmd_log(args) -> int:
     """Open serial monitor for debugging output."""
     port = getattr(args, 'port', None)
-    
-    print("\n📡 NORA-W50/W51 Serial Monitor (115200 baud)")
+
+    print("\nNORA-W5 Serial Monitor (115200 baud)")
     print("   Use Ctrl+C to exit\n")
-    
+
     import serial_logger
-    serial_logger.open_serial_monitor(port, 115200)
+    return serial_logger.open_serial_monitor(port, 115200)
 
 
-def cmd_flash(args) -> None:
+def cmd_flash(args) -> int:
     """Flash firmware using XDS110 or other debugger."""
-    print("\n🔗 NORA-W50/W51 Flash Utility (XDS110)\n")
-    
+    print("\nNORA-W5 Flash Utility (XDS110)\n")
+
     import flash_helper
-    
+
     # Find build output
     tree = active_tree(args)
     examples = find_examples(tree, args.board)
-    
+
     if args.example not in examples:
         print(f"[FAIL] Example not found: {args.example}")
         print(f"   Available: {', '.join(examples.keys())}")
-        return
-    
+        return 1
+
     bdir = build_dir(examples[args.example], args.toolchain)
-    
+
     # Look for firmware files
-    firmware_files = sorted(p for p in bdir.iterdir() 
+    firmware_files = sorted(p for p in bdir.iterdir()
                            if p.suffix in (".out", ".axf", ".bin", ".hex"))
-    
+
     if not firmware_files:
         print(f"[FAIL] No firmware found in {bdir}")
-        print("   Build first with: python nora_w50_w51_build.py build {args.example}")
-        return
-    
+        print(f"   Build first with: python nora_w5_build.py build {args.example}")
+        return 1
+
     firmware = firmware_files[0]
-    print(f"📝 Flashing: {firmware.name}")
+    print(f"Flashing: {firmware.name}")
     print(f"   Location: {bdir}\n")
-    
+
     # Flash using XDS110
-    result = flash_helper.flash_xds110(str(firmware), args.serial)
-    sys.exit(result)
+    return flash_helper.flash_xds110(str(firmware), args.serial)
 
 
 # --------------------------------------------------------------------------- #
@@ -688,12 +687,12 @@ def cmd_flash(args) -> None:
 
 def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(
-        prog="nora_w50_w51_build.py",
+        prog="nora_w5_build.py",
         description=__doc__,
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     p.add_argument("--workspace", help="where cloned repos live "
-                                       "(default: ~/nora-w50-w51 on WSL, ./workspace otherwise)")
+                                       "(default: ~/nora-w5 on WSL, ./workspace otherwise)")
     p.add_argument("--sdk", help="use this SDK root directly")
     p.add_argument("--source", choices=["installed", *REPOS], help="which SDK tree to use")
     for key in TOOL_KEYS:
@@ -762,14 +761,14 @@ def main() -> int:
         log("nothing to build: name an example or use --all (see 'list')")
         return 2
     try:
-        args.func(args)
+        rc = args.func(args)
     except Fail as exc:
         log(f"ERROR: {exc}")
         return 1
     except KeyboardInterrupt:
         log("interrupted")
         return 130
-    return 0
+    return rc or 0
 
 
 if __name__ == "__main__":

@@ -1,20 +1,20 @@
-# u-blox IRIS-W10 Module (NXP RW612/RW610)
+# u-blox IRIS-W1 Module (NXP RW612/RW610)
 
-This repository contains setup information, configuration files, and example binaries for the u-blox IRIS-W10 module.
+This repository contains setup information, configuration files, and example binaries for the u-blox IRIS-W1 module.
 
 ## Quick Start
 
 Build and flash a Wi-Fi example in 3 commands:
 
 ```bash
-python iris_w10_build.py install          # Install west + report toolchain status
-python iris_w10_build.py clone            # Fetch MCUXpresso SDK (~2 GB, RW612 only)
-python iris_w10_build.py build demo_apps/hello_world  # Build example
+python iris_w1_build.py install          # Install west + report toolchain status
+python iris_w1_build.py clone            # Fetch MCUXpresso SDK (~2 GB, RW612 only)
+python iris_w1_build.py build demo_apps/hello_world  # Build example
 ```
 
 ## Features
 
-| Feature | IRIS-W10 |
+| Feature | IRIS-W1 |
 |---------|---------|
 | **SoC** | NXP RW612 (with Thread) or RW610 (Wi-Fi + BLE only) |
 | **MCU** | Arm Cortex-M33 @ 260 MHz |
@@ -24,7 +24,7 @@ python iris_w10_build.py build demo_apps/hello_world  # Build example
 | **Open CPU** | Embedded MCU for custom applications |
 | **SDK** | NXP MCUXpresso (west/CMake/Ninja) |
 | **Variants** | IRIS-W101 (external antenna), IRIS-W106 (PCB antenna); 8 MB or 16 MB flash |
-| **Evaluation Boards** | EVK-IRIS-W10, USB-IRIS-W10 |
+| **Evaluation Boards** | EVK-IRIS-W1, USB-IRIS-W1 |
 
 ## Prerequisites
 
@@ -58,7 +58,7 @@ export ARMGCC_DIR=/usr
 
 **Verify:**
 ```bash
-python iris_w10_build.py doctor
+python iris_w1_build.py doctor
 ```
 
 ## Installation & Setup
@@ -96,7 +96,7 @@ To deactivate later: `deactivate`
 ### 1. Install Build Dependencies
 
 ```bash
-python iris_w10_build.py install
+python iris_w1_build.py install
 ```
 
 This will:
@@ -121,7 +121,7 @@ sudo apt update && sudo apt install -y cmake ninja-build gcc-arm-none-eabi
 ### 2. Clone SDK & Workspace
 
 ```bash
-python iris_w10_build.py clone
+python iris_w1_build.py clone
 ```
 
 **Options:**
@@ -142,14 +142,14 @@ This creates:
 
 **List available examples:**
 ```bash
-python iris_w10_build.py list
+python iris_w1_build.py list
 ```
 
 **Build an example:**
 ```bash
-python iris_w10_build.py build demo_apps/hello_world
-python iris_w10_build.py build wifi_cli --config release
-python iris_w10_build.py build ble_peripheral -p  # pristine (clean) build
+python iris_w1_build.py build demo_apps/hello_world
+python iris_w1_build.py build wifi_cli --config release
+python iris_w1_build.py build ble_peripheral -p  # pristine (clean) build
 ```
 
 **Build output:**
@@ -165,21 +165,21 @@ python iris_w10_build.py build ble_peripheral -p  # pristine (clean) build
 
 | Command | Purpose |
 |---------|---------|
-| `python iris_w10_build.py doctor` | Verify environment & tools |
-| `python iris_w10_build.py install` | Install west + show tool requirements |
-| `python iris_w10_build.py clone` | Initialize west workspace (2 GB, RW612 board only) |
-| `python iris_w10_build.py clone --full` | Fetch complete SDK (7 GB) |
-| `python iris_w10_build.py list` | Show available examples |
-| `python iris_w10_build.py build <example>` | Build an example |
-| `python iris_w10_build.py build <example> --config release` | Release build (optimized) |
-| `python iris_w10_build.py build <example> -p` | Pristine (force clean) build |
-| `python iris_w10_build.py clean` | Remove build artifacts |
-| `python iris_w10_build.py clean --all` | Remove entire SDK workspace |
-| `python iris_w10_build.py all demo_apps/hello_world` | Full pipeline (install → clone → build) |
+| `python iris_w1_build.py doctor` | Verify environment & tools |
+| `python iris_w1_build.py install` | Install west + show tool requirements |
+| `python iris_w1_build.py clone` | Initialize west workspace (2 GB, RW612 board only) |
+| `python iris_w1_build.py clone --full` | Fetch complete SDK (7 GB) |
+| `python iris_w1_build.py list` | Show available examples |
+| `python iris_w1_build.py build <example>` | Build an example |
+| `python iris_w1_build.py build <example> --config release` | Release build (optimized) |
+| `python iris_w1_build.py build <example> -p` | Pristine (force clean) build |
+| `python iris_w1_build.py clean` | Remove build artifacts |
+| `python iris_w1_build.py clean --all` | Remove entire SDK workspace |
+| `python iris_w1_build.py all demo_apps/hello_world` | Full pipeline (install -> clone -> build) |
 
 ## Flashing & Debugging
 
-### Onboard Debugger (EVK-IRIS-W10)
+### Onboard Debugger (EVK-IRIS-W1)
 
 EVK boards include an **MCU-Link** onboard debugger. To program:
 
@@ -190,7 +190,7 @@ west flash -r linkserver
 
 Or use the MCUXpresso IDE's Debug feature.
 
-### External Debugger (USB-IRIS-W10)
+### External Debugger (USB-IRIS-W1)
 
 Connect a J-Link or MCU-Link Pro via the JTAG/SWD header, then:
 
@@ -229,7 +229,7 @@ Key files:
 
 ### west not found
 ```
-[FAIL] west not found. Run 'python iris_w10_build.py install' first.
+[FAIL] west not found. Run 'python iris_w1_build.py install' first.
 ```
 **Fix:** Run `python -m pip install -U west`
 
@@ -257,18 +257,18 @@ sudo apt install cmake
 ### build/ directory exists (force rebuild)
 Use the `-p` (pristine) flag:
 ```bash
-python iris_w10_build.py build demo_apps/hello_world -p
+python iris_w1_build.py build demo_apps/hello_world -p
 ```
 
 ### Need a specific SDK version
 ```bash
-python iris_w10_build.py clone --revision v25.03.00
+python iris_w1_build.py clone --revision v25.03.00
 ```
 
 ### Partial download (only RW612)?
 Default behavior fetches ~2 GB (RW612 only). For full SDK (~7 GB):
 ```bash
-python iris_w10_build.py clone --full
+python iris_w1_build.py clone --full
 ```
 
 ## Performance & Disk Space
@@ -295,12 +295,12 @@ python iris_w10_build.py clone --full
 - **u-blox OpenCPU GitHub:** https://github.com/u-blox/u-blox-sho-OpenCPU
 - **NXP MCUXpresso SDK:** https://mcuxpresso.nxp.com
 - **MCUXpresso SDK Documentation:** https://mcuxpresso.nxp.com/mcuxsdk/latest/html/
-- **IRIS-W10 Datasheet:** https://content.u-blox.com/sites/default/files/documents/IRIS-W10_DataSheet_UBX-23002331.pdf
-- **EVK-IRIS-W10 User Guide:** https://content.u-blox.com/sites/default/files/documents/EVK-IRIS-W10_UserGuide_UBX-23007837.pdf
+- **IRIS-W1 Datasheet:** https://content.u-blox.com/sites/default/files/documents/IRIS-W1_DataSheet_UBX-23002331.pdf
+- **EVK-IRIS-W1 User Guide:** https://content.u-blox.com/sites/default/files/documents/EVK-IRIS-W1_UserGuide_UBX-23007837.pdf
 - **Arm GNU Toolchain:** https://developer.arm.com/Tools%20and%20Software/GNU%20Toolchain
 
 ## See Also
 
-- [IRIS-W1 Getting Started](../IRIS-W1-GettingStartedSDK/README.md) — Alternative RW612 variant
+- [IRIS-W1 product page](https://www.u-blox.com/en/product/iris-w1-series) — module variants and documentation
 - [BUILD_ALL_EXAMPLES.md](BUILD_ALL_EXAMPLES.md) — Cross-variant build guide
 - [QUICK_BUILD_REFERENCE.md](QUICK_BUILD_REFERENCE.md) — Command cheatsheet for all variants

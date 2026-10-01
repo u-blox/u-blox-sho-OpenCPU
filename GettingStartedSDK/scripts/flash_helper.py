@@ -3,18 +3,20 @@
 Common flash utility for u-blox modules.
 
 Supports:
-- J-Link (IRIS-W10, IRIS-W16x, NORA-W36x)
-- XDS110 (NORA-W56x)
-- ESP-IDF tools (NORA-W40)
-- UART DFU (NORA-W30)
+- J-Link / MCU-Link (IRIS-W1)
+- J-Link OB (NORA-B2, ALMA-B2)
+- XDS110 (NORA-W5)
+- ESP-IDF tools (NORA-W4)
+- UART DFU (NORA-W3)
 
 Usage:
     python flash_helper.py --device RW612 --file build/zephyr.hex --jlink
-    python flash_helper.py --device CC3520SF --file build/app.bin --xds110
+    python flash_helper.py --device CC3551E --file build/app.bin --xds110
 """
 
 import sys
 import os
+import shutil
 import subprocess
 from pathlib import Path
 from typing import Optional
@@ -50,56 +52,73 @@ def find_jlink_devices():
     """Find available J-Link debuggers."""
     if not HAS_PYLINK:
         return []
-    
+
+    devices = []
     try:
-        from pylink import JLink
-        # Get number of connected J-Link devices
         count = JLink.num_connected_emulators()
-        devices = []
-        for i in range(count):
-            try:
-                jlink = JLink()
-                info = jlink.open(devnum=i)
-                devices.append({
-                    'index': i,
-                    'serial': jlink.serial_number,
-                    'product': f"J-Link (SN: {jlink.serial_number})"
-                })
-                jlink.close()
-            except:
-                pass
-        return devices
-    except:
+    except Exception as e:
+        print(f"[WARNING] Could not enumerate J-Link probes: {e}")
         return []
+
+    for i in range(count):
+        try:
+            jlink = JLink()
+            jlink.open(devnum=i)
+            devices.append({
+                'index': i,
+                'serial': jlink.serial_number,
+                'product': f"J-Link (SN: {jlink.serial_number})"
+            })
+            jlink.close()
+        except Exception as e:
+            print(f"[WARNING] J-Link probe {i} could not be opened: {e}")
+    return devices
+
+
+def _find_xdsiod() -> Optional[str]:
+    """Locate xdsiod, which ships inside CCS rather than on PATH."""
+    found = shutil.which('xdsiod')
+    if found:
+        return found
+
+    roots = [os.environ.get('CCS_INSTALL_ROOT'), 'C:/ti', '/opt/ti',
+             str(Path.home() / 'ti')]
+    exe = 'xdsiod.exe' if os.name == 'nt' else 'xdsiod'
+    for root in roots:
+        if not root or not Path(root).is_dir():
+            continue
+        for candidate in sorted(Path(root).glob(f"**/ccs_base/common/uscif/{exe}")):
+            return str(candidate)
+    return None
 
 
 def find_xds110_devices():
     """Find available XDS110 debuggers."""
-    # XDS110 detection typically requires TI tools
-    # For now, return placeholder
+    xdsiod = _find_xdsiod()
+    if not xdsiod:
+        return []
+
     try:
         result = subprocess.run(
-            ['xdsiod', 'l'], 
-            capture_output=True, 
+            [xdsiod, 'l'],
+            capture_output=True,
             text=True,
             timeout=5
         )
-        if result.returncode == 0:
-            # Parse XDS110 list
-            devices = []
-            for line in result.stdout.split('\n'):
-                if 'XDS110' in line:
-                    devices.append({'product': line.strip()})
-            return devices
-    except:
-        pass
-    return []
+    except (OSError, subprocess.SubprocessError) as e:
+        print(f"[WARNING] xdsiod failed: {e}")
+        return []
+
+    if result.returncode != 0:
+        return []
+    return [{'product': line.strip()}
+            for line in result.stdout.splitlines() if 'XDS110' in line]
 
 
 def flash_jlink(device: str, firmware_file: str, address: int = 0, serial: Optional[str] = None) -> int:
     """
     Flash firmware using J-Link.
-    
+
     Args:
         device: Target device (e.g., 'RW612', 'RTL8721D')
         firmware_file: Path to .hex or .bin file
@@ -109,30 +128,30 @@ def flash_jlink(device: str, firmware_file: str, address: int = 0, serial: Optio
     if not HAS_PYLINK:
         print("[FAIL] pylink not installed. Install with: pip install pylink-square")
         return 1
-    
+
     fw_path = Path(firmware_file)
     if not fw_path.exists():
         print(f"[FAIL] Firmware file not found: {firmware_file}")
         return 1
-    
+
     try:
         with JLink(serial_no=serial) as jlink:
             jlink.set_tif(JLinkInterfaces.SWD)
             jlink.disable_dialog_boxes()
-            
-            print(f"\n🔗 Connecting to {device}...")
+
+            print(f"\nConnecting to {device}...")
             jlink.connect(device)
             jlink.halt()
-            
-            print(f"📝 Flashing {fw_path.name}...")
+
+            print(f"Flashing {fw_path.name}...")
             jlink.flash_file(str(fw_path), address)
-            
-            print("🔄 Resetting...")
+
+            print("Resetting...")
             jlink.set_reset_pin_low()
             import time
             time.sleep(0.1)
             jlink.set_reset_pin_high()
-            
+
             print("[OK] Flash complete!\n")
             return 0
     except Exception as e:
@@ -143,42 +162,51 @@ def flash_jlink(device: str, firmware_file: str, address: int = 0, serial: Optio
 def flash_xds110(firmware_file: str, device_serial: Optional[str] = None) -> int:
     """
     Flash firmware using XDS110 with TI tools.
-    
+
     Args:
         firmware_file: Path to firmware (tool_settings.json location)
         device_serial: XDS110 serial number
     """
+    toolbox = os.environ.get('TI_TOOLBOX')
+    if toolbox:
+        if not Path(toolbox).exists() and not shutil.which(toolbox):
+            print(f"[FAIL] TI_TOOLBOX does not point at an executable: {toolbox}")
+            return 1
+    else:
+        toolbox = shutil.which('simplelink-wifi-toolbox')
+        if not toolbox:
+            print("[FAIL] SimpleLink Wi-Fi Toolbox not found.")
+            print("       Install it, then set TI_TOOLBOX to its executable path.")
+            return 1
+
+    cmd = [
+        toolbox,
+        'programmer',
+        '-i', 'XDS110',
+        'programming',
+        '--tool_settings', firmware_file,
+        '--verbose'
+    ]
+
+    if device_serial:
+        cmd.insert(3, device_serial)
+
+    print("\nFlashing with XDS110...")
     try:
-        # Use TI's simplelink-wifi-toolbox for flashing
-        toolbox = os.environ.get('TI_TOOLBOX', 'simplelink-wifi-toolbox')
-        
-        cmd = [
-            toolbox,
-            'programmer',
-            '-i', 'XDS110',
-            'programming',
-            '--tool_settings', firmware_file,
-            '--verbose'
-        ]
-        
-        if device_serial:
-            cmd.insert(3, device_serial)
-        
-        print(f"\n🔗 Flashing with XDS110...")
         result = subprocess.run(cmd)
-        
-        if result.returncode == 0:
-            print("[OK] Flash complete!\n")
-        return result.returncode
-    except Exception as e:
+    except (OSError, subprocess.SubprocessError) as e:
         print(f"[FAIL] Flash failed: {e}\n")
         return 1
+
+    if result.returncode == 0:
+        print("[OK] Flash complete!\n")
+    return result.returncode
 
 
 def flash_uart_dfu(port: str, firmware_file: str, baudrate: int = 115200) -> int:
     """
-    Flash firmware using UART DFU protocol (NORA-W30 Realtek).
-    
+    Flash firmware using UART DFU protocol (NORA-W3 Realtek).
+
     Args:
         port: Serial port
         firmware_file: Path to firmware
@@ -187,7 +215,7 @@ def flash_uart_dfu(port: str, firmware_file: str, baudrate: int = 115200) -> int
     if not HAS_PYSERIAL:
         print("[FAIL] pyserial not installed. Install with: pip install pyserial")
         return 1
-    
+
     print(f"[WARNING] UART DFU flashing not yet implemented for {firmware_file}")
     print("   Use Realtek's flash tools directly")
     return 1
@@ -195,8 +223,8 @@ def flash_uart_dfu(port: str, firmware_file: str, baudrate: int = 115200) -> int
 
 def flash_esptool(firmware_file: str, port: Optional[str] = None, baudrate: int = 460800) -> int:
     """
-    Flash firmware using esptool (NORA-W40 ESP32).
-    
+    Flash firmware using esptool (NORA-W4 ESP32).
+
     Args:
         firmware_file: Path to firmware or app.bin
         port: Serial port (auto-detected if None)
@@ -204,18 +232,18 @@ def flash_esptool(firmware_file: str, port: Optional[str] = None, baudrate: int 
     """
     try:
         import esptool
-        
+
         if port is None:
             # Auto-detect port
             if HAS_PYSERIAL:
                 ports = serial.tools.list_ports.comports()
                 if ports:
                     port = ports[0].device
-        
+
         if not port:
             print("[FAIL] No serial port found for ESP32")
             return 1
-        
+
         cmd = [
             'esptool.py',
             '--chip', 'esp32c6',
@@ -224,10 +252,10 @@ def flash_esptool(firmware_file: str, port: Optional[str] = None, baudrate: int 
             'write_flash',
             '0x0', firmware_file
         ]
-        
-        print(f"\n🔗 Flashing ESP32-C6 via {port}...")
+
+        print(f"\nFlashing ESP32-C6 via {port}...")
         result = subprocess.run(cmd)
-        
+
         if result.returncode == 0:
             print("[OK] Flash complete!\n")
         return result.returncode
@@ -242,7 +270,7 @@ def flash_esptool(firmware_file: str, port: Optional[str] = None, baudrate: int 
 def auto_detect_debugger():
     """
     Auto-detect available debugger and return type + devices.
-    
+
     Returns:
         (debugger_type, devices) tuple
         debugger_type: 'jlink', 'xds110', or None
@@ -252,19 +280,19 @@ def auto_detect_debugger():
     jlink_devices = find_jlink_devices()
     if jlink_devices:
         return 'jlink', jlink_devices
-    
+
     # Check for XDS110
     xds110_devices = find_xds110_devices()
     if xds110_devices:
         return 'xds110', xds110_devices
-    
+
     return None, []
 
 
 def main():
     """CLI entry point."""
     import argparse
-    
+
     parser = argparse.ArgumentParser(
         description="Flash firmware to u-blox modules",
         epilog="""
@@ -275,7 +303,7 @@ Examples:
   python flash_helper.py --device esp32c6 --file app.bin --esptool
         """
     )
-    
+
     parser.add_argument('--device', help='Target device')
     parser.add_argument('--file', required=True, help='Firmware file path')
     parser.add_argument('--address', type=lambda x: int(x, 0), default=0,
@@ -284,7 +312,7 @@ Examples:
     parser.add_argument('--port', help='Serial port for UART/esptool')
     parser.add_argument('--baudrate', type=int, default=460800,
                        help='Baud rate for UART (default: 460800)')
-    
+
     # Debugger selection
     debug_group = parser.add_mutually_exclusive_group(required=True)
     debug_group.add_argument('--jlink', action='store_true', help='Use J-Link debugger')
@@ -292,9 +320,9 @@ Examples:
     debug_group.add_argument('--uart-dfu', action='store_true', help='Use UART DFU (Realtek)')
     debug_group.add_argument('--esptool', action='store_true', help='Use esptool (ESP32)')
     debug_group.add_argument('--auto', action='store_true', help='Auto-detect debugger')
-    
+
     args = parser.parse_args()
-    
+
     # Auto-detect if requested
     if args.auto:
         debugger, devices = auto_detect_debugger()
@@ -307,7 +335,7 @@ Examples:
                 print(f"   {dev}")
         args.jlink = (debugger == 'jlink')
         args.xds110 = (debugger == 'xds110')
-    
+
     # Flash
     try:
         if args.jlink:
@@ -327,7 +355,7 @@ Examples:
     except Exception as e:
         print(f"[FAIL] Error: {e}")
         return 1
-    
+
     return 0
 
 

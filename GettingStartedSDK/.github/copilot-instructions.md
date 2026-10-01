@@ -1,6 +1,7 @@
 # GitHub Copilot Build Infrastructure Guide
 
-This file helps GitHub Copilot understand the u-blox Getting Started SDK build infrastructure for IRIS-W10, NORA-W50/W51, NORA-W30, and NORA-W40.
+This file helps GitHub Copilot understand the u-blox Getting Started SDK build
+infrastructure for IRIS-W1, NORA-W3, NORA-W4, NORA-W5, NORA-B2 and ALMA-B2.
 
 ## Communication Preferences
 
@@ -11,22 +12,56 @@ This file helps GitHub Copilot understand the u-blox Getting Started SDK build i
 
 ## Project Context
 
-**Repository:** u-blox-sho-OpenCPU (GitLab)  
-**Primary Work:** Building firmware for 4 u-blox WiFi/Bluetooth modules  
-**Build Infrastructure:** GettingStartedSDK/ folder with consolidated scripts  
+**Repository:** u-blox-sho-OpenCPU (GitLab)
+**Primary Work:** Building firmware for 6 u-blox wireless module families
+**Build Infrastructure:** GettingStartedSDK/ folder with consolidated scripts
 **Current Branch:** cmag_getting_started_sdk (review branch) or master
 
 ### Module Specifications
 
-| Module | SoC | Framework | Board Target | Features |
-|--------|-----|-----------|--------------|----------|
-| **IRIS-W10** | NXP RW612/RW610 | MCUXpresso SDK (west/CMake) | rdrw612bga | Wi-Fi 6, Bluetooth LE 5.4, optional Thread |
-| **NORA-W50/W51** | TI CC35XX | SimpleLink WiFi SDK | LP_EM_CC35X1 | Wi-Fi 6E, Bluetooth LE 5.4 |
-| **NORA-W30** | Realtek RTL872x | Realtek RTOS SDK | N/A | Wi-Fi, Bluetooth (needs WSL2/Linux) |
-| **NORA-W40** | Espressif ESP32-C6 | ESP-IDF | esp32c6 | Wi-Fi 6 (2.4 GHz), Bluetooth LE 5.3, Thread/Zigbee |
+| Target | Module | SoC | Framework | Board Target | Features |
+|--------|--------|-----|-----------|--------------|----------|
+| `iris-w1` | IRIS-W10x | NXP RW612/RW610 | MCUXpresso SDK (west/CMake) | rdrw612bga | Wi-Fi 6, Bluetooth LE 5.4, optional Thread |
+| `nora-w3` | NORA-W30x | Realtek RTL8720DF | Realtek RTOS SDK | N/A | Wi-Fi, Bluetooth (needs WSL2/Linux) |
+| `nora-w4` | NORA-W40x | Espressif ESP32-C6 | ESP-IDF | esp32c6 | Wi-Fi 6 (2.4 GHz), Bluetooth LE 5.3, Thread/Zigbee |
+| `nora-w5` | NORA-W50x/W51x | TI CC3501E/CC3551E | SimpleLink Wi-Fi SDK | LP_EM_CC35X1 | Wi-Fi 6E, Bluetooth LE 5.4 |
+| `nora-b2` | NORA-B20x/B21x/B22x | Nordic nRF54L15/L10/L05 | nRF Connect SDK (Zephyr) | ubx_evknorab2/nrf54l15/cpuapp | Bluetooth 6.0 + Channel Sounding, 802.15.4, NFC |
+| `alma-b2` | ALMA-B20x/B21x | Nordic nRF54LM20A/B | nRF Connect SDK (Zephyr) | nrf54lm20dk/nrf54lm20a/cpuapp | Bluetooth 6.0, 802.15.4, Axon NPU (B-variant) |
 
-NORA-W40 uses ESP32-C6 (ESP32-C6FH4/FH8). ESP32-S3 is the previous generation
-(NORA-W1/W2) and must not be used for NORA-W40.
+### Open CPU vs u-connectXpress - CRITICAL
+
+u-blox splits each family by the **third digit** of the part number. This SDK
+builds **Open CPU** parts only, where the customer application runs on the
+module. The u-connectXpress parts ship with AT-command firmware pre-flashed
+and are configured by a host MCU - they cannot be built from here.
+
+| Open CPU (this SDK) | u-connectXpress (NOT this SDK) |
+|---------------------|--------------------------------|
+| NORA-W30x | NORA-W36x |
+| NORA-W50x / W51x | NORA-W56x / W57x |
+| NORA-B20x / B21x / B22x | NORA-B26x / B27x |
+| IRIS-W10x, NORA-W40x, ALMA-B20x/B21x | - |
+
+Consequences for naming:
+- Never shorten `nora-w3` to `nora-w3`. `NORA-W3 series` is the umbrella over
+  both W30 (Open CPU) and W36 (u-connectXpress), so the short name would
+  advertise parts this SDK cannot build.
+- `iris-w1` and `nora-w4` are the official series names. Do not invent
+  `iris-w1` or `nora-w4`.
+- `nora-w5` and `nora-b2` are correct because `NORA-W5 series` and
+  `NORA-B2 series` are themselves official series names.
+- `scripts/ubx.py` has a `UCONNECTXPRESS` map so that typing `nora-w36` gives
+  a product-line explanation instead of a bare "unknown target".
+
+NORA-W4 uses ESP32-C6 (ESP32-C6FH4/FH8). ESP32-S3 is the previous generation
+(NORA-W1/W2) and must not be used for NORA-W4.
+
+ALMA-B2 is under development and has no `ubx_evkalmab2` board definition in
+Zephyr or NCS yet, so it builds against Nordic's `nrf54lm20dk`. Do not claim a
+u-blox board target exists.
+
+ALMA-W1 is not implemented. Keep `nordic_ncs_build.py`'s `TARGETS` table
+extensible for it, but do not fabricate specs - MCP returns no data for it.
 
 ## Directory Structure
 
@@ -43,32 +78,37 @@ GettingStartedSDK/                  Workspace root
 │   ├── ubx.py                      Shared launcher core (flag surface, WSL2 hop)
 │   ├── ubx_sdk.py                  SDK entry point (ubx.main())
 │   ├── ubx_matter.py              Matter entry point (ubx.main(matter=True))
-│   ├── matter_build.py            Matter driver for all 4 targets
+│   ├── matter_build.py            Matter driver for the 4 vendor-SDK targets
 │   ├── target_paths.py            Shared per-target directory layout
-│   ├── iris_w10_build.py          NXP RW612/RW610 builder
-│   ├── nora_w50_w51_build.py      TI CC35XX builder
-│   ├── nora_w30_build.py          Realtek RTL872x builder
-│   ├── nora_w40_build.py          Espressif ESP32-C6 builder
+│   ├── iris_w1_build.py          NXP RW612/RW610 builder
+│   ├── nora_w5_build.py           TI CC35XX builder
+│   ├── nora_w3_build.py          Realtek RTL872x builder
+│   ├── nora_w4_build.py          Espressif ESP32-C6 builder
+│   ├── nordic_ncs_build.py        Shared nRF Connect SDK builder (NORA-B2, ALMA-B2)
 │   ├── flash_helper.py            Flashing helper
 │   ├── serial_logger.py           Serial console logger
 │   ├── setup_venv.py              Virtual environment initializer
 │   └── migrate_venv.sh / .bat     Moves a stray repo-root .venv into here
 ├── matter/                         Matter app sources, per target (optional)
 │   ├── README.md
-│   └── {IRIS-W10,NORA-W30,NORA-W40,NORA-W50-W51}/
+│   └── {IRIS-W1,NORA-W3,NORA-W4,NORA-W5}/
 ├── targets/                        Per-target base folders (generated content)
-│   ├── IRIS-W10/{sdk,config}/
-│   ├── NORA-W30/{sdk,config}/
-│   ├── NORA-W40/{sdk,config}/
-│   └── NORA-W50-W51/{sdk,config}/
-├── ameba-rtos-d/                  Vendor SDK, fetched on demand (NORA-W30)
-├── esp-idf/                       Vendor SDK, fetched on demand (NORA-W40)
-├── mcuxpresso-sdk/                Vendor SDK, fetched on demand (IRIS-W10)
+│   ├── ALMA-B2/{sdk,config}/
+│   ├── IRIS-W1/{sdk,config}/
+│   ├── NORA-B2/{sdk,config}/
+│   ├── NORA-W3/{sdk,config}/
+│   ├── NORA-W4/{sdk,config}/
+│   └── NORA-W5/{sdk,config}/
+├── ameba-rtos-d/                  Vendor SDK, fetched on demand (NORA-W3)
+├── esp-idf/                       Vendor SDK, fetched on demand (NORA-W4)
+├── mcuxpresso-sdk/                Vendor SDK, fetched on demand (IRIS-W1)
 └── docs/                           All other documentation
-    ├── iris_w10_README.md
-    ├── nora_w50_w51_README.md
-    ├── nora_w30_README.md
-    ├── nora_w40_README.md
+    ├── iris_w1_README.md
+    ├── nora_w5_README.md
+    ├── nora_w3_README.md
+    ├── nora_w4_README.md
+    ├── nora_b2_README.md
+    ├── alma_b2_README.md
     ├── BUILD_ALL_EXAMPLES.md      Comprehensive build guide
     ├── QUICK_BUILD_REFERENCE.md   Quick cheat sheet
     ├── REVIEWERS_GUIDE.md         Review instructions for team
@@ -96,7 +136,7 @@ opens both the SDK and the repository root from its own folder.
 ### Shared Components
 
 2. **Virtual Environment (.venv/)**
-   - Shared by all 4 variant scripts
+   - Shared by all variant scripts
    - Location: GettingStartedSDK/.venv/
    - Contains: west (MCUXpresso manager), build dependencies
    - Setup: `python scripts/setup_venv.py` from GettingStartedSDK/
@@ -160,7 +200,7 @@ when debugging that driver. Matter has its own shim pair,
 `ubx-matter.cmd` / `ubx-matter.sh`.
 
 Flags are combinable and always execute in this order:
-`--doctor` -> `--clone` -> `--install` -> `--build-sdk` -> `--clean` ->
+`--doctor` -> `--clone` -> `--install` -> `--build-sdk` -> `--list` -> `--clean` ->
 `--build` -> `--flash` -> `--log`. Anything after a bare `--` is passed
 verbatim to the underlying driver.
 
@@ -170,36 +210,48 @@ cd GettingStartedSDK
 python scripts/setup_venv.py   # optional; the launcher also works without it
 ```
 
-### 2. Build IRIS-W10 Example
+### 2. Build IRIS-W1 Example
 ```bash
 export ARMGCC_DIR="/c/Program Files/Arm/GNU Toolchain mingw-w64-x86_64-arm-none-eabi"
-./ubx-sdk.sh iris-w10 --doctor
-./ubx-sdk.sh iris-w10 --clone --full          # omit --full for RW612 only
-./ubx-sdk.sh iris-w10 --build demo_apps/hello_world --flash --log
+./ubx-sdk.sh iris-w1 --doctor
+./ubx-sdk.sh iris-w1 --clone --full          # omit --full for RW612 only
+./ubx-sdk.sh iris-w1 --build demo_apps/hello_world --flash --log
 ```
 
-### 3. Build NORA-W50/W51 Example
+### 3. Build NORA-W5 Example
 ```bash
-./ubx-sdk.sh nora-w50-w51 --doctor
-./ubx-sdk.sh nora-w50-w51 --clone --build-sdk --build ble_wifi_provisioning
+./ubx-sdk.sh nora-w5 --doctor
+./ubx-sdk.sh nora-w5 --clone --build-sdk --build ble_wifi_provisioning
 ```
 
-### 4. Build NORA-W40 (ESP32-C6)
+### 4. Build NORA-W4 (ESP32-C6)
 ```bash
-./ubx-sdk.sh nora-w40 --clone --install --build hello_world
+./ubx-sdk.sh nora-w4 --clone --install --build hello_world
 ```
 
-### 5. Build NORA-W30 (Realtek - needs WSL2)
+### 5. Build NORA-W3 (Realtek - needs WSL2)
 ```bash
 # Works from Windows too: the launcher hops into WSL2 by itself.
-./ubx-sdk.sh nora-w30 --clone --build project_hp
+./ubx-sdk.sh nora-w3 --clone --build project_hp
 ```
 
-### 6. Matter (optional, separate launcher)
+### 6. Build NORA-B2 / ALMA-B2 (Nordic, nRF Connect SDK)
 ```bash
-./ubx-matter.sh nora-w40 --doctor
-./ubx-matter.sh nora-w40 --clone
-./ubx-matter.sh nora-w40 --build thermometer
+./ubx-sdk.sh nora-b2 --clone --install --build hello_world --flash --log
+./ubx-sdk.sh alma-b2 --build hello_world -- --board nrf54lm20dk/nrf54lm20b/cpuapp
+```
+
+Both share `scripts/nordic_ncs_build.py`. The launcher passes the target key as
+the driver's first argument via `Target.driver_args`, the same mechanism Matter
+uses. An existing `~/ncs` workspace is detected and reused instead of cloning.
+Matter for these targets comes from `nrf/samples/matter/*` and is built with
+`ubx-sdk`, not `ubx-matter`.
+
+### 7. Matter (optional, separate launcher)
+```bash
+./ubx-matter.sh nora-w4 --doctor
+./ubx-matter.sh nora-w4 --clone
+./ubx-matter.sh nora-w4 --build thermometer
 ```
 
 Matter is deliberately kept off the plain SDK flag surface: most users never
@@ -210,12 +262,28 @@ share `scripts/ubx.py`; `scripts/ubx_matter.py` just calls
 `ubx.main(matter=True)`, which selects `scripts/matter_build.py` as the driver
 and a Matter-specific help text.
 
-Matter SDKs (connectedhomeip, esp-matter, ameba-rtos-matter) are fetched into
-`targets/<TARGET>/sdk/matter/`, or under `UBX_MATTER_ROOT` when that is set -
-required under WSL2, because these toolchains must not be built from a
-`/mnt/<drive>` path. App sources live in `matter/<TARGET>/<app>/` with a
-`build.sh` accepting `setup`/`build`/`clean`. NORA-W50/W51 has no public Matter
-SDK yet; the driver says so explicitly instead of pretending otherwise.
+Matter SDKs are vendor forks of `project-chip/connectedhomeip`, each pinned to
+a tagged release rather than a moving branch:
+
+| Target | Repository | Revision |
+|--------|------------|----------|
+| IRIS-W1 | `NXP/matter` | `v1.6.0.0.1` |
+| NORA-W3 | `ameba-rtos-d` + `ameba-rtos-matter` | `master`, `release/v1.5` |
+| NORA-W4 | `esp-idf` + `esp-matter` | `v5.4.1`, `release/v1.5` |
+| NORA-W5 | `TexasInstruments/matter` | `matter-v1.5-ti-1.1` |
+
+They are fetched into `targets/<TARGET>/sdk/matter/`, or under
+`UBX_MATTER_ROOT` when that is set - required under WSL2, because these
+toolchains must not be built from a `/mnt/<drive>` path. App sources live in
+`matter/<TARGET>/<app>/` with a `build.sh` accepting `setup`/`build`/`clean`.
+
+All four Matter targets are Linux-only. TI's is Ubuntu 22.04 only, targets
+CC3551E on LP-EM-CC35X1, and `matter-v1.5-ti-1.1` is the GA, Matter 1.5
+platform-certified tag - prefer it over the newer `-ea` tags.
+
+The `matter/<TARGET>/` folders currently contain no applications. `--doctor`
+and `--clone` work; `--list` and `--build` have nothing to act on until an app
+is ported. Do not describe the Matter build flow as if apps already exist.
 
 Reference implementations to port from live in the `u-connectMatter` repo under
 `companion/` - do not use u-connectClient or u-connectXpress as a starting
@@ -225,45 +293,48 @@ point.
 
 | Variable | Module | Value | Example |
 |----------|--------|-------|---------|
-| ARMGCC_DIR | IRIS-W10 | Path to Arm GNU Toolchain root | `/c/Program Files/Arm/GNU Toolchain mingw-w64-x86_64-arm-none-eabi` |
-| NORA_W50_W51_WORKSPACE | NORA-W50/W51 | Override workspace location | `~/nora-w50-w51` |
-| UBX_MATTER_ROOT | Matter (all) | Where Matter SDKs are cloned | `~/ubx-matter` |
+| ARMGCC_DIR | IRIS-W1 | Path to Arm GNU Toolchain root | `/c/Program Files/Arm/GNU Toolchain mingw-w64-x86_64-arm-none-eabi` |
+| NORA_W5_WORKSPACE | NORA-W5 | Override workspace location | `~/nora-w5` |
+| ZEPHYR_SDK_INSTALL_DIR | NORA-B2, ALMA-B2 | Zephyr SDK location | `~/zephyr-sdk-0.17.0` |
+| UBX_MATTER_ROOT | Matter (vendor SDKs) | Where Matter SDKs are cloned | `~/ubx-matter` |
 | MSYSTEM | Git Bash | UCRT64 or MINGW64 | `UCRT64` (auto-detected) |
 
 ## Output Artifacts
 
 | Module | Build Output | Location |
 |--------|--------------|----------|
-| IRIS-W10 | zephyr.elf, zephyr.bin | `<west workspace>/build/` |
-| NORA-W50/W51 | *.out | `<examples>/<rtos>/<board>/<toolchain>/` |
-| NORA-W40 | *.elf, *.bin | `<esp-idf>/examples/<example>/build/` |
-| NORA-W30 | *.bin | in-source, under the example directory |
+| IRIS-W1 | `<example>.elf`, `<example>.bin` | `<west workspace>/build/<config>/` |
+| NORA-W5 | *.out | `<examples>/<rtos>/<board>/<toolchain>/` |
+| NORA-W4 | *.elf, *.bin | `<esp-idf>/examples/<example>/build/` |
+| NORA-W3 | *.bin | in-source, under the example directory |
+| NORA-B2 | zephyr.elf, zephyr.hex, zephyr.bin | `<ncs>/build/<sample>/zephyr/` |
+| ALMA-B2 | zephyr.elf, zephyr.hex, zephyr.bin | `<ncs>/build/<sample>/zephyr/` |
 
 ## Common Issues & Solutions
 
 ### Python/pip Issues
-**Problem:** "pip: command not found" or "No module named pip"  
-**Solution:** Use `detect_python()` to find Python with pip  
+**Problem:** "pip: command not found" or "No module named pip"
+**Solution:** Use `detect_python()` to find Python with pip
 **Prevention:** setup_venv.py handles this automatically
 
 ### ARMGCC_DIR Not Set
-**Problem:** IRIS-W10 build fails, "ARMGCC_DIR not configured"  
-**Solution:** `export ARMGCC_DIR="path/to/arm/toolchain"`  
+**Problem:** IRIS-W1 build fails, "ARMGCC_DIR not configured"
+**Solution:** `export ARMGCC_DIR="path/to/arm/toolchain"`
 **Note:** Path should be root, NOT bin/ subdirectory
 
 ### SDK Clone Takes Forever
-**Problem:** west clone is slow, timeout, or hangs  
-**Solution:** Use `--board-only` for just RW612, not full SDK  
+**Problem:** west clone is slow, timeout, or hangs
+**Solution:** Use `--board-only` for just RW612, not full SDK
 **Alternative:** Pre-cache SDK, use existing workspace
 
-### WSL2 Required for NORA-W30
-**Problem:** "Cannot build Realtek on Windows"  
-**Why:** Realtek SDK has Linux-only build system  
+### WSL2 Required for NORA-W3
+**Problem:** "Cannot build Realtek on Windows"
+**Why:** Realtek SDK has Linux-only build system
 **Solution:** Use WSL2 Ubuntu or native Linux machine
 
 ### Mixed Python Versions
-**Problem:** MSYS2 has multiple Python installations  
-**Solution:** setup_venv.py + activate venv handles priority  
+**Problem:** MSYS2 has multiple Python installations
+**Solution:** setup_venv.py + activate venv handles priority
 **Note:** Venv Python always takes precedence
 
 ## Code Conventions
@@ -298,7 +369,8 @@ point.
 
 ## When to Use Each Command
 
-`<target>` is one of `iris-w10`, `nora-w30`, `nora-w40`, `nora-w50-w51`.
+`<target>` is one of `iris-w1`, `nora-w3`, `nora-w4`, `nora-w5`, `nora-b2`,
+`alma-b2`.
 
 | Task | Command |
 |------|---------|
@@ -344,15 +416,15 @@ facts; module docstrings have been wrong before.
 
 ### Cross-Platform Testing
 - Test on: Windows (Git Bash), WSL2, Linux (if available)
-- NORA-W30 requires Linux/WSL2
-- IRIS-W10 requires ARMGCC_DIR set
+- NORA-W3 requires Linux/WSL2
+- IRIS-W1 requires ARMGCC_DIR set
 
 ## Future Development
 
 ### Short Term
-- Complete IRIS-W10 build testing (SDK download large)
-- Test NORA-W40 with ESP-IDF clone
-- Test NORA-W30 on WSL2
+- Complete IRIS-W1 build testing (SDK download large)
+- Test NORA-W4 with ESP-IDF clone
+- Test NORA-W3 on WSL2
 
 ### Medium Term
 - Add debugger support (J-Link, MCU-Link, Realtek tools)
@@ -367,20 +439,20 @@ facts; module docstrings have been wrong before.
 ## Current Build Status (2026-09-28)
 
 ### [OK] Verified Working
-- **IRIS-W10:** hello_world.elf (258 KB) and hello_world.bin (29 KB) built successfully
-- **NORA-W50/W51:** ble_wifi_provisioning.out built successfully
+- **IRIS-W1:** hello_world.elf (258 KB) and hello_world.bin (29 KB) built successfully
+- **NORA-W5:** ble_wifi_provisioning.out built successfully
 
 ### Ready for Build
-- **NORA-W40:** Requires ESP-IDF installation (`./ubx-sdk.sh nora-w40 --install`)
-- **NORA-W30:** Requires WSL2 Realtek SDK clone (`./ubx-sdk.sh nora-w30 --clone`, hops into WSL2 automatically)
+- **NORA-W4:** Requires ESP-IDF installation (`./ubx-sdk.sh nora-w4 --install`)
+- **NORA-W3:** Requires WSL2 Realtek SDK clone (`./ubx-sdk.sh nora-w3 --clone`, hops into WSL2 automatically)
 
 ### Hardware Verification (Next Phase)
 When hardware is connected, test:
-1. **IRIS-W10 Serial Logging:** `./ubx-sdk.sh iris-w10 --log`
-2. **IRIS-W10 J-Link Flash:** `./ubx-sdk.sh iris-w10 --flash demo_apps/hello_world`
-3. **NORA-W50/W51 Hardware Test:** (TI reference board validation)
-4. **NORA-W30 Hardware Test:** (Realtek RTL872x validation on WSL2)
-5. **NORA-W40 Hardware Test:** (Espressif ESP32-C6 validation)
+1. **IRIS-W1 Serial Logging:** `./ubx-sdk.sh iris-w1 --log`
+2. **IRIS-W1 J-Link Flash:** `./ubx-sdk.sh iris-w1 --flash demo_apps/hello_world`
+3. **NORA-W5 Hardware Test:** (TI reference board validation)
+4. **NORA-W3 Hardware Test:** (Realtek RTL872x validation on WSL2)
+5. **NORA-W4 Hardware Test:** (Espressif ESP32-C6 validation)
 
 See docs/BUILD_TEST_RESULTS.md for detailed status and docs/BUILD_ALL_EXAMPLES.md for complete build workflows.
 
@@ -390,11 +462,13 @@ See docs/BUILD_TEST_RESULTS.md for detailed status and docs/BUILD_ALL_EXAMPLES.m
 |------|---------|
 | README.md | GettingStartedSDK overview, quick start for all modules |
 | matter/README.md | Matter apps, SDK map, how to add an app |
-| docs/iris_w10_README.md | IRIS-W10 detailed guide |
-| docs/nora_w50_w51_README.md | NORA-W50/W51 detailed guide |
-| docs/nora_w30_README.md | NORA-W30 WSL2 setup |
-| docs/nora_w40_README.md | NORA-W40 ESP-IDF setup |
-| docs/BUILD_ALL_EXAMPLES.md | Complete building guide for all 4 |
+| docs/iris_w1_README.md | IRIS-W1 detailed guide |
+| docs/nora_w5_README.md | NORA-W5 detailed guide |
+| docs/nora_w3_README.md | NORA-W3 WSL2 setup |
+| docs/nora_w4_README.md | NORA-W4 ESP-IDF setup |
+| docs/nora_b2_README.md | NORA-B2 nRF Connect SDK setup |
+| docs/alma_b2_README.md | ALMA-B2 nRF Connect SDK setup |
+| docs/BUILD_ALL_EXAMPLES.md | Complete building guide |
 | docs/QUICK_BUILD_REFERENCE.md | Command cheat sheet |
 | docs/REVIEWERS_GUIDE.md | Team review procedures |
 | docs/VENV_SETUP.md | Virtual environment guide |
@@ -405,14 +479,14 @@ See docs/BUILD_TEST_RESULTS.md for detailed status and docs/BUILD_ALL_EXAMPLES.m
 Here are things you can ask Copilot for help with:
 
 1. **Build Script Help**
-   - "How do I build IRIS-W10 hello_world example?"
+   - "How do I build IRIS-W1 hello_world example?"
    - "What's the ARMGCC_DIR error and how do I fix it?"
    - "Why is my SDK clone so slow?"
 
 2. **Module Specification Help** (uses u-blox MCP)
-   - "What are IRIS-W10 capabilities?"
+   - "What are IRIS-W1 capabilities?"
    - "Does NORA-W50 support Thread protocol?"
-   - "What are the pin configurations for NORA-W40?"
+   - "What are the pin configurations for NORA-W4?"
 
 3. **Cross-Platform Issues**
    - "How do I activate the venv on Windows?"
@@ -431,7 +505,7 @@ Here are things you can ask Copilot for help with:
 
 ---
 
-**Location:** GettingStartedSDK/.github/copilot-instructions.md (workspace root)  
-**Last Updated:** 2026-09-28  
-**Branch:** cmag_getting_started_sdk (under review)  
-**Status:** [OK] IRIS-W10 & NORA-W50/W51 builds verified — W30/W40 ready for build — Hardware testing pending
+**Location:** GettingStartedSDK/.github/copilot-instructions.md (workspace root)
+**Last Updated:** 2026-09-28
+**Branch:** cmag_getting_started_sdk (under review)
+**Status:** [OK] IRIS-W1 & NORA-W5 builds verified — W30/W40 ready for build — Hardware testing pending

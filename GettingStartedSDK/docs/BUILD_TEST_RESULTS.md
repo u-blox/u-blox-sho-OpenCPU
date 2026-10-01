@@ -1,7 +1,7 @@
 # Getting Started SDK - Build Test Results
 
-**Date:** 2026-09-28  
-**Branch:** `cmag_getting_started_sdk`  
+**Date:** 2026-09-28
+**Branch:** `cmag_getting_started_sdk`
 **Status:** [OK] ALL 4 MODULES BUILDING SUCCESSFULLY
 
 ## Test Environment
@@ -13,14 +13,14 @@
 
 ## Platform Test Results
 
-### [✓ VERIFIED] NORA-W50/W51 (TI CC35XX, WiFi 6E + BLE)
+### [[OK] VERIFIED] NORA-W5 (TI CC35XX, WiFi 6E + BLE)
 
 **Status:** [OK] **BUILD VERIFIED - September 28, 2026**
 
 **Example Built:** `ble_wifi_provisioning` (WiFi + BLE Example)
 
 ```bash
-python scripts/nora_w50_w51_build.py build ble_wifi_provisioning
+python scripts/nora_w5_build.py build ble_wifi_provisioning
 ```
 
 **Output:**
@@ -29,10 +29,10 @@ python scripts/nora_w50_w51_build.py build ble_wifi_provisioning
 - Format: TI Arm Object File
 - Date: 2026-09-28
 
-**SDK:** simplelink_wifi_sdk_10_20_00_39  
+**SDK:** simplelink_wifi_sdk_10_20_00_39
 **Board:** LP_EM_CC35X1
 
-### [✓ VERIFIED] IRIS-W10 (NXP RW612/RW610, WiFi + Thread)
+### [[OK] VERIFIED] IRIS-W1 (NXP RW612/RW610, WiFi + Thread)
 
 **Status:** [OK] **BUILD VERIFIED - September 28, 2026**
 
@@ -44,18 +44,18 @@ python scripts/nora_w50_w51_build.py build ble_wifi_provisioning
 - Status: [OK] **Successfully generated**
 - Date: 2026-09-28
 
-**SDK:** MCUXpresso (west-based)  
-**Board:** rdrw612bga  
+**SDK:** MCUXpresso (west-based)
+**Board:** rdrw612bga
 **Build System:** Zephyr/west/CMake
 
-### [✓ VERIFIED] NORA-W40 (Espressif ESP32-C6, WiFi 6 + BLE)
+### [[OK] VERIFIED] NORA-W4 (Espressif ESP32-C6, WiFi 6 + BLE)
 
 **Status:** [OK] **BUILD VERIFIED - September 28, 2026**
 
 **Example Built:** `get-started/hello_world` (ESP32-C6 hello_world)
 
 ```bash
-python scripts/nora_w40_build.py build hello_world
+python scripts/nora_w4_build.py build hello_world
 ```
 
 **Output:**
@@ -70,18 +70,18 @@ python scripts/nora_w40_build.py build hello_world
 - **IDF_TARGET:** Correctly set to "esp32c6"
 - **Python Env:** ~/.espressif/python_env/idf6.2_py3.14_env/ (separate from repo venv)
 
-**SDK:** ESP-IDF v6.2  
+**SDK:** ESP-IDF v6.2
 **Board:** esp32c6
 
-### [✓ VERIFIED] NORA-W30 (Realtek RTL872x, WiFi + BLE)
+### [[OK] VERIFIED] NORA-W3 (Realtek RTL872x, WiFi + BLE)
 
 **Status:** [OK] **BUILD VERIFIED - September 28, 2026**
 
 **Firmware Built:** Ameba-D KM4 Project (High-Performance Core)
 
 ```bash
-python scripts/nora_w30_build.py build            # Builds project_hp (KM4)
-python scripts/nora_w30_build.py build project_lp # Builds project_lp (KM0)
+python scripts/nora_w3_build.py build            # Builds project_hp (KM4)
+python scripts/nora_w3_build.py build project_lp # Builds project_lp (KM0)
 ```
 
 **Output Files:**
@@ -98,7 +98,7 @@ python scripts/nora_w30_build.py build project_lp # Builds project_lp (KM0)
 - **Example Sources:** 21 available (ADC, GPIO, I2C, UART, WIFI, BLE, etc.) for inclusion
 - **Platforms:** Linux/WSL2 only (arm-none-eabi-gcc toolchain)
 
-**SDK:** Ameba-RTOS-D (checked-in at repo root)  
+**SDK:** Ameba-RTOS-D (checked-in at repo root)
 **Board:** Realtek RTL872x Demo Board
 
 ---
@@ -107,10 +107,10 @@ python scripts/nora_w30_build.py build project_lp # Builds project_lp (KM0)
 
 | Module | SoC | Arch | Status | Output | Size | Date |
 |--------|-----|------|--------|--------|------|------|
-| **IRIS-W10** | NXP RW612 | Arm Cortex-M33 | ✓ OK | zephyr.bin | 29 KB | Sep 28 |
-| **NORA-W50/W51** | TI CC35XX | Arm Cortex-M4 | ✓ OK | ble_wifi_provisioning.out | 16 MB | Sep 28 |
-| **NORA-W40** | Esp ESP32-C6 | **RISC-V** | ✓ OK | hello_world.bin | 128 KB | Sep 28 22:35 |
-| **NORA-W30** | Realtek RTL872x | Arm Cortex-M4 | ✓ OK | km4_boot_all.bin | 4.2 KB | Sep 28 22:47 |
+| **IRIS-W1** | NXP RW612 | Arm Cortex-M33 | [OK] OK | zephyr.bin | 29 KB | Sep 28 |
+| **NORA-W5** | TI CC35XX | Arm Cortex-M4 | [OK] OK | ble_wifi_provisioning.out | 16 MB | Sep 28 |
+| **NORA-W4** | Esp ESP32-C6 | **RISC-V** | [OK] OK | hello_world.bin | 128 KB | Sep 28 22:35 |
+| **NORA-W3** | Realtek RTL872x | Arm Cortex-M4 | [OK] OK | km4_boot_all.bin | 4.2 KB | Sep 28 22:47 |
 
 **Build Infrastructure Status:** [OK] FULLY FUNCTIONAL
 - Virtual environment (.venv/): Shared across all 4 modules
@@ -131,7 +131,7 @@ python scripts/nora_w30_build.py build project_lp # Builds project_lp (KM0)
 - Build System: west + CMake + Ninja
 - Compiler: ARM GCC 15.2.1 (Build arm-15.86)
 
-### [IN_PROGRESS] NORA-W30 (Realtek RTL8720DF - Ameba-D SDK)
+### [IN_PROGRESS] NORA-W3 (Realtek RTL8720DF - Ameba-D SDK)
 
 **Status:** [IN_PROGRESS] SDK Cloned - Build System Discovered - Requires Make + Toolchain
 
@@ -173,7 +173,7 @@ make all
 2. Or setup Cygwin on Windows for native GCC build
 3. Verify binary generation in `asdk/image/km4_image2_all.bin`
 
-### [IN_PROGRESS] NORA-W40 (ESP32-C6 - ESP-IDF)
+### [IN_PROGRESS] NORA-W4 (ESP32-C6 - ESP-IDF)
 
 **Status:** [IN_PROGRESS] SDK Ready - Build Requires Windows cmd.exe (not Git Bash)
 
@@ -189,7 +189,7 @@ Git Bash sets `MSYSTEM=UCRT64` (internal environment variable)
 - This is a safety feature: ESP-IDF doesn't support Cygwin/MSYS2
 - **Solution:** Use Windows native terminal (cmd.exe or PowerShell)
 
-**To Build NORA-W40 (Requires Native Windows Terminal):**
+**To Build NORA-W4 (Requires Native Windows Terminal):**
 
 1. Open **Windows Command Prompt** or **Windows PowerShell** (NOT Git Bash)
 2. Run these commands:
@@ -218,10 +218,10 @@ wsl -d Ubuntu-24.04 bash -c "cd /mnt/e/u-blox/u-blox-sho-OpenCPU/GettingStartedS
 
 | Platform | Status | Build Date | Example Built | Output File | Blocker |
 |----------|--------|---|---|---|---|
-| **IRIS-W10** | [OK] **VERIFIED** | 2026-09-28 | `demo_apps/hello_world` | `hello_world.elf` (258KB), `.bin` (29KB) | None |
-| **NORA-W50/W51** | [OK] **VERIFIED** | 2026-09-28 | `ble_wifi_provisioning` | `ble_wifi_provisioning.out` | None |
-| **NORA-W40** | 🟡 Ready (SDK) | — | `get-started/hello_world` | Not yet built | Terminal: Need cmd.exe (not Git Bash) |
-| **NORA-W30** | 🟡 Ready (SDK) | — | `wlan_sample` | Not yet built | WSL2: Security policy blocks VM startup |
+| **IRIS-W1** | [OK] **VERIFIED** | 2026-09-28 | `demo_apps/hello_world` | `hello_world.elf` (258KB), `.bin` (29KB) | None |
+| **NORA-W5** | [OK] **VERIFIED** | 2026-09-28 | `ble_wifi_provisioning` | `ble_wifi_provisioning.out` | None |
+| **NORA-W4** | [PENDING] Ready (SDK) | — | `get-started/hello_world` | Not yet built | Terminal: Need cmd.exe (not Git Bash) |
+| **NORA-W3** | [PENDING] Ready (SDK) | — | `wlan_sample` | Not yet built | WSL2: Security policy blocks VM startup |
 
 ## Build Infrastructure Quality
 
@@ -245,7 +245,7 @@ wsl -d Ubuntu-24.04 bash -c "cd /mnt/e/u-blox/u-blox-sho-OpenCPU/GettingStartedS
 
 4. **Configuration Management**
    - Per-platform config files
-   - Platform-specific: `.iris_w10_build.windows.json`, etc.
+   - Platform-specific: `.iris_w1_build.windows.json`, etc.
    - Persistent workspace tracking
    - No conflicts between variants
 
@@ -258,12 +258,12 @@ wsl -d Ubuntu-24.04 bash -c "cd /mnt/e/u-blox/u-blox-sho-OpenCPU/GettingStartedS
 ### [WARNING] Areas for Improvement
 
 1. **ARMGCC_DIR Setup**
-   - IRIS-W10 requires manual environment variable
+   - IRIS-W1 requires manual environment variable
    - Could be automated in build script
 
 2. **Platform-Specific Requirements**
-   - NORA-W30 needs WSL2 on Windows
-   - NORA-W40 needs ESP-IDF installation
+   - NORA-W3 needs WSL2 on Windows
+   - NORA-W4 needs ESP-IDF installation
    - Could add automated checks
 
 3. **SDK Caching**
@@ -274,9 +274,9 @@ wsl -d Ubuntu-24.04 bash -c "cd /mnt/e/u-blox/u-blox-sho-OpenCPU/GettingStartedS
 
 ### Before Publishing
 
-1. [OK] Test IRIS-W10 build (set ARMGCC_DIR and run `clone`)
-2. [OK] Test NORA-W30 in WSL2 environment
-3. [OK] Test NORA-W40 with ESP-IDF installed
+1. [OK] Test IRIS-W1 build (set ARMGCC_DIR and run `clone`)
+2. [OK] Test NORA-W3 in WSL2 environment
+3. [OK] Test NORA-W4 with ESP-IDF installed
 4. [OK] Update documentation with any findings
 5. [OK] Review and approve by team before merge to master
 
@@ -298,22 +298,22 @@ wsl -d Ubuntu-24.04 bash -c "cd /mnt/e/u-blox/u-blox-sho-OpenCPU/GettingStartedS
 
 ## Next Steps
 
-1. **Complete NORA-W40 Build** (ESP32-C6)
+1. **Complete NORA-W4 Build** (ESP32-C6)
    - Open Windows **cmd.exe** terminal (NOT Git Bash)
    - Run: `cd E:\u-blox\u-blox-sho-OpenCPU\GettingStartedSDK\esp-idf\examples\get-started\hello_world`
    - Run: `idf.py build`
    - Binary output: `build/hello_world.elf` and `build/hello_world.bin`
 
-2. **Complete NORA-W30 Build** (Realtek RTL872x)
+2. **Complete NORA-W3 Build** (Realtek RTL872x)
    - Build tool identified: **`ameba.py`** (not make-based)
    - WSL2 workflow: `python3 ameba.py soc RTL8721Dx && python3 ameba.py build`
    - Binary output: `build_RTL8721Dx/` directory
-   - Update `nora_w30_build.py` to use ameba.py instead of make
+   - Update `nora_w3_build.py` to use ameba.py instead of make
 
 3. **Hardware Verification** (Next Phase)
-   - **IRIS-W10:** Test J-Link flashing and serial logging with connected board
-   - **NORA-W50/W51:** Verify with TI reference board
-   - Commands: `python scripts/iris_w10_build.py log` (serial) and `python scripts/iris_w10_build.py flash demo_apps/hello_world` (J-Link)
+   - **IRIS-W1:** Test J-Link flashing and serial logging with connected board
+   - **NORA-W5:** Verify with TI reference board
+   - Commands: `python scripts/iris_w1_build.py log` (serial) and `python scripts/iris_w1_build.py flash demo_apps/hello_world` (J-Link)
 
 4. **Push this branch to GitLab** for colleague review
 
@@ -325,6 +325,6 @@ wsl -d Ubuntu-24.04 bash -c "cd /mnt/e/u-blox/u-blox-sho-OpenCPU/GettingStartedS
 
 ---
 
-**Last Updated:** 2026-09-28  
-**Branch:** cmag_getting_started_sdk  
-**Status:** [OK] IRIS-W10 & NORA-W50/W51 Verified | 🟡 W40 Requires cmd.exe | 🟡 W30 ameba.py Workflow Ready
+**Last Updated:** 2026-09-28
+**Branch:** cmag_getting_started_sdk
+**Status:** [OK] IRIS-W1 & NORA-W5 Verified | [PENDING] W40 Requires cmd.exe | [PENDING] W30 ameba.py Workflow Ready

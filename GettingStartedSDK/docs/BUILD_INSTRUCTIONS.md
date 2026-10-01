@@ -1,6 +1,6 @@
-# NORA-W30 & NORA-W40 Build Instructions
+# NORA-W3 & NORA-W4 Build Instructions
 
-**Date:** 2026-09-28  
+**Date:** 2026-09-28
 **Status:** SDKs cloned and ready. Both builds require specific terminal environments.
 
 ---
@@ -9,14 +9,14 @@
 
 | Module | Build Environment | Command | Time | Status |
 |--------|-------------------|---------|------|--------|
-| IRIS-W10 | Git Bash | `python scripts/iris_w10_build.py build demo_apps/hello_world` | 3 min | [VERIFIED] |
-| NORA-W50/W51 | Git Bash | `python scripts/nora_w50_w51_build.py build ble_wifi_provisioning` | 2-3 min | [VERIFIED] |
-| NORA-W40 | Windows cmd.exe | See below | 10-30 sec | [IN_PROGRESS] |
-| NORA-W30 | WSL2 or Cygwin | See below | 5-15 min | [IN_PROGRESS] |
+| IRIS-W1 | Git Bash | `python scripts/iris_w1_build.py build demo_apps/hello_world` | 3 min | [VERIFIED] |
+| NORA-W5 | Git Bash | `python scripts/nora_w5_build.py build ble_wifi_provisioning` | 2-3 min | [VERIFIED] |
+| NORA-W4 | Windows cmd.exe | See below | 10-30 sec | [IN_PROGRESS] |
+| NORA-W3 | WSL2 or Cygwin | See below | 5-15 min | [IN_PROGRESS] |
 
 ---
 
-## NORA-W40 (ESP32-C6) Build
+## NORA-W4 (ESP32-C6) Build
 
 ### Why Git Bash Doesn't Work
 
@@ -29,7 +29,7 @@ ESP-IDF explicitly rejects the `MSYSTEM` environment variable set by Git Bash/MS
 
 **Step 1:** Open Windows Command Prompt (`cmd.exe`)
 ```
-Start Menu → cmd.exe
+Start Menu -> cmd.exe
 ```
 
 **Step 2:** Navigate to example directory
@@ -63,7 +63,7 @@ idf.py build
 
 ---
 
-## NORA-W30 (Realtek RTL8720DF) Build
+## NORA-W3 (Realtek RTL8720DF) Build
 
 ### Build System Overview
 
@@ -166,13 +166,13 @@ make all
 
 ## Verifying Builds
 
-### NORA-W40
+### NORA-W4
 ```batch
 dir build
 # Should show: hello_world.elf, hello_world.bin, and other files
 ```
 
-### NORA-W30
+### NORA-W3
 ```bash
 ls asdk/image/
 # Should show: km4_image2_all.bin
@@ -183,7 +183,7 @@ ls asdk/image/
 ## Next Steps After Successful Build
 
 1. **Document binary sizes** in BUILD_TEST_RESULTS.md
-2. **Test with hardware** (if NORA-W30 or NORA-W40 boards available)
+2. **Test with hardware** (if NORA-W3 or NORA-W4 boards available)
 3. **Flash firmware** to device using appropriate tools
 4. **Update project status** to [VERIFIED]
 

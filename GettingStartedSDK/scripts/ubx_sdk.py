@@ -4,8 +4,8 @@ Plain SDK entry point for the u-blox Getting Started SDK.
 
 Invoked through the ``ubx-sdk.cmd`` / ``ubx-sdk.sh`` shim:
 
-    ubx-sdk nora-w40 --clone --install --build hello_world
-    ubx-sdk iris-w10 --doctor
+    ubx-sdk nora-w4 --clone --install --build hello_world
+    ubx-sdk iris-w1 --doctor
 
 The shared logic lives in ``ubx.py``; Matter uses the same core through
 ``ubx_matter.py``.

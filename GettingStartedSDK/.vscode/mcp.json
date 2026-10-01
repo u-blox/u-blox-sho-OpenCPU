@@ -1,0 +1,9 @@
+{
+  "$schema": "https://aka.ms/vscode-mcp-schema",
+  "servers": {
+    "u-blox-docs": {
+      "type": "http",
+      "url": "https://ublox.mcp.kapa.ai/"
+    }
+  }
+}

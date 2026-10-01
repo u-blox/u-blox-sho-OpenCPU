@@ -18,6 +18,7 @@ it and its SDKs are multi-GB.
 from __future__ import annotations
 
 import os
+import shlex
 import subprocess
 import sys
 from dataclasses import dataclass, field
@@ -37,54 +38,84 @@ class Target:
     example_word: str
     linux_only: bool = False
     supports: frozenset[str] = frozenset()
+    # Leading arguments the driver needs before its subcommand. Shared drivers
+    # that serve several targets use this to receive the target key.
+    driver_args: tuple[str, ...] = ()
 
 
 TARGETS: dict[str, Target] = {
-    "iris-w10": Target(
-        key="iris-w10",
-        label="IRIS-W10 (NXP RW612/RW610)",
-        script="iris_w10_build.py",
+    "alma-b2": Target(
+        key="alma-b2",
+        label="ALMA-B2 (Nordic nRF54LM20)",
+        script="nordic_ncs_build.py",
+        default_example="hello_world",
+        example_word="sample",
+        supports=frozenset({"doctor", "clone", "install", "list", "clean", "build", "flash", "log"}),
+        driver_args=("alma-b2",),
+    ),
+    "iris-w1": Target(
+        key="iris-w1",
+        label="IRIS-W1 (NXP RW612/RW610)",
+        script="iris_w1_build.py",
         default_example="demo_apps/hello_world",
         example_word="example",
         supports=frozenset({"doctor", "clone", "install", "list", "clean", "build", "flash", "log"}),
     ),
-    "nora-w30": Target(
-        key="nora-w30",
-        label="NORA-W30 (Realtek RTL872x)",
-        script="nora_w30_build.py",
+    "nora-b2": Target(
+        key="nora-b2",
+        label="NORA-B2 (Nordic nRF54L15/L10/L05)",
+        script="nordic_ncs_build.py",
+        default_example="hello_world",
+        example_word="sample",
+        supports=frozenset({"doctor", "clone", "install", "list", "clean", "build", "flash", "log"}),
+        driver_args=("nora-b2",),
+    ),
+    "nora-w3": Target(
+        key="nora-w3",
+        label="NORA-W3 (Realtek RTL8720DF)",
+        script="nora_w3_build.py",
         default_example="project_hp",
         example_word="project",
         linux_only=True,
         supports=frozenset({"doctor", "clone", "install", "list", "clean", "build"}),
     ),
-    "nora-w40": Target(
-        key="nora-w40",
-        label="NORA-W40 (Espressif ESP32-C6)",
-        script="nora_w40_build.py",
+    "nora-w4": Target(
+        key="nora-w4",
+        label="NORA-W4 (Espressif ESP32-C6)",
+        script="nora_w4_build.py",
         default_example="hello_world",
         example_word="example",
-        supports=frozenset({"doctor", "clone", "install", "list", "clean", "build"}),
+        supports=frozenset({"doctor", "clone", "install", "list", "clean", "build", "flash", "log"}),
     ),
-    "nora-w50-w51": Target(
-        key="nora-w50-w51",
-        label="NORA-W50/W51 (TI CC35XX)",
-        script="nora_w50_w51_build.py",
+    "nora-w5": Target(
+        key="nora-w5",
+        label="NORA-W5 (TI CC3501E/CC3551E)",
+        script="nora_w5_build.py",
         default_example="network_terminal",
         example_word="example",
         supports=frozenset({"doctor", "clone", "install", "list", "clean", "build", "build-sdk", "flash", "log"}),
     ),
 }
 
+# Short keys are canonical; the full u-blox series names stay accepted.
 ALIASES = {
-    "iris": "iris-w10", "irisw10": "iris-w10", "iris_w10": "iris-w10", "w10": "iris-w10",
-    "nora_w30": "nora-w30", "noraw30": "nora-w30", "w30": "nora-w30",
-    "nora_w40": "nora-w40", "noraw40": "nora-w40", "w40": "nora-w40",
-    "nora-w50": "nora-w50-w51", "nora-w51": "nora-w50-w51",
-    "nora_w50_w51": "nora-w50-w51", "w50": "nora-w50-w51", "w51": "nora-w50-w51",
+    "alma": "alma-b2", "almab2": "alma-b2", "alma_b2": "alma-b2",
+    "iris": "iris-w1", "irisw1": "iris-w1", "iris_w1": "iris-w1",
+    "iris-w10": "iris-w1", "irisw10": "iris-w1", "w10": "iris-w1",
+    "nora_b2": "nora-b2", "norab2": "nora-b2",
+    "nora_w3": "nora-w3", "noraw3": "nora-w3",
+    "nora-w30": "nora-w3", "noraw30": "nora-w3", "w3": "nora-w3", "w30": "nora-w3",
+    "nora_w4": "nora-w4", "noraw4": "nora-w4",
+    "nora-w40": "nora-w4", "noraw40": "nora-w4", "w4": "nora-w4", "w40": "nora-w4",
+    # W50x and W51x only. W56x/W57x are u-connectXpress parts, not Open CPU.
+    "nora_w5": "nora-w5", "noraw5": "nora-w5", "w5": "nora-w5",
+    "nora-w50": "nora-w5", "nora-w51": "nora-w5",
+    "w50": "nora-w5", "w51": "nora-w5",
 }
 
 # Execution order, independent of the order flags were typed.
-ACTION_ORDER = ["doctor", "clone", "install", "build-sdk", "clean", "build", "flash", "log"]
+# 'list' sits after the SDK is in place so '--clone --list' reads correctly.
+ACTION_ORDER = ["doctor", "clone", "install", "build-sdk", "list", "clean", "build", "flash", "log"]
 
 
 @dataclass
@@ -106,36 +137,42 @@ u-blox Getting Started SDK launcher
 
   ubx-sdk <target> [flags...]
 
-Targets
-  iris-w10        IRIS-W10      NXP RW612/RW610      (MCUXpresso / west)
-  nora-w30        NORA-W30      Realtek RTL872x      (Linux or WSL2 only)
-  nora-w40        NORA-W40      Espressif ESP32-C6   (ESP-IDF)
-  nora-w50-w51    NORA-W50/W51  TI CC35XX            (SimpleLink)
+Targets                                             Open CPU parts
+  alma-b2      Nordic nRF54LM20     nRF Connect SDK  ALMA-B20x/B21x
+  iris-w1      NXP RW612/RW610      MCUXpresso       IRIS-W10x
+  nora-b2      Nordic nRF54L15/L10  nRF Connect SDK  NORA-B20x/B21x/B22x
+  nora-w3      Realtek RTL8720DF    Ameba (Linux)    NORA-W30x
+  nora-w4      Espressif ESP32-C6   ESP-IDF          NORA-W40x
+  nora-w5      TI CC3501E/CC3551E   SimpleLink       NORA-W50x/W51x
+
+The u-connectXpress parts (NORA-W36x, W56x, W57x, B26x, B27x) ship pre-flashed
+with AT-command firmware and are not built from this Open CPU SDK.
 
 Flags (combinable; always run in this order)
   --doctor              Verify host tools for the target
   --clone               Fetch the vendor SDK on demand
-    --full                IRIS-W10 only: full SDK instead of RW612 only
+    --full                IRIS-W1 only: full SDK instead of RW612 only
   --install             Install/refresh the SDK's own tool environment
-  --build-sdk           NORA-W50/W51 only: build the SDK libraries
+  --build-sdk           NORA-W5 only: build the SDK libraries
+  --list                List available examples
   --clean               Clean build artifacts
   --clean-all           Remove the fetched SDK entirely
   --build [NAME]        Build an example (target-specific default if omitted)
   --flash [SERIAL]      Flash via the target's debug probe
   --log [PORT]          Open the serial monitor (port auto-detected if omitted)
-  --list                List available examples
   --setup-venv          Create/refresh the shared .venv, then exit
   --wsl / --no-wsl      Force or suppress the automatic hop into WSL2
   --                    Pass every remaining argument verbatim to the driver
   --help                Show this help
 
 Examples
-  ubx-sdk nora-w40 --clone --install --build hello_world
-  ubx-sdk iris-w10 --doctor
-  ubx-sdk iris-w10 --build demo_apps/hello_world --flash --log
-  ubx-sdk nora-w50-w51 --clone --build-sdk --build network_terminal
-  ubx-sdk nora-w30 --build        (hops into WSL2 automatically on Windows)
-  ubx-sdk iris-w10 --build hello_world -- --config release
+  ubx-sdk nora-w4 --clone --install --build hello_world
+  ubx-sdk nora-b2 --clone --build hello_world --flash --log
+  ubx-sdk iris-w1 --doctor
+  ubx-sdk iris-w1 --build demo_apps/hello_world --flash --log
+  ubx-sdk nora-w5 --clone --build-sdk --build network_terminal
+  ubx-sdk nora-w3 --build        (hops into WSL2 automatically on Windows)
+  ubx-sdk iris-w1 --build hello_world -- --config release
 
 Matter is a separate, optional layer with its own launcher: ubx-matter --help
 """.strip()
@@ -150,10 +187,13 @@ are only fetched when you ask for them; if you are not building Matter, ignore
 this launcher and use 'ubx-sdk' instead.
 
 Targets
-  iris-w10        NXP RW612        connectedhomeip (NXP rt/rw61x)
-  nora-w30        Realtek RTL872x  ameba-rtos-matter
-  nora-w40        ESP32-C6         esp-matter
-  nora-w50-w51    TI CC35XX        no public Matter SDK yet
+  iris-w1      NXP RW612            NXP/matter (connectedhomeip fork)
+  nora-w3      Realtek RTL8720DF    ameba-rtos-matter
+  nora-w4      Espressif ESP32-C6   esp-matter
+  nora-w5      TI CC3551E           TexasInstruments/matter
+
+NORA-B2 and ALMA-B2 build Matter straight from the nRF Connect SDK
+(nrf/samples/matter/*), so use 'ubx-sdk', not this launcher.
 
 Flags (combinable; always run in this order)
   --doctor              Report Matter prerequisites and SDK state
@@ -171,10 +211,10 @@ WSL2 automatically on Windows. Set UBX_MATTER_ROOT to keep the checkout off a
 /mnt/<drive> path. See matter/README.md.
 
 Examples
-  ubx-matter nora-w40 --doctor
-  ubx-matter nora-w40 --clone
-  ubx-matter nora-w40 --list
-  ubx-matter nora-w40 --build thermometer
+  ubx-matter nora-w4 --doctor
+  ubx-matter nora-w4 --clone
+  ubx-matter nora-w4 --list
+  ubx-matter nora-w4 --build thermometer
 """.strip()
 
 
@@ -186,6 +226,44 @@ def fail(message: str) -> int:
 def resolve_target(name: str) -> Target | None:
     key = ALIASES.get(name.lower(), name.lower())
     return TARGETS.get(key)
+
+
+# Pre-flashed AT-command parts. Typing one of these is a product-line mix-up,
+# not a typo, so say so rather than listing the Open CPU targets.
+UCONNECTXPRESS = {
+    "nora-w36": "nora-w3", "w36": "nora-w3",
+    "nora-w56": "nora-w5", "w56": "nora-w5",
+    "nora-w57": "nora-w5", "w57": "nora-w5",
+    "nora-b26": "nora-b2", "b26": "nora-b2",
+    "nora-b27": "nora-b2", "b27": "nora-b2",
+}
+
+
+# Open CPU modules this SDK does not cover. NORA-W1/W2 are ESP32-based and
+# easy to confuse with IRIS-W1, which is NXP.
+UNSUPPORTED = {
+    "nora-w1": "NORA-W1 (ESP32) is not built by this SDK. Note IRIS-W1 is NXP RW612,\n"
+               "       a different module. See NORA-W1-OutputPower/ in the repository root.",
+    "nora-w2": "NORA-W2 (ESP32) is not built by this SDK.",
+}
+
+
+def fail_unknown_target(name: str) -> int:
+    key = name.lower().replace("_", "-")
+    series = key.rstrip("0123456789x") or key
+
+    note = UNSUPPORTED.get(key) or UNSUPPORTED.get(series)
+    if note:
+        return fail(note)
+
+    sibling = UCONNECTXPRESS.get(key) or UCONNECTXPRESS.get(key[:-1] if key[-1:].isdigit() else key)
+    if sibling:
+        return fail(
+            f"{name} is a u-connectXpress module.\n"
+            f"       It ships with AT-command firmware pre-flashed and is not built\n"
+            f"       from this Open CPU SDK. The Open CPU sibling is '{sibling}'."
+        )
+    return fail(f"Unknown target: {name}\n       Known targets: {', '.join(TARGETS)}")
 
 
 def host_is_windows() -> bool:
@@ -205,7 +283,16 @@ def parse(argv: list[str], matter: bool = False) -> Context | int:
 
     target = resolve_target(argv[0])
     if target is None:
-        return fail(f"Unknown target: {argv[0]}\n       Known targets: {', '.join(TARGETS)}")
+        return fail_unknown_target(argv[0])
+
+    # Nordic targets get Matter from the nRF Connect SDK itself, so there is no
+    # separate Matter SDK for this launcher to drive.
+    if matter and target.script == "nordic_ncs_build.py":
+        return fail(
+            f"{target.label} builds Matter from the nRF Connect SDK.\n"
+            f"       There is no separate Matter SDK to fetch. Use the plain launcher:\n"
+            f"       ubx-sdk {target.key} --build matter/light_bulb"
+        )
 
     ctx = Context(target=target, matter=matter)
     rest = argv[1:]
@@ -302,12 +389,16 @@ def argv_for(ctx: Context, action: str) -> list[str] | None:
 
     if action == "clone":
         argv = ["clone"]
-        if ctx.full and t.key == "iris-w10":
+        if ctx.full and t.key == "iris-w1":
             argv.append("--full")
         return argv
 
     if action == "clean":
-        if t.key == "nora-w50-w51" and not ctx.clean_all:
+        if t.key == "nora-w5":
+            if ctx.clean_all:
+                print("[WARNING] --clean-all is not supported for NORA-W5; "
+                      "delete the workspace manually. Skipping.")
+                return None
             # No standalone clean subcommand; a clean build is the equivalent.
             return ["build", example, "--clean"]
         argv = ["clean"]
@@ -325,6 +416,12 @@ def argv_for(ctx: Context, action: str) -> list[str] | None:
         return argv
 
     if action == "log":
+        # idf.py monitor must run inside an example directory.
+        if t.key == "nora-w4":
+            argv = ["log", example]
+            if ctx.port:
+                argv += ["--serial", ctx.port]
+            return argv
         return ["log", ctx.port] if ctx.port else ["log"]
 
     return None
@@ -340,11 +437,11 @@ def to_wsl_path(path: Path) -> str:
 def hop_to_wsl(ctx: Context, argv: list[str]) -> int:
     """Re-run this invocation inside WSL2, where the Realtek build works."""
     sdk_wsl = to_wsl_path(SDK_ROOT)
-    forwarded = " ".join(f"'{a}'" for a in argv)
+    forwarded = shlex.join(argv)
     shim = "./ubx-matter.sh" if ctx.matter else "./ubx-sdk.sh"
     print(f"[INFO] {ctx.target.label} builds on Linux; hopping into WSL2.")
     print(f"[INFO] WSL path: {sdk_wsl}")
-    command = f"cd '{sdk_wsl}' && {shim} {forwarded}"
+    command = f"cd {shlex.quote(sdk_wsl)} && {shim} {forwarded}"
     return subprocess.call(["wsl", "--", "bash", "-lc", command])
 
 
@@ -370,7 +467,7 @@ def run(ctx: Context, raw_argv: list[str]) -> int:
         sub = argv_for(ctx, action)
         if sub is None:
             continue
-        prefix = [ctx.target.key] if ctx.matter else []
+        prefix = [ctx.target.key] if ctx.matter else list(ctx.target.driver_args)
         cmd = [sys.executable, str(script), *prefix, *sub]
         banner = "matter " if ctx.matter else ""
         print(f"\n=== {ctx.target.label} :: {banner}{action} ===", flush=True)

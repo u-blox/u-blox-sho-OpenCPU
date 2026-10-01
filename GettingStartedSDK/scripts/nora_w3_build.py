@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-NORA-W30 (Realtek RTL872x) Build Driver
-Automated cross-platform build orchestration for NORA-W30 Open CPU modules using Realtek RTOS SDK.
+NORA-W3 (Realtek RTL872x) Build Driver
+Automated cross-platform build orchestration for NORA-W3 Open CPU modules using Realtek RTOS SDK.
 
 Supports: Linux (native & WSL2) | Windows (WSL2 recommended)
 Note: Cygwin on Windows is complex; native Windows build not fully supported.
@@ -18,7 +18,7 @@ from typing import Dict, List, Optional
 
 import target_paths
 
-TARGET = "nora_w30"
+TARGET = "nora_w3"
 
 # Windows consoles default to cp1252 and raise UnicodeEncodeError on the status glyphs below.
 for _stream in (sys.stdout, sys.stderr):
@@ -70,7 +70,7 @@ def newest(patterns: List[str]) -> Optional[str]:
                 candidates.extend(Path().glob(pattern))
         except:
             pass
-    
+
     if not candidates:
         return None
     candidates.sort(key=lambda p: str(p), reverse=True)
@@ -111,7 +111,7 @@ def detect_python() -> Optional[str]:
 # ============================================================================
 
 def config_file() -> Path:
-    """Get per-platform config file path (targets/NORA-W30/config)."""
+    """Get per-platform config file path (targets/NORA-W3/config)."""
     return target_paths.resolve_config(TARGET, host_kind())
 
 def load_config() -> Dict:
@@ -135,31 +135,31 @@ def save_config(cfg: Dict) -> None:
 def cmd_doctor(args) -> int:
     """Verify toolchain availability."""
     current_host = host_kind()
-    print(f"\n🔍 NORA-W30 Build Environment Check ({current_host})\n")
-    
+    print(f"\nNORA-W3 Build Environment Check ({current_host})\n")
+
     if current_host == "windows":
         print("[NOTE] Windows detected.")
         print("    Realtek SDK build on Windows requires WSL2 or Cygwin.")
         print("    Recommend: Use WSL2 with Ubuntu instead.\n")
         return 1
-    
+
     tools = {
         "Python": detect_python(),
         "Git": detect_git(),
         "Make": detect_make(),
         "Arm GCC": detect_arm_gcc(),
     }
-    
+
     all_ok = True
     for name, path in tools.items():
         status = "[OK]" if path else "[FAIL]"
         print(f"  {status} {name:15} {path or 'NOT FOUND'}")
         if not path:
             all_ok = False
-    
+
     print(f"\nPlatform: {current_host}")
     print(f"Config: {config_file()}")
-    
+
     if all_ok:
         print("\n[OK] All tools detected!\n")
         return 0
@@ -169,42 +169,42 @@ def cmd_doctor(args) -> int:
 
 def cmd_clone(args) -> int:
     """Clone Realtek SDK repository."""
-    print("\n📥 Cloning Realtek RTOS SDK...\n")
-    
+    print("\nCloning Realtek RTOS SDK...\n")
+
     git = detect_git()
     if not git:
         print("[FAIL] Git not found!")
         return 1
-    
+
     # First check if SDK is already checked-in at the workspace root
     checked_in_sdk = target_paths.SDK_ROOT / "ameba-rtos-d"
     if checked_in_sdk.exists():
-        print(f"ℹ️  Found checked-in SDK at: {checked_in_sdk}\n")
+        print(f"[INFO] Found checked-in SDK at: {checked_in_sdk}\n")
         cfg = load_config()
         cfg["sdk_path"] = str(checked_in_sdk)
         save_config(cfg)
         return 0
-    
+
     # Fall back to target-specific location
     sdk_dir = target_paths.sdk_dir(TARGET) / "realtek-rtos-sdk"
     if sdk_dir.exists():
-        print(f"ℹ️  {sdk_dir} already exists. Skipping clone.\n")
+        print(f"[INFO] {sdk_dir} already exists. Skipping clone.\n")
         cfg = load_config()
         cfg["sdk_path"] = str(sdk_dir)
         save_config(cfg)
         return 0
     target_paths.ensure(TARGET)
-    
-    # Note: NORA-W30 uses Realtek RTL8720DF which requires Ameba-D SDK (not main ameba-rtos)
-    repo_url = "https://github.com/Ameba-AIoT/ameba-rtos-d.git"  # Ameba-D SDK (specifically for RTL8720DF used in NORA-W30)
-    
+
+    # Note: NORA-W3 uses Realtek RTL8720DF which requires Ameba-D SDK (not main ameba-rtos)
+    repo_url = "https://github.com/Ameba-AIoT/ameba-rtos-d.git"  # Ameba-D SDK (specifically for RTL8720DF used in NORA-W3)
+
     print(f"Cloning from: {repo_url}\n")
-    
+
     result = subprocess.run(
         [git, "clone", "--depth", "1", repo_url, str(sdk_dir)],
         cwd=sdk_dir.parent
     )
-    
+
     if result.returncode == 0:
         print("\n[OK] Realtek SDK cloned successfully!\n")
         cfg = load_config()
@@ -212,26 +212,26 @@ def cmd_clone(args) -> int:
         save_config(cfg)
     else:
         print("\n[FAIL] Clone failed. Check URL and network connection.\n")
-    
+
     return result.returncode
 
 def cmd_install(args) -> int:
     """Verify Realtek SDK environment (tools already installed via system package manager)."""
-    print("\n[OK] Environment Check for NORA-W30 (Realtek RTOS)\n")
+    print("\n[OK] Environment Check for NORA-W3 (Realtek RTOS)\n")
     print("Realtek SDK uses standard Linux tools (arm-none-eabi-gcc, make, git).")
     print("These are installed via your system package manager (apt, yum, etc.).")
     print("\nTo install missing tools, run:")
     print("  Ubuntu/Debian: sudo apt install arm-none-eabi-gcc make git python3")
     print("  Other Linux:   Use your package manager to install the above tools")
     print("\nTo verify your installation, run:")
-    print("  python3 nora_w30_build.py doctor")
+    print("  python3 nora_w3_build.py doctor")
     print()
     return 0
 
 def cmd_clean(args) -> int:
     """Clean build artifacts."""
-    print("\n🧹 Cleaning build artifacts...\n")
-    
+    print("\nCleaning build artifacts...\n")
+
     if args.all:
         # Remove entire SDK directory
         sdk_path = load_config().get("sdk_path")
@@ -244,28 +244,28 @@ def cmd_clean(args) -> int:
             save_config(cfg)
             print("[OK] Realtek SDK removed.\n")
         else:
-            print("ℹ️  Realtek SDK not found.\n")
+            print("[INFO] Realtek SDK not found.\n")
         return 0
-    
+
     # Clean project (not example-based)
     sdk_path = load_config().get("sdk_path")
     if not sdk_path or not Path(sdk_path).exists():
         print("[FAIL] Realtek SDK not found.\n")
         return 1
-    
+
     sdk_path = Path(sdk_path)
-    
+
     # Clean specified project or both
     projects = ["project_lp", "project_hp"]
     if hasattr(args, 'project') and args.project:
         projects = [args.project]
-    
+
     for project in projects:
         project_dir = sdk_path / "project" / "realtek_amebaD_va0_example" / "GCC-RELEASE" / project
         if not project_dir.exists():
             print(f"[WARN] Project not found: {project}\n")
             continue
-        
+
         print(f"Running make clean for: {project}\n")
         result = subprocess.run(
             ["make", "clean"],
@@ -273,17 +273,17 @@ def cmd_clean(args) -> int:
         )
         if result.returncode != 0:
             return 1
-    
+
     print("[OK] Clean complete.\n")
     return 0
-    
+
     sdk_path = load_config().get("sdk_path")
     if not sdk_path:
         print("[FAIL] Realtek SDK not found.\n")
         return 1
-    
+
     sdk_path = Path(sdk_path)
-    
+
     # Try Ameba-D structure first
     example_sources = sdk_path / "project" / "realtek_amebaD_va0_example" / "example_sources"
     if example_sources.exists():
@@ -298,14 +298,14 @@ def cmd_clean(args) -> int:
                 print("\n[OK] Build directory cleaned.\n")
             return result.returncode
         else:
-            print(f"ℹ️  Example directory not found: {example_dir}\n")
+            print(f"[INFO] Example directory not found: {example_dir}\n")
             return 0
-    
+
     # Fall back to alternative paths
     example_dir = sdk_path / "examples" / args.example
     if not example_dir.exists():
         example_dir = sdk_path / "project" / "realtek_amebaZ" / args.example
-    
+
     # Try to clean using make
     if example_dir.exists():
         print(f"Running make clean in: {example_dir}\n")
@@ -317,45 +317,45 @@ def cmd_clean(args) -> int:
             print("\n[OK] Build directory cleaned.\n")
         return result.returncode
     else:
-        print(f"ℹ️  Example directory not found: {example_dir}\n")
-    
+        print(f"[INFO] Example directory not found: {example_dir}\n")
+
     return 0
 
 def cmd_build(args) -> int:
     """Build Ameba-D firmware image."""
-    
+
     sdk_path = load_config().get("sdk_path")
     if not sdk_path or not Path(sdk_path).exists():
-        print("[FAIL] Realtek SDK not found. Run 'python nora_w30_build.py clone' first.")
+        print("[FAIL] Realtek SDK not found. Run 'python nora_w3_build.py clone' first.")
         return 1
-    
+
     sdk_path = Path(sdk_path)
-    
+
     # Determine which project to build (project_lp = KM0, project_hp = KM4)
     project = getattr(args, 'project', None) or 'project_hp'  # Default to project_hp (KM4)
     project_dir = sdk_path / "project" / "realtek_amebaD_va0_example" / "GCC-RELEASE" / project
-    
+
     if not project_dir.exists():
         print(f"[FAIL] Project directory not found: {project_dir}")
         print(f"Available projects: project_lp (KM0), project_hp (KM4)")
         return 1
-    
-    print(f"\n🔨 Building {project} (Ameba-D Firmware)...\n")
-    
+
+    print(f"\nBuilding {project} (Ameba-D Firmware)...\n")
+
     env = os.environ.copy()
     env["SDK_ROOT"] = str(sdk_path)
-    
+
     # Run make all from the project directory
     result = subprocess.run(
         ["make", "all"],
         cwd=project_dir,
         env=env
     )
-    
+
     if result.returncode == 0:
         image_dir = project_dir / "asdk" / "image"
-        print(f"\n✓ Build complete. Images at: {image_dir}\n")
-    
+        print(f"\n[OK] Build complete. Images at: {image_dir}\n")
+
     return result.returncode
 
 def cmd_list(args) -> int:
@@ -364,36 +364,36 @@ def cmd_list(args) -> int:
     if not sdk_path or not Path(sdk_path).exists():
         print("[FAIL] Realtek SDK not found.")
         return 1
-    
+
     sdk_path = Path(sdk_path)
-    
+
     # Show Ameba-D example sources (included in build, not separate targets)
     example_sources = sdk_path / "project" / "realtek_amebaD_va0_example" / "example_sources"
     if example_sources.exists():
-        print("\n📚 Ameba-D Example Sources (included in firmware build):\n")
+        print("\nAmeba-D Example Sources (included in firmware build):\n")
         for ex in sorted(example_sources.iterdir()):
             if ex.is_dir():
-                print(f"  • {ex.name}")
+                print(f"  - {ex.name}")
         print("\nNote: These are example source files, not separate build targets.")
         print("Modify build configuration to include different examples in the firmware.\n")
         return 0
-    
+
     print("[FAIL] Example sources directory not found.")
     return 1
 
 def cmd_all(args) -> int:
-    """Full pipeline: clone → build."""
+    """Full pipeline: clone -> build."""
     steps = [
         ("Clone Realtek SDK", lambda: cmd_clone(args)),
         ("Build Example", lambda: cmd_build(args)),
     ]
-    
+
     for name, step in steps:
         print(f"\n{'='*50}\n{name}\n{'='*50}")
         if step() != 0:
             print(f"\n[FAIL] {name} failed!")
             return 1
-    
+
     print("\n[OK] Pipeline complete!\n")
     return 0
 
@@ -403,44 +403,44 @@ def cmd_all(args) -> int:
 
 def main():
     import argparse
-    
+
     parser = argparse.ArgumentParser(
-        description="NORA-W30 (Realtek RTL872x) Build Driver",
+        description="NORA-W3 (Realtek RTL872x) Build Driver",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
-  python nora_w30_build.py doctor              # Check environment
-  python nora_w30_build.py clone               # Clone Realtek SDK
-  python nora_w30_build.py install             # Show tool installation info
-  python nora_w30_build.py list                # List example sources
-  python nora_w30_build.py build               # Build firmware (project_hp default)
-  python nora_w30_build.py build project_lp   # Build KM0 project
-  python nora_w30_build.py clean               # Clean firmware artifacts
-  python nora_w30_build.py clean --all         # Remove Realtek SDK entirely
+  python nora_w3_build.py doctor              # Check environment
+  python nora_w3_build.py clone               # Clone Realtek SDK
+  python nora_w3_build.py install             # Show tool installation info
+  python nora_w3_build.py list                # List example sources
+  python nora_w3_build.py build               # Build firmware (project_hp default)
+  python nora_w3_build.py build project_lp   # Build KM0 project
+  python nora_w3_build.py clean               # Clean firmware artifacts
+  python nora_w3_build.py clean --all         # Remove Realtek SDK entirely
 
 Note: Best on Linux or WSL2. Windows Cygwin is complex.
         """
     )
-    
+
     subparsers = parser.add_subparsers(dest="command", help="Command")
-    
+
     subparsers.add_parser("doctor", help="Verify toolchain")
     subparsers.add_parser("clone", help="Clone Realtek SDK")
     subparsers.add_parser("install", help="Show tool installation info")
     subparsers.add_parser("list", help="List example sources")
-    
+
     clean_parser = subparsers.add_parser("clean", help="Clean build artifacts")
     clean_parser.add_argument("project", nargs="?", help="Project name (project_lp, project_hp; optional)")
     clean_parser.add_argument("--all", action="store_true", help="Remove entire SDK")
-    
+
     build_parser = subparsers.add_parser("build", help="Build firmware")
     build_parser.add_argument("project", nargs="?", help="Project name (project_lp, project_hp; default: project_hp)")
-    
+
     all_parser = subparsers.add_parser("all", help="Full pipeline")
     all_parser.add_argument("project", nargs="?", help="Project name (project_lp or project_hp; default: project_hp)")
-    
+
     args = parser.parse_args()
-    
+
     commands = {
         "doctor": cmd_doctor,
         "clone": cmd_clone,
@@ -450,11 +450,11 @@ Note: Best on Linux or WSL2. Windows Cygwin is complex.
         "build": cmd_build,
         "all": cmd_all,
     }
-    
+
     if not args.command:
         parser.print_help()
         return 0
-    
+
     return commands[args.command](args)
 
 if __name__ == "__main__":

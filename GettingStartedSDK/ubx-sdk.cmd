@@ -6,8 +6,8 @@ REM Thin shim: picks a Python interpreter (shared .venv first) and forwards
 REM every argument to scripts\ubx_sdk.py. All logic lives in scripts\ubx.py.
 REM
 REM   ubx-sdk.cmd --help
-REM   ubx-sdk.cmd nora-w40 --clone --install --build hello_world
-REM   ubx-sdk.cmd iris-w10 --doctor
+REM   ubx-sdk.cmd nora-w4 --clone --install --build hello_world
+REM   ubx-sdk.cmd iris-w1 --doctor
 REM
 REM Matter is an optional, separate layer: see ubx-matter.cmd --help
 REM ========================================================================

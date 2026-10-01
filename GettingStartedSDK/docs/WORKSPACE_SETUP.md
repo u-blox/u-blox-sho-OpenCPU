@@ -43,21 +43,21 @@ the launcher from a terminal instead.
 
 | Configuration | Runs |
 |---------------|------|
-| Python: IRIS-W10 doctor / clone / build | `scripts/iris_w10_build.py` |
-| Python: NORA-W50/W51 build | `scripts/nora_w50_w51_build.py` |
-| Python: NORA-W40 clone / build | `scripts/nora_w40_build.py` |
-| Python: NORA-W30 build | `scripts/nora_w30_build.py` |
+| Python: IRIS-W1 doctor / clone / build | `scripts/iris_w1_build.py` |
+| Python: NORA-W5 build | `scripts/nora_w5_build.py` |
+| Python: NORA-W4 clone / build | `scripts/nora_w4_build.py` |
+| Python: NORA-W3 build | `scripts/nora_w3_build.py` |
 | Python: Setup venv | `scripts/setup_venv.py` |
-| Cortex Debug: IRIS-W10 (J-Link / MCU-Link) | RW612 over SWD, port 2331 |
-| Cortex Debug: NORA-W50/W51 (XDS110) | JTAG, port 55000 |
-| Cortex Debug: NORA-W30 (J-Link) | RTL8721D over SWD, port 2331 |
-| Cortex Debug: NORA-W40 (OpenOCD/ESP-Prog) | esp32c6, port 3333 |
-| ESP-IDF Monitor: NORA-W40 | `esp-idf/tools/idf.py monitor` |
+| Cortex Debug: IRIS-W1 (J-Link / MCU-Link) | RW612 over SWD, port 2331 |
+| Cortex Debug: NORA-W5 (XDS110) | JTAG, port 55000 |
+| Cortex Debug: NORA-W3 (J-Link) | RTL8721D over SWD, port 2331 |
+| Cortex Debug: NORA-W4 (OpenOCD/ESP-Prog) | esp32c6, port 3333 |
+| ESP-IDF Monitor: NORA-W4 | `esp-idf/tools/idf.py monitor` |
 
 The Cortex-Debug entries need a running GDB server and a matching `.elf`; they
 are starting points, not verified configurations.
 
-IRIS-W10 additionally needs `ARMGCC_DIR` in the environment. Set it in your
+IRIS-W1 additionally needs `ARMGCC_DIR` in the environment. Set it in your
 shell before launching VS Code, or add an `env` block to the configuration:
 
 ```json
@@ -74,7 +74,7 @@ matrix and the layout rules.
 
 ## Troubleshooting
 
-**Wrong interpreter** — Ctrl+Shift+P → "Python: Select Interpreter" → pick
+**Wrong interpreter** — Ctrl+Shift+P -> "Python: Select Interpreter" -> pick
 `GettingStartedSDK/.venv`. If it is missing, run `python scripts/setup_venv.py`
 and reload the window.
 

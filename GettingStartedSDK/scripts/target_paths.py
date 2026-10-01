@@ -27,10 +27,12 @@ TARGETS_DIR = SDK_ROOT / "targets"
 
 # Script slug -> base folder name shown in the explorer.
 TARGETS: dict[str, str] = {
-    "iris_w10": "IRIS-W10",
-    "nora_w30": "NORA-W30",
-    "nora_w40": "NORA-W40",
-    "nora_w50_w51": "NORA-W50-W51",
+    "alma_b2": "ALMA-B2",
+    "iris_w1": "IRIS-W1",
+    "nora_b2": "NORA-B2",
+    "nora_w3": "NORA-W3",
+    "nora_w4": "NORA-W4",
+    "nora_w5": "NORA-W5",
 }
 
 SUBDIRS = ("sdk", "config")
@@ -56,7 +58,7 @@ def _slug(target: str) -> str:
 
 
 def base_dir(target: str) -> Path:
-    """Base folder for a target, e.g. targets/NORA-W30."""
+    """Base folder for a target, e.g. targets/NORA-W3."""
     return TARGETS_DIR / TARGETS[_slug(target)]
 
 

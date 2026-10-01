@@ -7,8 +7,8 @@
 # first) and forwards every argument to scripts/ubx_matter.py.
 #
 #   ./ubx-matter.sh --help
-#   ./ubx-matter.sh nora-w40 --doctor
-#   ./ubx-matter.sh nora-w40 --clone --build thermometer
+#   ./ubx-matter.sh nora-w4 --doctor
+#   ./ubx-matter.sh nora-w4 --clone --build thermometer
 # ============================================================================
 set -euo pipefail
 

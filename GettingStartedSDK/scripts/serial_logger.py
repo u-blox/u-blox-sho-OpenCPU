@@ -41,7 +41,7 @@ def find_serial_ports():
     """
     if not HAS_PYSERIAL:
         return []
-    
+
     ports = []
     for port in serial.tools.list_ports.comports():
         ports.append((port.device, port.description))
@@ -56,12 +56,12 @@ def auto_detect_port():
     if not HAS_PYSERIAL:
         print("[FAIL] pyserial not installed. Install with: pip install pyserial")
         return None
-    
+
     ports = find_serial_ports()
     if not ports:
         print("[FAIL] No serial ports found")
         return None
-    
+
     # Look for u-blox specific ports
     ubx_keywords = ['ubx', 'u-blox', 'nordic', 'ti', 'uart', 'ttyusb', 'com']
     for port, desc in ports:
@@ -69,13 +69,13 @@ def auto_detect_port():
         if any(kw in desc_lower for kw in ubx_keywords):
             print(f"[OK] Auto-detected: {port} - {desc}")
             return port
-    
+
     # If no u-blox port found, use first available
     if ports:
         port, desc = ports[0]
-        print(f"[WARNING]  Using first available: {port} - {desc}")
+        print(f"[WARNING] Using first available: {port} - {desc}")
         return port
-    
+
     return None
 
 
@@ -95,7 +95,7 @@ def validate_port(port):
 def open_serial_monitor(port=None, baudrate=115200):
     """
     Open serial monitor with auto-detection and platform support.
-    
+
     Args:
         port: Serial port (auto-detected if None)
         baudrate: Baud rate (default 115200)
@@ -109,18 +109,18 @@ def open_serial_monitor(port=None, baudrate=115200):
             for p, desc in find_serial_ports():
                 print(f"  {p}: {desc}")
             return 1
-    
+
     # Validate port
     if not validate_port(port):
         return 1
-    
-    print(f"\n📡 Opening {port} at {baudrate} baud (Ctrl+C to exit)...")
+
+    print(f"\nOpening {port} at {baudrate} baud (Ctrl+C to exit)...")
     print("=" * 70)
-    
+
     try:
         ser = serial.Serial(port, baudrate=baudrate, timeout=1)
         print(f"[OK] Connected to {port}\n")
-        
+
         while True:
             if ser.in_waiting:
                 line = ser.readline().decode('utf-8', errors='ignore').rstrip()
@@ -130,7 +130,7 @@ def open_serial_monitor(port=None, baudrate=115200):
                 time.sleep(0.01)
     except KeyboardInterrupt:
         print("\n\n" + "=" * 70)
-        print("📴 Disconnected")
+        print("Disconnected")
         return 0
     except serial.SerialException as e:
         print(f"\n[FAIL] Serial error: {e}")
@@ -172,7 +172,7 @@ def main():
     """Main entry point."""
     port = None
     baudrate = 115200
-    
+
     # Parse arguments
     if len(sys.argv) > 1:
         port = sys.argv[1]
@@ -182,9 +182,9 @@ def main():
         except ValueError:
             print(f"[FAIL] Invalid baudrate: {sys.argv[2]}")
             return 1
-    
+
     if not HAS_PYSERIAL:
-        print("[WARNING]  pyserial not available, trying fallback methods...")
+        print("[WARNING] pyserial not available, trying fallback methods...")
         if not port:
             # Try to auto-detect with manual port listing
             print("Available serial ports (Windows):")
@@ -204,13 +204,13 @@ def main():
                 for port_path in glob.glob('/dev/ttyUSB*') + glob.glob('/dev/ttyACM*'):
                     print(f"  {port_path}")
             return 1
-        
+
         # Try screen (Unix)
         if sys.platform != 'win32':
             return open_with_screen(port, baudrate)
         else:
             return open_with_putty(port, baudrate)
-    
+
     # Use pyserial
     return open_serial_monitor(port, baudrate)
 

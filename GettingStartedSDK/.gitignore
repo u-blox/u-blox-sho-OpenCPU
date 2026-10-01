@@ -17,10 +17,10 @@ __pycache__/
 *.map
 
 # Config cache (per-platform, legacy root location)
-.iris_w10_build.*.json
-.nora_w30_build.*.json
-.nora_w40_build.*.json
-.nora_w50_w51_build.*.json
+.iris_w1_build.*.json
+.nora_w3_build.*.json
+.nora_w4_build.*.json
+.nora_w5_build.*.json
 
 # Per-target base folders: track the skeleton, ignore everything generated.
 # The directories are re-included first because git will not descend into an

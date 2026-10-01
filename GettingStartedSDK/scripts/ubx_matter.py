@@ -6,8 +6,8 @@ Deliberately separate from ``ubx_sdk.py``: the Matter SDKs are several GB and
 most users never need them, so the plain SDK launcher does not mention Matter
 at all. Invoked through the ``ubx-matter.cmd`` / ``ubx-matter.sh`` shim:
 
-    ubx-matter nora-w40 --doctor
-    ubx-matter nora-w40 --clone --build thermometer
+    ubx-matter nora-w4 --doctor
+    ubx-matter nora-w4 --clone --build thermometer
 """
 
 from __future__ import annotations

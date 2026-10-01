@@ -1,5 +1,5 @@
 #!/bin/bash
-# Setup build environment for IRIS-W10 and other u-blox modules
+# Setup build environment for IRIS-W1 and other u-blox modules
 # Cross-platform compatible (Windows Git Bash, WSL2, Linux, macOS)
 
 set -e
@@ -98,10 +98,10 @@ if defined ARMGCC_DIR (
     echo ARMGCC_DIR set to: %ARMGCC_DIR%
 )
 echo Build environment ready. Available commands:
-echo   - iris_w10_build.py list
-echo   - iris_w10_build.py build demo_apps/hello_world
-echo   - iris_w10_build.py log
-echo   - iris_w10_build.py flash demo_apps/hello_world
+echo   - iris_w1_build.py list
+echo   - iris_w1_build.py build demo_apps/hello_world
+echo   - iris_w1_build.py log
+echo   - iris_w1_build.py flash demo_apps/hello_world
 EOF
     echo "Created: $VENV_DIR/activate_build.bat"
 else
@@ -127,10 +127,10 @@ echo ""
 echo "Next steps:"
 if [[ "$PLATFORM" == "windows" ]]; then
     echo "  1. Activate: $VENV_DIR\\activate_build.bat"
-    echo "  2. Build:    python scripts/iris_w10_build.py build demo_apps/hello_world"
+    echo "  2. Build:    python scripts/iris_w1_build.py build demo_apps/hello_world"
 else
     echo "  1. Activate: source $VENV_DIR/activate_build.sh"
-    echo "  2. Build:    python scripts/iris_w10_build.py build demo_apps/hello_world"
+    echo "  2. Build:    python scripts/iris_w1_build.py build demo_apps/hello_world"
 fi
 echo ""
 echo "Installed packages:"

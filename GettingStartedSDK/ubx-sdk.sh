@@ -6,8 +6,8 @@
 # every argument to scripts/ubx_sdk.py. All logic lives in scripts/ubx.py.
 #
 #   ./ubx-sdk.sh --help
-#   ./ubx-sdk.sh nora-w40 --clone --install --build hello_world
-#   ./ubx-sdk.sh nora-w30 --build
+#   ./ubx-sdk.sh nora-w4 --clone --install --build hello_world
+#   ./ubx-sdk.sh nora-w3 --build
 #
 # Matter is an optional, separate layer: see ./ubx-matter.sh --help
 # ============================================================================

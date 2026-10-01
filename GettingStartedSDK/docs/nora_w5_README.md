@@ -72,7 +72,7 @@ sudo usermod -aG dialout,plugdev $USER   # log out / in afterwards
 
 Use the Linux instructions inside WSL2, plus:
 
-1. Keep the source tree in the **Linux** filesystem (`~/nora-w50-w51`), not `/mnt/c` — builds are much faster.
+1. Keep the source tree in the **Linux** filesystem (`~/nora-w5`), not `/mnt/c` — builds are much faster.
 2. USB (XDS110 / UART) is not visible by default. From an **admin PowerShell** on Windows:
    ```powershell
    winget install usbipd
@@ -90,16 +90,16 @@ Use the Linux instructions inside WSL2, plus:
 
 ### 3.0 Scripted path (recommended)
 
-[nora_w50_w51_build.py](nora_w50_w51_build.py) automates everything below on Windows, WSL2 and Linux. It
+[nora_w5_build.py](nora_w5_build.py) automates everything below on Windows, WSL2 and Linux. It
 finds an installed SDK (or clones TI's example repos), writes the detected tool paths into
 `imports.mak`, builds the SDK libraries and then builds examples.
 
 ```bash
-python nora_w50_w51_build.py doctor              # what is installed, what is missing
-python nora_w50_w51_build.py configure           # patch imports.mak (backs up as imports.mak.orig)
-python nora_w50_w51_build.py build-sdk           # build SDK libraries (slow, once per SDK)
-python nora_w50_w51_build.py list                # show real example names
-python nora_w50_w51_build.py build network_terminal
+python nora_w5_build.py doctor              # what is installed, what is missing
+python nora_w5_build.py configure           # patch imports.mak (backs up as imports.mak.orig)
+python nora_w5_build.py build-sdk           # build SDK libraries (slow, once per SDK)
+python nora_w5_build.py list                # show real example names
+python nora_w5_build.py build network_terminal
 ```
 
 | Command | Purpose |
@@ -115,7 +115,7 @@ python nora_w50_w51_build.py build network_terminal
 Useful flags: `--toolchain gcc` (default `ticlang`), `--board LP_EM_CC35X1ET`,
 `--sdk <path>` to point at a specific SDK, `-j8` for parallel builds, and
 `--gcc_armcompiler <dir>` style overrides for any tool it fails to detect.
-Settings are cached in `.nora_w50_w51_build.<host>.json`, one file per host type so the same
+Settings are cached in `.nora_w5_build.<host>.json`, one file per host type so the same
 folder works from Windows and WSL at once.
 
 On Windows the script converts paths containing spaces to their 8.3 short form, because
@@ -132,7 +132,7 @@ The manual equivalent is described below.
 
 Either install it with TI's installer (gives you `examples/`, `docs/` and `tools/`):
 
-<https://www.ti.com/tool/download/SIMPLELINK-WIFI-SDK> → e.g. `C:\ti\simplelink_wifi_sdk_10_20_00_39`
+<https://www.ti.com/tool/download/SIMPLELINK-WIFI-SDK> -> e.g. `C:\ti\simplelink_wifi_sdk_10_20_00_39`
 
 or clone TI's example repos, which pull the SDK in as a submodule:
 
@@ -164,7 +164,7 @@ On Linux/WSL the same variables point at `/opt/ti/...` and `sysconfig_cli.sh`.
 Two rules the SDK enforces:
 
 - **Paths must not contain spaces.** On Windows use the 8.3 short form
-  (`C:/Progra~1/...`) — `nora_w50_w51_build.py configure` does this conversion for you.
+  (`C:/Progra~1/...`) — `nora_w5_build.py configure` does this conversion for you.
 - Setting a `*_ARMCOMPILER` variable to empty disables that toolchain. Leave only the one
   you actually have if you want faster builds.
 
@@ -194,8 +194,8 @@ branch on `$(SHELL)` and are tested against the native Windows shell.
 
 ### 3.5 Or build in Code Composer Studio
 
-1. **Preferences → Code Composer Studio → Products → Add…** → select the `Simplelink-wifi-sdk` folder.
-2. **Project → Import CCS Project…** → browse to the example repo → pick the example(s) → **Finish**.
+1. **Preferences -> Code Composer Studio -> Products -> Add...** -> select the `Simplelink-wifi-sdk` folder.
+2. **Project -> Import CCS Project...** -> browse to the example repo -> pick the example(s) -> **Finish**.
 
 Each example also contains a `.syscfg` file — open it in SysConfig (or CCS) to change pinmux,
 Wi-Fi settings, clocks and peripherals instead of hand-editing C.
@@ -294,7 +294,7 @@ screen /dev/ttyACM0 115200
 ## 7. Making it your own application
 
 1. Copy `drivers/empty` (bare skeleton) or the demo closest to your use case into your own repo.
-2. Open its `.syscfg` in SysConfig → set the CC35x1E device/package, pinmux, UART, Wi-Fi and
+2. Open its `.syscfg` in SysConfig -> set the CC35x1E device/package, pinmux, UART, Wi-Fi and
    BLE settings to match the NORA-W5x module.
 3. Adjust the linker command file for **4 MB vs 8 MB** flash.
 4. Keep the example's `makefile` / `.projectspec`; only the relative
@@ -310,7 +310,7 @@ screen /dev/ttyACM0 115200
 | `sysconfig_cli` not found | Wrong `SYSCONFIG_TOOL` in `imports.mak`; on Windows it must be the `.bat`. |
 | `tiarmclang` / `arm-none-eabi-gcc` not found | Fix `TICLANG_ARMCOMPILER` / `GCC_ARMCOMPILER` in `imports.mak`. |
 | `make` not found on Windows | Use `gmake` from `ccs/utils/bin/`, or `winget install ezwinports.make`. |
-| Odd path errors in the makefiles | A tool path contains spaces. Use the 8.3 short form, or run `nora_w50_w51_build.py configure`. |
+| Odd path errors in the makefiles | A tool path contains spaces. Use the 8.3 short form, or run `nora_w5_build.py configure`. |
 | Build fails only after an SDK update | Rebuild SDK libs and re-check SysConfig version in the release notes. |
 | Device not enumerating in WSL | `usbipd attach --wsl --busid <BUSID>` from admin PowerShell. |
 | No serial output | Wrong port (pick the *Application* UART, not the *Auxiliary* one) or wrong baud (115200). |

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-NORA-W40 (ESP32-C6) Build Driver
-Automated cross-platform build orchestration for NORA-W40 Open CPU modules using ESP-IDF.
+NORA-W4 (ESP32-C6) Build Driver
+Automated cross-platform build orchestration for NORA-W4 Open CPU modules using ESP-IDF.
 
 Supports: Windows, WSL2, Linux
 """
@@ -17,9 +17,9 @@ from typing import Dict, List, Optional, Tuple
 
 import target_paths
 
-TARGET = "nora_w40"
+TARGET = "nora_w4"
 
-# NORA-W40 is an ESP32-C6 (RISC-V), not the Xtensa ESP32 that idf.py assumes by default.
+# NORA-W4 is an ESP32-C6 (RISC-V), not the Xtensa ESP32 that idf.py assumes by default.
 IDF_TARGET = "esp32c6"
 
 # Windows consoles default to cp1252 and raise UnicodeEncodeError on the status glyphs below.
@@ -86,7 +86,7 @@ def newest(patterns: List[str], exists_check: bool = True) -> Optional[str]:
                 candidates.extend(Path().glob(pattern))
         except:
             pass
-    
+
     if not candidates:
         return None
     candidates.sort(key=lambda p: str(p), reverse=True)
@@ -103,12 +103,11 @@ def detect_idf() -> Optional[str]:
         idf_path = cfg["idf_path"]
         if Path(idf_path).exists():
             return idf_path
-    
+
     # Check common locations
     patterns = [
         str(target_paths.sdk_dir(TARGET) / "esp-idf"),
         str(target_paths.SDK_ROOT / "esp-idf"),
-        str(Path.cwd() / "esp-idf"),
         str(Path.home() / "esp" / "esp-idf"),
         "/opt/esp/esp-idf",
         "C:/esp/esp-idf",
@@ -128,7 +127,7 @@ def detect_git() -> Optional[str]:
         result = newest(patterns)
         if result:
             return short_path(result)
-    
+
     result = subprocess.run(["which", "git"], capture_output=True, text=True)
     if result.returncode == 0:
         return result.stdout.strip()
@@ -144,7 +143,7 @@ def detect_make() -> Optional[str]:
         result = newest(patterns)
         if result:
             return short_path(result)
-    
+
     result = subprocess.run(["which", "make"], capture_output=True, text=True)
     if result.returncode == 0:
         return result.stdout.strip()
@@ -160,7 +159,7 @@ def detect_cmake() -> Optional[str]:
         result = newest(patterns)
         if result:
             return short_path(result)
-    
+
     result = subprocess.run(["which", "cmake"], capture_output=True, text=True)
     if result.returncode == 0:
         return result.stdout.strip()
@@ -178,7 +177,7 @@ def detect_python() -> Optional[str]:
 # ============================================================================
 
 def config_file() -> Path:
-    """Get per-platform config file path (targets/NORA-W40/config)."""
+    """Get per-platform config file path (targets/NORA-W4/config)."""
     return target_paths.resolve_config(TARGET, host_kind())
 
 def load_config() -> Dict:
@@ -201,8 +200,8 @@ def save_config(cfg: Dict) -> None:
 
 def cmd_doctor(args) -> int:
     """Verify toolchain availability."""
-    print("\n🔍 NORA-W40 Build Environment Check\n")
-    
+    print("\nNORA-W4 Build Environment Check\n")
+
     tools = {
         "Python": detect_python(),
         "Git": detect_git(),
@@ -210,28 +209,28 @@ def cmd_doctor(args) -> int:
         "Make": detect_make(),
         "ESP-IDF": detect_idf(),
     }
-    
+
     all_ok = True
     for name, path in tools.items():
         status = "[OK]" if path else "[FAIL]"
         print(f"  {status} {name:15} {path or 'NOT FOUND'}")
         if not path:
             all_ok = False
-    
+
     print(f"\nPlatform: {host_kind()}")
     print(f"Config: {config_file()}")
-    
+
     if all_ok:
         print("\n[OK] All tools detected!\n")
         return 0
     else:
-        print("\n[WARNING]  Some tools missing. See README for setup instructions.\n")
+        print("\n[WARNING] Some tools missing. See README for setup instructions.\n")
         return 1
 
 def cmd_clone(args) -> int:
     """Clone ESP-IDF repository."""
-    print("\n📥 Cloning ESP-IDF...\n")
-    
+    print("\nCloning ESP-IDF...\n")
+
     # Try git command directly (should be in PATH)
     try:
         git_cmd = ["git", "--version"]
@@ -239,10 +238,10 @@ def cmd_clone(args) -> int:
     except:
         print("[FAIL] Git not found or not in PATH!")
         return 1
-    
+
     idf_dir = target_paths.sdk_dir(TARGET) / "esp-idf"
     if idf_dir.exists():
-        print(f"ℹ️  {idf_dir} already exists. Skipping clone.\n")
+        print(f"[INFO] {idf_dir} already exists. Skipping clone.\n")
         cfg = load_config()
         cfg["idf_path"] = str(idf_dir)
         save_config(cfg)
@@ -253,7 +252,7 @@ def cmd_clone(args) -> int:
         ["git", "clone", "--depth", "1", "https://github.com/espressif/esp-idf.git", str(idf_dir)],
         cwd=idf_dir.parent
     )
-    
+
     if result.returncode == 0:
         print("\n[OK] ESP-IDF cloned successfully!\n")
         cfg = load_config()
@@ -263,20 +262,20 @@ def cmd_clone(args) -> int:
 
 def cmd_install(args) -> int:
     """Install ESP-IDF environment and dependencies."""
-    print("\n🔧 Installing ESP-IDF environment...\n")
-    
+    print("\nInstalling ESP-IDF environment...\n")
+
     idf_dir = detect_idf()
     if not idf_dir:
-        print("[FAIL] ESP-IDF not found. Run 'python nora_w40_build.py clone' first.")
+        print("[FAIL] ESP-IDF not found. Run 'python nora_w4_build.py clone' first.")
         return 1
-    
+
     idf_path = Path(idf_dir)
     platform_type = host_kind()
-    
+
     # The installer calls idf_tools.py, which refuses to run when MSYSTEM is set.
     env = os.environ.copy()
     env.pop("MSYSTEM", None)
-    
+
     # Determine install script based on platform
     if platform_type == "windows":
         install_script = idf_path / "install.bat"
@@ -285,9 +284,8 @@ def cmd_install(args) -> int:
             return 1
         print(f"Running: {install_script}\n")
         result = subprocess.run(
-            [str(install_script)],
+            ["cmd", "/c", str(install_script)],
             cwd=idf_path,
-            shell=True,
             env=env
         )
     else:  # WSL2 or Linux
@@ -303,17 +301,17 @@ def cmd_install(args) -> int:
             cwd=idf_path,
             env=env
         )
-    
+
     if result.returncode == 0:
         print("\n[OK] ESP-IDF environment installed successfully!")
-        print("\n📝 Next steps:")
+        print("\nNext steps:")
         if platform_type == "windows":
-            print("   • Open PowerShell in the ESP-IDF directory")
-            print("   • Run: .\\export.ps1")
-            print("   • Then you can build examples")
+            print("   - Open PowerShell in the ESP-IDF directory")
+            print("   - Run: .\\export.ps1")
+            print("   - Then you can build examples")
         else:
-            print("   • Run: source .\\export.sh")
-            print("   • Then you can build examples")
+            print("   - Run: source .\\export.sh")
+            print("   - Then you can build examples")
         print()
     return result.returncode
 
@@ -415,7 +413,7 @@ def resolve_example(idf_dir, name):
     if not matches:
         return None, (
             f"Example '{name}' not found under {examples_root}.\n"
-            "       Run 'python nora_w40_build.py list' to see what is available."
+            "       Run 'python nora_w4_build.py list' to see what is available."
         )
 
     # Real examples live near the top; deeper hits are build-system fixtures.
@@ -441,33 +439,33 @@ def cmd_build(args) -> int:
     if not args.example:
         print("[FAIL] Please specify an example name (e.g., 'hello_world')")
         return 1
-    
+
     idf_dir = detect_idf()
     if not idf_dir:
-        print("[FAIL] ESP-IDF not found. Run 'python nora_w40_build.py clone' first.")
+        print("[FAIL] ESP-IDF not found. Run 'python nora_w4_build.py clone' first.")
         return 1
-    
+
     example_path, error = resolve_example(idf_dir, args.example)
     if error:
         print(f"[FAIL] {error}")
         return 1
-    
-    print(f"\n🔨 Building example: {args.example}\n")
-    
+
+    print(f"\nBuilding example: {args.example}\n")
+
     idf_python = detect_idf_python(idf_dir)
     if not idf_python:
         print("[FAIL] ESP-IDF Python environment not found or incomplete.")
-        print("       Run: python nora_w40_build.py install")
+        print("       Run: python nora_w4_build.py install")
         return 1
-    
+
     env = idf_environment(idf_dir, idf_python)
-    
+
     # Use full path to idf.py
     idf_py = Path(idf_dir) / "tools" / "idf.py"
     if not idf_py.exists():
         print(f"[FAIL] idf.py not found at {idf_py}")
         return 1
-    
+
     # Without this idf.py would silently default to the original ESP32.
     if current_target(example_path) != IDF_TARGET:
         print(f"Setting target to {IDF_TARGET}...")
@@ -479,19 +477,19 @@ def cmd_build(args) -> int:
         if result.returncode != 0:
             print(f"[FAIL] Could not set target to {IDF_TARGET}.")
             return result.returncode
-    
+
     result = subprocess.run(
         [idf_python, str(idf_py), "build"],
         cwd=example_path,
         env=env
     )
-    
+
     return result.returncode
 
 def cmd_clean(args) -> int:
     """Clean build artifacts."""
-    print("\n🧹 Cleaning build artifacts...\n")
-    
+    print("\nCleaning build artifacts...\n")
+
     if args.all:
         # Remove entire ESP-IDF directory
         idf_dir = detect_idf()
@@ -504,33 +502,33 @@ def cmd_clean(args) -> int:
             save_config(cfg)
             print("[OK] ESP-IDF removed.\n")
         else:
-            print("ℹ️  ESP-IDF not found.\n")
+            print("[INFO] ESP-IDF not found.\n")
         return 0
-    
+
     # Clean build directory for current example
     if not args.example:
-        print("ℹ️  Specify example to clean, or use --all to remove ESP-IDF.\n")
+        print("[INFO] Specify example to clean, or use --all to remove ESP-IDF.\n")
         return 0
-    
+
     idf_dir = detect_idf()
     if not idf_dir:
         print("[FAIL] ESP-IDF not found.\n")
         return 1
-    
+
     example_path, error = resolve_example(idf_dir, args.example)
     if error:
         print(f"[FAIL] {error}")
         return 1
 
     build_dir = example_path / "build"
-    
+
     if build_dir.exists():
         print(f"Removing: {build_dir}")
         shutil.rmtree(build_dir)
         print("[OK] Build directory cleaned.\n")
     else:
-        print(f"ℹ️  Build directory not found: {build_dir}\n")
-    
+        print(f"[INFO] Build directory not found: {build_dir}\n")
+
     return 0
 
 def cmd_list(args) -> int:
@@ -539,14 +537,14 @@ def cmd_list(args) -> int:
     if not idf_dir:
         print("[FAIL] ESP-IDF not found.")
         return 1
-    
+
     examples_path = Path(idf_dir) / "examples"
     if not examples_path.exists():
         print("[FAIL] Examples directory not found.")
         return 1
-    
-    print("\n📚 Available Examples:\n")
-    
+
+    print("\nAvailable Examples:\n")
+
     # Search recursively for CMakeLists.txt files
     found = False
     for cmake_file in sorted(examples_path.rglob("CMakeLists.txt")):
@@ -556,28 +554,70 @@ def cmd_list(args) -> int:
         # Only show directories with CMakeLists.txt (not nested cmake from components, etc)
         depth = len(rel_path.parts)
         if depth <= 2:  # Limit to /category/example level
-            print(f"  • {rel_path}")
+            print(f"  - {rel_path}")
             found = True
-    
+
     if not found:
         print("  (No examples found)")
     print()
     return 0
 
+def _idf_invoke(args, verb: str, extra: list) -> int:
+    """Run an idf.py verb inside an example directory."""
+    idf_dir = detect_idf()
+    if not idf_dir:
+        print("[FAIL] ESP-IDF not found. Run 'python nora_w4_build.py clone' first.")
+        return 1
+
+    example_path, error = resolve_example(idf_dir, args.example)
+    if error:
+        print(f"[FAIL] {error}")
+        return 1
+
+    idf_python = detect_idf_python(idf_dir)
+    if not idf_python:
+        print("[FAIL] ESP-IDF Python environment not found or incomplete.")
+        print("       Run: python nora_w4_build.py install")
+        return 1
+
+    idf_py = Path(idf_dir) / "tools" / "idf.py"
+    if not idf_py.exists():
+        print(f"[FAIL] idf.py not found at {idf_py}")
+        return 1
+
+    cmd = [idf_python, str(idf_py)]
+    if args.serial:
+        cmd += ["-p", args.serial]
+    cmd += [verb, *extra]
+    return subprocess.run(cmd, cwd=example_path, env=idf_environment(idf_dir, idf_python)).returncode
+
+
+def cmd_flash(args) -> int:
+    """Flash a built example over the ESP32-C6 USB/UART bootloader."""
+    print(f"\nNORA-W4 Flash Utility: {args.example}\n")
+    return _idf_invoke(args, "flash", [])
+
+
+def cmd_log(args) -> int:
+    """Open the ESP-IDF serial monitor."""
+    print("\nNORA-W4 Serial Monitor (Ctrl+] to exit)\n")
+    return _idf_invoke(args, "monitor", [])
+
+
 def cmd_all(args) -> int:
-    """Full pipeline: clone → install → build."""
+    """Full pipeline: clone -> install -> build."""
     steps = [
         ("Clone ESP-IDF", lambda: cmd_clone(args)),
         ("Install ESP-IDF Environment", lambda: cmd_install(args)),
         ("Build Example", lambda: cmd_build(args)),
     ]
-    
+
     for name, step in steps:
         print(f"\n{'='*50}\n{name}\n{'='*50}")
         if step() != 0:
             print(f"\n[FAIL] {name} failed!")
             return 1
-    
+
     print("\n[OK] Pipeline complete!\n")
     return 0
 
@@ -587,42 +627,52 @@ def cmd_all(args) -> int:
 
 def main():
     import argparse
-    
+
     parser = argparse.ArgumentParser(
-        description="NORA-W40 (ESP32-C6) Build Driver",
+        description="NORA-W4 (ESP32-C6) Build Driver",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
-  python nora_w40_build.py doctor              # Check environment
-  python nora_w40_build.py clone               # Clone ESP-IDF
-  python nora_w40_build.py install             # Install ESP-IDF environment
-  python nora_w40_build.py list                # List examples
-  python nora_w40_build.py build hello_world   # Build example
-  python nora_w40_build.py clean hello_world   # Clean example build
-  python nora_w40_build.py clean --all         # Remove ESP-IDF entirely
-  python nora_w40_build.py all hello_world     # Full pipeline
+  python nora_w4_build.py doctor              # Check environment
+  python nora_w4_build.py clone               # Clone ESP-IDF
+  python nora_w4_build.py install             # Install ESP-IDF environment
+  python nora_w4_build.py list                # List examples
+  python nora_w4_build.py build hello_world   # Build example
+  python nora_w4_build.py flash hello_world   # Flash over USB/UART
+  python nora_w4_build.py log hello_world     # Open serial monitor
+  python nora_w4_build.py clean hello_world   # Clean example build
+  python nora_w4_build.py clean --all         # Remove ESP-IDF entirely
+  python nora_w4_build.py all hello_world     # Full pipeline
         """
     )
-    
+
     subparsers = parser.add_subparsers(dest="command", help="Command")
-    
+
     subparsers.add_parser("doctor", help="Verify toolchain")
     subparsers.add_parser("clone", help="Clone ESP-IDF")
     subparsers.add_parser("install", help="Install ESP-IDF environment")
     subparsers.add_parser("list", help="List examples")
-    
+
     clean_parser = subparsers.add_parser("clean", help="Clean build artifacts")
     clean_parser.add_argument("example", nargs="?", help="Example name (optional)")
     clean_parser.add_argument("--all", action="store_true", help="Remove entire ESP-IDF")
-    
+
     build_parser = subparsers.add_parser("build", help="Build example")
     build_parser.add_argument("example", help="Example name")
-    
+
+    flash_parser = subparsers.add_parser("flash", help="Flash example to the board")
+    flash_parser.add_argument("example", help="Example name")
+    flash_parser.add_argument("--serial", help="Serial port (auto-detected if omitted)")
+
+    log_parser = subparsers.add_parser("log", help="Open the ESP-IDF serial monitor")
+    log_parser.add_argument("example", nargs="?", default="hello_world", help="Example name")
+    log_parser.add_argument("--serial", help="Serial port (auto-detected if omitted)")
+
     all_parser = subparsers.add_parser("all", help="Full pipeline")
     all_parser.add_argument("example", help="Example name")
-    
+
     args = parser.parse_args()
-    
+
     commands = {
         "doctor": cmd_doctor,
         "clone": cmd_clone,
@@ -630,13 +680,15 @@ Examples:
         "list": cmd_list,
         "clean": cmd_clean,
         "build": cmd_build,
+        "flash": cmd_flash,
+        "log": cmd_log,
         "all": cmd_all,
     }
-    
+
     if not args.command:
         parser.print_help()
         return 0
-    
+
     return commands[args.command](args)
 
 if __name__ == "__main__":
