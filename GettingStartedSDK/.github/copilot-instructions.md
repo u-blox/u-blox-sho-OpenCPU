@@ -79,6 +79,7 @@ GettingStartedSDK/                  Workspace root
 │   ├── ubx_sdk.py                  SDK entry point (ubx.main())
 │   ├── ubx_matter.py              Matter entry point (ubx.main(matter=True))
 │   ├── matter_build.py            Matter driver for the 4 vendor-SDK targets
+│   ├── module_config.py           RF calibration / TX power / MAC, all targets
 │   ├── target_paths.py            Shared per-target directory layout
 │   ├── iris_w1_build.py          NXP RW612/RW610 builder
 │   ├── nora_w5_build.py           TI CC35XX builder
@@ -92,6 +93,9 @@ GettingStartedSDK/                  Workspace root
 ├── matter/                         Matter app sources, per target (optional)
 │   ├── README.md
 │   └── {IRIS-W1,NORA-W3,NORA-W4,NORA-W5}/
+├── modules/                        Module config profiles (RF, TX power, MAC)
+│   ├── README.md                   Profile schema reference
+│   └── {ALMA-B2,IRIS-W1,NORA-B2,NORA-W3,NORA-W4,NORA-W5}/profile.json
 ├── targets/                        Per-target base folders (generated content)
 │   ├── ALMA-B2/{sdk,config}/
 │   ├── IRIS-W1/{sdk,config}/
@@ -200,9 +204,12 @@ when debugging that driver. Matter has its own shim pair,
 `ubx-matter.cmd` / `ubx-matter.sh`.
 
 Flags are combinable and always execute in this order:
-`--doctor` -> `--clone` -> `--install` -> `--build-sdk` -> `--list` -> `--clean` ->
-`--build` -> `--flash` -> `--log`. Anything after a bare `--` is passed
-verbatim to the underlying driver.
+`--doctor` -> `--clone` -> `--install` -> `--build-sdk` -> `--rf-config` ->
+`--list` -> `--clean` -> `--build` -> `--flash` -> `--mac` -> `--log`. Anything
+after a bare `--` is passed verbatim to the underlying driver.
+
+`--rf-config` and `--mac` are served by `scripts/module_config.py` for every
+target, not by the per-target driver. See "Module configuration" below.
 
 ### 1. First Time Setup
 ```bash
@@ -250,7 +257,43 @@ filtered to Matter apps, bare `--build` names are scoped to `matter/`, and
 `--flash`/`--log` work. They never hop into WSL2 because NCS builds natively on
 Windows.
 
-### 7. Matter (optional, separate launcher)
+### 7. Module configuration (RF calibration, TX power, MAC)
+
+```bash
+./ubx-sdk.sh nora-w3 --variant NORA-W301 --region ETSI --rf-config --build project_hp
+./ubx-sdk.sh iris-w1 --variant IRIS-W101-00B --rf-config
+./ubx-sdk.sh nora-w4 --mac
+```
+
+Vendor SDKs ship RF data for the vendor's reference board, so firmware built
+without `--rf-config` is **not regulatory compliant** on a u-blox module. Never
+describe a plain `--build` flow as production-ready.
+
+`scripts/module_config.py` serves `--rf-config` and `--mac` for every target.
+What it applies is data, not code: `modules/<TARGET>/profile.json` lists ops
+(`copy`, `replace`, `copy-tree`, `replace-line`, `patch`) against the fetched
+vendor SDK. Assets are never duplicated into `modules/` - they stay in the
+u-blox folders at the repository root and are referenced by path:
+
+| Target | Assets | Status |
+|--------|--------|--------|
+| IRIS-W1 | `MCUXpresso/IRIS-W1/sw_config/` | ready |
+| NORA-W3 | `NORA-W30-OutputPower/` | ready |
+| NORA-W4 | `NORA-W40-OutputPower/` | ready |
+| NORA-W5, NORA-B2, ALMA-B2 | none yet | `status: pending` |
+
+Ops are idempotent, back the vendor file up to `<name>.ubx-orig`, and record a
+SHA-256 in `targets/<TARGET>/config/rf_config.json`, so `--doctor` can report
+drift and `module_config.py <target> revert` undoes everything. Adding a part
+number or a target is a profile edit only - do not add per-target branches to
+`ubx.py` or to a driver. Schema reference: `modules/README.md`.
+
+The NORA-W4 patch is cut against ESP-IDF 5.1 and the `requires.sdk_version`
+guard rejects a newer IDF. That is deliberate; refresh the patch rather than
+widening the range.
+
+### 8. Matter (optional, separate launcher)
+
 ```bash
 ./ubx-matter.sh nora-w4 --doctor
 ./ubx-matter.sh nora-w4 --clone
@@ -384,11 +427,13 @@ point.
 | Verify tools installed | `./ubx-sdk.sh <target> --doctor` |
 | Download SDK | `./ubx-sdk.sh <target> --clone` |
 | Install the SDK's tool env | `./ubx-sdk.sh <target> --install` |
+| Apply the u-blox RF config | `./ubx-sdk.sh <target> --variant <PART> --rf-config` |
 | List examples | `./ubx-sdk.sh <target> --list` |
 | Build example | `./ubx-sdk.sh <target> --build <example>` |
 | Clean build | `./ubx-sdk.sh <target> --clean` |
 | Remove the SDK | `./ubx-sdk.sh <target> --clean-all` |
 | Flash + log | `./ubx-sdk.sh <target> --flash --log` |
+| Read the module MAC | `./ubx-sdk.sh <target> --mac` |
 | Full pipeline | `./ubx-sdk.sh <target> --clone --install --build <example>` |
 | Matter equivalent | `./ubx-matter.sh <target> --doctor` etc. (separate launcher) |
 
@@ -469,6 +514,7 @@ See docs/BUILD_TEST_RESULTS.md for detailed status and docs/BUILD_ALL_EXAMPLES.m
 |------|---------|
 | README.md | GettingStartedSDK overview, quick start for all modules |
 | matter/README.md | Matter apps, SDK map, how to add an app |
+| modules/README.md | Module config profile schema, op reference |
 | docs/iris_w1_README.md | IRIS-W1 detailed guide |
 | docs/nora_w5_README.md | NORA-W5 detailed guide |
 | docs/nora_w3_README.md | NORA-W3 WSL2 setup |

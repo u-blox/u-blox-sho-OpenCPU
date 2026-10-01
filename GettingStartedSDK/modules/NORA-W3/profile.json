@@ -1,0 +1,59 @@
+{
+  "schema": 1,
+  "target": "nora-w3",
+  "label": "NORA-W3 (Realtek RTL8720DF)",
+  "status": "ready",
+  "source": "NORA-W30-OutputPower/README.md",
+  "variants": {
+    "NORA-W301": {
+      "description": "Antenna pin",
+      "vars": { "rf_para": "W301" }
+    },
+    "NORA-W306": {
+      "description": "Internal PCB antenna",
+      "vars": { "rf_para": "W306" }
+    }
+  },
+  "sdk_patch": [
+    {
+      "op": "copy",
+      "src": "NORA-W30-OutputPower/rtw_opt_rf_para_rtl8721d_{rf_para}.c",
+      "dst": "component/common/drivers/wlan/realtek/src/core/option/rtw_opt_rf_para_rtl8721d_{rf_para}.c",
+      "note": "u-blox TX power limit tables for {variant}"
+    },
+    {
+      "op": "replace-line",
+      "file": "project/realtek_amebaD_va0_example/GCC-RELEASE/project_hp/asdk/make/wlan/option/Makefile",
+      "from": "CSRC = $(DIR)/rtw_opt_rf_para_rtl8721d.c",
+      "to": "CSRC = $(DIR)/rtw_opt_rf_para_rtl8721d_{rf_para}.c",
+      "note": "build the u-blox table instead of the Realtek default"
+    }
+  ],
+  "regulatory": {
+    "api": "wifi_change_channel_plan(<code>);",
+    "when": "after wifi_on(RTW_MODE_STA), i.e. after every Wi-Fi restart",
+    "domains": {
+      "FCC": "0x3F",
+      "ISED": "0x4A",
+      "ETSI": "0x5E",
+      "MKK": "0x7D",
+      "ACMA": "0x45"
+    },
+    "notes": [
+      "ETSI additionally requires adaptivity. In wifi_set_mib(): wext_set_adaptivity(RTW_ADAPTIVITY_NORMAL), wext_set_adaptivity_th_l2h_ini(242), wext_auto_set_adaptivity(RTW_ADAPTIVITY_NORMAL).",
+      "The OEM integrator must not allow the end user to change the channel plan."
+    ]
+  },
+  "mac": {
+    "source": "Realtek eFuse, programmed in u-blox production",
+    "read": "unsupported",
+    "notes": [
+      "No host-side reader is wired up. Print it from the application with wifi_get_mac_address()."
+    ]
+  },
+  "verify": {
+    "notes": [
+      "Print array_mp_8721d_txpwr_lmt_type1[] at startup and compare against the u-blox table. See NORA-W30-OutputPower/README.md."
+    ]
+  }
+}

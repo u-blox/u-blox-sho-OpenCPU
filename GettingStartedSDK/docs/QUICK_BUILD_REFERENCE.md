@@ -27,7 +27,7 @@ AT-command firmware and are not built from this Open CPU SDK.
 Combinable, and always executed in this order:
 
 ```
---doctor -> --clone -> --install -> --build-sdk -> --list -> --clean -> --build -> --flash -> --log
+--doctor -> --clone -> --install -> --build-sdk -> --rf-config -> --list -> --clean -> --build -> --flash -> --mac -> --log
 ```
 
 | Flag | Purpose |
@@ -36,14 +36,21 @@ Combinable, and always executed in this order:
 | `--clone` | Fetch the vendor SDK on demand |
 | `--install` | Install/refresh the SDK's own tool environment |
 | `--build-sdk` | NORA-W5 only: build the SDK libraries |
+| `--rf-config` | Apply the u-blox RF calibration / TX power configuration |
+| `--variant <PART>` | Module part number, e.g. `NORA-W301`, `IRIS-W101-00B` |
+| `--region <DOMAIN>` | Regulatory domain: FCC, ISED, ETSI, MKK, ACMA |
 | `--list` | List available examples |
 | `--build [NAME]` | Build an example (target default if omitted) |
 | `--clean` | Clean build artifacts |
 | `--clean-all` | Remove the fetched SDK entirely |
 | `--flash [SERIAL]` | Flash via the target's debug probe |
+| `--mac [PORT]` | Report the module MAC / Bluetooth device address |
 | `--log [PORT]` | Open the serial monitor (port auto-detected) |
 | `--wsl` / `--no-wsl` | Force or suppress the automatic hop into WSL2 |
 | `--` | Pass everything after it verbatim to the driver |
+
+Firmware built without `--rf-config` uses the vendor reference-board RF data and
+is not regulatory compliant. `--doctor` reports whether it has been applied.
 
 ---
 

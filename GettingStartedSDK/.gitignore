@@ -32,6 +32,9 @@ targets/*/config/*
 !targets/*/sdk/.gitkeep
 !targets/*/config/.gitkeep
 
+# Vendor files backed up by --rf-config before the u-blox version is applied.
+*.ubx-orig
+
 # Vendor SDKs. Fetched on demand by each target's `clone` command, never
 # committed: together they are several GB and each user only needs their own.
 mcuxpresso-sdk/

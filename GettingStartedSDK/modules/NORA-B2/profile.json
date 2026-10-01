@@ -1,0 +1,26 @@
+{
+  "schema": 1,
+  "target": "nora-b2",
+  "label": "NORA-B2 (Nordic nRF54L15/L10/L05)",
+  "status": "pending",
+  "pending_reason": "Bluetooth LE needs no u-blox calibration table; the nRF54L trim values ship in FICR and the Nordic HAL applies them. What is still manual is the public Bluetooth device address and the TX power setting - see manual_steps.",
+  "variants": {},
+  "sdk_patch": [],
+  "regulatory": {
+    "api": "CONFIG_BT_CTLR_TX_PWR_PLUS_4=y   (prj.conf)",
+    "when": "build time",
+    "notes": [
+      "Replace PLUS_4 with the required output power. Account for antenna gain; see the NORA-B2 system integration manual, Regulatory compliance."
+    ]
+  },
+  "mac": {
+    "source": "Public Bluetooth device address in UICR OTP, programmed in u-blox production",
+    "read": "unsupported",
+    "notes": [
+      "NCS samples default to the static random address derived from FICR, not the u-blox public address."
+    ]
+  },
+  "manual_steps": [
+    "To use the programmed public address, read it from UICR and call bt_ctlr_set_public_addr() before bt_enable(). See u-blox application note UBX-19055303, 'Using public IEEE address from UICR'."
+  ]
+}

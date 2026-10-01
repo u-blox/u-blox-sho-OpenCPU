@@ -1,0 +1,57 @@
+{
+  "schema": 1,
+  "target": "nora-w4",
+  "label": "NORA-W4 (Espressif ESP32-C6)",
+  "status": "ready",
+  "source": "NORA-W40-OutputPower/README.md",
+  "requires": {
+    "sdk_version": ">=5.1,<5.2",
+    "hint": "The u-blox PHY calibration patch is cut against ESP-IDF 5.1. On a newer IDF it will not apply; refresh the patch in NORA-W40-OutputPower/patches/ first."
+  },
+  "variants": {
+    "NORA-W401": { "description": "Antenna pin" },
+    "NORA-W406": { "description": "Internal PCB antenna" }
+  },
+  "sdk_patch": [
+    {
+      "op": "copy-tree",
+      "src": "NORA-W40-OutputPower/components/ubx_phy_cal",
+      "dst": "components/ubx_phy_cal",
+      "note": "u-blox PHY calibration component, installed SDK-wide so any example picks it up"
+    },
+    {
+      "op": "patch",
+      "patch": "NORA-W40-OutputPower/patches/ubx_phy_cal_esp_idf_5_1.patch",
+      "dir": "components",
+      "strip": 2,
+      "note": "route esp_phy_get_init_data() through ubx_phy_cal"
+    }
+  ],
+  "regulatory": {
+    "api": "esp_wifi_set_country_code(\"<cc>\", true);",
+    "when": "after esp_wifi_init(), before esp_wifi_start()",
+    "domains": {
+      "FCC": "US",
+      "ISED": "CA",
+      "ETSI": "GB",
+      "MKK": "JP",
+      "ACMA": "AU"
+    },
+    "notes": [
+      "The country code selects the channel set and the certified power table; it is not a substitute for the PHY calibration patch."
+    ]
+  },
+  "mac": {
+    "source": "ESP32-C6 eFuse, programmed in u-blox production",
+    "read": "esptool",
+    "notes": [
+      "Four addresses are derived from the base MAC: Wi-Fi STA, Wi-Fi AP, Bluetooth, Ethernet."
+    ]
+  },
+  "verify": {
+    "log_contains": "ubx_phy_cal: loading PHY init data from application binary",
+    "notes": [
+      "If that line is absent the application is running on the Espressif default PHY data and is not regulatory compliant."
+    ]
+  }
+}

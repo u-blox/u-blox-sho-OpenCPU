@@ -27,6 +27,10 @@ from pathlib import Path
 SDK_ROOT = Path(__file__).resolve().parent.parent
 SCRIPTS_DIR = SDK_ROOT / "scripts"
 MATTER_SCRIPT = SCRIPTS_DIR / "matter_build.py"
+MODULE_CONFIG_SCRIPT = SCRIPTS_DIR / "module_config.py"
+
+# Served by module_config.py for every target rather than by the per-target driver.
+MODULE_ACTIONS = frozenset({"rf-config", "mac"})
 
 
 @dataclass(frozen=True)
@@ -115,7 +119,9 @@ ALIASES = {
 
 # Execution order, independent of the order flags were typed.
 # 'list' sits after the SDK is in place so '--clone --list' reads correctly.
-ACTION_ORDER = ["doctor", "clone", "install", "build-sdk", "list", "clean", "build", "flash", "log"]
+# 'rf-config' mutates the SDK tree, so it has to land before anything is built.
+ACTION_ORDER = ["doctor", "clone", "install", "build-sdk", "rf-config",
+                "list", "clean", "build", "flash", "mac", "log"]
 
 
 @dataclass
@@ -125,6 +131,9 @@ class Context:
     example: str | None = None
     port: str | None = None
     probe: str | None = None
+    mac_port: str | None = None
+    variant: str | None = None
+    region: str | None = None
     full: bool = False
     clean_all: bool = False
     matter: bool = False
@@ -154,16 +163,23 @@ Flags (combinable; always run in this order)
     --full                IRIS-W1 only: full SDK instead of RW612 only
   --install             Install/refresh the SDK's own tool environment
   --build-sdk           NORA-W5 only: build the SDK libraries
+  --rf-config           Apply the u-blox RF calibration / TX power configuration
+    --variant <PART>      Module part number, e.g. NORA-W301, IRIS-W101-00B
+    --region <DOMAIN>     Regulatory domain: FCC, ISED, ETSI, MKK, ACMA
   --list                List available examples
   --clean               Clean build artifacts
   --clean-all           Remove the fetched SDK entirely
   --build [NAME]        Build an example (target-specific default if omitted)
   --flash [SERIAL]      Flash via the target's debug probe
+  --mac [PORT]          Report the module MAC / Bluetooth device address
   --log [PORT]          Open the serial monitor (port auto-detected if omitted)
   --setup-venv          Create/refresh the shared .venv, then exit
   --wsl / --no-wsl      Force or suppress the automatic hop into WSL2
   --                    Pass every remaining argument verbatim to the driver
   --help                Show this help
+
+Firmware built without --rf-config uses the vendor reference-board RF data and
+is not regulatory compliant. --doctor reports whether it has been applied.
 
 Examples
   ubx-sdk nora-w4 --clone --install --build hello_world
@@ -172,6 +188,7 @@ Examples
   ubx-sdk iris-w1 --build demo_apps/hello_world --flash --log
   ubx-sdk nora-w5 --clone --build-sdk --build network_terminal
   ubx-sdk nora-w3 --build        (hops into WSL2 automatically on Windows)
+  ubx-sdk nora-w3 --variant NORA-W301 --region ETSI --rf-config --build
   ubx-sdk iris-w1 --build hello_world -- --config release
 
 Matter is a separate, optional layer with its own launcher: ubx-matter --help
@@ -318,12 +335,24 @@ def parse(argv: list[str], matter: bool = False) -> Context | int:
             return fail(f"Matter has its own launcher: ubx-matter {target.key} {others}".rstrip())
         if matter and arg in ("--full", "--build-sdk", "--clean-all"):
             return fail(f"{arg} is an SDK-only flag and has no Matter equivalent.")
+        if matter and arg in ("--rf-config", "--mac", "--variant", "--region"):
+            return fail(f"{arg} is an SDK-only flag. Apply the module configuration with\n"
+                        f"       'ubx-sdk {target.key} {arg} ...' before building Matter.")
         if matter and arg in ("--flash", "--log") and not is_ncs_matter(ctx):
             return fail(f"{arg} is an SDK-only flag and has no Matter equivalent.")
         if arg in ("--doctor", "--install", "--list", "--clean", "--build-sdk"):
             ctx.actions.add(arg[2:])
         elif arg == "--clone":
             ctx.actions.add("clone")
+        elif arg == "--rf-config":
+            ctx.actions.add("rf-config")
+        elif arg in ("--variant", "--region"):
+            value = peek()
+            if not value:
+                return fail(f"{arg} needs a value. Run '{name} {target.key} --rf-config' "
+                            f"with no variant to see the known part numbers.")
+            setattr(ctx, arg[2:], value)
+            i += 1
         elif arg == "--clean-all":
             ctx.actions.add("clean")
             ctx.clean_all = True
@@ -345,6 +374,12 @@ def parse(argv: list[str], matter: bool = False) -> Context | int:
             if value:
                 ctx.probe = value
                 i += 1
+        elif arg == "--mac":
+            ctx.actions.add("mac")
+            value = peek()
+            if value:
+                ctx.mac_port = value
+                i += 1
         elif arg == "--log":
             ctx.actions.add("log")
             value = peek()
@@ -358,6 +393,8 @@ def parse(argv: list[str], matter: bool = False) -> Context | int:
     if not ctx.actions:
         print(usage)
         return 0
+    if (ctx.variant or ctx.region) and "rf-config" not in ctx.actions:
+        print("[WARNING] --variant/--region only take effect with --rf-config; ignoring.")
     return ctx
 
 
@@ -385,6 +422,18 @@ def argv_for(ctx: Context, action: str) -> list[str] | None:
     """Translate one uniform action into the driver's own subcommand."""
     t = ctx.target
     example = ctx.example or t.default_example
+
+    # Served by module_config.py, which covers every target including the
+    # ones whose RF assets do not exist yet.
+    if action == "rf-config":
+        argv = ["apply"]
+        if ctx.variant:
+            argv += ["--variant", ctx.variant]
+        if ctx.region:
+            argv += ["--region", ctx.region]
+        return argv
+    if action == "mac":
+        return ["mac", "--serial", ctx.mac_port] if ctx.mac_port else ["mac"]
 
     if is_ncs_matter(ctx):
         # Matter here is just the nrf/samples/matter subtree of the NCS
@@ -494,12 +543,20 @@ def run(ctx: Context, raw_argv: list[str]) -> int:
         sub = argv_for(ctx, action)
         if sub is None:
             continue
-        prefix = [ctx.target.key] if ctx.matter and not is_ncs_matter(ctx) \
-            else list(ctx.target.driver_args)
-        cmd = [sys.executable, str(script), *prefix, *sub]
+        if action in MODULE_ACTIONS:
+            cmd = [sys.executable, str(MODULE_CONFIG_SCRIPT), ctx.target.key, *sub]
+        else:
+            prefix = [ctx.target.key] if ctx.matter and not is_ncs_matter(ctx) \
+                else list(ctx.target.driver_args)
+            cmd = [sys.executable, str(script), *prefix, *sub]
         banner = "matter " if ctx.matter else ""
         print(f"\n=== {ctx.target.label} :: {banner}{action} ===", flush=True)
         rc = subprocess.call(cmd, cwd=str(SDK_ROOT))
+        if action == "doctor" and not ctx.matter:
+            # Tools can all be present while the firmware is still non-compliant,
+            # and a failing doctor is exactly when that matters most.
+            subprocess.call([sys.executable, str(MODULE_CONFIG_SCRIPT),
+                             ctx.target.key, "status"], cwd=str(SDK_ROOT))
         if rc != 0:
             return fail(f"{banner}{action} failed (exit {rc}).")
     return 0

@@ -36,12 +36,30 @@ ubx-sdk.cmd nora-w4 --clone --install --build hello_world
 
 `ubx-sdk --help` lists every target and flag. Flags are combinable and always
 run in a fixed order — `--doctor` -> `--clone` -> `--install` -> `--build-sdk` ->
-`--list` -> `--clean` -> `--build` -> `--flash` -> `--log` — so a full
-rebuild-and-run is one line:
+`--rf-config` -> `--list` -> `--clean` -> `--build` -> `--flash` -> `--mac` ->
+`--log` — so a full rebuild-and-run is one line:
 
 ```bash
 ./ubx-sdk.sh iris-w1 --clean --build demo_apps/hello_world --flash --log
 ```
+
+## Module configuration (RF calibration, TX power, regulatory)
+
+The vendor SDKs ship RF data for the vendor's own reference board. Firmware
+built that way is **not regulatory compliant** on a u-blox module. `--rf-config`
+applies the u-blox calibration, TX power limits and flash driver for a specific
+part number before the build:
+
+```bash
+./ubx-sdk.sh nora-w3 --variant NORA-W301 --region ETSI --rf-config --build project_hp
+./ubx-sdk.sh iris-w1 --variant IRIS-W101-00B --rf-config --build demo_apps/hello_world
+```
+
+What gets applied is declared per target in `modules/<TARGET>/profile.json`; the
+assets themselves stay in the per-module folders at the repository root and are
+referenced, never duplicated. `--doctor` reports whether the configuration is
+applied, `--mac` reports the module's MAC / Bluetooth device address. See
+`modules/README.md`.
 
 The launcher picks the shared `.venv` if there is one, hops into WSL2 for
 targets that only build on Linux, and passes anything after `--` straight
