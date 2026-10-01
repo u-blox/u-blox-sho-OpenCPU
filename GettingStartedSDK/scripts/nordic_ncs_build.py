@@ -389,14 +389,19 @@ def cmd_list(target: NcsTarget, args) -> int:
               f"Run: python nordic_ncs_build.py {target.key} clone")
         return 1
 
+    only_matter = getattr(args, "matter", False)
     root = Path(workspace)
-    print(f"\nSamples available for {target.label}:\n")
+    kind = "Matter samples" if only_matter else "Samples"
+    print(f"\n{kind} available for {target.label}:\n")
     found = False
     for rel in SAMPLE_ROOTS:
         base = root / rel
         if not base.is_dir():
             continue
         samples = sorted(p for p in base.rglob("prj.conf") if is_sample(p.parent))
+        if only_matter:
+            samples = [p for p in samples
+                       if "matter" in p.parent.relative_to(base).parts]
         if not samples:
             continue
         print(f"  {rel}/")
@@ -409,7 +414,8 @@ def cmd_list(target: NcsTarget, args) -> int:
         print("  (none found)\n")
         return 1
 
-    print(f"Build with: --build <name>   (default: {target.default_example})\n")
+    default = "matter/light_bulb" if only_matter else target.default_example
+    print(f"Build with: --build <name>   (default: {default})\n")
     return 0
 
 
@@ -556,7 +562,10 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("--workspace", help="where the west workspace is created")
 
     add("install", cmd_install, "install the Zephyr Python requirements")
-    add("list", cmd_list, "list available samples")
+
+    sp = add("list", cmd_list, "list available samples")
+    sp.add_argument("--matter", action="store_true",
+                    help="list only nrf/samples/matter apps")
 
     sp = add("build", cmd_build, "build a sample")
     sp.add_argument("example", nargs="?", help="sample name or path")

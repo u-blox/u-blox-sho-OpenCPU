@@ -244,8 +244,11 @@ export ARMGCC_DIR="/c/Program Files/Arm/GNU Toolchain mingw-w64-x86_64-arm-none-
 Both share `scripts/nordic_ncs_build.py`. The launcher passes the target key as
 the driver's first argument via `Target.driver_args`, the same mechanism Matter
 uses. An existing `~/ncs` workspace is detected and reused instead of cloning.
-Matter for these targets comes from `nrf/samples/matter/*` and is built with
-`ubx-sdk`, not `ubx-matter`.
+Matter for these targets comes from `nrf/samples/matter/*`. `ubx-matter` routes
+them to the same NCS driver rather than `matter_build.py`, so `--list` is
+filtered to Matter apps, bare `--build` names are scoped to `matter/`, and
+`--flash`/`--log` work. They never hop into WSL2 because NCS builds natively on
+Windows.
 
 ### 7. Matter (optional, separate launcher)
 ```bash

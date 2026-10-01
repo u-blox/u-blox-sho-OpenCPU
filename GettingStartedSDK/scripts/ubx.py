@@ -21,7 +21,7 @@ import os
 import shlex
 import subprocess
 import sys
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from pathlib import Path
 
 SDK_ROOT = Path(__file__).resolve().parent.parent
@@ -191,9 +191,12 @@ Targets
   nora-w3      Realtek RTL8720DF    ameba-rtos-matter
   nora-w4      Espressif ESP32-C6   esp-matter
   nora-w5      TI CC3551E           TexasInstruments/matter
+  nora-b2      Nordic nRF54L15/L10  nRF Connect SDK (nrf/samples/matter)
+  alma-b2      Nordic nRF54LM20     nRF Connect SDK (nrf/samples/matter)
 
-NORA-B2 and ALMA-B2 build Matter straight from the nRF Connect SDK
-(nrf/samples/matter/*), so use 'ubx-sdk', not this launcher.
+The Nordic targets get Matter from the nRF Connect SDK itself, so --clone
+fetches the same NCS workspace 'ubx-sdk' uses and nothing extra is downloaded.
+For them --build takes an nrf/samples/matter app and --flash/--log also work.
 
 Flags (combinable; always run in this order)
   --doctor              Report Matter prerequisites and SDK state
@@ -202,19 +205,24 @@ Flags (combinable; always run in this order)
   --clean               Clean a Matter app
   --build [APP]         Build a Matter app from matter/<TARGET>/
   --list                List the Matter apps available for this target
+  --flash [SERIAL]      Flash the app (Nordic targets only)
+  --log [PORT]          Open the serial monitor (Nordic targets only)
   --setup-venv          Create/refresh the shared .venv, then exit
   --wsl / --no-wsl      Force or suppress the automatic hop into WSL2
   --help                Show this help
 
-Matter toolchains are Linux-only, so --clone/--install/--build/--clean hop into
-WSL2 automatically on Windows. Set UBX_MATTER_ROOT to keep the checkout off a
-/mnt/<drive> path. See matter/README.md.
+The vendor Matter toolchains are Linux-only, so --clone/--install/--build/
+--clean hop into WSL2 automatically on Windows. Set UBX_MATTER_ROOT to keep the
+checkout off a /mnt/<drive> path. The Nordic targets build natively on Windows
+and never hop. See matter/README.md.
 
 Examples
   ubx-matter nora-w4 --doctor
   ubx-matter nora-w4 --clone
   ubx-matter nora-w4 --list
   ubx-matter nora-w4 --build thermometer
+  ubx-matter nora-b2 --list
+  ubx-matter nora-b2 --build light_bulb --flash --log
 """.strip()
 
 
@@ -285,15 +293,6 @@ def parse(argv: list[str], matter: bool = False) -> Context | int:
     if target is None:
         return fail_unknown_target(argv[0])
 
-    # Nordic targets get Matter from the nRF Connect SDK itself, so there is no
-    # separate Matter SDK for this launcher to drive.
-    if matter and target.script == "nordic_ncs_build.py":
-        return fail(
-            f"{target.label} builds Matter from the nRF Connect SDK.\n"
-            f"       There is no separate Matter SDK to fetch. Use the plain launcher:\n"
-            f"       ubx-sdk {target.key} --build matter/light_bulb"
-        )
-
     ctx = Context(target=target, matter=matter)
     rest = argv[1:]
     i = 0
@@ -317,7 +316,9 @@ def parse(argv: list[str], matter: bool = False) -> Context | int:
         if arg == "--matter":
             others = " ".join(a for a in rest if a != "--matter")
             return fail(f"Matter has its own launcher: ubx-matter {target.key} {others}".rstrip())
-        if matter and arg in ("--full", "--build-sdk", "--flash", "--log", "--clean-all"):
+        if matter and arg in ("--full", "--build-sdk", "--clean-all"):
+            return fail(f"{arg} is an SDK-only flag and has no Matter equivalent.")
+        if matter and arg in ("--flash", "--log") and not is_ncs_matter(ctx):
             return fail(f"{arg} is an SDK-only flag and has no Matter equivalent.")
         if arg in ("--doctor", "--install", "--list", "--clean", "--build-sdk"):
             ctx.actions.add(arg[2:])
@@ -367,10 +368,31 @@ def run_setup_venv() -> int:
 MATTER_ACTIONS = frozenset({"doctor", "clone", "install", "list", "build", "clean"})
 
 
+def is_ncs_matter(ctx: Context) -> bool:
+    """Matter on a Nordic target, which the NCS driver serves directly."""
+    return ctx.matter and ctx.target.script == "nordic_ncs_build.py"
+
+
+def matter_sample(name: str | None) -> str:
+    """Scope a sample name to the NCS Matter subtree."""
+    if not name:
+        return "matter/light_bulb"
+    # A bare name could also match a non-Matter sample, so anchor it.
+    return name if "/" in name else f"matter/{name}"
+
+
 def argv_for(ctx: Context, action: str) -> list[str] | None:
     """Translate one uniform action into the driver's own subcommand."""
     t = ctx.target
     example = ctx.example or t.default_example
+
+    if is_ncs_matter(ctx):
+        # Matter here is just the nrf/samples/matter subtree of the NCS
+        # workspace, so reuse the SDK translation with a Matter-scoped name.
+        if action == "list":
+            return ["list", "--matter"]
+        scoped = replace(ctx, matter=False, example=matter_sample(ctx.example))
+        return argv_for(scoped, action)
 
     if ctx.matter:
         if action not in MATTER_ACTIONS:
@@ -448,8 +470,11 @@ def hop_to_wsl(ctx: Context, argv: list[str]) -> int:
 def needs_linux(ctx: Context) -> bool:
     if ctx.target.linux_only:
         return True
-    # Matter toolchains (esp-matter, connectedhomeip, ameba-rtos-matter) are
-    # Linux-only; doctor/list still work natively and stay on Windows.
+    # NCS builds natively on Windows; only the vendor Matter toolchains
+    # (esp-matter, connectedhomeip, ameba-rtos-matter) are Linux-only.
+    # doctor/list still work natively and stay on Windows.
+    if is_ncs_matter(ctx):
+        return False
     return ctx.matter and bool(ctx.actions & {"build", "clean", "install", "clone"})
 
 
@@ -458,6 +483,8 @@ def run(ctx: Context, raw_argv: list[str]) -> int:
         return hop_to_wsl(ctx, [a for a in raw_argv if a != "--wsl"])
 
     script = MATTER_SCRIPT if ctx.matter else SCRIPTS_DIR / ctx.target.script
+    if is_ncs_matter(ctx):
+        script = SCRIPTS_DIR / ctx.target.script
     if not script.exists():
         return fail(f"Driver script not found: {script}")
 
@@ -467,7 +494,8 @@ def run(ctx: Context, raw_argv: list[str]) -> int:
         sub = argv_for(ctx, action)
         if sub is None:
             continue
-        prefix = [ctx.target.key] if ctx.matter else list(ctx.target.driver_args)
+        prefix = [ctx.target.key] if ctx.matter and not is_ncs_matter(ctx) \
+            else list(ctx.target.driver_args)
         cmd = [sys.executable, str(script), *prefix, *sub]
         banner = "matter " if ctx.matter else ""
         print(f"\n=== {ctx.target.label} :: {banner}{action} ===", flush=True)

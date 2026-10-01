@@ -19,14 +19,17 @@ matter/
 └── NORA-W5/        TI CC3551E — TexasInstruments/matter
 ```
 
-**NORA-B2 and ALMA-B2 are not here, by design.** Matter ships inside the nRF
-Connect SDK, so there is no second SDK to fetch and no separate launcher to
-learn. Build those targets with `ubx-sdk`:
+**NORA-B2 and ALMA-B2 have no folder here, by design.** Matter ships inside the
+nRF Connect SDK, so there is no second SDK to fetch and no app sources to keep
+in this repo. `ubx-matter` still drives them — it just routes to the NCS driver,
+so `--clone` fetches the same workspace `ubx-sdk` uses:
 
 ```bash
-./ubx-sdk.sh nora-b2 --build matter/light_bulb
-./ubx-sdk.sh nora-b2 --list          # shows every nrf/samples/matter/* sample
+./ubx-matter.sh nora-b2 --list       # shows the nrf/samples/matter apps
+./ubx-matter.sh nora-b2 --build light_bulb --flash --log
 ```
+
+Because NCS builds natively on Windows, these two never hop into WSL2.
 
 The fetched SDKs land in `targets/<TARGET>/sdk/matter/` (gitignored), or
 wherever `UBX_MATTER_ROOT` points.

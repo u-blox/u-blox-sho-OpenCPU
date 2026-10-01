@@ -53,10 +53,9 @@ through to the vendor driver:
 
 ## Matter (optional)
 
-For IRIS-W1, NORA-W3, NORA-W4 and NORA-W5, Matter is a separate layer with
-its own launcher, `ubx-matter`. You can ignore it completely if you are not
-building Matter — nothing in the plain SDK flow touches it, and the multi-GB
-Matter SDKs are only fetched when you ask for them.
+Matter works through `ubx-matter` for all six targets. You can ignore the
+launcher completely if you are not building Matter — nothing in the plain SDK
+flow touches it, and the multi-GB Matter SDKs are only fetched when you ask.
 
 ```bash
 ./ubx-matter.sh nora-w4 --doctor
@@ -64,12 +63,21 @@ Matter SDKs are only fetched when you ask for them.
 ./ubx-matter.sh nora-w4 --build thermometer
 ```
 
-NORA-B2 and ALMA-B2 are different: Matter ships inside the nRF Connect SDK, so
-there is nothing extra to fetch and the plain launcher builds it:
+For IRIS-W1, NORA-W3, NORA-W4 and NORA-W5, Matter is a separate layer with its
+own vendor SDK, fetched by `--clone` into `targets/<TARGET>/sdk/matter/`.
+
+NORA-B2 and ALMA-B2 instead get Matter from the nRF Connect SDK itself, so
+`--clone` fetches the same NCS workspace `ubx-sdk` uses and nothing extra is
+downloaded. `--list` shows the `nrf/samples/matter` apps, and `--flash`/`--log`
+work too:
 
 ```bash
-./ubx-sdk.sh nora-b2 --build matter/light_bulb
+./ubx-matter.sh nora-b2 --list
+./ubx-matter.sh nora-b2 --build light_bulb --flash --log
 ```
+
+These are the only targets where Matter builds end to end today — the
+`matter/<TARGET>/` folders for the other four have no apps ported yet.
 
 See [matter/README.md](matter/README.md).
 
