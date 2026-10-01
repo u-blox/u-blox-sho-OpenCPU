@@ -1,13 +1,13 @@
 # Matter apps
 
 **Optional.** Matter is a self-contained layer on top of the Getting Started
-SDK: its own launcher (`ubx-matter`), its own driver, its own SDKs. If you are
-not building Matter you can ignore this folder entirely — the plain `ubx-sdk`
-flow never reads it and never downloads anything from here.
+SDK, with its own launcher (`ubx-matter`) and its own SDKs. If you are not
+building Matter you can ignore this folder entirely — the plain `ubx-sdk` flow
+never reads it and never downloads anything from here.
 
-Matter application sources for the four vendor-SDK Matter targets. Same
-contract as the plain SDK examples: **nothing large is committed here**. The
-Matter SDKs (connectedhomeip, esp-matter, ameba-rtos-matter) are several GB
+This folder holds Matter application sources for the four vendor-SDK targets.
+Same contract as the plain SDK examples: **nothing large is committed here**.
+The Matter SDKs (connectedhomeip, esp-matter, ameba-rtos-matter) are several GB
 each and are fetched on demand, so a fresh clone stays small and you only
 download the SDK for the module you actually own.
 

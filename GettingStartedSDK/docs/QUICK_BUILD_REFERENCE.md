@@ -126,8 +126,7 @@ caches live in `targets/<TARGET>/config/build.<host>.json`.
 
 ## Matter
 
-For IRIS-W1, NORA-W3, NORA-W4 and NORA-W5, Matter has its own launcher and
-its own multi-GB SDKs, fetched only on request:
+`ubx-matter` drives all six targets:
 
 ```bash
 ./ubx-matter.sh <target> --doctor
@@ -135,8 +134,16 @@ its own multi-GB SDKs, fetched only on request:
 ./ubx-matter.sh <target> --build <app>
 ```
 
-NORA-B2 and ALMA-B2 get Matter from the nRF Connect SDK, so use the plain
-launcher: `./ubx-sdk.sh nora-b2 --build matter/light_bulb`.
+For IRIS-W1, NORA-W3, NORA-W4 and NORA-W5 this fetches a multi-GB vendor Matter
+SDK on request, and the build hops into WSL2 on Windows.
+
+NORA-B2 and ALMA-B2 get Matter from the nRF Connect SDK instead, so `--clone`
+fetches the same NCS workspace `ubx-sdk` uses, `--list` shows the
+`nrf/samples/matter` apps, `--flash`/`--log` work, and there is no WSL2 hop:
+
+```bash
+./ubx-matter.sh nora-b2 --build light_bulb --flash --log
+```
 
 ---
 

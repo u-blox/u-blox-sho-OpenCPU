@@ -135,11 +135,17 @@ A name is enough when it is unique; otherwise pass the path shown by `--list`.
 ## Matter
 
 Matter support ships inside the nRF Connect SDK, so there is no separate Matter
-SDK to fetch and `ubx-matter` is not used for this target:
+SDK to fetch — `--clone` pulls the same NCS workspace the plain SDK flow uses:
 
 ```bash
-./ubx-sdk.sh nora-b2 --build matter/light_bulb
+./ubx-matter.sh nora-b2 --list                      # the nrf/samples/matter apps
+./ubx-matter.sh nora-b2 --build light_bulb --flash --log
 ```
+
+A bare app name is scoped to `matter/`, so `light_bulb` cannot collide with a
+same-named sample elsewhere in the tree. Because NCS builds natively on
+Windows, this target never hops into WSL2. `ubx-sdk` builds the same sample if
+you give the full path (`--build matter/light_bulb`).
 
 ---
 

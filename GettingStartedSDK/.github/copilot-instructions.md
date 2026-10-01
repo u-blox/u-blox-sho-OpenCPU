@@ -262,8 +262,9 @@ build it and the SDKs are multi-GB. `ubx-sdk --help` does not list Matter
 flags, and `ubx-sdk <target> --matter` fails with a pointer to `ubx-matter`.
 Both shims
 share `scripts/ubx.py`; `scripts/ubx_matter.py` just calls
-`ubx.main(matter=True)`, which selects `scripts/matter_build.py` as the driver
-and a Matter-specific help text.
+`ubx.main(matter=True)`, which selects a Matter-specific help text and
+`scripts/matter_build.py` as the driver for the four vendor-SDK targets. The
+Nordic targets route to `nordic_ncs_build.py` instead - see section 6.
 
 Matter SDKs are vendor forks of `project-chip/connectedhomeip`, each pinned to
 a tagged release rather than a moving branch:
@@ -280,13 +281,16 @@ They are fetched into `targets/<TARGET>/sdk/matter/`, or under
 toolchains must not be built from a `/mnt/<drive>` path. App sources live in
 `matter/<TARGET>/<app>/` with a `build.sh` accepting `setup`/`build`/`clean`.
 
-All four Matter targets are Linux-only. TI's is Ubuntu 22.04 only, targets
-CC3551E on LP-EM-CC35X1, and `matter-v1.5-ti-1.1` is the GA, Matter 1.5
-platform-certified tag - prefer it over the newer `-ea` tags.
+All four vendor-SDK Matter targets are Linux-only. TI's is Ubuntu 22.04 only,
+targets CC3551E on LP-EM-CC35X1, and `matter-v1.5-ti-1.1` is the GA, Matter 1.5
+platform-certified tag - prefer it over the newer `-ea` tags. NORA-B2 and
+ALMA-B2 are the exception: NCS builds natively on Windows, so they never hop.
 
-The `matter/<TARGET>/` folders currently contain no applications. `--doctor`
-and `--clone` work; `--list` and `--build` have nothing to act on until an app
-is ported. Do not describe the Matter build flow as if apps already exist.
+The `matter/<TARGET>/` folders currently contain no applications, so for those
+four targets `--doctor` and `--clone` work but `--list` and `--build` have
+nothing to act on until an app is ported. Do not describe that flow as if apps
+already exist. NORA-B2 and ALMA-B2 are the only targets where Matter builds end
+to end today, via the NCS samples.
 
 Reference implementations to port from live in the `u-connectMatter` repo under
 `companion/` - do not use u-connectClient or u-connectXpress as a starting

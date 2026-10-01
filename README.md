@@ -147,7 +147,7 @@ Complete build driver and getting-started guide for NORA-B20x/B21x/B22x Open CPU
 - **nordic_ncs_build.py**: Shared nRF Connect SDK driver (clone -> install -> build -> flash -> log)
 - Board target `ubx_evknorab2/nrf54l15/cpuapp`, upstream in both Zephyr and NCS
 - Evaluation boards: EVK-NORA-B201 (external antenna), EVK-NORA-B206 (PCB antenna)
-- Matter comes from the nRF Connect SDK itself (`nrf/samples/matter/*`)
+- Matter comes from the nRF Connect SDK itself (`nrf/samples/matter/*`), driven by `ubx-matter nora-b2`
 
 **See [GettingStartedSDK/docs/nora_b2_README.md](GettingStartedSDK/docs/nora_b2_README.md) for complete setup instructions** — build with `GettingStartedSDK/ubx-sdk.cmd nora-b2 --doctor`.
 
@@ -157,7 +157,7 @@ Complete build driver and getting-started guide for ALMA-B20x/B21x Open CPU modu
 **What's included:**
 - **nordic_ncs_build.py**: Shared with NORA-B2, selected by target key
 - Under development: no u-blox board definition exists yet, so builds target Nordic's `nrf54lm20dk/nrf54lm20a/cpuapp`
-- Matter comes from the nRF Connect SDK itself (`nrf/samples/matter/*`)
+- Matter comes from the nRF Connect SDK itself (`nrf/samples/matter/*`), driven by `ubx-matter alma-b2`
 
 **See [GettingStartedSDK/docs/alma_b2_README.md](GettingStartedSDK/docs/alma_b2_README.md) for complete setup instructions** — build with `GettingStartedSDK/ubx-sdk.cmd alma-b2 --doctor`.
 

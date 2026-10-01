@@ -363,12 +363,16 @@ cd GettingStartedSDK
 ```
 
 ### Matter
-Matter ships inside the nRF Connect SDK, so there is no second SDK to fetch and
-`ubx-matter` is not used:
+Matter ships inside the nRF Connect SDK, so `--clone` fetches the same NCS
+workspace as the plain SDK flow and nothing extra is downloaded:
 
 ```bash
-./ubx-sdk.sh nora-b2 --build matter/light_bulb
+./ubx-matter.sh nora-b2 --list                      # the nrf/samples/matter apps
+./ubx-matter.sh nora-b2 --build light_bulb --flash --log
 ```
+
+NCS builds natively on Windows, so these never hop into WSL2. `ubx-sdk` can
+still build the same sample by its full path (`--build matter/light_bulb`).
 
 ### Result
 [OK] Zephyr firmware ready for NORA-B20x/B21x/B22x. See

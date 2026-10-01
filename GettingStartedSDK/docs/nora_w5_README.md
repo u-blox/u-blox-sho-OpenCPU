@@ -90,16 +90,25 @@ Use the Linux instructions inside WSL2, plus:
 
 ### 3.0 Scripted path (recommended)
 
-[nora_w5_build.py](nora_w5_build.py) automates everything below on Windows, WSL2 and Linux. It
-finds an installed SDK (or clones TI's example repos), writes the detected tool paths into
-`imports.mak`, builds the SDK libraries and then builds examples.
+[../scripts/nora_w5_build.py](../scripts/nora_w5_build.py) automates everything below on Windows,
+WSL2 and Linux. It finds an installed SDK (or clones TI's example repos), writes the detected tool
+paths into `imports.mak`, builds the SDK libraries and then builds examples.
+
+Drive it through the launcher:
 
 ```bash
-python nora_w5_build.py doctor              # what is installed, what is missing
-python nora_w5_build.py configure           # patch imports.mak (backs up as imports.mak.orig)
-python nora_w5_build.py build-sdk           # build SDK libraries (slow, once per SDK)
-python nora_w5_build.py list                # show real example names
-python nora_w5_build.py build network_terminal
+./ubx-sdk.sh nora-w5 --doctor               # what is installed, what is missing
+./ubx-sdk.sh nora-w5 --clone                # only if no SDK is installed
+./ubx-sdk.sh nora-w5 --build-sdk            # build SDK libraries (slow, once per SDK)
+./ubx-sdk.sh nora-w5 --list                 # show real example names
+./ubx-sdk.sh nora-w5 --build network_terminal
+```
+
+`configure` has no launcher flag, so call the driver directly if you need to rewrite `imports.mak`
+by hand:
+
+```bash
+python scripts/nora_w5_build.py configure   # patch imports.mak (backs up as imports.mak.orig)
 ```
 
 | Command | Purpose |

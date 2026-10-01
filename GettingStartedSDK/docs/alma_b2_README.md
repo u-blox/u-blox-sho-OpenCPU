@@ -95,6 +95,25 @@ single NCS clone can serve both if you point them at the same workspace.
 
 ---
 
+## Matter
+
+Matter support ships inside the nRF Connect SDK, so there is no separate Matter
+SDK to fetch — `--clone` pulls the same NCS workspace the plain SDK flow uses:
+
+```bash
+./ubx-matter.sh alma-b2 --list                      # the nrf/samples/matter apps
+./ubx-matter.sh alma-b2 --build light_bulb --flash --log
+```
+
+A bare app name is scoped to `matter/`, so `light_bulb` cannot collide with a
+same-named sample elsewhere in the tree. Because NCS builds natively on
+Windows, this target never hops into WSL2. `ubx-sdk` builds the same sample if
+you give the full path (`--build matter/light_bulb`).
+
+Matter runs over Thread here, since the nRF54LM20 has no Wi-Fi radio.
+
+---
+
 ## Build output
 
 ```
