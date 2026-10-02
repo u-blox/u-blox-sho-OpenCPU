@@ -48,6 +48,7 @@ GitHub repository.
 | MINI-NORA-B12 Rev C or later | arm/ubx_mininorab12_nrf5340   | Tested with NCS v2.6.0 |
 | XPLR-IOT-1                   | arm/ubx_xplriot1_nrf5340      | Tested with NCS v1.9.1 |
 | EVK-ANNA-B4                  | u-blox/ubx_evkannab4          | Tested with NCS v2.7.0 |
+| EVK-ANNA-B5                  | u-blox/ubx_evkannab5          | Tested with NCS v3.4.1 |
 | EVK-NORA-B10                 | u-blox/ubx_evknorab10         | Tested with NCS v3.2.1 |
 | EVK-NORA-B12                 | u-blox/ubx_evknorab12         | Tested with NCS v3.2.1 |
 
@@ -69,6 +70,7 @@ with mainline Zephyr.
 | EVK board     | Remarks                            |
 |---------------|------------------------------------|
 | EVK-ANNA-B4   |  |
+| EVK-ANNA-B5   | https://github.com/zephyrproject-rtos/zephyr/pull/118332 |
 | EVK-NORA-B10  |  |
 | EVK-NORA-B12  |  |
 
