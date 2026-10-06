@@ -365,6 +365,18 @@ def cmd_install(args) -> int:
         return result.returncode
     print("[OK] west installed.\n")
 
+    workspace = detect_workspace()
+    reqs = Path(workspace) / "mcuxsdk" / "scripts" / "requirements-base.txt" if workspace else None
+    if reqs and reqs.exists():
+        print(f"Installing SDK Python requirements ({reqs.name})...")
+        result = subprocess.run([python, "-m", "pip", "install", "-r", str(reqs)])
+        if result.returncode != 0:
+            print("\n[FAIL] Failed to install the SDK Python requirements.")
+            return result.returncode
+        print("[OK] SDK Python requirements installed.\n")
+    else:
+        print("[INFO] SDK not cloned yet; re-run install after clone for its Python requirements.\n")
+
     missing = []
     for name, path in (("CMake", detect_cmake()),
                        ("Ninja", detect_ninja()),
@@ -543,11 +555,16 @@ def cmd_build(args) -> int:
         "--toolchain", args.toolchain,
         "--config", args.config,
     ]
-    if args.pristine:
-        cmd += ["-p", "always"]
+    # 'auto' wipes the shared build dir when it belongs to a different example.
+    cmd += ["-p", "always" if args.pristine else "auto"]
+    # CMake's own Python lookup can land on an unrelated interpreter (e.g. MSYS2)
+    # missing the SDK's packages; pin it to the one running this driver.
+    cmd += ["--", f"-DPython3_EXECUTABLE={Path(sys.executable).as_posix()}"]
+    env = dict(os.environ)
+    env["PATH"] = str(Path(sys.executable).parent) + os.pathsep + env.get("PATH", "")
 
     print(f"Running: {' '.join(cmd)}\n")
-    result = subprocess.run(cmd, cwd=workspace)
+    result = subprocess.run(cmd, cwd=workspace, env=env)
 
     if result.returncode == 0:
         print(f"\n[OK] Build complete. Artefacts under {workspace}/build\n")

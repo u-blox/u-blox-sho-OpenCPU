@@ -1,0 +1,14 @@
+# Partition table for NORA-W40 (4 MB flash) Matter end-node.
+#
+# Factory + dual-OTA layout matches esp-matter's recommended split for
+# Matter devices that need OTA via BDX. Adjust sizes if you move to an
+# 8 MB flash variant.
+#
+# Name,         Type, SubType, Offset,   Size,    Flags
+nvs,            data, nvs,     0x9000,   0x6000,
+otadata,        data, ota,     0xf000,   0x2000,
+phy_init,       data, phy,     0x11000,  0x1000,
+ota_0,          app,  ota_0,   0x20000,  0x1E0000,
+ota_1,          app,  ota_1,   0x200000, 0x1E0000,
+fctry,          data, nvs,     0x3E0000, 0x6000,
+nvs_keys,       data, nvs_keys,0x3E6000, 0x1000, encrypted

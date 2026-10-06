@@ -339,7 +339,7 @@ static const uint8_t hci_cal_data_params[HCI_CMD_STORE_BT_CAL_DATA_PARAM_LENGTH]
     0x00U, //  RegionCode : 0x00
 #else
     0x00U, //  Reserved : 0x00
-#endif /* gPlatformEnableTxPowerChangeWithCountry_d */
+#endif     gPlatformEnableTxPowerChangeWithCountry_d */
 
 };
 

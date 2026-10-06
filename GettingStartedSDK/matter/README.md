@@ -34,11 +34,42 @@ Because NCS builds natively on Windows, these two never hop into WSL2.
 The fetched SDKs land in `targets/<TARGET>/sdk/matter/` (gitignored), or
 wherever `UBX_MATTER_ROOT` points.
 
-> **Status:** the per-target folders above are placeholders. No Matter
-> application has been ported yet, so `--list` reports an empty set and
-> `--build` has nothing to build. `--doctor` and `--clone` are fully
-> functional and are the intended starting point. See
-> [Adding an app](#adding-an-app).
+> **Status:**
+>
+> | Target | App | State |
+> |--------|-----|-------|
+> | NORA-W4 | `thermometer` | Ported from `u-connectMatter` `companion/endnode/nora-w40-thermometer` |
+> | NORA-W3 | - | Upstream port (`nora-w30-thermometer`) still in progress |
+> | IRIS-W1, NORA-W5 | - | No reference app yet |
+>
+> Thermometer (Matter Temperature Sensor, device type `0x0302`, DS18B20 on
+> 1-Wire) is the common app across targets, so the same device can be
+> compared on every SoC.
+
+### NORA-W4 thermometer
+
+```bash
+./ubx-matter.sh nora-w4 --clone                      # esp-idf v5.5.5 + esp-matter
+./ubx-matter.sh nora-w4 --install                    # IDF tools, esp32 submodules, pigweed
+./ubx-matter.sh nora-w4 --build thermometer          # Thread SED, DS18B20 on GPIO15
+./ubx-matter.sh nora-w4 --build thermometer -- --wifi --clickboard
+```
+
+Build options: `--wifi` (Matter over Wi-Fi instead of Thread), `--clickboard`
+(DS2482 I2C 1-Wire Click on MikroBUS 1) or `--hvac` (SCD41 Air Quality Sensor).
+Images land in `matter/NORA-W4/thermometer/images/`.
+
+The Matter SDK pins ESP-IDF 5.5.5. The u-blox PHY calibration is not applied by
+`ubx-matter`; without it the firmware runs on Espressif's default RF data and is
+**not regulatory compliant**. Apply it to the Matter ESP-IDF checkout (inside WSL2):
+
+```bash
+python3 scripts/module_config.py nora-w4 apply --variant NORA-W401 --region ETSI \
+    --sdk "$UBX_MATTER_ROOT/NORA-W4/esp-idf"
+```
+
+`module_config.py nora-w4 revert` undoes it. One target keeps one applied state, so
+revert the plain SDK first if it is applied there.
 
 ## Usage
 
@@ -68,6 +99,10 @@ export UBX_MATTER_ROOT=~/ubx-matter
 ./ubx-matter.sh nora-w4 --clone
 ```
 
+From Windows, `set UBX_MATTER_ROOT=~/ubx-matter` before `ubx-matter.cmd`; the
+launcher forwards it into WSL2. An existing ESP-IDF / esp-matter checkout can be
+reused by symlinking it as `$UBX_MATTER_ROOT/NORA-W4/esp-idf` and `.../esp-matter`.
+
 ## Adding an app
 
 Create `matter/<TARGET>/<app-name>/` with a `build.sh` (and optionally
@@ -80,7 +115,8 @@ Create `matter/<TARGET>/<app-name>/` with a `build.sh` (and optionally
 | `clean` | Remove build artifacts |
 
 The driver runs the script with the app folder as the working directory and
-exports `UBX_MATTER_SDK_ROOT` pointing at the fetched Matter SDKs.
+exports `UBX_MATTER_SDK_ROOT` pointing at the fetched Matter SDKs. Anything
+after `--` on the launcher line is appended to `build`.
 
 ## SDK versions
 
@@ -88,7 +124,7 @@ exports `UBX_MATTER_SDK_ROOT` pointing at the fetched Matter SDKs.
 |--------|--------------|----------|
 | IRIS-W1 | `NXP/matter` | `v1.6.0.0.1` |
 | NORA-W3 | `Ameba-AIoT/ameba-rtos-d`, `Ameba-AIoT/ameba-rtos-matter` | `master`, `release/v1.5` |
-| NORA-W4 | `espressif/esp-idf`, `espressif/esp-matter` | `v5.4.1`, `release/v1.5` |
+| NORA-W4 | `espressif/esp-idf`, `espressif/esp-matter` | `v5.5.5`, `release/v1.5` |
 | NORA-W5 | `TexasInstruments/matter` | `matter-v1.5-ti-1.1` |
 
 All four are `project-chip/connectedhomeip` forks maintained by the silicon

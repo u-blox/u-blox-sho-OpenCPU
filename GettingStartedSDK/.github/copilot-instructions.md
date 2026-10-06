@@ -288,9 +288,17 @@ drift and `module_config.py <target> revert` undoes everything. Adding a part
 number or a target is a profile edit only - do not add per-target branches to
 `ubx.py` or to a driver. Schema reference: `modules/README.md`.
 
-The NORA-W4 patch is cut against ESP-IDF 5.1 and the `requires.sdk_version`
-guard rejects a newer IDF. That is deliberate; refresh the patch rather than
-widening the range.
+The NORA-W4 patch exists for ESP-IDF 5.1, 5.5 and 6.2, one `patch` op each, picked
+by a per-op `sdk_version` guard; `requires.sdk_version` rejects any other IDF.
+For a new IDF, add a re-cut patch rather than widening a range. The 5.5 and 6.2 cuts
+print a warning: same PHY data layout, but power values were characterised on 5.1.
+`module_config.py <target> apply --sdk <path>` targets a specific checkout (e.g. the
+Matter ESP-IDF); one applied state per target, so it refuses a second tree.
+
+On Windows there is no GNU `patch`, so `module_config.py` falls back to
+`git apply`. Inside a git checkout that silently skips every path and exits 0
+unless repository discovery is disabled (`GIT_CEILING_DIRECTORIES`), which
+`_git_apply()` does. Do not remove that.
 
 ### 8. Matter (optional, separate launcher)
 
@@ -316,7 +324,7 @@ a tagged release rather than a moving branch:
 |--------|------------|----------|
 | IRIS-W1 | `NXP/matter` | `v1.6.0.0.1` |
 | NORA-W3 | `ameba-rtos-d` + `ameba-rtos-matter` | `master`, `release/v1.5` |
-| NORA-W4 | `esp-idf` + `esp-matter` | `v5.4.1`, `release/v1.5` |
+| NORA-W4 | `esp-idf` + `esp-matter` | `v5.5.5`, `release/v1.5` |
 | NORA-W5 | `TexasInstruments/matter` | `matter-v1.5-ti-1.1` |
 
 They are fetched into `targets/<TARGET>/sdk/matter/`, or under
@@ -329,11 +337,13 @@ targets CC3551E on LP-EM-CC35X1, and `matter-v1.5-ti-1.1` is the GA, Matter 1.5
 platform-certified tag - prefer it over the newer `-ea` tags. NORA-B2 and
 ALMA-B2 are the exception: NCS builds natively on Windows, so they never hop.
 
-The `matter/<TARGET>/` folders currently contain no applications, so for those
-four targets `--doctor` and `--clone` work but `--list` and `--build` have
-nothing to act on until an app is ported. Do not describe that flow as if apps
-already exist. NORA-B2 and ALMA-B2 are the only targets where Matter builds end
-to end today, via the NCS samples.
+The common Matter app is `thermometer` (Matter Temperature Sensor, DS18B20).
+`matter/NORA-W4/thermometer/` is ported from `u-connectMatter`
+`companion/endnode/nora-w40-thermometer` and builds through `ubx-matter` (WSL2,
+default Thread SED variant; the app partition is 98% full). The
+other three `matter/<TARGET>/` folders are still empty, so `--list` and
+`--build` have nothing to act on there. Do not describe those as if apps
+exist. NORA-B2 and ALMA-B2 build Matter end to end via the NCS samples.
 
 Reference implementations to port from live in the `u-connectMatter` repo under
 `companion/` - do not use u-connectClient or u-connectXpress as a starting

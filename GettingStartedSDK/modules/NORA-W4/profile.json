@@ -5,8 +5,8 @@
   "status": "ready",
   "source": "NORA-W40-OutputPower/README.md",
   "requires": {
-    "sdk_version": ">=5.1,<5.2",
-    "hint": "The u-blox PHY calibration patch is cut against ESP-IDF 5.1. On a newer IDF it will not apply; refresh the patch in NORA-W40-OutputPower/patches/ first."
+    "sdk_version": ">=5.1,<5.2 || >=5.5,<5.6 || >=6.2,<6.3",
+    "hint": "u-blox PHY calibration patches exist for ESP-IDF 5.1, 5.5 and 6.2 only. For any other IDF, add a re-cut patch to NORA-W40-OutputPower/patches/ and a matching sdk_version op here."
   },
   "variants": {
     "NORA-W401": { "description": "Antenna pin" },
@@ -21,10 +21,29 @@
     },
     {
       "op": "patch",
+      "sdk_version": ">=5.1,<5.2",
       "patch": "NORA-W40-OutputPower/patches/ubx_phy_cal_esp_idf_5_1.patch",
       "dir": "components",
       "strip": 2,
-      "note": "route esp_phy_get_init_data() through ubx_phy_cal"
+      "note": "route esp_phy_get_init_data() through ubx_phy_cal (ESP-IDF 5.1)"
+    },
+    {
+      "op": "patch",
+      "sdk_version": ">=5.5,<5.6",
+      "patch": "NORA-W40-OutputPower/patches/ubx_phy_cal_esp_idf_5_5.patch",
+      "dir": "components",
+      "strip": 2,
+      "note": "route esp_phy_get_init_data() through ubx_phy_cal (ESP-IDF 5.5)",
+      "warning": "ESP-IDF 5.5 patch: same PHY init data layout as 5.1, but the TX power values were characterised on 5.1. Confirm with the u-blox RF team before shipping."
+    },
+    {
+      "op": "patch",
+      "sdk_version": ">=6.2,<6.3",
+      "patch": "NORA-W40-OutputPower/patches/ubx_phy_cal_esp_idf_6_2.patch",
+      "dir": "components",
+      "strip": 2,
+      "note": "route esp_phy_get_init_data() through ubx_phy_cal (ESP-IDF 6.2)",
+      "warning": "ESP-IDF 6.2 patch: same PHY init data layout as 5.1, but the TX power values were characterised on 5.1. Confirm with the u-blox RF team before shipping."
     }
   ],
   "regulatory": {

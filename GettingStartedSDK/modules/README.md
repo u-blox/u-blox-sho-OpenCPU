@@ -22,7 +22,7 @@ path. One copy, one place to update.
 |--------|--------|--------|
 | `iris-w1` | ready | Wi-Fi TX power limits, Wi-Fi cal, BT/802.15.4 cal, MFlash driver |
 | `nora-w3` | ready | TX power limit tables (W301/W306), build-system swap |
-| `nora-w4` | ready | `ubx_phy_cal` component + ESP-IDF PHY init patch |
+| `nora-w4` | ready | `ubx_phy_cal` component + ESP-IDF PHY init patch (IDF 5.1, 5.5 and 6.2) |
 | `nora-w5` | pending | No u-blox assets in this repository yet |
 | `nora-b2` | pending | BLE needs no cal table; device address + TX power are manual |
 | `alma-b2` | pending | Under development |
@@ -37,7 +37,7 @@ One `profile.json` per target, applied by `scripts/module_config.py`.
   "target": "nora-w3",
   "label": "NORA-W3 (Realtek RTL8720DF)",
   "status": "ready",                 // "ready" or "pending"
-  "requires": { "sdk_version": ">=5.1,<5.2" },
+  "requires": { "sdk_version": ">=5.1,<5.2 || >=6.2,<6.3" },
   "variables": { "flash_vendor": "Macronix" },   // defaults, --set overrides
   "variants": {
     "NORA-W301": { "description": "Antenna pin", "vars": { "rf_para": "W301" } }
@@ -62,7 +62,17 @@ from `variables`, the variant's `vars`, and the built-in `{variant}`.
 | `replace` | `src`, `dst` | Copy **only if** the destination already exists. Lets one profile carry several SDK-version variants and apply the matching one. |
 | `copy-tree` | `src`, `dst` | Replace a whole directory. |
 | `replace-line` | `file`, `from`, `to` | Single-line edit, e.g. a makefile. |
-| `patch` | `patch`, `dir`, `strip` | `patch -p<strip> -d <dir>`. Falls back to `git apply`. |
+| `patch` | `patch`, `dir`, `strip` | `patch -p<strip> -d <dir>`. Falls back to `git apply` with repository discovery disabled, so it also works inside a git checkout. |
+
+Any op may also carry:
+
+- `sdk_version` - only run when the detected SDK version matches. Used to pick
+  the patch cut for that SDK release. Commas AND clauses, `||` ORs ranges.
+- `warning` - printed with the op, e.g. for an asset not yet re-validated.
+
+`manual_steps` entries are plain strings, or `{ "text": ..., "sdk_version": ... }`
+to show a step only for the matching SDK release. SDK versions are detected for
+NORA-W4 (`esp_idf_version.h`) and IRIS-W1 (`MCUX_VERSION`, as `YY.MM`).
 
 Every op is idempotent: re-running `--rf-config` reports `already applied`
 rather than failing or double-patching.
@@ -73,8 +83,10 @@ Before a vendor file is overwritten it is copied to `<name>.ubx-orig`, and what
 was applied is recorded in `targets/<TARGET>/config/rf_config.json` with a
 SHA-256 per file. That gives:
 
-- `--doctor` a drift check: a file changed since apply is reported as changed.
-- `module_config.py <target> revert` a clean undo back to the vendor SDK.
+- `--doctor` a drift check: a file changed since apply, or a patch that no
+  longer reverses cleanly, is reported.
+- `module_config.py <target> revert` a clean undo back to the vendor SDK,
+  including deleting files `copy` added that the vendor SDK never had.
 
 ## Adding a target or a variant
 

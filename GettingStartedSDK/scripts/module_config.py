@@ -28,6 +28,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
 import re
 import shutil
 import subprocess
@@ -176,29 +177,68 @@ def idf_version(root: Path) -> tuple[int, int] | None:
     return None
 
 
+def mcux_version(root: Path) -> tuple[int, int] | None:
+    """MCUXpresso release as (YY, MM), e.g. 25.06.00 -> (25, 6)."""
+    try:
+        text = (root / "MCUX_VERSION").read_text(encoding="utf-8", errors="replace")
+    except OSError:
+        return None
+    year = re.search(r"CURRENT_YEAR\s*=\s*(\d+)", text)
+    major = re.search(r"VERSION_MAJOR\s*=\s*(\d+)", text)
+    if year and major:
+        return int(year.group(1)), int(major.group(1))
+    return None
+
+
+def sdk_version(key: str, root: Path) -> tuple[int, int] | None:
+    if key == "nora-w4":
+        return idf_version(root)
+    if key == "iris-w1":
+        return mcux_version(root)
+    return None
+
+
+def step_applies(step: str | dict, found: tuple[int, int] | None) -> bool:
+    if isinstance(step, str) or not step.get("sdk_version") or found is None:
+        return True
+    return version_matches(found, step["sdk_version"])
+
+
+def step_text(step: str | dict) -> str:
+    return step if isinstance(step, str) else step["text"]
+
+
+def version_matches(found: tuple[int, int], spec: str) -> bool:
+    """'>=5.1,<5.2 || >=6.2,<6.3': commas AND clauses, '||' ORs ranges."""
+    for alternative in spec.split("||"):
+        ok = True
+        for clause in alternative.split(","):
+            match = re.match(r"(>=|<=|<|>|==)\s*(\d+)\.(\d+)", clause.strip())
+            if not match:
+                continue
+            operator, wanted = match.group(1), (int(match.group(2)), int(match.group(3)))
+            ok = {
+                ">=": found >= wanted, "<=": found <= wanted,
+                ">": found > wanted, "<": found < wanted, "==": found == wanted,
+            }[operator]
+            if not ok:
+                break
+        if ok:
+            return True
+    return False
+
+
 def check_requires(key: str, profile: dict, root: Path) -> list[str]:
     """Return a list of unmet requirements, empty when the SDK is usable."""
     spec = (profile.get("requires") or {}).get("sdk_version")
     if not spec or key != "nora-w4":
         return []
-    found = idf_version(root)
+    found = sdk_version(key, root)
     if found is None:
         return ["ESP-IDF version could not be determined."]
-    problems = []
-    for clause in spec.split(","):
-        match = re.match(r"(>=|<=|<|>|==)\s*(\d+)\.(\d+)", clause.strip())
-        if not match:
-            continue
-        operator, major, minor = match.group(1), int(match.group(2)), int(match.group(3))
-        ok = {
-            ">=": found >= (major, minor), "<=": found <= (major, minor),
-            ">": found > (major, minor), "<": found < (major, minor),
-            "==": found == (major, minor),
-        }[operator]
-        if not ok:
-            problems.append(f"ESP-IDF {found[0]}.{found[1]} does not satisfy '{spec}'.")
-            break
-    return problems
+    if not version_matches(found, spec):
+        return [f"ESP-IDF {found[0]}.{found[1]} does not satisfy '{spec}'."]
+    return []
 
 
 # ============================================================================
@@ -242,12 +282,17 @@ def backup(dst: Path, records: list) -> None:
         records.append(str(marker))
 
 
-def apply_copy(src: Path, dst: Path, records: list, replace_only: bool) -> str:
+def apply_copy(src: Path, dst: Path, records: list, replace_only: bool,
+               created: list) -> str:
     if not src.exists():
         return f"[FAIL] asset missing: {src}"
     if replace_only and not dst.exists():
         return f"[INFO] skipped, not part of this SDK: {dst}"
     dst.parent.mkdir(parents=True, exist_ok=True)
+    marker = dst.with_name(dst.name + BACKUP_SUFFIX)
+    if not dst.exists() and not marker.exists() and str(dst) not in created:
+        # No vendor original to restore, so revert has to delete it instead.
+        created.append(str(dst))
     backup(dst, records)
     shutil.copy2(src, dst)
     return f"[OK]   {dst}"
@@ -265,7 +310,9 @@ def apply_copy_tree(src: Path, dst: Path) -> str:
 def apply_replace_line(path: Path, old: str, new: str, records: list) -> str:
     if not path.exists():
         return f"[FAIL] file missing: {path}"
-    text = path.read_text(encoding="utf-8", errors="replace")
+    # newline="" keeps the file's own line endings; a CRLF makefile breaks '\' continuations.
+    with path.open(encoding="utf-8", errors="replace", newline="") as handle:
+        text = handle.read()
     if new in text:
         # Never back up now - the file on disk is already the modified one.
         marker = path.with_name(path.name + BACKUP_SUFFIX)
@@ -275,8 +322,32 @@ def apply_replace_line(path: Path, old: str, new: str, records: list) -> str:
     if old not in text:
         return f"[FAIL] anchor line not found in {path}: {old}"
     backup(path, records)
-    path.write_text(text.replace(old, new), encoding="utf-8")
+    with path.open("w", encoding="utf-8", newline="") as handle:
+        handle.write(text.replace(old, new))
     return f"[OK]   {path}"
+
+
+def _git_apply(directory: Path, patch: Path, strip: int, *flags: str) -> subprocess.CompletedProcess:
+    # Inside a repo, git apply silently skips every path outside the repo-relative
+    # prefix and still exits 0. Stop discovery so it behaves like plain patch.
+    env = dict(os.environ, GIT_CEILING_DIRECTORIES=str(directory.resolve().parent))
+    cmd = ["git", "-C", str(directory), "apply", "-v", f"-p{strip}", *flags, str(patch)]
+    result = subprocess.run(cmd, capture_output=True, text=True, env=env)
+    if result.returncode == 0 and "Skipped patch" in (result.stderr + result.stdout):
+        result.returncode = 1
+    return result
+
+
+def patch_applied(patch: Path, directory: Path, strip: int) -> bool:
+    """True when the patch reverses cleanly, i.e. it is in place."""
+    if shutil.which("patch"):
+        probe = subprocess.run(["patch", "--dry-run", "-R", "-f", "-p", str(strip),
+                                "-i", str(patch), "-d", str(directory)],
+                               capture_output=True, text=True)
+        return probe.returncode == 0
+    if shutil.which("git"):
+        return _git_apply(directory, patch, strip, "--check", "--reverse").returncode == 0
+    return False
 
 
 def run_patch(patch: Path, directory: Path, strip: int, reverse: bool = False) -> tuple[bool, str]:
@@ -285,25 +356,22 @@ def run_patch(patch: Path, directory: Path, strip: int, reverse: bool = False) -
     if not directory.is_dir():
         return False, f"[FAIL] patch target missing: {directory}"
 
-    base = ["-p", str(strip), "-i", str(patch), "-d", str(directory)]
+    if not reverse and patch_applied(patch, directory, strip):
+        return True, f"[INFO] already applied: {patch.name}"
+
     if shutil.which("patch"):
-        probe = subprocess.run(["patch", "--dry-run", "-R", "-f", *base],
-                               capture_output=True, text=True)
-        if probe.returncode == 0 and not reverse:
-            return True, f"[INFO] already applied: {patch.name}"
-        cmd = ["patch", "-f"] + (["-R"] if reverse else []) + base
+        cmd = ["patch", "-f"] + (["-R"] if reverse else []) + \
+              ["-p", str(strip), "-i", str(patch), "-d", str(directory)]
+        result = subprocess.run(cmd, capture_output=True, text=True)
     elif shutil.which("git"):
-        cmd = ["git", "-C", str(directory), "apply", f"-p{strip}"]
-        if reverse:
-            cmd.append("--reverse")
-        cmd.append(str(patch))
+        result = _git_apply(directory, patch, strip, *(["--reverse"] if reverse else []))
     else:
         return False, "[FAIL] neither 'patch' nor 'git' found; cannot apply the patch."
 
-    result = subprocess.run(cmd, capture_output=True, text=True)
     if result.returncode != 0:
-        detail = (result.stderr or result.stdout).strip().splitlines()
-        return False, f"[FAIL] {patch.name}: {detail[0] if detail else 'patch failed'}"
+        lines = (result.stderr or result.stdout).strip().splitlines()
+        detail = next((l for l in lines if l.startswith(("error", "Skipped"))), lines[0] if lines else "")
+        return False, f"[FAIL] {patch.name}: {detail or 'patch failed'}"
     return True, f"[OK]   {patch.name}"
 
 
@@ -315,7 +383,7 @@ def print_pending(profile: dict) -> int:
     print(f"[WARNING] No u-blox RF configuration is available for {profile['label']}.")
     print(f"          {profile.get('pending_reason', '')}")
     for step in profile.get("manual_steps") or []:
-        print(f"          - {step}")
+        print(f"          - {step_text(step)}")
     return 0
 
 
@@ -342,9 +410,20 @@ def cmd_apply(key: str, args) -> int:
     variant, variant_cfg = resolve_variant(profile, args.variant or state.get("variant"))
     values = build_vars(profile, variant, variant_cfg, overrides)
 
-    root = vendor_sdk_root(key)
-    if root is None:
+    if state.get("applied") and state.get("variant") != variant:
+        # Variant ops overlap (e.g. the same makefile line), so start from vendor files.
+        print(f"[INFO] Switching from {state.get('variant')} to {variant}; reverting first.")
+        cmd_revert(key, args)
+        state = load_state(key)
+
+    root = Path(args.sdk).expanduser().resolve() if getattr(args, "sdk", None) else vendor_sdk_root(key)
+    if root is None or not root.is_dir():
         print(f"[FAIL] {profile['label']} SDK not found. Run --clone first.")
+        return 1
+    if state.get("applied") and state.get("sdk_root") not in (None, str(root)):
+        # One state file per target; mixing two SDK trees would make revert lose one.
+        print(f"[FAIL] RF configuration is applied to {state['sdk_root']}.")
+        print(f"       Revert it first: python scripts/module_config.py {key} revert")
         return 1
 
     problems = check_requires(key, profile, root)
@@ -364,8 +443,10 @@ def cmd_apply(key: str, args) -> int:
     print(f"  Profile: {profile_path(key)}\n")
 
     backups: list[str] = list(state.get("backups") or [])
+    created: list[str] = list(state.get("created") or [])
     applied: list[dict] = []
     failed = False
+    found_version = sdk_version(key, root)
 
     def record(message: str) -> bool:
         """An op counts as in place whether we just did it or found it done."""
@@ -373,14 +454,20 @@ def cmd_apply(key: str, args) -> int:
 
     for op in profile.get("sdk_patch", []):
         kind = op["op"]
+        spec = op.get("sdk_version")
+        if spec and found_version and not version_matches(found_version, spec):
+            continue
         note = expand(op.get("note", ""), values)
         if note:
             print(f"  {note}")
+        if op.get("warning"):
+            print(f"    [WARNING] {expand(op['warning'], values)}")
 
         if kind in ("copy", "replace"):
             src = REPO_ROOT / expand(op["src"], values)
             dst = root / expand(op["dst"], values)
-            message = apply_copy(src, dst, backups, replace_only=(kind == "replace"))
+            message = apply_copy(src, dst, backups, replace_only=(kind == "replace"),
+                                 created=created)
             if record(message):
                 applied.append({"op": kind, "path": str(dst), "sha256": sha256(dst)})
         elif kind == "copy-tree":
@@ -415,11 +502,12 @@ def cmd_apply(key: str, args) -> int:
         "sdk_root": str(root),
         "applied": applied,
         "backups": backups,
+        "created": created,
         "timestamp": datetime.now(timezone.utc).isoformat(timespec="seconds"),
     })
 
     print_regulatory(profile, args.region or state.get("region"))
-    print_manual(profile, values)
+    print_manual(profile, values, found_version)
     print_verify(profile)
 
     if failed:
@@ -453,13 +541,13 @@ def print_regulatory(profile: dict, region: str | None) -> None:
         print(f"  - {note}")
 
 
-def print_manual(profile: dict, values: dict) -> None:
-    steps = profile.get("manual_steps")
+def print_manual(profile: dict, values: dict, found: tuple[int, int] | None) -> None:
+    steps = [s for s in profile.get("manual_steps") or [] if step_applies(s, found)]
     if not steps:
         return
-    print("\nStill manual")
+    print("\nStill manual" + (f" (SDK {found[0]}.{found[1]:02d})" if found else ""))
     for step in steps:
-        print(f"  - {expand(step, values)}")
+        print(f"  - {expand(step_text(step), values)}")
 
 
 def print_verify(profile: dict) -> None:
@@ -494,7 +582,11 @@ def cmd_status(key: str, args) -> int:
     for entry in state["applied"]:
         path = Path(entry.get("path", entry.get("dir", "")))
         if entry["op"] == "patch":
-            print(f"  [OK]   patch {Path(entry['patch']).name}")
+            if patch_applied(Path(entry["patch"]), Path(entry["dir"]), entry["strip"]):
+                print(f"  [OK]   patch {Path(entry['patch']).name}")
+            else:
+                print(f"  [FAIL] patch no longer in place: {Path(entry['patch']).name}")
+                drifted += 1
             continue
         if not path.exists():
             print(f"  [FAIL] missing: {path}")
@@ -531,6 +623,12 @@ def cmd_revert(key: str, args) -> int:
             shutil.move(str(original), str(original.with_name(original.name[:-len(BACKUP_SUFFIX)])))
             print(f"  [OK]   restored {original.name[:-len(BACKUP_SUFFIX)]}")
 
+    for added in state.get("created", []):
+        path = Path(added)
+        if path.exists():
+            path.unlink()
+            print(f"  [OK]   removed {path.name}")
+
     save_state(key, {"variant": state.get("variant"), "region": state.get("region")})
     print("[OK] Reverted to the vendor SDK files.\n")
     return 0
@@ -551,8 +649,8 @@ def cmd_mac(key: str, args) -> int:
     for note in mac.get("notes") or []:
         print(f"  - {note}")
     for step in profile.get("manual_steps") or []:
-        if "address" in step.lower():
-            print(f"  - {step}")
+        if "address" in step_text(step).lower():
+            print(f"  - {step_text(step)}")
     print()
     return rc
 
@@ -611,6 +709,8 @@ def main(argv: list[str] | None = None) -> int:
                         help="Override a profile variable, e.g. --set flash_vendor=Fidelex")
     parser.add_argument("--force", action="store_true",
                         help="Apply even when the SDK version is out of range")
+    parser.add_argument("--sdk", help="Vendor SDK root to patch instead of the auto-detected one, "
+                                      "e.g. the Matter ESP-IDF checkout")
     args = parser.parse_args(argv)
 
     try:

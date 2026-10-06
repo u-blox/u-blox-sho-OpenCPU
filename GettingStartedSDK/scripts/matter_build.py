@@ -84,12 +84,13 @@ TARGETS: dict[str, MatterTarget] = {
         label="NORA-W4 (Espressif ESP32-C6) Matter",
         repos=(
             Repo("esp-idf", "https://github.com/espressif/esp-idf.git",
-                 "v5.4.1", "~3 GB", submodules=True),
+                 "v5.5.5", "~3 GB", submodules=True),
             Repo("esp-matter", "https://github.com/espressif/esp-matter.git",
-                 "release/v1.5", "~6 GB", submodules=True),
+                 "release/v1.5", "~6 GB after setup", submodules=False),
         ),
         linux_only=True,
-        note="Espressif only supports esp-matter on Linux/WSL2, not native Windows.",
+        note="Espressif only supports esp-matter on Linux/WSL2. The app's --install "
+             "fetches only the esp32 connectedhomeip submodules.",
     ),
     "nora-w5": MatterTarget(
         key="nora-w5",
@@ -213,7 +214,7 @@ def _resolve_app(target: MatterTarget, name: str | None) -> Path | None:
     apps = list_apps(target)
     if not apps:
         return None
-    if name is None:
+    if not name:
         return apps[0]
     for app in apps:
         if app.name == name:
@@ -237,10 +238,11 @@ def _run_app(target: MatterTarget, args, verb: str) -> int:
 
     env = dict(os.environ)
     env["UBX_MATTER_SDK_ROOT"] = str(matter_root(target))
+    extra = list(getattr(args, "extra", None) or [])
     if script.suffix == ".cmd":
-        cmd = [str(script), verb]
+        cmd = [str(script), verb, *extra]
     else:
-        cmd = ["bash", str(script), verb]
+        cmd = ["bash", str(script), verb, *extra]
     print(f"[INFO] {app.name}: {' '.join(cmd)}")
     return subprocess.call(cmd, cwd=str(app), env=env)
 
@@ -279,6 +281,8 @@ def main() -> int:
 
     build_parser = sub.add_parser("build", help="Build a Matter app")
     build_parser.add_argument("app", nargs="?", help="Matter app name")
+    build_parser.add_argument("extra", nargs=argparse.REMAINDER,
+                              help="Options passed to the app's build.sh, e.g. --wifi")
 
     clean_parser = sub.add_parser("clean", help="Clean a Matter app")
     clean_parser.add_argument("app", nargs="?", help="Matter app name")

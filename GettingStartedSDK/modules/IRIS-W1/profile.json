@@ -27,18 +27,21 @@
     },
     {
       "op": "replace",
+      "sdk_version": "<24.12",
       "src": "MCUXpresso/IRIS-W1/sw_config/wifi_Calibration/2_16_100/wifi_cal_data_ext.h",
       "dst": "middleware/wifi_nxp/incl/wifi_cal_data_ext.h",
       "note": "Wi-Fi calibration, MCUXpresso SDK 2.16.100 and earlier"
     },
     {
       "op": "replace",
+      "sdk_version": ">=24.12,<25.6",
       "src": "MCUXpresso/IRIS-W1/sw_config/wifi_Calibration/24_12_00/wifi_cal_data_rw61x_1ant.h",
       "dst": "middleware/wifi_nxp/incl/wifi_cal_data_rw61x_1ant.h",
       "note": "Wi-Fi calibration, MCUXpresso SDK 24.12.00 / 25.03.00"
     },
     {
       "op": "replace",
+      "sdk_version": ">=25.6",
       "src": "MCUXpresso/IRIS-W1/sw_config/wifi_Calibration/25_06_00/wifi_cal_data_override.h",
       "dst": "middleware/wifi_nxp/incl/wifi_cal_data_override.h",
       "note": "Wi-Fi calibration, MCUXpresso SDK 25.06.00 and later"
@@ -90,8 +93,8 @@
     ]
   },
   "manual_steps": [
-    "SDK 24.12.00 / 25.03.00: add '#define CONFIG_WLAN_CALDATA_1ANT 1' to the example's wifi_config.h.",
-    "SDK 25.06.00 and later: add '#define OVERRIDE_CALIBRATION_DATA \"wifi_cal_data_override.h\"' to the example's wifi_config.h.",
+    { "sdk_version": ">=24.12,<25.6", "text": "SDK 24.12.00 / 25.03.00: add '#define CONFIG_WLAN_CALDATA_1ANT 1' to the example's wifi_config.h, otherwise the u-blox Wi-Fi calibration is not used." },
+    { "sdk_version": ">=25.6", "text": "SDK 25.06.00 and later: add '#define OVERRIDE_CALIBRATION_DATA \"wifi_cal_data_override.h\"' to the example's wifi_config.h, otherwise the u-blox Wi-Fi calibration is not used." },
     "Linker scripts for the {flash_size} part are in MCUXpresso/IRIS-W1/sw_config/Linker_Scripts/ - the destination depends on the toolchain, so they are not applied automatically.",
     "EVK LED/button pin mux is in MCUXpresso/IRIS-W1/sw_config/board_files/ - copy into the example's board/ folder if you need it."
   ],

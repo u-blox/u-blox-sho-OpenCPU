@@ -1,0 +1,29 @@
+# Alternate defaults — Matter-over-Wi-Fi (NO Thread Border Router required).
+#
+# Use when the demo box has no Thread BR, or when targeting Home Assistant /
+# a custom mDNS-based app instead of the Matter ecosystem.
+#
+# Apply with:
+#   idf.py -DSDKCONFIG_DEFAULTS="sdkconfig.defaults;sdkconfig.defaults.wifi" reconfigure
+#
+# Trade-offs vs the default Thread/SED build:
+#   - Always-on Wi-Fi: ~80–150 mA peaks, ~10 mA average → wall power, not battery
+#   - Larger image (Wi-Fi + BLE + Matter), still fits 4 MB flash
+#   - No mesh / no SED — direct AP connection only
+
+# Disable Thread
+CONFIG_OPENTHREAD_ENABLED=n
+CONFIG_OPENTHREAD_MTD=n
+CONFIG_OPENTHREAD_SRP_CLIENT=n
+CONFIG_OPENTHREAD_DNS_CLIENT=n
+CONFIG_OPENTHREAD_JOINER=n
+
+# Disable SED / aggressive power management
+CONFIG_OPENTHREAD_DEVICE_TYPE_SLEEPY_END_DEVICE=n
+CONFIG_PM_ENABLE=n
+CONFIG_FREERTOS_USE_TICKLESS_IDLE=n
+
+# Enable Wi-Fi station with WPA2 / WPA3 (set during Matter commissioning)
+CONFIG_ENABLE_WIFI_STATION=y
+CONFIG_ESP_WIFI_ENABLE_WPA3_SAE=y
+CONFIG_ESP_WIFI_SOFTAP_SUPPORT=n

@@ -226,6 +226,7 @@ Flags (combinable; always run in this order)
   --log [PORT]          Open the serial monitor (Nordic targets only)
   --setup-venv          Create/refresh the shared .venv, then exit
   --wsl / --no-wsl      Force or suppress the automatic hop into WSL2
+  --                    Pass the rest to the app's build.sh, e.g. -- --wifi
   --help                Show this help
 
 The vendor Matter toolchains are Linux-only, so --clone/--install/--build/
@@ -238,6 +239,7 @@ Examples
   ubx-matter nora-w4 --clone
   ubx-matter nora-w4 --list
   ubx-matter nora-w4 --build thermometer
+  ubx-matter nora-w4 --build thermometer -- --wifi --clickboard
   ubx-matter nora-b2 --list
   ubx-matter nora-b2 --build light_bulb --flash --log
 """.strip()
@@ -447,6 +449,9 @@ def argv_for(ctx: Context, action: str) -> list[str] | None:
         if action not in MATTER_ACTIONS:
             print(f"[WARNING] --{action} is not supported for Matter builds; skipping.")
             return None
+        if action == "build" and ctx.extra:
+            # '' keeps the extras out of the optional app slot; the driver picks the default app.
+            return ["build", ctx.example or "", *ctx.extra]
         if action in ("build", "clean"):
             return [action, ctx.example] if ctx.example else [action]
         return [action]
@@ -513,6 +518,12 @@ def hop_to_wsl(ctx: Context, argv: list[str]) -> int:
     print(f"[INFO] {ctx.target.label} builds on Linux; hopping into WSL2.")
     print(f"[INFO] WSL path: {sdk_wsl}")
     command = f"cd {shlex.quote(sdk_wsl)} && {shim} {forwarded}"
+    matter_root = os.environ.get("UBX_MATTER_ROOT")
+    if matter_root:
+        # A Linux path such as ~/ubx-matter; '~' has to expand inside WSL.
+        value = ('"$HOME"/' + shlex.quote(matter_root[2:])) if matter_root.startswith("~/") \
+            else shlex.quote(matter_root)
+        command = f"export UBX_MATTER_ROOT={value} && {command}"
     return subprocess.call(["wsl", "--", "bash", "-lc", command])
 
 

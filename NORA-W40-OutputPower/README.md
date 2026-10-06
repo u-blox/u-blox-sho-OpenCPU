@@ -29,6 +29,20 @@ Apply the patches found on `patches` folder to the ESP-IDF installation path, fo
 
 `patch -p2 -i ./NORA-W40-OutputPower/patches/ubx_phy_cal_esp_idf_5_1.patch -d ./v5.1_release/esp-idf/components/`
 
+### Manually, esp-idf 5.5.x
+
+Same change re-cut for ESP-IDF 5.5 (the 5.1 `phy_init.c` hunk still applies, but the `esp_wifi` requirement list moved):
+
+`patch -p2 -i ./NORA-W40-OutputPower/patches/ubx_phy_cal_esp_idf_5_5.patch -d ./esp-idf/components/`
+
+### Manually, esp-idf 6.2.x
+
+Same change re-cut for ESP-IDF 6.2, where the `esp_wifi` component's requirement list moved:
+
+`patch -p2 -i ./NORA-W40-OutputPower/patches/ubx_phy_cal_esp_idf_6_2.patch -d ./esp-idf/components/`
+
+The PHY init data layout for ESP32-C6 is unchanged between 5.1, 5.5 and 6.2, but the TX power values were characterised on 5.1. Confirm with u-blox before shipping a 5.5 or 6.2 build.
+
 ### Verifying patches
 
 After patching the esp-idf run the application and look for below print:
