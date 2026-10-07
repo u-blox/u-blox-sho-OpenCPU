@@ -54,7 +54,7 @@ fetches the same NCS workspace `ubx-sdk` uses and they build natively on Windows
 | Target | Repositories | Revision |
 |--------|--------------|----------|
 | IRIS-W1 | `NXP/matter` | `v1.6.0.0.1` |
-| NORA-W3 | `Ameba-AIoT/ameba-rtos-d`, `Ameba-AIoT/ameba-rtos-matter` | `master`, `release/v1.5` |
+| NORA-W3 | `Ameba-AIoT/ameba-rtos-d`, `Ameba-AIoT/ameba-rtos-matter` | `main`, `release/v1.5` |
 | NORA-W4 | `espressif/esp-idf`, `espressif/esp-matter` | `v5.5.5`, `release/v1.5` |
 | NORA-W5 | `TexasInstruments/matter` | `matter-v1.5-ti-1.1` |
 

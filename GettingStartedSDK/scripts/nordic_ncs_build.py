@@ -263,6 +263,33 @@ def build_dir(workspace: str, example_path: Path) -> Path:
     return Path(workspace) / "build" / example_path.name
 
 
+def workspace_revision(workspace: str) -> Optional[str]:
+    """NCS release the workspace is on, e.g. 'v2.9.0'."""
+    try:
+        result = subprocess.run(["git", "-C", str(Path(workspace) / "nrf"), "describe", "--tags"],
+                                capture_output=True, text=True, timeout=10)
+    except (OSError, subprocess.SubprocessError):
+        return None
+    if result.returncode != 0:
+        return None
+    return result.stdout.strip() or None
+
+
+def board_available(workspace: str, board: str) -> bool:
+    """True when the board's definition exists in the workspace's board roots."""
+    name = board.split("/")[0]
+    root = Path(workspace)
+    return any(any((root / rel).glob(f"*/{name}")) for rel in ("zephyr/boards", "nrf/boards"))
+
+
+def missing_board_hint(target: NcsTarget, workspace: str, board: str) -> None:
+    found = workspace_revision(workspace) or "unknown version"
+    print(f"[FAIL] Board '{board.split('/')[0]}' is not in the NCS workspace at {workspace} ({found}).")
+    print(f"       It needs a newer NCS. Fetch the pinned {NCS_REVISION} with:")
+    print(f"         ubx-sdk {target.key} --clone")
+    print(f"       or update that workspace to {NCS_REVISION} (west update).")
+
+
 # ============================================================================
 # COMMANDS
 # ============================================================================
@@ -272,7 +299,7 @@ def cmd_doctor(target: NcsTarget, args) -> int:
     print(f"Host:        {host_kind()}")
     print(f"SoC:         {target.soc}")
     print(f"Board:       {target.board}")
-    print(f"NCS:         {NCS_REVISION}")
+    print(f"NCS:         {NCS_REVISION} (pinned)")
     if target.note:
         print(f"Note:        {target.note}")
     print()
@@ -298,7 +325,13 @@ def cmd_doctor(target: NcsTarget, args) -> int:
 
     workspace = detect_workspace(target)
     if workspace:
-        print(f"\n[OK] NCS workspace   {workspace}")
+        found = workspace_revision(workspace)
+        print(f"\n[OK] NCS workspace   {workspace} ({found or 'version unknown'})")
+        if found and found != NCS_REVISION:
+            print(f"[WARNING] Workspace is {found}, this SDK is tested with {NCS_REVISION}.")
+        if not board_available(workspace, target.board):
+            missing_board_hint(target, workspace, target.board)
+            missing.append("board")
     else:
         print(f"\n[FAIL] NCS workspace not found. "
               f"Run: python nordic_ncs_build.py {target.key} clone")
@@ -306,9 +339,11 @@ def cmd_doctor(target: NcsTarget, args) -> int:
 
     if missing:
         print(f"\n[WARNING] Missing: {', '.join(missing)}")
-        print("          Install the nRF Connect SDK toolchain via nRF Connect for "
-              "Desktop (Toolchain Manager),")
-        print("          or see docs/nora_b2_README.md for a manual setup.\n")
+        if set(missing) - {"board", "workspace"}:
+            print("          Install the nRF Connect SDK toolchain via nRF Connect for "
+                  "Desktop (Toolchain Manager),")
+            print("          or see docs/nora_b2_README.md for a manual setup.")
+        print()
         return 1
 
     print("\n[OK] Ready to build.\n")
@@ -439,6 +474,9 @@ def cmd_build(target: NcsTarget, args) -> int:
     if board not in target.variants:
         print(f"[WARNING] '{board}' is not a known {target.key} board target.")
         print(f"          Known: {', '.join(target.variants)}")
+    elif not board_available(workspace, board):
+        missing_board_hint(target, workspace, board)
+        return 1
 
     out = build_dir(workspace, example_path)
     rel = example_path.relative_to(workspace).as_posix()

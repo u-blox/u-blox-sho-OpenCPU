@@ -62,13 +62,15 @@ def auto_detect_port():
         print("[FAIL] No serial ports found")
         return None
 
-    # Look for u-blox specific ports
-    ubx_keywords = ['ubx', 'u-blox', 'nordic', 'ti', 'uart', 'ttyusb', 'com']
-    for port, desc in ports:
-        desc_lower = desc.lower()
-        if any(kw in desc_lower for kw in ubx_keywords):
-            print(f"[OK] Auto-detected: {port} - {desc}")
-            return port
+    # Debug-probe and USB-UART bridges used on u-blox EVKs, most specific first.
+    # Generic words like 'com' or 'ti' would match every Windows port.
+    ubx_keywords = ['u-blox', 'ubx', 'j-link', 'jlink', 'mcu-link', 'xds110', 'nordic',
+                    'cp210', 'ftdi', 'ch340', 'usb serial', 'usb-serial', 'ttyusb', 'ttyacm']
+    for kw in ubx_keywords:
+        for port, desc in ports:
+            if kw in f"{port} {desc}".lower():
+                print(f"[OK] Auto-detected: {port} - {desc}")
+                return port
 
     # If no u-blox port found, use first available
     if ports:

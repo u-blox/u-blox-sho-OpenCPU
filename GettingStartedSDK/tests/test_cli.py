@@ -93,6 +93,34 @@ def test_module_config_variants():
     assert "NORA-W301" in out
 
 
+def _driver_cases():
+    import ubx
+    cases, seen = [], set()
+    for target in ubx.TARGETS.values():
+        if target.script not in seen:
+            seen.add(target.script)
+            cases.append(pytest.param(target, id=target.script))
+    return cases
+
+
+@pytest.mark.parametrize("target", _driver_cases())
+def test_driver_offers_every_launcher_action(target):
+    rc, out = run(target.script, "--help")
+    assert rc == 0, out
+    # NORA-W5 has no clean subcommand; the launcher maps --clean onto a clean build.
+    wanted = set(target.supports) - {"clean"} if target.key == "nora-w5" else set(target.supports)
+    for action in wanted:
+        assert action in out, f"{target.script} has no '{action}' subcommand"
+
+
+@pytest.mark.parametrize("target", _driver_cases())
+def test_driver_doctor_does_not_crash(target):
+    # Tools may be missing on this host; doctor must report that, not raise.
+    rc, out = run(target.script, *target.driver_args, "doctor")
+    assert "Traceback" not in out, out
+    assert rc in (0, 1)
+
+
 @pytest.mark.skipif(not WINDOWS, reason="cmd shim")
 def test_cmd_shim():
     proc = subprocess.run(["cmd", "/c", str(SDK_ROOT / "ubx-sdk.cmd"), "nora-w4", "--dry-run", "--list"],

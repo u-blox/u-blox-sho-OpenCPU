@@ -35,19 +35,7 @@ for _stream in (sys.stdout, sys.stderr):
 
 def host_kind() -> str:
     """Detect platform type: 'windows', 'wsl', or 'linux'."""
-    system = platform.system()
-    if system == "Windows":
-        return "windows"
-    elif system == "Linux":
-        # Check if running under WSL
-        try:
-            with open("/proc/version") as f:
-                if "WSL" in f.read().upper() or "microsoft" in f.read().lower():
-                    return "wsl"
-        except:
-            pass
-        return "linux"
-    return "linux"
+    return target_paths.host_kind()
 
 def short_path(value: str) -> str:
     """Convert Windows path to 8.3 short form (no spaces)."""
@@ -128,10 +116,7 @@ def detect_git() -> Optional[str]:
         if result:
             return short_path(result)
 
-    result = subprocess.run(["which", "git"], capture_output=True, text=True)
-    if result.returncode == 0:
-        return result.stdout.strip()
-    return None
+    return shutil.which("git")
 
 def detect_make() -> Optional[str]:
     """Detect make/gmake."""
@@ -144,10 +129,7 @@ def detect_make() -> Optional[str]:
         if result:
             return short_path(result)
 
-    result = subprocess.run(["which", "make"], capture_output=True, text=True)
-    if result.returncode == 0:
-        return result.stdout.strip()
-    return None
+    return shutil.which("make")
 
 def detect_cmake() -> Optional[str]:
     """Detect CMake."""
@@ -160,10 +142,7 @@ def detect_cmake() -> Optional[str]:
         if result:
             return short_path(result)
 
-    result = subprocess.run(["which", "cmake"], capture_output=True, text=True)
-    if result.returncode == 0:
-        return result.stdout.strip()
-    return None
+    return shutil.which("cmake")
 
 def detect_python() -> Optional[str]:
     """Detect Python 3."""

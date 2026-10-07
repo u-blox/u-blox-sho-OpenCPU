@@ -324,7 +324,7 @@ a tagged release rather than a moving branch:
 | Target | Repository | Revision |
 |--------|------------|----------|
 | IRIS-W1 | `NXP/matter` | `v1.6.0.0.1` |
-| NORA-W3 | `ameba-rtos-d` + `ameba-rtos-matter` | `master`, `release/v1.5` |
+| NORA-W3 | `ameba-rtos-d` + `ameba-rtos-matter` | `main`, `release/v1.5` |
 | NORA-W4 | `esp-idf` + `esp-matter` | `v5.5.5`, `release/v1.5` |
 | NORA-W5 | `TexasInstruments/matter` | `matter-v1.5-ti-1.1` |
 

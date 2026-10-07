@@ -183,13 +183,11 @@ def flash_xds110(firmware_file: str, device_serial: Optional[str] = None) -> int
         toolbox,
         'programmer',
         '-i', 'XDS110',
+        '-param1', device_serial or 'auto',
         'programming',
         '--tool_settings', firmware_file,
         '--verbose'
     ]
-
-    if device_serial:
-        cmd.insert(3, device_serial)
 
     print("\nFlashing with XDS110...")
     try:

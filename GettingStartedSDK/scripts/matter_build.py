@@ -79,7 +79,7 @@ TARGETS: dict[str, MatterTarget] = {
         label="NORA-W3 (Realtek RTL8720DF) Matter",
         repos=(
             Repo("ameba-rtos-d", "https://github.com/Ameba-AIoT/ameba-rtos-d.git",
-                 "master", "~2 GB"),
+                 "main", "~2 GB"),
             Repo("ameba-rtos-matter", "https://github.com/Ameba-AIoT/ameba-rtos-matter.git",
                  "release/v1.5", "~3 GB"),
         ),

@@ -33,19 +33,7 @@ for _stream in (sys.stdout, sys.stderr):
 
 def host_kind() -> str:
     """Detect platform type: 'wsl', 'linux', or 'windows'."""
-    system = platform.system()
-    if system == "Windows":
-        return "windows"
-    elif system == "Linux":
-        try:
-            with open("/proc/version") as f:
-                content = f.read().upper()
-                if "WSL" in content or "MICROSOFT" in content:
-                    return "wsl"
-        except:
-            pass
-        return "linux"
-    return "linux"
+    return target_paths.host_kind()
 
 def mak_path(p: str) -> str:
     """Convert path to forward slashes."""
@@ -78,26 +66,15 @@ def newest(patterns: List[str]) -> Optional[str]:
 
 def detect_git() -> Optional[str]:
     """Detect git executable."""
-    result = subprocess.run(["which", "git"], capture_output=True, text=True)
-    if result.returncode == 0:
-        return result.stdout.strip()
-    return None
+    return shutil.which("git")
 
 def detect_make() -> Optional[str]:
     """Detect make."""
-    if host_kind() != "windows":
-        result = subprocess.run(["which", "make"], capture_output=True, text=True)
-        if result.returncode == 0:
-            return result.stdout.strip()
-    return None
+    return shutil.which("make") if host_kind() != "windows" else None
 
 def detect_arm_gcc() -> Optional[str]:
     """Detect arm-none-eabi-gcc."""
-    if host_kind() != "windows":
-        result = subprocess.run(["which", "arm-none-eabi-gcc"], capture_output=True, text=True)
-        if result.returncode == 0:
-            return result.stdout.strip()
-    return None
+    return shutil.which("arm-none-eabi-gcc") if host_kind() != "windows" else None
 
 def detect_python() -> Optional[str]:
     """Detect Python 3."""

@@ -222,7 +222,7 @@ def test_install_not_wired(sdk, calls, capsys):
 def test_clone_is_shallow_and_pinned(sdk, calls):
     assert mb.cmd_clone(mb.TARGETS["nora-w3"], ns()) == 0
     first = calls.cmds[0]
-    assert first[:6] == ["git", "clone", "--branch", "master", "--depth", "1"]
+    assert first[:6] == ["git", "clone", "--branch", "main", "--depth", "1"]
     assert first[-1] == str(sdk / "NORA-W3" / "ameba-rtos-d")
 
 
