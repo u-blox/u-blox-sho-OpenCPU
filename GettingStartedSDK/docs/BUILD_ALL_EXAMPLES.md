@@ -242,8 +242,7 @@ python scripts/nora_w4_build.py clean --all
 ### Prerequisites
 - Python 3.10+, Git 2.25+
 - CMake 3.30+, Ninja 1.12.1+
-- Arm GNU Toolchain (`arm-none-eabi-gcc`)
-- `ARMGCC_DIR` environment variable pointing at the toolchain root
+- Arm GNU Toolchain (`arm-none-eabi-gcc`); found automatically, `ARMGCC_DIR` overrides it
 - ~2 GB free disk space (board-targeted workspace)
 
 > On Windows the [MCUXpresso Installer](https://github.com/nxp-mcuxpresso/vscode-for-mcux/wiki/Dependency-Installation)
@@ -258,18 +257,14 @@ cd GettingStartedSDK
 # Step 2: Check environment
 python scripts/iris_w1_build.py doctor
 # Output: Python [OK], Git [OK], West [OK], CMake [OK], Ninja [OK], Arm GCC [OK], workspace [FAIL] (not yet)
-# Also reports whether ARMGCC_DIR is set
+# Also reports which Arm GNU toolchain it will use as ARMGCC_DIR
 
 # Step 3: Install west and check remaining toolchain
 python scripts/iris_w1_build.py install
 # Runs: pip install -U west
-# Reports: anything still missing + how to set ARMGCC_DIR
+# Reports: anything still missing
 
-# Step 4: Set ARMGCC_DIR (one time, then reopen the terminal)
-# Windows: setx ARMGCC_DIR "C:\Program Files (x86)\Arm GNU Toolchain arm-none-eabi\14.2 rel1"
-# Linux:   export ARMGCC_DIR="/usr"
-
-# Step 5: Initialise the SDK workspace (~2 GB, first time only)
+# Step 4: Initialise the SDK workspace (~2 GB, first time only)
 python scripts/iris_w1_build.py clone
 # Runs: west init -m https://github.com/nxp-mcuxpresso/mcuxsdk-manifests.git mcuxpresso-sdk
 #       west update_board --set board rdrw612bga
@@ -330,13 +325,13 @@ cd GettingStartedSDK
 # Step 1: Check environment
 ./ubx-sdk.sh nora-b2 --doctor
 # Reports git, cmake, ninja, west, toolchain, nrfutil and the NCS workspace
-# An existing ~/ncs workspace is detected and reused instead of cloning
+# Lists every NCS workspace found and which one will be used
 
-# Step 2: Fetch the nRF Connect SDK (v3.4.1, several GB, first time only)
+# Step 2: Fetch the nRF Connect SDK (v3.4.1, ~15 GB, first time only)
 ./ubx-sdk.sh nora-b2 --clone
-# Runs: west init -m https://github.com/nrfconnect/sdk-nrf --mr v3.4.1
-#       west update
-# Lands in targets/NORA-B2/sdk/ncs/
+# Checks free space, then runs: west init -m https://github.com/nrfconnect/sdk-nrf --mr v3.4.1
+#                               west update
+# Lands in C:\ncs\v3.4.1 (Windows) or ~/ncs/v3.4.1 (Linux)
 
 # Step 3: Install the Zephyr Python requirements
 ./ubx-sdk.sh nora-b2 --install
@@ -348,7 +343,7 @@ cd GettingStartedSDK
 # Step 5: Build
 ./ubx-sdk.sh nora-b2 --build hello_world
 # Runs: west build -b ubx_evknorab2/nrf54l15/cpuapp <sample>
-# Output: targets/NORA-B2/sdk/ncs/build/hello_world/zephyr/zephyr.{elf,hex,bin}
+# Output: <ncs workspace>/build/hello_world/zephyr/zephyr.{elf,hex,bin}
 
 # Step 6: Target a different module variant
 ./ubx-sdk.sh nora-b2 --build hello_world -- --board ubx_evknorab2/nrf54l10/cpuapp
@@ -425,7 +420,7 @@ actually does per target.
 |------|--------------|--------------------|--------------------|----------------|----------------------------|
 | `--clone` | examples + SDK | ameba-rtos-d | esp-idf | west workspace | NCS west workspace |
 | `--install` | info only | info only | real (toolchain) | real (west) | Zephyr requirements |
-| Configure | automatic | automatic | automatic | `ARMGCC_DIR` env var | Zephyr SDK autodetect |
+| Configure | automatic | automatic | automatic | automatic (Arm GNU detected) | Zephyr SDK autodetect |
 | `--build-sdk` | required once | n/a | n/a | n/a | n/a |
 | `--build` | `<name>` | `<name>` | `<category>/<name>` | `<category>/<name>` | `<name>` or path |
 | `--flash` | yes | n/a | yes | yes | yes |
@@ -499,8 +494,7 @@ target is one line from the `GettingStartedSDK` folder:
 ./ubx-sdk.sh alma-b2   --clone --install --build hello_world
 ```
 
-IRIS-W1 additionally needs `ARMGCC_DIR` pointing at the Arm GNU Toolchain
-root. NORA-W3 is Linux-only; run it from Windows anyway and the launcher hops
+NORA-W3 is Linux-only; run it from Windows anyway and the launcher hops
 into WSL2 by itself.
 
 ---
@@ -516,8 +510,9 @@ into WSL2 by itself.
 | Build second example | 2-3 min | 5 min | 2-3 min | 1-2 min | 1-2 min |
 | **Total from scratch** | ~20-25 min | ~10-15 min | ~15-20 min | ~20 min | ~25-35 min |
 
-Times assume a reasonable connection. An existing `~/ncs` workspace removes the
-clone step entirely for the Nordic targets.
+Times assume a reasonable connection. An existing NCS v3.x workspace (for
+example from nRF Connect for Desktop in `C:\ncs`) removes the clone step
+entirely for the Nordic targets.
 
 ---
 

@@ -219,7 +219,6 @@ python scripts/setup_venv.py   # optional; the launcher also works without it
 
 ### 2. Build IRIS-W1 Example
 ```bash
-export ARMGCC_DIR="/c/Program Files/Arm/GNU Toolchain mingw-w64-x86_64-arm-none-eabi"
 ./ubx-sdk.sh iris-w1 --doctor
 ./ubx-sdk.sh iris-w1 --clone --full          # omit --full for RW612 only
 ./ubx-sdk.sh iris-w1 --build demo_apps/hello_world --flash --log
@@ -250,7 +249,9 @@ export ARMGCC_DIR="/c/Program Files/Arm/GNU Toolchain mingw-w64-x86_64-arm-none-
 
 Both share `scripts/nordic_ncs_build.py`. The launcher passes the target key as
 the driver's first argument via `Target.driver_args`, the same mechanism Matter
-uses. An existing `~/ncs` workspace is detected and reused instead of cloning.
+uses. Existing NCS workspaces are detected (`C:\ncs\*`, `~/ncs*`, `ZEPHYR_BASE`);
+`--clone` creates `<system drive>/ncs/<rev>` (never the repo drive), and
+`nordic_ncs_build.py <target> use [path]` lists or selects one.
 Matter for these targets comes from `nrf/samples/matter/*`. `ubx-matter` routes
 them to the same NCS driver rather than `matter_build.py`, so `--list` is
 filtered to Matter apps, bare `--build` names are scoped to `matter/`, and
@@ -354,7 +355,7 @@ thermometer - those live in `u-connectMatter`.
 
 | Variable | Module | Value | Example |
 |----------|--------|-------|---------|
-| ARMGCC_DIR | IRIS-W1 | Path to Arm GNU Toolchain root | `/c/Program Files/Arm/GNU Toolchain mingw-w64-x86_64-arm-none-eabi` |
+| ARMGCC_DIR | IRIS-W1 | Optional override of the auto-detected Arm GNU Toolchain root | `/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi` |
 | NORA_W5_WORKSPACE | NORA-W5 | Override workspace location | `~/nora-w5` |
 | ZEPHYR_SDK_INSTALL_DIR | NORA-B2, ALMA-B2 | Zephyr SDK location | `~/zephyr-sdk-0.17.0` |
 | UBX_MATTER_ROOT | Matter (vendor SDKs) | Where Matter SDKs are cloned | `~/ubx-matter` |
@@ -378,10 +379,12 @@ thermometer - those live in `u-connectMatter`.
 **Solution:** Use `detect_python()` to find Python with pip
 **Prevention:** setup_venv.py handles this automatically
 
-### ARMGCC_DIR Not Set
-**Problem:** IRIS-W1 build fails, "ARMGCC_DIR not configured"
-**Solution:** `export ARMGCC_DIR="path/to/arm/toolchain"`
-**Note:** Path should be root, NOT bin/ subdirectory
+### No Arm GNU Toolchain (IRIS-W1)
+**Problem:** IRIS-W1 build fails, "No Arm GNU toolchain found"
+**Solution:** Install the Arm GNU Toolchain. `iris_w1_build.armgcc_dir()` finds
+it (Arm installer paths, `~/.mcuxpressotools`, PATH) and sets `ARMGCC_DIR` for
+the build; users never export it. `ARMGCC_DIR` in the environment overrides
+**Note:** Override path is the root, NOT the bin/ subdirectory
 
 ### SDK Clone Takes Forever
 **Problem:** west clone is slow, timeout, or hangs
@@ -491,44 +494,29 @@ facts; module docstrings have been wrong before.
 ### Cross-Platform Testing
 - Test on: Windows (Git Bash), WSL2, Linux (if available)
 - NORA-W3 requires Linux/WSL2
-- IRIS-W1 requires ARMGCC_DIR set
+- IRIS-W1 requires an Arm GNU Toolchain (auto-detected)
 
 ## Future Development
 
-### Short Term
-- Complete IRIS-W1 build testing (SDK download large)
-- Test NORA-W4 with ESP-IDF clone
-- Test NORA-W3 on WSL2
+- Wire `--build` for IRIS-W1 and NORA-W3 Matter (`scripts/matter_vendor/`)
+- u-blox RF assets for NORA-W5, NORA-B2, ALMA-B2 (profiles are `pending`)
+- Hardware verification of `--flash`, `--log`, `--mac` on every EVK
+- `ubx_evkalmab2` board once u-blox publishes it
 
-### Medium Term
-- Add debugger support (J-Link, MCU-Link, Realtek tools)
-- Create separate debug workspace when mature
-- Expand examples for each module
+## Current Build Status
 
-### Long Term
-- CI/CD integration for automated testing
-- Release management and versioning
-- Advanced multi-module build orchestration
+`docs/BUILD_TEST_RESULTS.md` is the single record of what has been built, with
+which SDK version, on which host. Update it after every real build; do not copy
+its numbers into other files, they go stale.
 
-## Current Build Status (2026-09-28)
-
-### [OK] Verified Working
-- **IRIS-W1:** hello_world.elf (258 KB) and hello_world.bin (29 KB) built successfully
-- **NORA-W5:** ble_wifi_provisioning.out built successfully
-
-### Ready for Build
-- **NORA-W4:** Requires ESP-IDF installation (`./ubx-sdk.sh nora-w4 --install`)
-- **NORA-W3:** Requires WSL2 Realtek SDK clone (`./ubx-sdk.sh nora-w3 --clone`, hops into WSL2 automatically)
-
-### Hardware Verification (Next Phase)
-When hardware is connected, test:
-1. **IRIS-W1 Serial Logging:** `./ubx-sdk.sh iris-w1 --log`
-2. **IRIS-W1 J-Link Flash:** `./ubx-sdk.sh iris-w1 --flash demo_apps/hello_world`
-3. **NORA-W5 Hardware Test:** (TI reference board validation)
-4. **NORA-W3 Hardware Test:** (Realtek RTL872x validation on WSL2)
-5. **NORA-W4 Hardware Test:** (Espressif ESP32-C6 validation)
-
-See docs/BUILD_TEST_RESULTS.md for detailed status and docs/BUILD_ALL_EXAMPLES.md for complete build workflows.
+Known host traps found while building:
+- `--doctor` must not shell out to `which` - it does not exist in cmd.exe or
+  PowerShell. Use `shutil.which`; `tests/test_cli.py` runs every doctor
+- An existing `~/ncs` is reused, but may be too old for the board target
+  (`ubx_evknorab2` is not in NCS v2.9.0). The NCS driver reports the workspace
+  version and fails early with a `--clone` hint
+- Every clone calls `target_paths.check_space()` with an estimate first; a full
+  E: drive once broke builds with misleading compiler errors
 
 ## Documentation Files
 
@@ -555,7 +543,7 @@ Here are things you can ask Copilot for help with:
 
 1. **Build Script Help**
    - "How do I build IRIS-W1 hello_world example?"
-   - "What's the ARMGCC_DIR error and how do I fix it?"
+   - "IRIS-W1 says no Arm GNU toolchain found, how do I fix it?"
    - "Why is my SDK clone so slow?"
 
 2. **Module Specification Help** (uses u-blox MCP)
@@ -581,6 +569,6 @@ Here are things you can ask Copilot for help with:
 ---
 
 **Location:** GettingStartedSDK/.github/copilot-instructions.md (workspace root)
-**Last Updated:** 2026-09-28
+**Last Updated:** 2026-10-07
 **Branch:** cmag_getting_started_sdk (under review)
-**Status:** [OK] IRIS-W1 & NORA-W5 builds verified — W30/W40 ready for build — Hardware testing pending
+**Status:** see docs/BUILD_TEST_RESULTS.md

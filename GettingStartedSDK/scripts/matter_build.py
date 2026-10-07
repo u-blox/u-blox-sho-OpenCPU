@@ -35,7 +35,7 @@ class Repo:
     name: str
     url: str
     revision: str
-    size_hint: str
+    size_gb: float     # approximate, once set up
     submodules: bool = False
 
 
@@ -65,7 +65,7 @@ TARGETS: dict[str, MatterTarget] = {
         label="IRIS-W1 (NXP RW612) Matter",
         repos=(
             Repo("connectedhomeip", "https://github.com/NXP/matter.git",
-                 "v1.6.0.0.1", "~10 GB after submodules", submodules=False),
+                 "v1.6.0.0.1", 10),
         ),
         linux_only=True,
         note="Builds the NXP connectedhomeip fork, examples/*/nxp/rt/rw61x (GN + ninja).",
@@ -79,9 +79,9 @@ TARGETS: dict[str, MatterTarget] = {
         label="NORA-W3 (Realtek RTL8720DF) Matter",
         repos=(
             Repo("ameba-rtos-d", "https://github.com/Ameba-AIoT/ameba-rtos-d.git",
-                 "main", "~2 GB"),
+                 "main", 2),
             Repo("ameba-rtos-matter", "https://github.com/Ameba-AIoT/ameba-rtos-matter.git",
-                 "release/v1.5", "~3 GB"),
+                 "release/v1.5", 3),
         ),
         linux_only=True,
         note="ameba-rtos-matter must be synced into ameba-rtos-d before building.",
@@ -95,9 +95,9 @@ TARGETS: dict[str, MatterTarget] = {
         label="NORA-W4 (Espressif ESP32-C6) Matter",
         repos=(
             Repo("esp-idf", "https://github.com/espressif/esp-idf.git",
-                 "v5.5.5", "~3 GB", submodules=True),
+                 "v5.5.5", 3, submodules=True),
             Repo("esp-matter", "https://github.com/espressif/esp-matter.git",
-                 "release/v1.5", "~6 GB after setup", submodules=False),
+                 "release/v1.5", 6),
         ),
         linux_only=True,
         note="Espressif only supports esp-matter on Linux/WSL2. --install fetches "
@@ -115,7 +115,7 @@ TARGETS: dict[str, MatterTarget] = {
         repos=(
             # --install fetches only the cc35xx + linux submodules.
             Repo("ti-matter", "https://github.com/TexasInstruments/matter.git",
-                 "matter-v1.5-ti-1.1", "~4 GB after --install"),
+                 "matter-v1.5-ti-1.1", 4),
         ),
         linux_only=True,
         note="TI connectedhomeip fork, CC3551E on LP-EM-CC35X1. Ubuntu 22.04 only.",
@@ -213,9 +213,12 @@ def cmd_list(target: MatterTarget, args) -> int:
 def cmd_clone(target: MatterTarget, args) -> int:
     root = matter_root(target)
     root.mkdir(parents=True, exist_ok=True)
-    total = ", ".join(f"{r.name} {r.size_hint}" for r in target.repos)
+    missing = [r for r in target.repos if not (root / r.name / ".git").exists()]
     print(f"[INFO] Destination: {root}")
-    print(f"[INFO] Disk needed: {total}\n")
+    if missing and not target_paths.check_space(
+            root, sum(r.size_gb for r in missing), f"{target.label} SDKs"):
+        return 1
+    print()
 
     for repo in target.repos:
         dest = root / repo.name

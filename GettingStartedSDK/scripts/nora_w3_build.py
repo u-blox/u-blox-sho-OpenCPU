@@ -171,6 +171,9 @@ def cmd_clone(args) -> int:
         save_config(cfg)
         return 0
     target_paths.ensure(TARGET)
+    # Approximate: shallow Ameba-D SDK, its bundled toolchain and a first build.
+    if not target_paths.check_space(sdk_dir, 2, "the Realtek Ameba-D SDK"):
+        return 1
 
     # Note: NORA-W3 uses Realtek RTL8720DF which requires Ameba-D SDK (not main ameba-rtos)
     repo_url = "https://github.com/Ameba-AIoT/ameba-rtos-d.git"  # Ameba-D SDK (specifically for RTL8720DF used in NORA-W3)

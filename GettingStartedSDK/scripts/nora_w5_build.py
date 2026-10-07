@@ -503,6 +503,10 @@ def cmd_clone(args) -> None:
     ws.mkdir(parents=True, exist_ok=True)
     if HOST == "wsl" and str(ws).startswith("/mnt/"):
         log("WARNING: cloning onto a Windows drive from WSL2 - expect very slow builds.")
+    missing = [r for r in REPOS if args.repo in ("both", r) and not (ws / r / ".git").exists()]
+    # Approximate per example repo, SDK submodule included.
+    if missing and not target_paths.check_space(ws, 2 * len(missing), "the TI example repos"):
+        sys.exit(1)
 
     for repo, url in REPOS.items():
         if args.repo not in ("both", repo):

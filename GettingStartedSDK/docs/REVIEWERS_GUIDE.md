@@ -53,11 +53,7 @@ cd GettingStartedSDK
 
 #### Test IRIS-W1 (NXP MCUXpresso)
 ```bash
-# First set ARMGCC_DIR (Windows)
-setx ARMGCC_DIR "C:\Program Files\Arm\GNU Toolchain mingw-w64-x86_64-arm-none-eabi"
-# Then restart terminal or manually export in Linux/WSL2
-
-# Check environment
+# Check environment (reports the Arm toolchain it will use)
 python GettingStartedSDK/scripts/iris_w1_build.py doctor
 
 # Clone SDK (~2 GB - targeted download)

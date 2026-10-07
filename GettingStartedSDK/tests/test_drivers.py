@@ -4,12 +4,40 @@ import subprocess
 
 import pytest
 
+import iris_w1_build
 import nora_w3_build
 import nora_w4_build
 import nordic_ncs_build as ncs
 
 B2 = ncs.TARGETS["nora-b2"]
 ALMA = ncs.TARGETS["alma-b2"]
+
+
+def test_armgcc_dir_prefers_environment(monkeypatch, tmp_path):
+    monkeypatch.setenv("ARMGCC_DIR", str(tmp_path))
+    assert iris_w1_build.armgcc_dir() == (str(tmp_path), "ARMGCC_DIR")
+
+
+def test_armgcc_dir_derived_from_detected_gcc(monkeypatch, tmp_path):
+    gcc = tmp_path / "toolchain" / "bin" / "arm-none-eabi-gcc"
+    monkeypatch.delenv("ARMGCC_DIR", raising=False)
+    monkeypatch.setattr(iris_w1_build, "detect_arm_gcc", lambda: str(gcc))
+    assert iris_w1_build.armgcc_dir() == (str(tmp_path / "toolchain"), "auto-detected")
+
+
+def test_armgcc_dir_missing(monkeypatch):
+    monkeypatch.delenv("ARMGCC_DIR", raising=False)
+    monkeypatch.setattr(iris_w1_build, "detect_arm_gcc", lambda: None)
+    assert iris_w1_build.armgcc_dir() == (None, "not found")
+
+
+def test_newest_expands_absolute_globs(tmp_path):
+    for version in ("12.3", "14.2"):
+        exe = tmp_path / f"Arm GNU Toolchain {version}" / "bin" / "gcc"
+        exe.parent.mkdir(parents=True)
+        exe.write_text("")
+    found = iris_w1_build.newest([str(tmp_path / "Arm GNU Toolchain*" / "bin" / "gcc")])
+    assert "14.2" in found
 
 
 @pytest.mark.parametrize("module", [nora_w3_build, nora_w4_build], ids=["nora_w3", "nora_w4"])

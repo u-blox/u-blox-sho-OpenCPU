@@ -57,8 +57,8 @@ the launcher from a terminal instead.
 The Cortex-Debug entries need a running GDB server and a matching `.elf`; they
 are starting points, not verified configurations.
 
-IRIS-W1 additionally needs `ARMGCC_DIR` in the environment. Set it in your
-shell before launching VS Code, or add an `env` block to the configuration:
+IRIS-W1 finds the Arm GNU Toolchain by itself. To force a specific one, add an
+`env` block to the configuration:
 
 ```json
 "env": {

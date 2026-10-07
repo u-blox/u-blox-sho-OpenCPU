@@ -10,7 +10,7 @@ Linux/WSL2/macOS. The examples below use the shell form.
 
 | Target | SoC | Framework | Host notes |
 |--------|-----|-----------|------------|
-| `iris-w1` | NXP RW612/RW610 | MCUXpresso | Needs `ARMGCC_DIR` |
+| `iris-w1` | NXP RW612/RW610 | MCUXpresso | Arm GNU Toolchain (auto-detected) |
 | `nora-w3` | Realtek RTL8720DF | Ameba-D | Linux/WSL2 only (auto hop) |
 | `nora-w4` | Espressif ESP32-C6 | ESP-IDF | Any |
 | `nora-w5` | TI CC3501E/CC3551E | SimpleLink | Any |
@@ -58,8 +58,7 @@ is not regulatory compliant. `--doctor` reports whether it has been applied.
 
 ### IRIS-W1 (NXP RW612/RW610)
 ```bash
-export ARMGCC_DIR="/c/Program Files/Arm/GNU Toolchain mingw-w64-x86_64-arm-none-eabi"
-./ubx-sdk.sh iris-w1 --doctor
+./ubx-sdk.sh iris-w1 --doctor                      # shows the Arm toolchain it found
 ./ubx-sdk.sh iris-w1 --clone                       # add --full for the whole SDK
 ./ubx-sdk.sh iris-w1 --build demo_apps/hello_world --flash --log
 ```
@@ -89,8 +88,9 @@ WSL2 by itself.
 ./ubx-sdk.sh nora-b2 --doctor
 ./ubx-sdk.sh nora-b2 --clone --install --build hello_world --flash --log
 ```
-An existing `~/ncs` workspace is detected and reused, so a Toolchain Manager
-install needs no clone.
+Existing NCS workspaces (`C:\ncs\*`, `~/ncs*`, `ZEPHYR_BASE`) are detected and
+the one with the board is used; `--clone` creates `C:\ncs\v3.4.1` (about 15 GB).
+Pick one explicitly with `python scripts/nordic_ncs_build.py nora-b2 use <path>`.
 
 ### ALMA-B2 (Nordic nRF54LM20)
 ```bash
@@ -163,7 +163,7 @@ fetches the same NCS workspace `ubx-sdk` uses, `--list` shows the
 | Symptom | Fix |
 |---------|-----|
 | Any tool reported missing | `--doctor` names it; install, then re-run |
-| `ARMGCC_DIR not configured` | Point it at the toolchain **root**, not `bin/` |
+| `No Arm GNU toolchain found` | Install it, or set `ARMGCC_DIR` to the toolchain **root**, not `bin/` |
 | "u-connectXpress module" error | You typed an AT-command part; use the Open CPU sibling it names |
 | Build fails after an SDK update | `./ubx-sdk.sh <target> --clean --build NAME` |
 | SDK clone interrupted | Re-run `--clone`; it resumes rather than restarting |

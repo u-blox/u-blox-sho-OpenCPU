@@ -19,7 +19,9 @@ a script behaves the same no matter where it is invoked from.
 
 from __future__ import annotations
 
+import os
 import platform
+import shutil
 from pathlib import Path
 
 SDK_ROOT = Path(__file__).resolve().parent.parent
@@ -97,3 +99,36 @@ def resolve_config(target: str, host: str | None = None) -> Path:
         new.write_text(old.read_text(encoding="utf-8"), encoding="utf-8")
         old.unlink()
     return new
+
+
+def free_gb(path: Path) -> float | None:
+    """Free space on the drive that holds path (or its nearest existing parent)."""
+    probe = Path(path).absolute()
+    while not probe.exists() and probe != probe.parent:
+        probe = probe.parent
+    try:
+        return shutil.disk_usage(probe).free / 1024 ** 3
+    except OSError:
+        return None
+
+
+def check_space(path: Path, needed_gb: float, what: str) -> bool:
+    """Print a disk-space verdict for fetching `what` into path; False when it will not fit.
+
+    needed_gb is an estimate. UBX_SKIP_SPACE_CHECK=1 turns a failure into a warning.
+    """
+    free = free_gb(path)
+    if free is None:
+        print(f"[WARNING] Could not determine free space for {path}.")
+        return True
+    if free >= needed_gb:
+        print(f"[OK] Disk space: {free:.1f} GB free, {what} needs about {needed_gb:g} GB ({path})")
+        return True
+    print(f"[FAIL] Not enough disk space for {what}: about {needed_gb:g} GB needed, "
+          f"{free:.1f} GB free at {path}.")
+    if os.environ.get("UBX_SKIP_SPACE_CHECK"):
+        print("[WARNING] UBX_SKIP_SPACE_CHECK is set; continuing anyway.")
+        return True
+    print("       Free some space or choose another location. "
+          "Set UBX_SKIP_SPACE_CHECK=1 to try anyway.")
+    return False

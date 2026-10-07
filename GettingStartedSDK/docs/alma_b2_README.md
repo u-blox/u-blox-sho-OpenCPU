@@ -89,9 +89,11 @@ The quickest route is nRF Connect for Desktop and its Toolchain Manager.
 ./ubx-sdk.sh alma-b2 --build hello_world --flash --log
 ```
 
-The SDK is cloned into `targets/ALMA-B2/sdk/ncs/`, and an existing workspace at
-`~/ncs` is reused if present. NORA-B2 and ALMA-B2 use the same driver, so a
-single NCS clone can serve both if you point them at the same workspace.
+NORA-B2 and ALMA-B2 share one NCS workspace: `--clone` puts it in
+`C:\ncs\v3.4.1` (Windows) or `~/ncs/v3.4.1` (Linux) after checking for about
+15 GB free, and both targets detect it. Select a different workspace with
+`python scripts/nordic_ncs_build.py alma-b2 use <path>`; see
+[nora_b2_README.md](nora_b2_README.md#where-the-sdk-lives).
 
 ---
 
@@ -117,7 +119,7 @@ Matter runs over Thread here, since the nRF54LM20 has no Wi-Fi radio.
 ## Build output
 
 ```
-targets/ALMA-B2/sdk/ncs/build/<sample>/zephyr/
+<ncs workspace>/build/<sample>/zephyr/
     zephyr.elf
     zephyr.hex
     zephyr.bin

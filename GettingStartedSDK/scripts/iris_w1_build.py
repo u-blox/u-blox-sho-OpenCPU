@@ -7,6 +7,7 @@ MCUXpresso SDK (west/CMake/Ninja flavour).
 Supports: Windows, WSL2, Linux
 """
 
+import glob
 import os
 import sys
 import json
@@ -14,7 +15,7 @@ import subprocess
 import platform
 import shutil
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Tuple
 
 # Import serial logger
 import serial_logger
@@ -87,25 +88,13 @@ def short_path(value: str) -> str:
 # ============================================================================
 
 def newest(patterns: List[str]) -> Optional[str]:
-    """Find newest matching path from glob patterns."""
+    """Newest existing path matching any of the absolute glob patterns."""
     candidates = []
     for pattern in patterns:
-        try:
-            if pattern.startswith(("C:/", "C:\\", "/")):
-                p = Path(pattern)
-                if p.exists():
-                    candidates.append(p)
-            else:
-                candidates.extend(Path().glob(pattern))
-        except Exception:
-            pass
-
-    if not candidates:
-        return None
-    candidates.sort(key=lambda p: str(p), reverse=True)
-    for c in candidates:
-        if c.exists():
-            return str(c.resolve())
+        candidates.extend(glob.glob(pattern))
+    for c in sorted(candidates, reverse=True):
+        if Path(c).exists():
+            return str(Path(c).resolve())
     return None
 
 def which(name: str) -> Optional[str]:
@@ -199,22 +188,35 @@ def detect_ninja() -> Optional[str]:
 
 def detect_arm_gcc() -> Optional[str]:
     """Locate arm-none-eabi-gcc, preferring the ARMGCC_DIR the SDK build system uses."""
-    armgcc_dir = os.environ.get("ARMGCC_DIR")
-    if armgcc_dir:
+    env_dir = os.environ.get("ARMGCC_DIR")
+    if env_dir:
         exe = "arm-none-eabi-gcc" + (".exe" if host_kind() == "windows" else "")
-        candidate = Path(armgcc_dir) / "bin" / exe
+        candidate = Path(env_dir) / "bin" / exe
         if candidate.exists():
             return short_path(str(candidate))
 
     if host_kind() == "windows":
         result = newest([
+            "C:/Program Files/Arm/GNU Toolchain mingw-w64-x86_64-arm-none-eabi/bin/arm-none-eabi-gcc.exe",
             "C:/Program Files (x86)/Arm GNU Toolchain*/*/bin/arm-none-eabi-gcc.exe",
             "C:/Program Files/Arm GNU Toolchain*/*/bin/arm-none-eabi-gcc.exe",
+            str(Path.home() / ".mcuxpressotools" / "arm-gnu-toolchain-*" / "bin" / "arm-none-eabi-gcc.exe"),
             "C:/armgcc/bin/arm-none-eabi-gcc.exe",
         ])
         if result:
             return short_path(result)
     return which("arm-none-eabi-gcc")
+
+def armgcc_dir() -> Tuple[Optional[str], str]:
+    """Toolchain root the MCUXpresso build needs as ARMGCC_DIR, and where it came from."""
+    env = os.environ.get("ARMGCC_DIR")
+    if env:
+        return env, "ARMGCC_DIR"
+    gcc = detect_arm_gcc()
+    if gcc:
+        # <root>/bin/arm-none-eabi-gcc -> <root>
+        return str(Path(gcc).parent.parent), "auto-detected"
+    return None, "not found"
 
 def detect_workspace() -> Optional[str]:
     """Locate the west workspace (the directory holding .west/)."""
@@ -289,17 +291,17 @@ def cmd_doctor(args) -> int:
     if not workspace:
         all_ok = False
 
-    armgcc_dir = os.environ.get("ARMGCC_DIR")
-    print(f"\nARMGCC_DIR: {armgcc_dir or 'not set'}")
+    toolchain, source = armgcc_dir()
+    print(f"\nARMGCC_DIR: {toolchain or 'not found'} ({source})")
     print(f"Board:      {DEFAULT_BOARD} (NXP RW612)")
     print(f"Platform:   {host_kind()}")
     print(f"Config:     {config_file()}")
 
-    if not armgcc_dir:
-        print("\n[WARNING] ARMGCC_DIR is not set. The MCUXpresso build system needs it to")
-        print("    locate the Arm GNU toolchain. Run 'install' for instructions.")
+    if not toolchain:
+        print("\n[WARNING] No Arm GNU toolchain found. Run 'install' for instructions,")
+        print("    or set ARMGCC_DIR to the toolchain root (the folder containing bin/).")
 
-    if all_ok and armgcc_dir:
+    if all_ok and toolchain:
         print("\n[OK] All tools detected!\n")
         return 0
     print("\n[WARNING] Some tools missing. See README for setup instructions.\n")
@@ -315,6 +317,11 @@ def cmd_clone(args) -> int:
         return 1
 
     workspace = target_paths.sdk_dir(TARGET) / WORKSPACE_NAME
+    # Approximate, including a first build: board-only ~2 GB, whole SDK ~7 GB.
+    if not (workspace / ".west").exists() or args.full:
+        needed = 8 if args.full else 3
+        if not target_paths.check_space(workspace, needed, "the MCUXpresso SDK"):
+            return 1
     if (workspace / ".west").exists():
         print(f"[INFO] {workspace} already initialised. Skipping west init.\n")
     else:
@@ -397,14 +404,6 @@ def cmd_install(args) -> int:
             print("  sudo apt install cmake ninja-build gcc-arm-none-eabi")
     else:
         print("[OK] CMake, Ninja and Arm GCC already present.\n")
-
-    if not os.environ.get("ARMGCC_DIR"):
-        print("\nSet ARMGCC_DIR so the SDK build system finds the toolchain:\n")
-        if host_kind() == "windows":
-            print('   setx ARMGCC_DIR "C:\\Program Files (x86)\\Arm GNU Toolchain arm-none-eabi\\<version>"')
-            print("   (then open a new terminal)")
-        else:
-            print('   export ARMGCC_DIR="/usr"   # add to ~/.bashrc')
 
     print("\nNext: python iris_w1_build.py clone\n")
     return 0
@@ -541,9 +540,13 @@ def cmd_build(args) -> int:
     if not example_path:
         return 1
 
-    if not os.environ.get("ARMGCC_DIR") and args.toolchain == "armgcc":
-        print("[WARNING] ARMGCC_DIR is not set; the build will likely fail.")
-        print("    Run 'python iris_w1_build.py install' for instructions.\n")
+    toolchain, source = armgcc_dir()
+    if args.toolchain == "armgcc":
+        if not toolchain:
+            print("[FAIL] No Arm GNU toolchain found. Run 'python iris_w1_build.py install',")
+            print("    or set ARMGCC_DIR to the toolchain root (the folder containing bin/).")
+            return 1
+        print(f"Toolchain: {toolchain} ({source})")
 
     rel = example_path.relative_to(workspace).as_posix()
     print(f"\nBuilding {rel} for {args.board}...\n")
@@ -562,6 +565,8 @@ def cmd_build(args) -> int:
     cmd += ["--", f"-DPython3_EXECUTABLE={Path(sys.executable).as_posix()}"]
     env = dict(os.environ)
     env["PATH"] = str(Path(sys.executable).parent) + os.pathsep + env.get("PATH", "")
+    if toolchain:
+        env["ARMGCC_DIR"] = toolchain
 
     print(f"Running: {' '.join(cmd)}\n")
     result = subprocess.run(cmd, cwd=workspace, env=env)

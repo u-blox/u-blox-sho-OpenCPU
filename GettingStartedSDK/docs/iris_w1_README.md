@@ -41,19 +41,15 @@ python iris_w1_build.py build demo_apps/hello_world  # Build example
 
 ### Environment Variables
 
-**Required:** Set `ARMGCC_DIR` to the root directory of the Arm GNU Toolchain (NOT the `bin/` subdirectory).
+None required. The driver locates the Arm GNU Toolchain (Arm installer paths,
+the MCUXpresso Installer's `~/.mcuxpressotools`, or `arm-none-eabi-gcc` on
+`PATH`) and sets `ARMGCC_DIR` for the build itself.
 
-**Windows:**
-```batch
-setx ARMGCC_DIR "C:\Program Files (x86)\Arm GNU Toolchain arm-none-eabi\13.2.0"
-REM (then open a new terminal)
-```
+**Optional override:** set `ARMGCC_DIR` to a toolchain root (NOT its `bin/`
+subdirectory) to force a specific toolchain:
 
-**Linux/WSL2:**
 ```bash
-export ARMGCC_DIR=/usr
-# Or wherever your Arm GNU is installed (e.g., /opt/arm-gnu-toolchain-13.2.0)
-# Add to ~/.bashrc to make permanent
+export ARMGCC_DIR=/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi
 ```
 
 **Verify:**
@@ -233,17 +229,14 @@ Key files:
 ```
 **Fix:** Run `python -m pip install -U west`
 
-### ARMGCC_DIR not set
+### No Arm GNU toolchain found
 ```
-[WARNING] ARMGCC_DIR is not set; the build will likely fail.
+[FAIL] No Arm GNU toolchain found.
 ```
-**Fix:** Set the environment variable and open a new terminal:
+**Fix:** Install the Arm GNU Toolchain (or the MCUXpresso Installer). If it is
+installed somewhere unusual, point `ARMGCC_DIR` at its root:
 ```bash
-# Windows
-setx ARMGCC_DIR "C:\Program Files (x86)\Arm GNU Toolchain arm-none-eabi\13.2.0"
-
-# Linux/WSL2
-export ARMGCC_DIR=/usr
+export ARMGCC_DIR=/path/to/arm-gnu-toolchain
 ```
 
 ### Build fails with "CMake not found"
@@ -285,7 +278,7 @@ python iris_w1_build.py clone --full
 
 | Platform | Support | Notes |
 |----------|---------|-------|
-| Windows 11 | [OK] | Requires ARMGCC_DIR env var |
+| Windows 11 | [OK] | Arm GNU Toolchain auto-detected |
 | WSL2 | [OK] | Recommended for Windows users |
 | Ubuntu 22.04 LTS | [OK] | `sudo apt install gcc-arm-none-eabi` |
 | macOS | [WARNING] | Not tested; Arm GNU Toolchain may require Homebrew |

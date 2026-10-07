@@ -226,6 +226,9 @@ def cmd_clone(args) -> int:
         save_config(cfg)
         return 0
     target_paths.ensure(TARGET)
+    # Approximate: shallow ESP-IDF with submodules plus a first build.
+    if not target_paths.check_space(idf_dir, 3, "ESP-IDF"):
+        return 1
 
     result = subprocess.run(
         ["git", "clone", "--depth", "1", "https://github.com/espressif/esp-idf.git", str(idf_dir)],

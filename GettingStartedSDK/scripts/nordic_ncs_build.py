@@ -30,6 +30,10 @@ import target_paths
 NCS_REVISION = "v3.4.1"
 NCS_MANIFEST_URL = "https://github.com/nrfconnect/sdk-nrf"
 WORKSPACE_NAME = "ncs"
+# Approximate size of a full west update plus a few builds.
+NCS_SIZE_GB = 15
+# Points at an existing workspace and overrides detection.
+WORKSPACE_ENV = "UBX_NCS_WORKSPACE"
 
 
 @dataclass(frozen=True)
@@ -169,27 +173,78 @@ def detect_toolchain() -> Optional[str]:
     if gcc:
         return gcc
     for root in (Path.home() / "zephyr-sdk", Path.home() / "ncs" / "toolchains",
+                 Path(os.environ.get("SystemDrive", "C:") + "/") / "ncs" / "toolchains",
                  Path("/opt/zephyr-sdk")):
         if root.is_dir():
             return str(root)
     return None
 
 
-def detect_workspace(target: NcsTarget) -> Optional[str]:
-    """Locate the west workspace (the directory holding .west/)."""
+def default_workspace(revision: str = NCS_REVISION) -> Path:
+    """Where clone puts a new workspace: <drive>/ncs/<rev> like Nordic's own tools, never the repo drive."""
+    if host_kind() == "windows":
+        return Path(os.environ.get("SystemDrive", "C:") + "/") / "ncs" / revision
+    home_ncs = Path.home() / "ncs"
+    # A workspace cannot be nested inside another west workspace.
+    if (home_ncs / ".west").exists():
+        return Path.home() / f"ncs-{revision}"
+    return home_ncs / revision
+
+
+def _workspace_candidates(target: NcsTarget) -> List[Path]:
+    paths: List[Path] = []
     cfg = load_config(target)
-    if "workspace" in cfg and (Path(cfg["workspace"]) / ".west").exists():
+    if cfg.get("workspace"):
+        paths.append(Path(cfg["workspace"]))
+    if os.environ.get("ZEPHYR_BASE"):
+        paths.append(Path(os.environ["ZEPHYR_BASE"]).parent)
+    roots = [Path(os.environ.get("SystemDrive", "C:") + "/") / "ncs"] if host_kind() == "windows" else []
+    roots += [Path.home() / "ncs"]
+    for root in roots:
+        paths.append(root)
+        if root.is_dir():
+            paths += sorted(root.iterdir(), reverse=True)
+    paths += sorted(Path.home().glob("ncs-*"), reverse=True)
+    paths += [target_paths.sdk_dir(target.slug) / WORKSPACE_NAME, target_paths.SDK_ROOT / WORKSPACE_NAME]
+    return paths
+
+
+def find_workspaces(target: NcsTarget) -> List[Path]:
+    """Every west workspace on this host that looks like an NCS checkout, deduplicated."""
+    found, seen = [], set()
+    for path in _workspace_candidates(target):
+        try:
+            key = path.resolve()
+        except OSError:
+            continue
+        if key in seen or not (path / ".west").exists() or not (path / "nrf").is_dir():
+            continue
+        seen.add(key)
+        found.append(path)
+    return found
+
+
+def detect_workspace(target: NcsTarget) -> Optional[str]:
+    """The workspace to build in.
+
+    Order: UBX_NCS_WORKSPACE, the one chosen with 'use' or created by 'clone',
+    then the best detected one (has the board, preferring the pinned release).
+    """
+    env = os.environ.get(WORKSPACE_ENV)
+    if env:
+        return env if (Path(env) / ".west").exists() else None
+
+    cfg = load_config(target)
+    if cfg.get("workspace") and (Path(cfg["workspace"]) / ".west").exists():
         return cfg["workspace"]
 
-    candidates = (
-        target_paths.sdk_dir(target.slug) / WORKSPACE_NAME,
-        target_paths.SDK_ROOT / WORKSPACE_NAME,
-        Path.home() / "ncs",
-    )
-    for candidate in candidates:
-        if (candidate / ".west").exists():
-            return str(candidate)
-    return None
+    workspaces = find_workspaces(target)
+    with_board = [w for w in workspaces if board_available(str(w), target.board)]
+    for ws in with_board:
+        if workspace_revision(str(ws)) == NCS_REVISION:
+            return str(ws)
+    best = with_board or workspaces
+    return str(best[0]) if best else None
 
 
 # ============================================================================
@@ -285,9 +340,9 @@ def board_available(workspace: str, board: str) -> bool:
 def missing_board_hint(target: NcsTarget, workspace: str, board: str) -> None:
     found = workspace_revision(workspace) or "unknown version"
     print(f"[FAIL] Board '{board.split('/')[0]}' is not in the NCS workspace at {workspace} ({found}).")
-    print(f"       It needs a newer NCS. Fetch the pinned {NCS_REVISION} with:")
+    print(f"       It needs a newer NCS. Fetch the pinned {NCS_REVISION} into {default_workspace()} with:")
     print(f"         ubx-sdk {target.key} --clone")
-    print(f"       or update that workspace to {NCS_REVISION} (west update).")
+    print(f"       or select another workspace: python scripts/nordic_ncs_build.py {target.key} use <path>")
 
 
 # ============================================================================
@@ -324,6 +379,7 @@ def cmd_doctor(target: NcsTarget, args) -> int:
           f"{nrfutil or 'not found (needed only for --flash)'}")
 
     workspace = detect_workspace(target)
+    others = [w for w in find_workspaces(target) if not workspace or w.resolve() != Path(workspace).resolve()]
     if workspace:
         found = workspace_revision(workspace)
         print(f"\n[OK] NCS workspace   {workspace} ({found or 'version unknown'})")
@@ -334,8 +390,16 @@ def cmd_doctor(target: NcsTarget, args) -> int:
             missing.append("board")
     else:
         print(f"\n[FAIL] NCS workspace not found. "
-              f"Run: python nordic_ncs_build.py {target.key} clone")
+              f"Run: ubx-sdk {target.key} --clone   (creates {default_workspace()})")
         missing.append("workspace")
+
+    if others:
+        print("\nOther NCS workspaces on this host:")
+        for ws in others:
+            board = "has board" if board_available(str(ws), target.board) else "no board"
+            print(f"  {ws}  ({workspace_revision(str(ws)) or 'version unknown'}, {board})")
+        print(f"  Select one with: python scripts/nordic_ncs_build.py {target.key} use <path>")
+        print(f"  or set {WORKSPACE_ENV}=<path>")
 
     if missing:
         print(f"\n[WARNING] Missing: {', '.join(missing)}")
@@ -356,12 +420,13 @@ def cmd_clone(target: NcsTarget, args) -> int:
         print("[FAIL] west not found. Run: python scripts/setup_venv.py")
         return 1
 
-    workspace = Path(args.workspace) if args.workspace else \
-        target_paths.sdk_dir(target.slug) / WORKSPACE_NAME
+    workspace = Path(args.workspace) if args.workspace else default_workspace(args.revision)
 
     if (workspace / ".west").exists():
         print(f"[INFO] {workspace} already initialised. Skipping west init.\n")
     else:
+        if not target_paths.check_space(workspace, NCS_SIZE_GB, f"nRF Connect SDK {args.revision}"):
+            return 1
         workspace.mkdir(parents=True, exist_ok=True)
         print(f"Initialising nRF Connect SDK {args.revision} in {workspace}")
         print("This downloads several GB and takes a while.\n")
@@ -386,6 +451,35 @@ def cmd_clone(target: NcsTarget, args) -> int:
     save_config(target, cfg)
 
     print(f"\n[OK] nRF Connect SDK {args.revision} ready at {workspace}\n")
+    return 0
+
+
+def cmd_use(target: NcsTarget, args) -> int:
+    if not args.path:
+        current = detect_workspace(target)
+        workspaces = find_workspaces(target)
+        if not workspaces:
+            print(f"[INFO] No NCS workspace found. Run: ubx-sdk {target.key} --clone")
+            return 1
+        print(f"\nNCS workspaces for {target.label} (board {target.board}):\n")
+        for ws in workspaces:
+            mark = "*" if current and ws.resolve() == Path(current).resolve() else " "
+            board = "has board" if board_available(str(ws), target.board) else "no board"
+            print(f" {mark} {ws}  ({workspace_revision(str(ws)) or 'version unknown'}, {board})")
+        print("\n * = in use\n")
+        return 0
+
+    workspace = Path(args.path).expanduser()
+    if not (workspace / ".west").exists():
+        print(f"[FAIL] {workspace} is not a west workspace (no .west/ folder).")
+        return 1
+    if not board_available(str(workspace), target.board):
+        missing_board_hint(target, str(workspace), target.board)
+        return 1
+    cfg = load_config(target)
+    cfg["workspace"] = str(workspace)
+    save_config(target, cfg)
+    print(f"[OK] {target.key} now uses {workspace} ({workspace_revision(str(workspace)) or 'version unknown'})")
     return 0
 
 
@@ -597,7 +691,11 @@ def build_parser() -> argparse.ArgumentParser:
     sp = add("clone", cmd_clone, "fetch the nRF Connect SDK with west")
     sp.add_argument("--revision", default=NCS_REVISION,
                     help=f"NCS tag or branch (default: {NCS_REVISION})")
-    sp.add_argument("--workspace", help="where the west workspace is created")
+    sp.add_argument("--workspace", help="where the west workspace is created "
+                                        "(default: <system drive>/ncs/<revision>)")
+
+    sp = add("use", cmd_use, "select an existing NCS workspace, or list the detected ones")
+    sp.add_argument("path", nargs="?", help="workspace directory (the one holding .west/)")
 
     add("install", cmd_install, "install the Zephyr Python requirements")
 

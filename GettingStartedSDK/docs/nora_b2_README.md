@@ -109,8 +109,21 @@ sudo usermod -a -G dialout $USER
 ./ubx-sdk.sh nora-b2 --build hello_world --flash --log
 ```
 
-The SDK is cloned into `targets/NORA-B2/sdk/ncs/`. An existing workspace at
-`~/ncs` is detected and reused, so a Toolchain Manager install needs no clone.
+### Where the SDK lives
+
+`--clone` creates the workspace in `C:\ncs\v3.4.1` on Windows (the same
+layout nRF Connect for Desktop uses) and `~/ncs/v3.4.1` on Linux, never on the
+repository's drive. It checks free space first: NCS needs about 15 GB.
+
+Existing workspaces are detected: `C:\ncs\*`, `~/ncs`, `~/ncs/*`, `~/ncs-*`
+and `ZEPHYR_BASE`. The one that has the board, preferably at v3.4.1, is used.
+`--doctor` lists them all. To pick one explicitly:
+
+```bash
+python scripts/nordic_ncs_build.py nora-b2 use                    # list
+python scripts/nordic_ncs_build.py nora-b2 use C:\ncs\v3.4.1      # select
+# or for one shell: set UBX_NCS_WORKSPACE=C:\ncs\v3.4.1
+```
 
 ---
 
@@ -152,7 +165,7 @@ you give the full path (`--build matter/light_bulb`).
 ## Build output
 
 ```
-targets/NORA-B2/sdk/ncs/build/<sample>/zephyr/
+<ncs workspace>/build/<sample>/zephyr/
     zephyr.elf      full image with symbols
     zephyr.hex      flashable image
     zephyr.bin      raw binary
@@ -186,10 +199,10 @@ Install the Zephyr SDK, or set `ZEPHYR_SDK_INSTALL_DIR` /
 `GNUARMEMB_TOOLCHAIN_PATH` to an existing one.
 
 **Board target not found**
-The `ubx_evknorab2` board needs NCS v3.x. Check the revision with
-`git -C targets/NORA-B2/sdk/ncs/nrf describe --tags`. An older workspace
-(for example an NCS v2.9 install at `~/ncs`) does not contain the board; clone
-a current one with `./ubx-sdk.sh nora-b2 --clone`.
+The `ubx_evknorab2` board needs NCS v3.x. `--doctor` shows the version of the
+workspace in use. An older workspace (for example an NCS v2.9 install at
+`~/ncs`) does not contain the board; clone a current one with
+`./ubx-sdk.sh nora-b2 --clone`, or select another with `use` (see above).
 
 **`west update` fails or is interrupted**
 Re-run `./ubx-sdk.sh nora-b2 --clone`. It skips `west init` when the workspace
@@ -205,4 +218,4 @@ The EVK exposes several COM ports. Pass the right one explicitly:
 
 - NORA-B2 product page: https://www.u-blox.com/en/product/nora-b2-series
 - nRF Connect SDK documentation: https://docs.nordicsemi.com/bundle/ncs-latest/page/nrf/index.html
-- Zephyr board documentation: `targets/NORA-B2/sdk/ncs/zephyr/boards/u-blox/ubx_evknorab2/`
+- Zephyr board documentation: `<ncs workspace>/zephyr/boards/u-blox/ubx_evknorab2/`

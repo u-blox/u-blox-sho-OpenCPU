@@ -162,15 +162,20 @@ The launcher works with any Python 3.10+. For an isolated environment with
 python scripts/setup_venv.py
 ```
 
-IRIS-W1 additionally needs the Arm GNU Toolchain:
-
-```bash
-export ARMGCC_DIR="/c/Program Files/Arm/GNU Toolchain mingw-w64-x86_64-arm-none-eabi"
-```
+IRIS-W1 additionally needs the Arm GNU Toolchain. The driver finds it on its own
+(standard Arm installer paths, the MCUXpresso Installer's `~/.mcuxpressotools`,
+or `arm-none-eabi-gcc` on `PATH`) and passes it to the build as `ARMGCC_DIR`;
+`--doctor` shows which one it picked. Set `ARMGCC_DIR` yourself only to force a
+specific toolchain.
 
 NORA-B2 and ALMA-B2 need a Zephyr/nRF Connect toolchain. The quickest route is
 nRF Connect for Desktop and its Toolchain Manager; `--doctor` reports what is
-still missing. An existing `~/ncs` workspace is detected and reused.
+still missing. Existing NCS workspaces are detected (`C:\ncs\*`, `~/ncs*`);
+`--clone` creates one in `C:\ncs\v3.4.1` (or `~/ncs/v3.4.1` on Linux).
+
+Every `--clone` checks free disk space against an estimate for that SDK first
+(NCS about 15 GB, MCUXpresso 3 GB board-only / 8 GB full, ESP-IDF 3 GB, Ameba-D
+2 GB) and stops if it will not fit. Set `UBX_SKIP_SPACE_CHECK=1` to override.
 
 ## Tests
 
