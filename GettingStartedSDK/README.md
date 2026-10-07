@@ -50,6 +50,13 @@ Run it after `--clone`:
 ./ubx-sdk.sh nora-w5 --list
 ```
 
+`--dry-run` prints the commands a flag combination would run, in order,
+without running anything (works for `ubx-matter` too):
+
+```bash
+./ubx-sdk.sh nora-w4 --dry-run --clean --build hello_world --flash --log
+```
+
 ## Module configuration (RF calibration, TX power, regulatory)
 
 The vendor SDKs ship RF data for the vendor's own reference board. Firmware
@@ -138,6 +145,7 @@ GettingStartedSDK/
 ├── modules/<T>/profile.json      RF calibration / TX power profiles
 ├── targets/<T>/sdk/              Vendor SDKs, fetched on demand (gitignored)
 ├── targets/<T>/config/           Per-host tool cache
+├── tests/                        pytest suite for the launchers and drivers
 └── docs/                         Per-module guides and build references
 ```
 
@@ -163,6 +171,22 @@ export ARMGCC_DIR="/c/Program Files/Arm/GNU Toolchain mingw-w64-x86_64-arm-none-
 NORA-B2 and ALMA-B2 need a Zephyr/nRF Connect toolchain. The quickest route is
 nRF Connect for Desktop and its Toolchain Manager; `--doctor` reports what is
 still missing. An existing `~/ncs` workspace is detected and reused.
+
+## Tests
+
+The launchers, the Matter driver and the module configuration have a pytest
+suite. It needs no vendor SDK, toolchain, WSL2 or hardware: driver calls are
+recorded instead of executed, and the end-to-end tests use `--dry-run`.
+
+```bash
+python -m pytest tests -q
+```
+
+`setup_venv.py` installs pytest. Run the suite on both Windows and WSL2/Linux;
+a few tests are platform-specific and skip elsewhere.
+
+GitLab CI (`.gitlab-ci.yml` at the repository root) runs the suite on Python
+3.10 and 3.12 for every push that touches `GettingStartedSDK/`.
 
 ## Documentation
 

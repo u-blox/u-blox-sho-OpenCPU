@@ -104,6 +104,7 @@ GettingStartedSDK/                  Workspace root
 ├── ameba-rtos-d/                  Vendor SDK, fetched on demand (NORA-W3)
 ├── esp-idf/                       Vendor SDK, fetched on demand (NORA-W4)
 ├── mcuxpresso-sdk/                Vendor SDK, fetched on demand (IRIS-W1)
+├── tests/                         pytest suite (launchers, Matter driver, module config)
 └── docs/                           All other documentation
     ├── iris_w1_README.md
     ├── nora_w5_README.md
@@ -127,7 +128,8 @@ Naming rule: anything shared by both launchers is plain `ubx`
 (`ubx.py`, `ubx.code-workspace`); anything layer-specific is suffixed
 (`ubx-sdk.*`, `ubx-matter.*`).
 
-Only `README.md` and `.gitattributes` belong at the repository root. The root
+Only `README.md`, `.gitattributes` and `.gitlab-ci.yml` (GitLab only reads CI
+config from the root) belong at the repository root. The root
 is shared with unrelated projects (`nRF5_SDK/`, `zephyr/`, `MCUXpresso/`,
 `*-OutputPower/`), so SDK files must not be added there.
 `GettingStartedSDK/ubx.code-workspace` is multi-root (`"."` plus `".."`), so it
@@ -466,9 +468,20 @@ facts; module docstrings have been wrong before.
 ## Testing and Verification
 
 ### Unit Tests
-- Each build script has `cmd_doctor()` - verifies tools
-- Check docs/README for module-specific requirements
-- docs/REVIEWERS_GUIDE.md has full test procedures
+- `python -m pytest tests -q` from GettingStartedSDK/ (pytest comes with `setup_venv.py`)
+- Hermetic: no SDK, toolchain, WSL2 or hardware. Unit tests monkeypatch
+  `subprocess.call` with the `calls` fixture (`tests/conftest.py`); vendor SDKs are
+  faked as directory trees under `UBX_MATTER_ROOT=tmp_path`
+- `tests/test_cli.py` runs the real entry points in a subprocess with `--dry-run`,
+  which prints `[DRY-RUN] <cmd>` for every driver call and WSL2 hop instead of
+  running it. Route any new launcher subprocess call through `ubx.execute()` so
+  dry-run keeps covering it
+- Run on Windows and WSL2; shim and drive-letter tests skip on the other host
+- Add a test with every new flag, target, alias or Matter vendor script
+- CI: the root `.gitlab-ci.yml` runs this suite on every push that touches
+  `GettingStartedSDK/` (python:3.10-slim and 3.12-slim, JUnit report). Keep the
+  suite hermetic so it stays runnable there
+- Each build script also has `cmd_doctor()` - verifies tools on a real host
 
 ### Integration Tests
 - Build empty/hello_world example for each module

@@ -141,6 +141,7 @@ class Context:
     clean_all: bool = False
     matter: bool = False
     use_wsl: bool | None = None
+    dry_run: bool = False
     extra: list[str] = field(default_factory=list)
 
 
@@ -178,6 +179,7 @@ Flags (combinable; always run in this order)
   --log [PORT]          Open the serial monitor (port auto-detected if omitted)
   --setup-venv          Create/refresh the shared .venv, then exit
   --wsl / --no-wsl      Force or suppress the automatic hop into WSL2
+  --dry-run             Print the commands that would run, without running them
   --                    Pass every remaining argument verbatim to the driver
   --help                Show this help
 
@@ -229,6 +231,7 @@ Flags (combinable; always run in this order)
   --log [PORT]          Open the serial monitor (Nordic targets only)
   --setup-venv          Create/refresh the shared .venv, then exit
   --wsl / --no-wsl      Force or suppress the automatic hop into WSL2
+  --dry-run             Print the commands that would run, without running them
   --                    Pass the rest to the vendor build (GN args, idf.py options)
   --help                Show this help
 
@@ -369,6 +372,8 @@ def parse(argv: list[str], matter: bool = False) -> Context | int:
             ctx.use_wsl = True
         elif arg == "--no-wsl":
             ctx.use_wsl = False
+        elif arg == "--dry-run":
+            ctx.dry_run = True
         elif arg == "--build":
             ctx.actions.add("build")
             value = peek()
@@ -508,6 +513,14 @@ def argv_for(ctx: Context, action: str) -> list[str] | None:
     return None
 
 
+def execute(ctx: Context, cmd: list[str], **kwargs) -> int:
+    if ctx.dry_run:
+        shown = subprocess.list2cmdline(cmd) if host_is_windows() else shlex.join(cmd)
+        print(f"[DRY-RUN] {shown}", flush=True)
+        return 0
+    return subprocess.call(cmd, **kwargs)
+
+
 def to_wsl_path(path: Path) -> str:
     resolved = path.resolve()
     drive = resolved.drive.rstrip(":").lower()
@@ -533,7 +546,7 @@ def hop_to_wsl(ctx: Context, argv: list[str]) -> int:
     wsl = ["wsl", "-d", distro] if distro else ["wsl"]
     if distro:
         print(f"[INFO] WSL distro: {distro}")
-    return subprocess.call([*wsl, "--", "bash", "-lc", command])
+    return execute(ctx, [*wsl, "--", "bash", "-lc", command])
 
 
 def needs_linux(ctx: Context) -> bool:
@@ -570,12 +583,12 @@ def run(ctx: Context, raw_argv: list[str]) -> int:
             cmd = [sys.executable, str(script), *prefix, *sub]
         banner = "matter " if ctx.matter else ""
         print(f"\n=== {ctx.target.label} :: {banner}{action} ===", flush=True)
-        rc = subprocess.call(cmd, cwd=str(SDK_ROOT))
+        rc = execute(ctx, cmd, cwd=str(SDK_ROOT))
         if action == "doctor" and not ctx.matter:
             # Tools can all be present while the firmware is still non-compliant,
             # and a failing doctor is exactly when that matters most.
-            subprocess.call([sys.executable, str(MODULE_CONFIG_SCRIPT),
-                             ctx.target.key, "status"], cwd=str(SDK_ROOT))
+            execute(ctx, [sys.executable, str(MODULE_CONFIG_SCRIPT),
+                          ctx.target.key, "status"], cwd=str(SDK_ROOT))
         if rc != 0:
             return fail(f"{banner}{action} failed (exit {rc}).")
     return 0

@@ -1,0 +1,34 @@
+stages:
+  - test
+
+# Branch pipelines on push; switch to MR pipelines once an MR is open, never both.
+workflow:
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH && $CI_OPEN_MERGE_REQUESTS
+      when: never
+    - if: $CI_COMMIT_BRANCH
+
+# GettingStartedSDK launcher, Matter driver and module-config tests.
+# Hermetic: no vendor SDK, toolchain or hardware needed.
+.sdk-tests:
+  stage: test
+  before_script:
+    - cd GettingStartedSDK
+    - python -m pip install --quiet pytest
+  script:
+    - python -m pytest tests -q -rs --junitxml=report.xml
+  artifacts:
+    when: always
+    reports:
+      junit: GettingStartedSDK/report.xml
+  rules:
+    - changes: [GettingStartedSDK/**/*, .gitlab-ci.yml]
+
+sdk-tests:
+  extends: .sdk-tests
+  image: python:${PYTHON_VERSION}-slim
+  parallel:
+    matrix:
+      # 3.10 is the launcher's documented minimum.
+      - PYTHON_VERSION: ["3.10", "3.12"]
