@@ -1,9 +1,0 @@
-# Local build & venv outputs (do NOT commit).
-build/
-sdkconfig
-sdkconfig.old
-managed_components/
-dependencies.lock
-
-# Build output copied by build.sh.
-images/
