@@ -79,6 +79,7 @@ GettingStartedSDK/                  Workspace root
 │   ├── ubx_sdk.py                  SDK entry point (ubx.main())
 │   ├── ubx_matter.py              Matter entry point (ubx.main(matter=True))
 │   ├── matter_build.py            Matter driver for the 4 vendor-SDK targets
+│   ├── matter_vendor/             Per-vendor Matter setup/build scripts (nora_w4.sh, nora_w5.sh)
 │   ├── module_config.py           RF calibration / TX power / MAC, all targets
 │   ├── target_paths.py            Shared per-target directory layout
 │   ├── iris_w1_build.py          NXP RW612/RW610 builder
@@ -90,9 +91,6 @@ GettingStartedSDK/                  Workspace root
 │   ├── serial_logger.py           Serial console logger
 │   ├── setup_venv.py              Virtual environment initializer
 │   └── migrate_venv.sh / .bat     Moves a stray repo-root .venv into here
-├── matter/                         Matter app sources, per target (optional)
-│   ├── README.md
-│   └── {IRIS-W1,NORA-W3,NORA-W4,NORA-W5}/
 ├── modules/                        Module config profiles (RF, TX power, MAC)
 │   ├── README.md                   Profile schema reference
 │   └── {ALMA-B2,IRIS-W1,NORA-B2,NORA-W3,NORA-W4,NORA-W5}/profile.json
@@ -304,8 +302,9 @@ unless repository discovery is disabled (`GIT_CEILING_DIRECTORIES`), which
 
 ```bash
 ./ubx-matter.sh nora-w4 --doctor
-./ubx-matter.sh nora-w4 --clone
-./ubx-matter.sh nora-w4 --build thermometer
+./ubx-matter.sh nora-w4 --clone --install
+./ubx-matter.sh nora-w4 --list
+./ubx-matter.sh nora-w4 --build light
 ```
 
 Matter is deliberately kept off the plain SDK flag surface: most users never
@@ -327,27 +326,27 @@ a tagged release rather than a moving branch:
 | NORA-W4 | `esp-idf` + `esp-matter` | `v5.5.5`, `release/v1.5` |
 | NORA-W5 | `TexasInstruments/matter` | `matter-v1.5-ti-1.1` |
 
-They are fetched into `targets/<TARGET>/sdk/matter/`, or under
-`UBX_MATTER_ROOT` when that is set - required under WSL2, because these
-toolchains must not be built from a `/mnt/<drive>` path. App sources live in
-`matter/<TARGET>/<app>/` with a `build.sh` accepting `setup`/`build`/`clean`.
+They are fetched into `~/ubx-matter/<TARGET>` inside WSL2 (or `UBX_MATTER_ROOT`),
+because these toolchains must not be built from a `/mnt/<drive>` path. On
+Windows every vendor-SDK Matter action hops into WSL2, including `--doctor` and
+`--list`, since the SDK only exists there. NORA-W5 hops into the `Ubuntu-22.04`
+distro (`Target.matter_wsl_distro`; override `UBX_WSL_DISTRO`).
 
 All four vendor-SDK Matter targets are Linux-only. TI's is Ubuntu 22.04 only,
 targets CC3551E on LP-EM-CC35X1, and `matter-v1.5-ti-1.1` is the GA, Matter 1.5
-platform-certified tag - prefer it over the newer `-ea` tags. NORA-B2 and
-ALMA-B2 are the exception: NCS builds natively on Windows, so they never hop.
+platform-certified tag - prefer it over the newer `-ea` tags. Matter 1.5 needs
+Python 3.11, so `--install` uses deadsnakes `python3.11` on 22.04. SysConfig
+and the Wi-Fi Toolbox (Linux) must be installed by the user under `~/ti`.
+NORA-B2 and ALMA-B2 are the exception: NCS builds natively on Windows, so they
+never hop.
 
-The common Matter app is `thermometer` (Matter Temperature Sensor, DS18B20).
-`matter/NORA-W4/thermometer/` is ported from `u-connectMatter`
-`companion/endnode/nora-w40-thermometer` and builds through `ubx-matter` (WSL2,
-default Thread SED variant; the app partition is 98% full). The
-other three `matter/<TARGET>/` folders are still empty, so `--list` and
-`--build` have nothing to act on there. Do not describe those as if apps
-exist. NORA-B2 and ALMA-B2 build Matter end to end via the NCS samples.
-
-Reference implementations to port from live in the `u-connectMatter` repo under
-`companion/` - do not use u-connectClient or u-connectXpress as a starting
-point.
+The Matter layer is **vendor examples only** - no u-blox application code, no
+`matter/` folder. `matter_build.py` globs `MatterTarget.examples` in the fetched
+SDK for `--list` and builds through `scripts/matter_vendor/<target>.sh`
+(`setup` / `build <dir>` / `clean <dir>`). That script exists for NORA-W4
+(esp-matter) and NORA-W5 (TI, which ships only `lighting-app`); IRIS-W1 and
+NORA-W3 are listed only. Do not reintroduce custom Matter apps such as the
+thermometer - those live in `u-connectMatter`.
 
 ## Environment Variables
 
@@ -523,7 +522,7 @@ See docs/BUILD_TEST_RESULTS.md for detailed status and docs/BUILD_ALL_EXAMPLES.m
 | File | Purpose |
 |------|---------|
 | README.md | GettingStartedSDK overview, quick start for all modules |
-| matter/README.md | Matter apps, SDK map, how to add an app |
+| docs/matter_README.md | Matter SDKs, vendor examples, per-target setup |
 | modules/README.md | Module config profile schema, op reference |
 | docs/iris_w1_README.md | IRIS-W1 detailed guide |
 | docs/nora_w5_README.md | NORA-W5 detailed guide |

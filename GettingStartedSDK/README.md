@@ -43,6 +43,13 @@ run in a fixed order — `--doctor` -> `--clone` -> `--install` -> `--build-sdk`
 ./ubx-sdk.sh iris-w1 --clean --build demo_apps/hello_world --flash --log
 ```
 
+`--list` shows what a target can build: the examples in the fetched vendor SDK.
+Run it after `--clone`:
+
+```bash
+./ubx-sdk.sh nora-w5 --list
+```
+
 ## Module configuration (RF calibration, TX power, regulatory)
 
 The vendor SDKs ship RF data for the vendor's own reference board. Firmware
@@ -77,12 +84,35 @@ flow touches it, and the multi-GB Matter SDKs are only fetched when you ask.
 
 ```bash
 ./ubx-matter.sh nora-w4 --doctor
-./ubx-matter.sh nora-w4 --clone
-./ubx-matter.sh nora-w4 --build thermometer
+./ubx-matter.sh nora-w4 --clone --install
+./ubx-matter.sh nora-w4 --list
+./ubx-matter.sh nora-w4 --build light
 ```
 
-For IRIS-W1, NORA-W3, NORA-W4 and NORA-W5, Matter is a separate layer with its
-own vendor SDK, fetched by `--clone` into `targets/<TARGET>/sdk/matter/`.
+Only the examples each vendor's Matter SDK ships are listed and built; this
+layer adds no u-blox application code. The set differs per vendor, so run
+`--list` per target.
+
+For IRIS-W1, NORA-W3, NORA-W4 and NORA-W5, Matter is a separate vendor SDK,
+fetched by `--clone` into `~/ubx-matter/<TARGET>` inside WSL2 (or
+`UBX_MATTER_ROOT`). These toolchains are Linux-only, so on Windows every
+`ubx-matter` action for them hops into WSL2. `--build` is wired for NORA-W4 and
+NORA-W5; IRIS-W1 and NORA-W3 examples are listed only for now.
+
+| Target | Vendor Matter SDK | Default example |
+|--------|-------------------|-----------------|
+| `iris-w1` | `NXP/matter` | `lighting-app` (list only) |
+| `nora-w3` | `ameba-rtos-matter` | `light` (list only) |
+| `nora-w4` | `esp-matter` | `light` |
+| `nora-w5` | `TexasInstruments/matter` | `lighting-app` |
+| `nora-b2`, `alma-b2` | nRF Connect SDK | `light_bulb` |
+
+NORA-W5 Matter needs the `Ubuntu-22.04` WSL2 distro (TI supports nothing else)
+plus the Linux SysConfig and SimpleLink Wi-Fi Toolbox installed under `~/ti`.
+
+Matter builds also use the vendor's reference-board RF data; `--rf-config` is
+an `ubx-sdk` flag and is not applied to the Matter SDKs. See the Matter guide
+for applying it on NORA-W4.
 
 NORA-B2 and ALMA-B2 instead get Matter from the nRF Connect SDK itself, so
 `--clone` fetches the same NCS workspace `ubx-sdk` uses and nothing extra is
@@ -94,10 +124,7 @@ work too:
 ./ubx-matter.sh nora-b2 --build light_bulb --flash --log
 ```
 
-These are the only targets where Matter builds end to end today — the
-`matter/<TARGET>/` folders for the other four have no apps ported yet.
-
-See [matter/README.md](matter/README.md).
+See [docs/matter_README.md](docs/matter_README.md).
 
 ## Layout
 
@@ -107,14 +134,16 @@ GettingStartedSDK/
 ├── ubx-matter.cmd / .sh          Optional Matter launcher
 ├── ubx.code-workspace            VS Code workspace
 ├── scripts/                      Per-target drivers + venv helpers
-├── matter/                       Matter app sources, per target
-├── targets/<T>/sdk/              Vendor + Matter SDKs, fetched on demand (gitignored)
+│   └── matter_vendor/            Per-vendor Matter setup/build scripts
+├── modules/<T>/profile.json      RF calibration / TX power profiles
+├── targets/<T>/sdk/              Vendor SDKs, fetched on demand (gitignored)
 ├── targets/<T>/config/           Per-host tool cache
 └── docs/                         Per-module guides and build references
 ```
 
 Vendor SDKs are never committed. Each target's `--clone` fetches only what that
-module needs, so a fresh checkout stays small.
+module needs, so a fresh checkout stays small. Matter SDKs live outside the
+repository, in `~/ubx-matter/` inside WSL2.
 
 ## Setup
 
@@ -146,8 +175,11 @@ still missing. An existing `~/ncs` workspace is detected and reused.
 | [docs/nora_b2_README.md](docs/nora_b2_README.md) | NORA-B2 (Nordic nRF54L) |
 | [docs/alma_b2_README.md](docs/alma_b2_README.md) | ALMA-B2 (Nordic nRF54LM20) |
 | [docs/BUILD_ALL_EXAMPLES.md](docs/BUILD_ALL_EXAMPLES.md) | Full build guide |
+| [docs/BUILD_INSTRUCTIONS.md](docs/BUILD_INSTRUCTIONS.md) | Build instructions |
+| [docs/BUILD_TEST_RESULTS.md](docs/BUILD_TEST_RESULTS.md) | Build verification status |
 | [docs/QUICK_BUILD_REFERENCE.md](docs/QUICK_BUILD_REFERENCE.md) | Command cheat sheet |
 | [docs/VENV_SETUP.md](docs/VENV_SETUP.md) | Virtual environment details |
 | [docs/WORKSPACE_SETUP.md](docs/WORKSPACE_SETUP.md) | VS Code workspace |
 | [docs/REVIEWERS_GUIDE.md](docs/REVIEWERS_GUIDE.md) | Review procedure |
-| [matter/README.md](matter/README.md) | Matter apps and SDKs |
+| [docs/matter_README.md](docs/matter_README.md) | Matter SDKs and vendor examples |
+| [modules/README.md](modules/README.md) | Module config profile schema |

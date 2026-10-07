@@ -32,7 +32,7 @@ python GettingStartedSDK/scripts/setup_venv.py
 # Check new consolidated layout
 ls -la GettingStartedSDK/
 # Should see: ubx-sdk.cmd, ubx-sdk.sh, ubx-matter.cmd, ubx-matter.sh,
-#             scripts/, matter/, docs/, targets/, README.md
+#             scripts/, modules/, docs/, targets/, README.md
 ```
 
 ### 4. Test Infrastructure
@@ -138,8 +138,7 @@ repo/
     ├── ubx-matter.cmd / .sh (optional Matter layer)
     ├── scripts/ (ubx.py, ubx_sdk.py, ubx_matter.py, matter_build.py,
     │           per-target build drivers, target_paths.py, setup_venv.py,
-    │           migrate_venv.*)
-    ├── matter/ (per-target Matter apps)
+    │           migrate_venv.*, matter_vendor/)
     ├── targets/ (per-target base folders: sdk/, config/)
     │   ├── IRIS-W1/
     │   ├── NORA-W3/

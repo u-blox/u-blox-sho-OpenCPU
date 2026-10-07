@@ -23,7 +23,6 @@ u-blox-sho-OpenCPU/
 │   │   ├── nora_w5_build.py
 │   │   ├── nora_w3_build.py
 │   │   └── nora_w4_build.py
-│   ├── matter/
 │   ├── docs/
 │   └── README.md
 │

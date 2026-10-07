@@ -45,6 +45,8 @@ class Target:
     # Leading arguments the driver needs before its subcommand. Shared drivers
     # that serve several targets use this to receive the target key.
     driver_args: tuple[str, ...] = ()
+    # WSL distro the Matter toolchain requires; None = the default distro.
+    matter_wsl_distro: str | None = None
 
 
 TARGETS: dict[str, Target] = {
@@ -98,6 +100,7 @@ TARGETS: dict[str, Target] = {
         default_example="network_terminal",
         example_word="example",
         supports=frozenset({"doctor", "clone", "install", "list", "clean", "build", "build-sdk", "flash", "log"}),
+        matter_wsl_distro="Ubuntu-22.04",
     ),
 }
 
@@ -218,28 +221,30 @@ For them --build takes an nrf/samples/matter app and --flash/--log also work.
 Flags (combinable; always run in this order)
   --doctor              Report Matter prerequisites and SDK state
   --clone               Fetch the Matter SDK for this target (several GB)
-  --install             Run the app's one-time SDK setup
-  --clean               Clean a Matter app
-  --build [APP]         Build a Matter app from matter/<TARGET>/
-  --list                List the Matter apps available for this target
+  --install             One-time SDK setup (submodules, bootstrap, tools)
+  --clean               Clean a vendor example
+  --build [NAME]        Build a vendor example (target default if omitted)
+  --list                List the examples the vendor's Matter SDK ships
   --flash [SERIAL]      Flash the app (Nordic targets only)
   --log [PORT]          Open the serial monitor (Nordic targets only)
   --setup-venv          Create/refresh the shared .venv, then exit
   --wsl / --no-wsl      Force or suppress the automatic hop into WSL2
-  --                    Pass the rest to the app's build.sh, e.g. -- --wifi
+  --                    Pass the rest to the vendor build (GN args, idf.py options)
   --help                Show this help
 
-The vendor Matter toolchains are Linux-only, so --clone/--install/--build/
---clean hop into WSL2 automatically on Windows. Set UBX_MATTER_ROOT to keep the
-checkout off a /mnt/<drive> path. The Nordic targets build natively on Windows
-and never hop. See matter/README.md.
+Only the vendor's own Matter examples are listed and built; there is no u-blox
+application code in this layer. The vendor Matter toolchains are Linux-only, so
+every action hops into WSL2 automatically on Windows (NORA-W5 uses the
+Ubuntu-22.04 distro; override with UBX_WSL_DISTRO). SDKs go to
+~/ubx-matter/<TARGET> inside WSL2 unless UBX_MATTER_ROOT is set. The Nordic
+targets build natively on Windows and never hop. See docs/matter_README.md.
 
 Examples
   ubx-matter nora-w4 --doctor
-  ubx-matter nora-w4 --clone
+  ubx-matter nora-w4 --clone --install
   ubx-matter nora-w4 --list
-  ubx-matter nora-w4 --build thermometer
-  ubx-matter nora-w4 --build thermometer -- --wifi --clickboard
+  ubx-matter nora-w4 --build light
+  ubx-matter nora-w5 --clone --install --build lighting-app
   ubx-matter nora-b2 --list
   ubx-matter nora-b2 --build light_bulb --flash --log
 """.strip()
@@ -524,18 +529,21 @@ def hop_to_wsl(ctx: Context, argv: list[str]) -> int:
         value = ('"$HOME"/' + shlex.quote(matter_root[2:])) if matter_root.startswith("~/") \
             else shlex.quote(matter_root)
         command = f"export UBX_MATTER_ROOT={value} && {command}"
-    return subprocess.call(["wsl", "--", "bash", "-lc", command])
+    distro = os.environ.get("UBX_WSL_DISTRO") or (ctx.target.matter_wsl_distro if ctx.matter else None)
+    wsl = ["wsl", "-d", distro] if distro else ["wsl"]
+    if distro:
+        print(f"[INFO] WSL distro: {distro}")
+    return subprocess.call([*wsl, "--", "bash", "-lc", command])
 
 
 def needs_linux(ctx: Context) -> bool:
     if ctx.target.linux_only:
         return True
-    # NCS builds natively on Windows; only the vendor Matter toolchains
-    # (esp-matter, connectedhomeip, ameba-rtos-matter) are Linux-only.
-    # doctor/list still work natively and stay on Windows.
+    # NCS builds natively on Windows; the vendor Matter SDKs live inside WSL2,
+    # so even doctor/list have to run there to see them.
     if is_ncs_matter(ctx):
         return False
-    return ctx.matter and bool(ctx.actions & {"build", "clean", "install", "clone"})
+    return ctx.matter
 
 
 def run(ctx: Context, raw_argv: list[str]) -> int:

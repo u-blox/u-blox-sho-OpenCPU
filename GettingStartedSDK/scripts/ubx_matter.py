@@ -7,7 +7,7 @@ most users never need them, so the plain SDK launcher does not mention Matter
 at all. Invoked through the ``ubx-matter.cmd`` / ``ubx-matter.sh`` shim:
 
     ubx-matter nora-w4 --doctor
-    ubx-matter nora-w4 --clone --build thermometer
+    ubx-matter nora-w4 --clone --build light
 """
 
 from __future__ import annotations

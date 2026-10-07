@@ -133,16 +133,20 @@ caches live in `targets/<TARGET>/config/build.<host>.json`.
 
 ## Matter
 
-`ubx-matter` drives all six targets:
+`ubx-matter` drives all six targets, using only the examples each vendor's
+Matter SDK ships:
 
 ```bash
 ./ubx-matter.sh <target> --doctor
-./ubx-matter.sh <target> --clone
-./ubx-matter.sh <target> --build <app>
+./ubx-matter.sh <target> --clone --install
+./ubx-matter.sh <target> --list
+./ubx-matter.sh <target> --build [example]
 ```
 
 For IRIS-W1, NORA-W3, NORA-W4 and NORA-W5 this fetches a multi-GB vendor Matter
-SDK on request, and the build hops into WSL2 on Windows.
+SDK into `~/ubx-matter/<TARGET>` inside WSL2, and every action hops into WSL2 on
+Windows. `--build` is wired for NORA-W4 and NORA-W5; IRIS-W1 and NORA-W3 are
+listed only. See [matter_README.md](matter_README.md).
 
 NORA-B2 and ALMA-B2 get Matter from the nRF Connect SDK instead, so `--clone`
 fetches the same NCS workspace `ubx-sdk` uses, `--list` shows the

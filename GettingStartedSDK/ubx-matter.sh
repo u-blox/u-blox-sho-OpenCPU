@@ -8,7 +8,7 @@
 #
 #   ./ubx-matter.sh --help
 #   ./ubx-matter.sh nora-w4 --doctor
-#   ./ubx-matter.sh nora-w4 --clone --build thermometer
+#   ./ubx-matter.sh nora-w4 --clone --build light
 # ============================================================================
 set -euo pipefail
 

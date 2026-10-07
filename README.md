@@ -5,8 +5,8 @@ Repository with reference code for u-blox Open CPU modules.
 
 All six Wi-Fi/Bluetooth Open CPU module families share one build entry point:
 [`GettingStartedSDK/`](GettingStartedSDK/README.md) — `ubx-sdk.cmd` on Windows,
-`./ubx-sdk.sh` on Linux/WSL2/macOS, plus an optional `ubx-matter` launcher for
-Matter apps on the same silicon.
+`./ubx-sdk.sh` on Linux/WSL2/macOS, plus an optional `ubx-matter` launcher that
+builds the vendors' own Matter examples on the same silicon.
 
 Choose your product or SDK:
 

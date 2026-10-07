@@ -2,13 +2,13 @@
 """
 Matter driver for the u-blox Getting Started SDK.
 
-Mirrors the per-target SDK drivers, but for the Matter layer: the Matter SDK
-for a target is fetched on demand into ``targets/<TARGET>/sdk/matter/`` and the
-application sources live in ``matter/<TARGET>/<app>/``.
+Mirrors the per-target SDK drivers, but for the Matter layer: the vendor's
+Matter SDK for a target is fetched on demand and only the examples that SDK
+ships are listed and built. No u-blox application code lives here.
 
     python scripts/matter_build.py nora-w4 doctor
     python scripts/matter_build.py nora-w4 clone
-    python scripts/matter_build.py nora-w4 build thermometer
+    python scripts/matter_build.py nora-w4 build light
 
 Usually invoked via the Matter launcher: ``ubx-matter nora-w4 --doctor``.
 """
@@ -27,7 +27,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import target_paths  # noqa: E402
 
 SDK_ROOT = Path(__file__).resolve().parent.parent
-MATTER_APPS_ROOT = SDK_ROOT / "matter"
+VENDOR_SCRIPTS = Path(__file__).resolve().parent / "matter_vendor"
 
 
 @dataclass(frozen=True)
@@ -43,11 +43,18 @@ class Repo:
 class MatterTarget:
     key: str
     slug: str          # target_paths key
-    folder: str        # matter/<folder>
+    folder: str        # <UBX_MATTER_ROOT>/<folder>
     label: str
     repos: tuple[Repo, ...]
     linux_only: bool
     note: str
+    # Glob under matter_root() for the vendor's own examples; '*' is the name.
+    examples: str
+    default_example: str
+    # Only directories containing this file count as examples.
+    example_marker: str | None = None
+    # scripts/matter_vendor/<name>: setup | build <dir> [args] | clean <dir>.
+    vendor_script: str | None = None
 
 
 TARGETS: dict[str, MatterTarget] = {
@@ -62,6 +69,8 @@ TARGETS: dict[str, MatterTarget] = {
         ),
         linux_only=True,
         note="Builds the NXP connectedhomeip fork, examples/*/nxp/rt/rw61x (GN + ninja).",
+        examples="connectedhomeip/examples/*/nxp/rt/rw61x",
+        default_example="lighting-app",
     ),
     "nora-w3": MatterTarget(
         key="nora-w3",
@@ -76,6 +85,8 @@ TARGETS: dict[str, MatterTarget] = {
         ),
         linux_only=True,
         note="ameba-rtos-matter must be synced into ameba-rtos-d before building.",
+        examples="ameba-rtos-matter/examples/*",
+        default_example="light",
     ),
     "nora-w4": MatterTarget(
         key="nora-w4",
@@ -89,8 +100,12 @@ TARGETS: dict[str, MatterTarget] = {
                  "release/v1.5", "~6 GB after setup", submodules=False),
         ),
         linux_only=True,
-        note="Espressif only supports esp-matter on Linux/WSL2. The app's --install "
-             "fetches only the esp32 connectedhomeip submodules.",
+        note="Espressif only supports esp-matter on Linux/WSL2. --install fetches "
+             "only the esp32 connectedhomeip submodules.",
+        examples="esp-matter/examples/*",
+        default_example="light",
+        example_marker="CMakeLists.txt",
+        vendor_script="nora_w4.sh",
     ),
     "nora-w5": MatterTarget(
         key="nora-w5",
@@ -98,11 +113,15 @@ TARGETS: dict[str, MatterTarget] = {
         folder="NORA-W5",
         label="NORA-W5 (TI CC3551E) Matter",
         repos=(
+            # --install fetches only the cc35xx + linux submodules.
             Repo("ti-matter", "https://github.com/TexasInstruments/matter.git",
-                 "matter-v1.5-ti-1.1", "~8 GB after submodules", submodules=True),
+                 "matter-v1.5-ti-1.1", "~4 GB after --install"),
         ),
         linux_only=True,
         note="TI connectedhomeip fork, CC3551E on LP-EM-CC35X1. Ubuntu 22.04 only.",
+        examples="ti-matter/examples/*/ti/cc35xx",
+        default_example="lighting-app",
+        vendor_script="nora_w5.sh",
     ),
 }
 
@@ -116,18 +135,29 @@ def matter_root(target: MatterTarget) -> Path:
     override = os.environ.get("UBX_MATTER_ROOT")
     if override:
         return Path(override).expanduser() / target.folder
-    return target_paths.sdk_dir(target.slug) / "matter"
+    in_tree = target_paths.sdk_dir(target.slug) / "matter"
+    if host_kind() == "wsl" and not any((in_tree / r.name / ".git").exists() for r in target.repos):
+        # The repo is on a /mnt/<drive> path, where these SDKs must not be built.
+        return Path.home() / "ubx-matter" / target.folder
+    return in_tree
 
 
-def apps_dir(target: MatterTarget) -> Path:
-    return MATTER_APPS_ROOT / target.folder
+def list_vendor_examples(target: MatterTarget) -> dict[str, Path]:
+    index = target.examples.split("/").index("*")
+    found: dict[str, Path] = {}
+    for path in sorted(matter_root(target).glob(target.examples)):
+        name = path.relative_to(matter_root(target)).parts[index]
+        # Shared support code, not buildable examples.
+        if not path.is_dir() or name.startswith((".", "_")) or name in ("common", "platform"):
+            continue
+        if target.example_marker and not (path / target.example_marker).exists():
+            continue
+        found[name] = path
+    return found
 
 
-def list_apps(target: MatterTarget) -> list[Path]:
-    root = apps_dir(target)
-    if not root.is_dir():
-        return []
-    return sorted(p for p in root.iterdir() if p.is_dir() and not p.name.startswith("."))
+def vendor_script(target: MatterTarget) -> Path | None:
+    return VENDOR_SCRIPTS / target.vendor_script if target.vendor_script else None
 
 
 def host_kind() -> str:
@@ -138,7 +168,6 @@ def cmd_doctor(target: MatterTarget, args) -> int:
     print(f"=== {target.label} ===")
     print(f"Host:        {host_kind()}")
     print(f"SDK root:    {matter_root(target)}")
-    print(f"Apps root:   {apps_dir(target)}")
     print(f"Note:        {target.note}\n")
 
     if target.linux_only and host_kind() == "windows":
@@ -155,25 +184,29 @@ def cmd_doctor(target: MatterTarget, args) -> int:
         mark = "OK" if state == "present" else "FAIL"
         print(f"[{mark}] {repo.name:<20} {repo.revision:<14} {state}")
 
-    apps = list_apps(target)
+    vendor = list_vendor_examples(target)
     print()
-    if apps:
-        print(f"[OK] {len(apps)} Matter app(s): {', '.join(p.name for p in apps)}")
+    if vendor:
+        print(f"[OK] {len(vendor)} vendor example(s): {', '.join(vendor)}")
     else:
-        print(f"[WARNING] No Matter apps under {apps_dir(target)} yet.")
+        print("[INFO] No vendor examples found; clone the SDK first.")
+    if vendor_script(target) is None:
+        print(f"[INFO] --build is not wired for {target.key} yet; examples are listed only.")
     return 0
 
 
 def cmd_list(target: MatterTarget, args) -> int:
-    apps = list_apps(target)
-    if not apps:
-        print(f"[WARNING] No Matter apps under {apps_dir(target)}.")
-        print("          See matter/README.md for how to add one.")
+    vendor = list_vendor_examples(target)
+    if not vendor:
+        print(f"[WARNING] No vendor examples under {matter_root(target)}.")
+        print(f"          Run 'ubx-matter {target.key} --clone' first.")
         return 0
-    print(f"Matter apps for {target.label}:")
-    for app in apps:
-        entry = "build.sh" if (app / "build.sh").exists() else "-"
-        print(f"  {app.name:<28} {entry}")
+    print(f"Vendor Matter examples for {target.label} ({target.examples}):")
+    for name in vendor:
+        mark = "  (default)" if name == target.default_example else ""
+        print(f"  {name}{mark}")
+    if vendor_script(target) is None:
+        print(f"\n[INFO] --build is not wired for {target.key} yet; examples are listed only.")
     return 0
 
 
@@ -202,57 +235,35 @@ def cmd_clone(target: MatterTarget, args) -> int:
     return 0
 
 
-def _app_script(app: Path) -> Path | None:
-    for name in ("build.sh", "build.cmd"):
-        candidate = app / name
-        if candidate.exists():
-            return candidate
-    return None
-
-
-def _resolve_app(target: MatterTarget, name: str | None) -> Path | None:
-    apps = list_apps(target)
-    if not apps:
-        return None
-    if not name:
-        return apps[0]
-    for app in apps:
-        if app.name == name:
-            return app
-    return None
-
-
-def _run_app(target: MatterTarget, args, verb: str) -> int:
-    app = _resolve_app(target, getattr(args, "app", None))
-    if app is None:
-        requested = getattr(args, "app", None) or "(default)"
-        print(f"[FAIL] Matter app {requested!r} not found under {apps_dir(target)}.")
-        print("       Run 'matter_build.py <target> list' to see what is available,")
-        print("       or see matter/README.md for how to add one.")
-        return 1
-
-    script = _app_script(app)
-    if script is None:
-        print(f"[FAIL] {app.name} has no build.sh/build.cmd entry point.")
-        return 1
-
+def _run_vendor(target: MatterTarget, verb: str, *argv: str) -> int:
     env = dict(os.environ)
     env["UBX_MATTER_SDK_ROOT"] = str(matter_root(target))
+    cmd = ["bash", str(vendor_script(target)), verb, *argv]
+    print(f"[INFO] {' '.join(cmd)}")
+    return subprocess.call(cmd, cwd=str(matter_root(target)), env=env)
+
+
+def _run_example(target: MatterTarget, args, verb: str) -> int:
+    name = getattr(args, "app", None) or target.default_example
     extra = list(getattr(args, "extra", None) or [])
-    if script.suffix == ".cmd":
-        cmd = [str(script), verb, *extra]
-    else:
-        cmd = ["bash", str(script), verb, *extra]
-    print(f"[INFO] {app.name}: {' '.join(cmd)}")
-    return subprocess.call(cmd, cwd=str(app), env=env)
+    example = list_vendor_examples(target).get(name)
+    if example is None:
+        print(f"[FAIL] Matter example {name!r} not found for {target.key}.")
+        print(f"       Run 'ubx-matter {target.key} --list' to see what is available.")
+        return 1
+    if vendor_script(target) is None:
+        print(f"[FAIL] Building vendor examples is not wired for {target.key} yet.")
+        print(f"       See {example / 'README.md'}")
+        return 1
+    return _run_vendor(target, verb, str(example), *extra)
 
 
 def cmd_build(target: MatterTarget, args) -> int:
-    return _run_app(target, args, "build")
+    return _run_example(target, args, "build")
 
 
 def cmd_clean(target: MatterTarget, args) -> int:
-    return _run_app(target, args, "clean")
+    return _run_example(target, args, "clean")
 
 
 def cmd_install(target: MatterTarget, args) -> int:
@@ -261,7 +272,10 @@ def cmd_install(target: MatterTarget, args) -> int:
     if missing:
         print(f"[FAIL] Not cloned yet: {', '.join(missing)}. Run clone first.")
         return 1
-    return _run_app(target, args, "setup")
+    if vendor_script(target) is None:
+        print(f"[FAIL] --install is not wired for {target.key} yet. See the vendor SDK README.")
+        return 1
+    return _run_vendor(target, "setup")
 
 
 def main() -> int:
@@ -274,18 +288,16 @@ def main() -> int:
 
     sub.add_parser("doctor", help="Report Matter prerequisites and SDK state")
     sub.add_parser("clone", help="Fetch the Matter SDK for this target")
-    sub.add_parser("list", help="List Matter apps for this target")
+    sub.add_parser("list", help="List the vendor's Matter examples")
+    sub.add_parser("install", help="One-time SDK setup (submodules, bootstrap, tools)")
 
-    install_parser = sub.add_parser("install", help="Run the app's one-time SDK setup")
-    install_parser.add_argument("app", nargs="?", help="Matter app name")
-
-    build_parser = sub.add_parser("build", help="Build a Matter app")
-    build_parser.add_argument("app", nargs="?", help="Matter app name")
+    build_parser = sub.add_parser("build", help="Build a vendor Matter example")
+    build_parser.add_argument("app", nargs="?", help="Example name (target default if omitted)")
     build_parser.add_argument("extra", nargs=argparse.REMAINDER,
-                              help="Options passed to the app's build.sh, e.g. --wifi")
+                              help="Passed to the vendor build, e.g. GN args or idf.py options")
 
-    clean_parser = sub.add_parser("clean", help="Clean a Matter app")
-    clean_parser.add_argument("app", nargs="?", help="Matter app name")
+    clean_parser = sub.add_parser("clean", help="Clean a vendor Matter example")
+    clean_parser.add_argument("app", nargs="?", help="Example name (target default if omitted)")
 
     args = parser.parse_args()
     target = TARGETS[args.target]
