@@ -7,7 +7,6 @@ RF configuration for u-blox modules based on the Realtek Ameba-D SDK.
 | Resource | Link |
 |----------|------|
 | Repository | [Ameba-AIoT/ameba-rtos-d](https://github.com/Ameba-AIoT/ameba-rtos-d) (previously [ambiot/ambd_sdk](https://github.com/ambiot/ambd_sdk)) |
-| Documentation | [Ameba IoT website](https://www.amebaiot.com/en/), [Ameba-AIoT on GitHub](https://github.com/Ameba-AIoT) |
 | Application note | Realtek Ameba-D application note (AN0400), referenced in the NORA-W30 System Integration Manual |
 
 | Module   | Folder                         | Remarks                      |
