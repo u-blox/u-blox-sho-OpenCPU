@@ -94,8 +94,20 @@ folder and then build your code for that board.
 
 The board configuration directory also contains a documentation folder.
 
-## NINA-W10 OTP and RF Calibration
-This example includes examples on how to read OTP information as well as apply RF calibration and limit TX Power for compliance reasons.
+## ESP-IDF
+Examples on how to apply RF calibration and limit TX power for compliance reasons.
+The output power configuration is product specific.
+
+| Module  | Folder                             | Remarks                       |
+|---------|------------------------------------|-------------------------------|
+| NINA-W1 | [esp-idf/nina-w1](esp-idf/nina-w1) | Also reads OTP information    |
+| NORA-W1 | [esp-idf/nora-w1](esp-idf/nora-w1) |                               |
+| NORA-W4 | [esp-idf/nora-w40](esp-idf/nora-w40) |                             |
+
+## Realtek Ameba
+| Module   | Folder                                       | Remarks                          |
+|----------|----------------------------------------------|----------------------------------|
+| NORA-W30 | [realtek-ameba/nora-w30](realtek-ameba/nora-w30) | RF parameters and adaptivity |
 
 ## MCUxpresso
 Examples and start-up softwares for IRIS EVK and USB IRIS EVK.
