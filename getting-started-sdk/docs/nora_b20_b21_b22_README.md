@@ -43,8 +43,8 @@ Output: `<workspace>/build/<sample>/<sample>/zephyr/` (`zephyr.elf`, `.hex`, `.b
 
 `--flash` runs `west flash` with `nrfutil`; pass `-- --runner jlink` for J-Link
 and `--flash <SERIAL>` with several probes attached. `--log [PORT]` opens the
-console; the EVK exposes several ports, so pass the right one if the first
-shows nothing.
+console. On EVK-NORA-B2 it is the FTDI "USB Serial Port" (switch S2 ON), not
+the two "JLink CDC UART Port" entries.
 
 ## nRF Connect for VS Code
 

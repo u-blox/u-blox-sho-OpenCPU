@@ -15,8 +15,11 @@ Last updated 2026-10-12 (branch `cmag_getting_started_sdk`).
       chip was left under debugger control and faulted at its first low-power
       sleep. `--flash` now ends like pressing RESET (debug off, reset pin).
       `ATW?` answers in `--log`.
-- [ ] Check that Ctrl+C in `--log` exits without a traceback on Windows (unit
-      test only so far; cmd.exe still asks "Terminate batch job").
+- [x] Ctrl+C in `--log` stops without a traceback on Windows (2026-10-12);
+      cmd.exe still asks "Terminate batch job (Y/N)?".
+- [ ] With several probes attached, `--flash` without a serial stops at
+      nrfutil's interactive "select one" prompt; `--log` auto-detect picks a
+      J-Link port, not the EVK-NORA-B2 FTDI console. Pick both from the probe serial.
 - [ ] **Re-run each target once** after the move to `sdks/<vendor>/<version>/`
       and record it in `docs/BUILD_TEST_RESULTS.md` (rewritten 2026-10-12 with
       only the verified results).
