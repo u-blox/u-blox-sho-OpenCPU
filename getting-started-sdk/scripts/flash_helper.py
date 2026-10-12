@@ -21,6 +21,8 @@ import time
 from pathlib import Path
 from typing import Optional
 
+import target_paths
+
 # Windows consoles default to cp1252 and raise UnicodeEncodeError on the status glyphs below.
 for _stream in (sys.stdout, sys.stderr):
     try:
@@ -83,6 +85,16 @@ def flash_jlink(device: str, firmware_file: str, address: int = 0, serial: Optio
         return 1
 
 
+def find_toolbox() -> Optional[str]:
+    """The Wi-Fi Toolbox in TI's default install folders, which are not on PATH."""
+    found = target_paths.newest([
+        "C:/ti/simplelink_wifi_toolbox*/simplelink-wifi-toolbox.exe",
+        "~/ti/simplelink_wifi_toolbox*/simplelink-wifi-toolbox",
+        "/opt/ti/simplelink_wifi_toolbox*/simplelink-wifi-toolbox",
+    ])
+    return str(found) if found else None
+
+
 def flash_xds110(tool_settings: str, device_serial: Optional[str] = None,
                  cwd: Optional[Path] = None) -> int:
     """
@@ -99,7 +111,7 @@ def flash_xds110(tool_settings: str, device_serial: Optional[str] = None,
             print(f"[FAIL] TI_TOOLBOX does not point at an executable: {toolbox}")
             return 1
     else:
-        toolbox = shutil.which('simplelink-wifi-toolbox')
+        toolbox = shutil.which('simplelink-wifi-toolbox') or find_toolbox()
         if not toolbox:
             print("[FAIL] SimpleLink Wi-Fi Toolbox not found.")
             print("       Install it, then set TI_TOOLBOX to its executable path.")

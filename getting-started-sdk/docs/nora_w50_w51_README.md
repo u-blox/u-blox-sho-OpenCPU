@@ -33,7 +33,6 @@ as a submodule.
 ```bash
 ./ubx-sdk.sh nora-w50-w51 --doctor
 ./ubx-sdk.sh nora-w50-w51 --clone
-python scripts/nora_w50_w51_build.py configure       # tool paths into imports.mak, once
 ./ubx-sdk.sh nora-w50-w51 --build-sdk                # once per SDK, slow
 ./ubx-sdk.sh nora-w50-w51 --list
 ./ubx-sdk.sh nora-w50-w51 --build network_terminal --flash --log
@@ -42,11 +41,10 @@ python scripts/nora_w50_w51_build.py configure       # tool paths into imports.m
 The u-blox RF configuration for this module is pending, so `--rf-config` has
 nothing to apply yet.
 
-`configure` has no launcher flag yet. It writes the detected tool paths into
-the SDK's `imports.mak` (backup `imports.mak.orig`); TI's makefiles do not
-accept spaces, so Windows paths are converted to their 8.3 form. Override a
-path it cannot find with, e.g.,
-`python scripts/nora_w50_w51_build.py --gcc_armcompiler <dir> configure`.
+`--build-sdk` first writes the detected tool paths into the SDK's `imports.mak`
+(backup `imports.mak.orig`); TI's makefiles do not accept spaces, so Windows
+paths are converted to their 8.3 form. Override a path it cannot find with,
+e.g., `python scripts/nora_w50_w51_build.py --gcc_armcompiler <dir> configure`.
 Pass build options after `--`, e.g. `--build network_terminal -- --toolchain gcc`.
 
 ## Examples
@@ -64,8 +62,9 @@ Under `examples/rtos/LP_EM_CC35X1/`; each has a `README.html`.
 ## Flash and log
 
 The EVK's on-board XDS110 gives debug and a UART. `--flash` runs the Wi-Fi
-Toolbox programmer with the `tool_settings.json` the build writes (set
-`TI_TOOLBOX` if the toolbox is not on PATH); it fails when the build wrote
+Toolbox programmer with the `tool_settings.json` the build writes. The toolbox
+is found in `C:\ti\simplelink_wifi_toolbox*` or `~/ti/`, on PATH, or through
+`TI_TOOLBOX`. It fails when the build wrote
 none. Not yet verified on an EVK. CCS and UniFlash also work. `--log` opens the
 XDS110 *Application/User UART* at 115200.
 

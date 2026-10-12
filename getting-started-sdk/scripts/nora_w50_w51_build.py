@@ -500,6 +500,8 @@ def cmd_configure(args) -> None:
 
 
 def cmd_build_sdk(args) -> None:
+    # The SDK makefiles read the tool paths from imports.mak.
+    cmd_configure(args)
     tree = active_tree(args)
     tools = resolve_tools(args)
     # The SDK makefile is .NOTPARALLEL and lets cmake handle parallelism itself.
@@ -579,7 +581,6 @@ def cmd_build(args) -> None:
 def cmd_all(args) -> None:
     if args.clone:
         cmd_clone(args)
-    cmd_configure(args)
     cmd_build_sdk(args)
     cmd_build(args)
 
@@ -665,7 +666,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     add("configure", cmd_configure, "write tool paths into imports.mak (backs up as .orig)")
 
-    sp = add("build-sdk", cmd_build_sdk, "build SDK libraries (required before examples)")
+    sp = add("build-sdk", cmd_build_sdk, "configure, then build SDK libraries (required before examples)")
     sp.add_argument("--toolchain", choices=["all", "ticlang", "gcc", "iar"], default="all",
                     help="build libraries for one toolchain only (much faster)")
     sp.add_argument("--clean", action="store_true")

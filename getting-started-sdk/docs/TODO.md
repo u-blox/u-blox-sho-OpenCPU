@@ -9,8 +9,8 @@ Last updated 2026-10-12 (branch `cmag_getting_started_sdk`).
       (2026-10-12, see `docs/BUILD_TEST_RESULTS.md`). The CMake configure step took
       about 4 minutes on this machine.
 - [ ] **Build ALMA-B20-B21**: `ubx-sdk.cmd alma-b20-b21 --doctor --build hello_world`.
-- [ ] NORA-W50-W51 `configure` has no launcher flag; run it from `--build-sdk` (or
-      `--install`) so the documented flow is launcher-only.
+- [x] NORA-W50-W51 `--build-sdk` runs `configure` first, so the flow is launcher-only;
+      `--flash` finds the Wi-Fi Toolbox in `C:\ti\simplelink_wifi_toolbox*` (2026-10-12).
 - [ ] **Re-run NORA-W30** `ubx-sdk.cmd nora-w30 --build project_hp`. The last attempt
       failed only because E: was full (`fatal error: when writing output to
       wlan_network.i`). Building on `/mnt/e` is slow; consider moving the Ameba-D

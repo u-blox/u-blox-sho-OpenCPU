@@ -319,6 +319,8 @@ def test_configure(ws, cfg, monkeypatch):
 
 def test_build_sdk(ws, calls_):
     w5.cmd_build_sdk(parse("build-sdk", "--toolchain", "gcc", "--clean"))
+    sdk_mak = ws / "wifi-examples" / "simplelink-wifi-sdk" / "imports.mak"
+    assert f"{'GCC_ARMCOMPILER':<22} ?= /opt/gcc" in sdk_mak.read_text()
     assert calls_.cmds == [["make", "clean"], ["make", "build-gcc"]]
     assert calls_.calls[1]["cwd"].lower().endswith("simplelink-wifi-sdk")
     w5.cmd_build_sdk(parse("build-sdk"))
@@ -359,10 +361,10 @@ def test_build_all_keep_going(ws, calls_, capsys):
 
 def test_all_runs_every_step(monkeypatch):
     steps = []
-    for name in ("cmd_clone", "cmd_configure", "cmd_build_sdk", "cmd_build"):
+    for name in ("cmd_clone", "cmd_build_sdk", "cmd_build"):
         monkeypatch.setattr(w5, name, lambda args, _n=name: steps.append(_n))
     w5.cmd_all(parse("all", "--clone"))
-    assert steps == ["cmd_clone", "cmd_configure", "cmd_build_sdk", "cmd_build"]
+    assert steps == ["cmd_clone", "cmd_build_sdk", "cmd_build"]
     steps.clear()
     w5.cmd_all(parse("all"))
     assert "cmd_clone" not in steps

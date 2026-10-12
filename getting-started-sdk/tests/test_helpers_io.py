@@ -124,6 +124,20 @@ def test_xds110_toolbox_on_path(monkeypatch):
     assert fh.flash_xds110("ts.json") == 0
 
 
+def test_xds110_toolbox_in_ti_folder(monkeypatch):
+    monkeypatch.delenv("TI_TOOLBOX", raising=False)
+    monkeypatch.setattr(fh.shutil, "which", lambda name: None)
+    exe = "C:/ti/simplelink_wifi_toolbox_win_4_3_23/simplelink-wifi-toolbox.exe"
+    monkeypatch.setattr(fh.target_paths, "newest", lambda patterns: fh.Path(exe))
+    seen = []
+    monkeypatch.setattr(fh.subprocess, "run",
+                        lambda cmd, **kw: seen.append(cmd) or subprocess.CompletedProcess(cmd, 0))
+    assert fh.flash_xds110("ts.json") == 0
+    assert seen[0][0] == str(fh.Path(exe))
+    monkeypatch.setattr(fh.target_paths, "newest", lambda patterns: None)
+    assert fh.find_toolbox() is None
+
+
 @pytest.fixture
 def cli(monkeypatch):
     seen = {}

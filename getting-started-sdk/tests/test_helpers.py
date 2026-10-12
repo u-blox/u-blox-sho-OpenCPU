@@ -28,6 +28,7 @@ def test_jlink_missing_file(monkeypatch, tmp_path, capsys):
 def test_xds110_without_toolbox(monkeypatch, capsys):
     monkeypatch.delenv("TI_TOOLBOX", raising=False)
     monkeypatch.setattr(fh.shutil, "which", lambda name: None)
+    monkeypatch.setattr(fh, "find_toolbox", lambda: None)
     assert fh.flash_xds110("tool_settings.json") == 1
     assert "Toolbox not found" in capsys.readouterr().out
 
