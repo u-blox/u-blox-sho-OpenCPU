@@ -126,7 +126,7 @@ u-blox-sho-OpenCPU/                  repository root
 
 - Tests: `python -m pytest tests -q` from the SDK root. Hermetic: no SDK,
   toolchain, WSL2 or hardware. Add a test with every new flag, target, alias,
-  profile field or Matter vendor script. CI runs it on Python 3.10 and 3.12,
+  profile field or Matter vendor script. CI runs it on Python 3.10 and 3.14,
   on Linux (GitLab) and Linux + Windows (GitHub Actions on the mirror).
 - Lint: `ruff check --isolated --target-version py310 --select E4,E7,E9,F scripts tests`
   and `shellcheck -S warning ubx-*.sh scripts/matter_vendor/*.sh` must pass; both

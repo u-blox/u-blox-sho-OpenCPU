@@ -35,8 +35,8 @@ jobs:
             fail-fast: false
             matrix:
                 os: [ubuntu-latest, windows-latest]
-                # 3.10 is the launcher's documented minimum.
-                python: ["3.10", "3.12"]
+                # Oldest supported (Ubuntu 22.04's python3) and newest release.
+                python: ["3.10", "3.14"]
         steps:
             - uses: actions/checkout@v4
             - uses: actions/setup-python@v5

@@ -74,8 +74,12 @@ Last updated 2026-10-12 (branch `cmag_getting_started_sdk`).
 
 ## CI
 
-- [ ] Check the first GitLab pipelines went green (python 3.10 + 3.12). If jobs are
-      stuck or the image pull fails, point `image:` at the internal registry.
+- [ ] Check the GitLab pipelines go green (python 3.10 + 3.14). Pipeline #65982
+      failed in all four jobs at once while the same commands pass locally on
+      Windows and Linux; read one job log. If the image pull fails, point
+      `image:` at the internal registry.
+- [ ] April 2027 (Ubuntu 22.04 end of life): raise the minimum to Python 3.11
+      (shims, `setup_venv.py`, CI matrix, ruff `--target-version`, docs).
 
 ## Hardware (needs EVKs; planned on one machine with every platform)
 

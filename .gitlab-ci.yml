@@ -34,8 +34,8 @@ sdk-tests:
   image: python:${PYTHON_VERSION}-slim
   parallel:
     matrix:
-      # 3.10 is the launcher's documented minimum.
-      - PYTHON_VERSION: ["3.10", "3.12"]
+      # Oldest supported (Ubuntu 22.04's python3) and newest release.
+      - PYTHON_VERSION: ["3.10", "3.14"]
 
 # Real bugs only (pyflakes + core pycodestyle errors). Rules and version are pinned
 # so a new ruff release cannot turn the pipeline red. Same command in GitHub Actions.
