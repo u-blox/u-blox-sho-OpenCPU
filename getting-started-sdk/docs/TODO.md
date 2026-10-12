@@ -74,9 +74,9 @@ Last updated 2026-10-12 (branch `cmag_getting_started_sdk`).
 
 ## CI
 
-- [ ] Check the GitLab pipelines go green (python 3.10 + 3.14). Pipeline #65982
-      failed because the project had no runners; instance runners are now on
-      and jobs carry the `docker, linux` tags.
+- [x] GitLab pipelines green (2026-10-12, #65992): tests on Python 3.10 and 3.14
+      (96% coverage), ruff and shellcheck. #65982 had failed because the project
+      had no runners; instance runners are now on and jobs carry `docker, linux`.
 - [ ] April 2027 (Ubuntu 22.04 end of life): raise the minimum to Python 3.11
       (shims, `setup_venv.py`, CI matrix, ruff `--target-version`, docs).
 
