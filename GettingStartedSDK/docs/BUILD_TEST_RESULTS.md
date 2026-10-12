@@ -73,6 +73,18 @@ python scripts/nora_w40_build.py build hello_world
 **SDK:** ESP-IDF v6.2
 **Board:** esp32c6
 
+**u-blox example, 2026-10-12 (Windows, ESP-IDF 6.2.0, riscv32-esp-elf 16.1.0):**
+
+```bash
+ubx-sdk.cmd nora-w40 --variant NORA-W401 --rf-config --build ubx/rf-calibration
+```
+
+- Built in place from `esp-idf/nora-w40/` at the repository root
+- `u-blox-nora-w40.bin` 920,544 B (0xe0be0), 12% of the 1 MB app partition free
+- Without `--rf-config` the link fails (duplicate `esp_phy_get_init_data`); the launcher
+  now refuses that combination up front
+- RF configuration reverted afterwards (`module_config.py nora-w40 revert`)
+
 ### [[OK] VERIFIED] NORA-W30 (Realtek RTL872x, WiFi + BLE)
 
 **Status:** [OK] **BUILD VERIFIED - September 28, 2026**
