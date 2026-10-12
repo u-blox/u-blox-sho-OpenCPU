@@ -247,6 +247,14 @@ def test_patch_imports_mak(tmp_path, monkeypatch):
     assert (tmp_path / "imports.mak.orig").read_bytes().startswith(b"#   CMAKE")
 
 
+def test_patch_imports_mak_keeps_lf(tmp_path, monkeypatch):
+    monkeypatch.setattr(w5, "IS_WINDOWS", False)
+    mak = tmp_path / "imports.mak"
+    mak.write_bytes(b"CMAKE ?= cmake\n")
+    w5.patch_imports_mak(mak, {"CMAKE": "/opt/cmake"})
+    assert b"\r" not in mak.read_bytes()
+
+
 def test_examples_boards_and_build_dir(ws):
     tree = w5.active_tree(parse("doctor"))
     assert sorted(w5.find_examples(tree, BOARD)) == ["network_terminal", "out_of_box"]

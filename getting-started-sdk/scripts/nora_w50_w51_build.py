@@ -373,7 +373,8 @@ def patch_imports_mak(path: Path, tools: dict[str, str]) -> None:
         shutil.copy2(path, backup)
         log(f"backed up {path.name} -> {backup.name}")
 
-    text = path.read_text(encoding="utf-8", errors="replace")
+    # Bytes, not text mode: text mode would rewrite the file's line endings.
+    text = path.read_bytes().decode("utf-8", errors="replace")
     newline = "\r\n" if "\r\n" in text else "\n"
     lines = text.splitlines()
     applied: list[str] = []
@@ -394,7 +395,7 @@ def patch_imports_mak(path: Path, tools: dict[str, str]) -> None:
             lines.append(replacement)
         applied.append(key)
 
-    path.write_text(newline.join(lines) + newline, encoding="utf-8")
+    path.write_bytes((newline.join(lines) + newline).encode("utf-8"))
     log(f"configured {path}")
     log(f"  set: {', '.join(applied) or 'nothing'}")
 

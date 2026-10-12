@@ -192,3 +192,38 @@ def test_resolve_config_creates_config_folder(fake_sdk_root):
     assert path == fake_sdk_root / "modules" / "nora-w30" / "config" / "build.wsl.json"
     assert path.parent.is_dir()
     assert not (fake_sdk_root / "sdks").exists()
+
+
+@pytest.mark.parametrize("system,proc,expected", [
+    ("Windows", "", "windows"),
+    ("Linux", "Linux version 5.15 microsoft-standard-WSL2", "wsl"),
+    ("Linux", "Linux version 6.8 generic", "linux"),
+    ("Linux", OSError, "linux"),
+])
+def test_host_kind(monkeypatch, system, proc, expected):
+    monkeypatch.setattr(target_paths.platform, "system", lambda: system)
+
+    def read_text(self, **kw):
+        if proc is OSError:
+            raise OSError("no /proc")
+        return proc
+    monkeypatch.setattr(target_paths.Path, "read_text", read_text)
+    assert target_paths.host_kind() == expected
+
+
+def test_unknown_target_is_rejected():
+    with pytest.raises(KeyError, match="Unknown target 'nora_w3'"):
+        target_paths.sdk_dir("nora_w3")
+
+
+def test_free_gb_unreadable_drive(monkeypatch, tmp_path):
+    def boom(path):
+        raise OSError("not ready")
+    monkeypatch.setattr(target_paths.shutil, "disk_usage", boom)
+    assert target_paths.free_gb(tmp_path) is None
+
+
+def test_check_space_unknown_free_space(monkeypatch, tmp_path, capsys):
+    monkeypatch.setattr(target_paths, "free_gb", lambda p: None)
+    assert target_paths.check_space(tmp_path, 15, "NCS")
+    assert "Could not determine free space" in capsys.readouterr().out
