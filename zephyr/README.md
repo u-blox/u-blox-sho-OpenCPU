@@ -50,7 +50,6 @@ Folders are relative to [boards](boards). HW model v1 boards are in `arm/`, HW m
 | EVK-ANNA-B5                  | [u-blox/ubx_evkannab5](boards/u-blox/ubx_evkannab5)               | v2       | Tested with NCS v3.4.1 | Planned, [PR #118332](https://github.com/zephyrproject-rtos/zephyr/pull/118332) |
 | EVK-NORA-B10                 | [u-blox/ubx_evknorab10](boards/u-blox/ubx_evknorab10)             | v2       | Tested with NCS v3.2.1 | Planned |
 | EVK-NORA-B12                 | [u-blox/ubx_evknorab12](boards/u-blox/ubx_evknorab12)             | v2       | Tested with NCS v3.2.1 | Planned |
-| EVK-ANNA-B4                  | [arm/ubx_evkannab4_nrf52833](boards/arm/ubx_evkannab4_nrf52833)   | v1       | Tested with NCS v2.5.0 | - |
 | MINI-NORA-B10 Rev C or later | [arm/ubx_mininorab10_nrf5340](boards/arm/ubx_mininorab10_nrf5340) | v1       | Tested with NCS v2.6.0 | Not planned |
 | MINI-NORA-B12 Rev C or later | [arm/ubx_mininorab12_nrf5340](boards/arm/ubx_mininorab12_nrf5340) | v1       | Tested with NCS v2.6.0 | Not planned |
 | XPLR-IOT-1                   | [arm/ubx_xplriot1_nrf5340](boards/arm/ubx_xplriot1_nrf5340)       | v1       | Tested with NCS v1.9.1 | Not planned |
@@ -61,6 +60,7 @@ These board support packages are retained in the repository for older NCS versio
 
 | EVK board                      | Folder                                                                                                  | Remarks                                 |
 |--------------------------------|---------------------------------------------------------------------------------------------------------|-----------------------------------------|
+| EVK-ANNA-B4                    | [arm/archive/ubx_evkannab4_nrf52833_ncs250](boards/arm/archive/ubx_evkannab4_nrf52833_ncs250)           | Tested with NCS v2.5.0                  |
 | EVK-NORA-B10                   | [arm/archive/ubx_evknorab10_nrf5340_ncs250](boards/arm/archive/ubx_evknorab10_nrf5340_ncs250)           | Tested with NCS v2.5.0                  |
 | EVK-NORA-B12                   | [arm/archive/ubx_evknorab12_nrf5340_ncs250](boards/arm/archive/ubx_evknorab12_nrf5340_ncs250)           | Tested with NCS v2.5.0                  |
 | EVK-NORA-B10                   | [arm/archive/ubx_evknorab10_nrf5340_ncs220](boards/arm/archive/ubx_evknorab10_nrf5340_ncs220)           | Tested with NCS v2.2.x / Zephyr 3.2.99  |
@@ -68,6 +68,16 @@ These board support packages are retained in the repository for older NCS versio
 | MINI-NORA-B10 Rev B or earlier | [arm/archive/ubx_mininorab10revb_nrf5340_ncs161](boards/arm/archive/ubx_mininorab10revb_nrf5340_ncs161) | Tested with NCS v1.6.1 / Zephyr 2.6-rc1 |
 
 ## Using the board support packages
+
+### Option 1: Build with BOARD_ROOT
+Build directly from this repository by pointing `BOARD_ROOT` to the folder that
+contains the `boards` folder, i.e. the `zephyr` folder of this repository:
+
+	west build -b <board name> -- -DBOARD_ROOT=<path to u-blox-sho-OpenCPU>/zephyr
+
+Boards in the `arm/archive` folder are not found this way; copy them as described in option 2.
+
+### Option 2: Copy into the Zephyr tree
 Copy the board configuration directory to
 
 	<install directory>/zephyr/boards/arm
