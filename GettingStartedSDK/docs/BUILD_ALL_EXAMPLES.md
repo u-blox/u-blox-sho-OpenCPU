@@ -139,7 +139,7 @@ Build outputs:
 
 # Step 6: Build an example
 python3 nora_w30_build.py build hello_world
-# Output: realtek-rtos-sdk/examples/hello_world/build/hello_world.axf
+# Output: targets/nora-w30/sdk/ameba-rtos-d/.../project_hp/asdk/image/
 
 # Step 7: Or use full pipeline
 python3 nora_w30_build.py all hello_world
@@ -147,7 +147,7 @@ python3 nora_w30_build.py all hello_world
 
 # Step 8: Build another example
 python3 nora_w30_build.py build wifi_sta
-# Output: realtek-rtos-sdk/examples/wifi_sta/build/wifi_sta.axf
+# Output: targets/nora-w30/sdk/ameba-rtos-d/.../project_hp/asdk/image/
 
 # Step 9: Clean if needed
 python3 nora_w30_build.py clean hello_world     # Clean hello_world build
@@ -533,22 +533,20 @@ entirely for the Nordic targets.
 
 **W30:**
 ```
-~/nora-w30/
-├── realtek-rtos-sdk/
-│   ├── examples/hello_world/build/hello_world.axf              <- Firmware
-│   ├── examples/wifi_sta/build/wifi_sta.axf                    <- Firmware
-│   └── ...
-└── .nora_w3_build.linux.json
+GettingStartedSDK/targets/nora-w30/
+├── sdk/ameba-rtos-d/
+│   └── project/realtek_amebaD_va0_example/GCC-RELEASE/project_hp/asdk/image/   <- Firmware
+└── config/build.{wsl|linux}.json
 ```
 
 **W40:**
 ```
-~/nora-w40/
-├── esp-idf/
+GettingStartedSDK/targets/nora-w40/
+├── sdk/esp-idf/
 │   ├── examples/get-started/hello_world/build/hello_world.bin  <- Firmware
 │   ├── examples/network/static_ip/build/static_ip.bin          <- Firmware
 │   └── ...
-└── .nora_w4_build.{windows|wsl|linux}.json
+└── config/build.{windows|wsl|linux}.json
 ```
 
 ---

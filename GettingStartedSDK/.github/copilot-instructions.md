@@ -110,14 +110,11 @@ GettingStartedSDK/                  Workspace root
 │   └── {alma-b20-b21,iris-w10,nora-b20-b21-b22,nora-w30,nora-w40,nora-w50-w51}/profile.json
 ├── targets/                        Per-target base folders (generated content)
 │   ├── alma-b20-b21/{sdk,config}/
-│   ├── iris-w10/{sdk,config}/
+│   ├── iris-w10/{sdk,config}/      sdk/mcuxpresso-sdk = west workspace, fetched on demand
 │   ├── nora-b20-b21-b22/{sdk,config}/
-│   ├── nora-w30/{sdk,config}/
-│   ├── nora-w40/{sdk,config}/
+│   ├── nora-w30/{sdk,config}/      sdk/ameba-rtos-d, fetched on demand
+│   ├── nora-w40/{sdk,config}/      sdk/esp-idf, fetched on demand
 │   └── nora-w50-w51/{sdk,config}/
-├── ameba-rtos-d/                  Vendor SDK, fetched on demand (NORA-W30)
-├── esp-idf/                       Vendor SDK, fetched on demand (NORA-W40)
-├── mcuxpresso-sdk/                Vendor SDK, fetched on demand (IRIS-W10)
 ├── tests/                         pytest suite (launchers, Matter driver, module config)
 └── docs/                           All other documentation
     ├── iris_w10_README.md
@@ -168,8 +165,14 @@ opens both the SDK and the repository root from its own folder.
    - `targets/<target>/config/build.<host>.json` holds the per-platform tool cache
    - Vendor SDKs are never committed. They are gitignored and fetched by each
      target's `clone` command, so a fresh clone stays small and a user only
-     downloads the SDK for the module they actually own. Scripts must therefore
-     detect an SDK at either the repo root or `targets/<target>/sdk/`.
+     downloads the SDK for the module they actually own.
+   - Each vendor SDK lives in `targets/<target>/sdk/<upstream repo>`
+     (`target_paths.vendor_sdk()`). Older versions fetched into the SDK root
+     (`esp-idf/`, `ameba-rtos-d/`, `mcuxpresso-sdk/`); the launcher moves such
+     a folder in on first use and rewrites the cached paths
+     (`target_paths.adopt_root_sdk()`, skipped on `--dry-run`). Never fetch into
+     the SDK root again - those names are the u-blox asset folders at the
+     repository root.
    - Build artifacts stay in their vendor-native locations (west, idf.py and
      Realtek make each expect to find their own output in-tree)
 

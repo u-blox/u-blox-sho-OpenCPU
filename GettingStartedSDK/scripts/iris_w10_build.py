@@ -224,11 +224,7 @@ def detect_workspace() -> Optional[str]:
     if "workspace" in cfg and (Path(cfg["workspace"]) / ".west").exists():
         return cfg["workspace"]
 
-    candidates = (
-        target_paths.sdk_dir(TARGET) / WORKSPACE_NAME,
-        target_paths.SDK_ROOT / WORKSPACE_NAME,
-    )
-    for candidate in candidates:
+    for candidate in target_paths.sdk_candidates(TARGET):
         if (candidate / ".west").exists():
             return str(candidate)
     return None

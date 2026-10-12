@@ -36,11 +36,11 @@ targets/*/config/*
 # Vendor files backed up by --rf-config before the u-blox version is applied.
 *.ubx-orig
 
-# Vendor SDKs. Fetched on demand by each target's `clone` command, never
-# committed: together they are several GB and each user only needs their own.
-mcuxpresso-sdk/
-esp-idf/
-ameba-rtos-d/
+# Vendor SDKs. Fetched on demand into targets/<target>/sdk/ (ignored above),
+# never committed. These are the pre-targets/ locations, moved on first use.
+/mcuxpresso-sdk/
+/esp-idf/
+/ameba-rtos-d/
 
 # west metadata
 .west/

@@ -93,9 +93,7 @@ def detect_idf() -> Optional[str]:
             return idf_path
 
     # Check common locations
-    patterns = [
-        str(target_paths.sdk_dir(TARGET) / "esp-idf"),
-        str(target_paths.SDK_ROOT / "esp-idf"),
+    patterns = [str(p) for p in target_paths.sdk_candidates(TARGET)] + [
         str(Path.home() / "esp" / "esp-idf"),
         "/opt/esp/esp-idf",
         "C:/esp/esp-idf",

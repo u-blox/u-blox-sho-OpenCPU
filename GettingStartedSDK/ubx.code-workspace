@@ -27,26 +27,22 @@
       "editor.formatOnSave": true
     },
     "files.exclude": {
-      "**/mcuxpresso-sdk": true,
-      "**/esp-idf": true,
-      "**/ameba-rtos-d": false,
+      "**/targets/*/sdk/mcuxpresso-sdk": true,
+      "**/targets/*/sdk/esp-idf": true,
+      "mcuxpresso-sdk": true,
       "**/.git": true,
       "**/__pycache__": true,
       "**/.pytest_cache": true,
       "**/.venv": false
     },
     "search.exclude": {
-      "**/mcuxpresso-sdk": true,
-      "**/esp-idf": true,
-      "**/ameba-rtos-d": true,
+      "mcuxpresso-sdk": true,
       "**/.venv": true,
       "**/targets/*/sdk/**": true
     },
     "files.watcherExclude": {
       "**/targets/*/sdk/**": true,
-      "**/ameba-rtos-d/**": true,
-      "**/esp-idf/**": true,
-      "**/mcuxpresso-sdk/**": true
+      "mcuxpresso-sdk/**": true
     },
     "terminal.integrated.env.linux": {
       "PYTHONPATH": "${workspaceFolder:GettingStartedSDK (Build Scripts & Infrastructure)}"
@@ -203,17 +199,17 @@
         "interface": "jtag",
         "ipAddress": "localhost",
         "port": 3333,
-        "cwd": "${workspaceFolder:GettingStartedSDK (Build Scripts & Infrastructure)}/esp-idf/examples/get-started/hello_world",
-        "executable": "${workspaceFolder:GettingStartedSDK (Build Scripts & Infrastructure)}/esp-idf/examples/get-started/hello_world/build/hello_world.elf"
+        "cwd": "${workspaceFolder:GettingStartedSDK (Build Scripts & Infrastructure)}/targets/nora-w40/sdk/esp-idf/examples/get-started/hello_world",
+        "executable": "${workspaceFolder:GettingStartedSDK (Build Scripts & Infrastructure)}/targets/nora-w40/sdk/esp-idf/examples/get-started/hello_world/build/hello_world.elf"
       },
       {
         "name": "ESP-IDF Monitor: NORA-W40",
         "type": "debugpy",
         "request": "launch",
-        "program": "${workspaceFolder:GettingStartedSDK (Build Scripts & Infrastructure)}/esp-idf/tools/idf.py",
+        "program": "${workspaceFolder:GettingStartedSDK (Build Scripts & Infrastructure)}/targets/nora-w40/sdk/esp-idf/tools/idf.py",
         "args": ["monitor", "--print-filter=*"],
         "console": "integratedTerminal",
-        "cwd": "${workspaceFolder:GettingStartedSDK (Build Scripts & Infrastructure)}/esp-idf/examples/get-started/hello_world",
+        "cwd": "${workspaceFolder:GettingStartedSDK (Build Scripts & Infrastructure)}/targets/nora-w40/sdk/esp-idf/examples/get-started/hello_world",
         "justMyCode": false
       },
       {

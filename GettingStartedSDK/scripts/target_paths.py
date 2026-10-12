@@ -2,13 +2,15 @@
 """
 Shared per-target directory layout for the u-blox Getting Started SDK.
 
-Every target owns a base folder under ``targets/`` that holds the things we
-generate, so the checked-in vendor SDKs (ameba-rtos-d, esp-idf,
-mcuxpresso-sdk) stay untouched at the repo root:
+Every target owns a base folder under ``targets/`` that holds everything we
+fetch or generate for it:
 
     targets/<target>/
-        sdk/        on-demand SDK clones / west workspaces
-        config/     build.<host>.json tool cache
+        sdk/        vendor SDK clones / west workspaces, e.g. sdk/esp-idf
+        config/     build.<host>.json tool cache, rf_config.json
+
+SDKs that older versions fetched into the SDK root (esp-idf/, ameba-rtos-d/,
+mcuxpresso-sdk/) are moved here by the launcher on first use.
 
 Build artifacts are deliberately not relocated here: each vendor build system
 (west, idf.py, Realtek make) emits in-tree and expects to find its own output.
@@ -99,6 +101,61 @@ def base_dir(target: str) -> Path:
 
 def sdk_dir(target: str) -> Path:
     return base_dir(target) / "sdk"
+
+
+# Vendor SDKs that older versions fetched into the SDK root itself.
+ROOT_SDKS: dict[str, str] = {
+    "iris_w10": "mcuxpresso-sdk",
+    "nora_w30": "ameba-rtos-d",
+    "nora_w40": "esp-idf",
+}
+
+
+def vendor_sdk(target: str) -> Path:
+    """Where the target's vendor SDK is fetched: targets/<target>/sdk/<repo>."""
+    return sdk_dir(target) / ROOT_SDKS[_slug(target)]
+
+
+def root_sdk(target: str) -> Path | None:
+    """An SDK still sitting at the old root location, not yet adopted."""
+    name = ROOT_SDKS.get(_slug(target))
+    old = SDK_ROOT / name if name else None
+    return old if old is not None and old.is_dir() else None
+
+
+def adopt_root_sdk(target: str) -> Path | None:
+    """Move <SDK root>/<repo> into targets/<target>/sdk/ and repoint the cached paths."""
+    old = root_sdk(target)
+    if old is None:
+        return None
+    new = vendor_sdk(target)
+    if new.exists():
+        print(f"[WARNING] Both {old} and {new} exist; using {new}. Remove the old one when done.")
+        return None
+    new.parent.mkdir(parents=True, exist_ok=True)
+    try:
+        old.rename(new)
+    except OSError as exc:
+        print(f"[WARNING] Could not move {old} to {new}: {exc}")
+        print("          Close any shell or editor using it and run again.")
+        return None
+    print(f"[INFO] Moved vendor SDK {old.name}/ to {new}")
+    rel_old = f"{SDK_ROOT.name}/{old.name}"
+    rel_new = f"{SDK_ROOT.name}/targets/{TARGETS[_slug(target)]}/sdk/{old.name}"
+    for cfg in config_dir(target).glob("*.json"):
+        text = cfg.read_text(encoding="utf-8")
+        # Cached paths may be Windows, POSIX or /mnt/<drive> form.
+        updated = text.replace(rel_old, rel_new).replace(
+            rel_old.replace("/", "\\\\"), rel_new.replace("/", "\\\\"))
+        if updated != text:
+            cfg.write_text(updated, encoding="utf-8")
+    return new
+
+
+def sdk_candidates(target: str) -> list[Path]:
+    """The fetched vendor SDK location, plus the old root one if adoption has not run."""
+    old = root_sdk(target)
+    return [vendor_sdk(target)] + ([old] if old else [])
 
 
 def config_dir(target: str) -> Path:

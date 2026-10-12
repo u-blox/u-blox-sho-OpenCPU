@@ -153,23 +153,15 @@ def cmd_clone(args) -> int:
         print("[FAIL] Git not found!")
         return 1
 
-    # First check if SDK is already checked-in at the workspace root
-    checked_in_sdk = target_paths.SDK_ROOT / "ameba-rtos-d"
-    if checked_in_sdk.exists():
-        print(f"[INFO] Found checked-in SDK at: {checked_in_sdk}\n")
-        cfg = load_config()
-        cfg["sdk_path"] = str(checked_in_sdk)
-        save_config(cfg)
-        return 0
+    for existing in target_paths.sdk_candidates(TARGET) + [target_paths.sdk_dir(TARGET) / "realtek-rtos-sdk"]:
+        if (existing / "project").is_dir():
+            print(f"[INFO] {existing} already exists. Skipping clone.\n")
+            cfg = load_config()
+            cfg["sdk_path"] = str(existing)
+            save_config(cfg)
+            return 0
 
-    # Fall back to target-specific location
-    sdk_dir = target_paths.sdk_dir(TARGET) / "realtek-rtos-sdk"
-    if sdk_dir.exists():
-        print(f"[INFO] {sdk_dir} already exists. Skipping clone.\n")
-        cfg = load_config()
-        cfg["sdk_path"] = str(sdk_dir)
-        save_config(cfg)
-        return 0
+    sdk_dir = target_paths.vendor_sdk(TARGET)
     target_paths.ensure(TARGET)
     # Approximate: shallow Ameba-D SDK, its bundled toolchain and a first build.
     if not target_paths.check_space(sdk_dir, 2, "the Realtek Ameba-D SDK"):

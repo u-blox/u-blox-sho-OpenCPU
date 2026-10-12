@@ -140,21 +140,15 @@ def vendor_sdk_root(key: str) -> Path | None:
     s = slug(key)
 
     if key == "nora-w30":
-        candidates = [cfg.get("sdk_path"),
-                      SDK_ROOT / "ameba-rtos-d",
+        candidates = [cfg.get("sdk_path"), *target_paths.sdk_candidates(s),
                       target_paths.sdk_dir(s) / "realtek-rtos-sdk"]
         marker = "component/common/drivers/wlan"
     elif key == "nora-w40":
-        candidates = [cfg.get("idf_path"),
-                      target_paths.sdk_dir(s) / "esp-idf",
-                      SDK_ROOT / "esp-idf",
+        candidates = [cfg.get("idf_path"), *target_paths.sdk_candidates(s),
                       Path.home() / "esp" / "esp-idf"]
         marker = "components/esp_phy"
     elif key == "iris-w10":
-        candidates = [cfg.get("workspace"),
-                      target_paths.sdk_dir(s) / "mcuxpresso-sdk",
-                      SDK_ROOT / "mcuxpresso-sdk",
-                      REPO_ROOT / "mcuxpresso-sdk"]
+        candidates = [cfg.get("workspace"), *target_paths.sdk_candidates(s)]
         marker = None
     else:
         return None

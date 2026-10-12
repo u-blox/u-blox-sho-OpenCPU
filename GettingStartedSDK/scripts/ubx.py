@@ -24,6 +24,8 @@ import sys
 from dataclasses import dataclass, field, replace
 from pathlib import Path
 
+import target_paths
+
 SDK_ROOT = Path(__file__).resolve().parent.parent
 SCRIPTS_DIR = SDK_ROOT / "scripts"
 MATTER_SCRIPT = SCRIPTS_DIR / "matter_build.py"
@@ -565,6 +567,10 @@ def needs_linux(ctx: Context) -> bool:
 
 
 def run(ctx: Context, raw_argv: list[str]) -> int:
+    slug = ctx.target.key.replace("-", "_")
+    if not ctx.dry_run and not ctx.matter and slug in target_paths.ROOT_SDKS:
+        target_paths.adopt_root_sdk(slug)
+
     if needs_linux(ctx) and host_is_windows() and ctx.use_wsl is not False:
         return hop_to_wsl(ctx, [a for a in raw_argv if a != "--wsl"])
 

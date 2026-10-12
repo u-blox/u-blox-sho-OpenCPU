@@ -68,7 +68,7 @@ idf.py build
 ### Build System Overview
 
 - **Chip:** Realtek RTL8720DF (Ameba-D)
-- **SDK:** Cloned to `GettingStartedSDK/ameba-rtos-d/` (320 MB)
+- **SDK:** Cloned to `GettingStartedSDK/targets/nora-w30/sdk/ameba-rtos-d/` (320 MB)
 - **Build System:** Traditional make-based (GCC + CMake)
 - **Toolchain:** Downloaded automatically during first build (~300 MB)
 
@@ -82,7 +82,7 @@ idf.py build
 
 **Step 2:** Run WSL2 build command (single command):
 ```batch
-wsl -d Ubuntu-24.04 bash -c "cd /mnt/e/u-blox/u-blox-sho-OpenCPU/GettingStartedSDK/ameba-rtos-d/project/realtek_amebaD_va0_example/GCC-RELEASE/project_hp && make all"
+wsl -d Ubuntu-24.04 bash -c "cd /mnt/e/u-blox/u-blox-sho-OpenCPU/GettingStartedSDK/targets/nora-w30/sdk/ameba-rtos-d/project/realtek_amebaD_va0_example/GCC-RELEASE/project_hp && make all"
 ```
 
 Or for more visibility, enter WSL directly:
@@ -92,7 +92,7 @@ wsl -d Ubuntu-24.04
 
 Then inside WSL:
 ```bash
-cd /mnt/e/u-blox/u-blox-sho-OpenCPU/GettingStartedSDK/ameba-rtos-d/project/realtek_amebaD_va0_example/GCC-RELEASE/project_hp
+cd /mnt/e/u-blox/u-blox-sho-OpenCPU/GettingStartedSDK/targets/nora-w30/sdk/ameba-rtos-d/project/realtek_amebaD_va0_example/GCC-RELEASE/project_hp
 make all
 ```
 
@@ -116,7 +116,7 @@ make all
 
 **Step 2:** Navigate and build
 ```bash
-cd /cygdrive/e/u-blox/u-blox-sho-OpenCPU/GettingStartedSDK/ameba-rtos-d/project/realtek_amebaD_va0_example/GCC-RELEASE/project_hp
+cd /cygdrive/e/u-blox/u-blox-sho-OpenCPU/GettingStartedSDK/targets/nora-w30/sdk/ameba-rtos-d/project/realtek_amebaD_va0_example/GCC-RELEASE/project_hp
 make all
 ```
 

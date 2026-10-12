@@ -1,4 +1,0 @@
-[manifest]
-path = manifests
-file = west.yml
-
