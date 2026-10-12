@@ -1,6 +1,10 @@
 stages:
   - test
 
+# Tags shared by both SHO instance runners (AWS and Berlin).
+default:
+  tags: [docker, linux]
+
 # Branch pipelines on push; switch to MR pipelines once an MR is open, never both.
 workflow:
   rules:
