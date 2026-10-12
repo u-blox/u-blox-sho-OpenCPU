@@ -59,7 +59,8 @@ fetches it into WSL2 and switches to it (then build `project_lp` again).
 (SEGGER J-Link software required): `km0_boot_all.bin` at 0x08000000,
 `km4_boot_all.bin` at 0x08004000 and `km0_km4_image2.bin` at 0x08006000. Pass
 the probe serial number (`--flash <SN>`) when several J-Links are connected.
-`--log` opens the J-Link virtual COM port at 115200. On Windows the build runs
+`--log` opens the J-Link virtual COM port at 115200; type a command such as
+`ATW?` and press Enter to send it. On Windows the build runs
 in WSL2 and `--flash` and `--log` run on Windows, where the probe is.
 
 Realtek's ROM bootloader (hold BOOT while resetting) with the Windows Image

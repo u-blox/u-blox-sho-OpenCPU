@@ -360,9 +360,10 @@ def cmd_flash(args) -> int:
     # J-Link Commander may not open \\wsl$ paths; give it local copies.
     with tempfile.TemporaryDirectory(prefix="ubx-w30-") as tmp:
         local = [(Path(shutil.copy(path, tmp)), address) for path, address in images]
+        # Like pressing RESET: a debugger-held KM0 faults at the first low-power sleep.
         commands = ["r",
                     *[f'loadfile "{path}" 0x{address:08X}' for path, address in local],
-                    "r", "g"]
+                    "w4 0xE000EDFC 0", "w4 0xE000EDF0 0xA05F0000", "r0", "Sleep 100", "r1"]
         return flash_helper.flash_jlink_script(JLINK_DEVICE, commands, args.serial)
 
 def cmd_log(args) -> int:

@@ -15,6 +15,7 @@ Examples:
 import sys
 import time
 import subprocess
+import threading
 from datetime import datetime
 
 # Windows consoles default to cp1252 and raise UnicodeEncodeError on the status glyphs below.
@@ -92,6 +93,15 @@ def validate_port(port):
     return False
 
 
+def forward_input(ser, stream=None):
+    """Send each line typed in the console to the module, ended with CR LF."""
+    try:
+        for line in stream or sys.stdin:
+            ser.write(line.rstrip("\r\n").encode("utf-8") + b"\r\n")
+    except (OSError, ValueError):
+        pass
+
+
 def open_serial_monitor(port=None, baudrate=115200):
     """
     Open serial monitor with auto-detection and platform support.
@@ -121,10 +131,13 @@ def open_serial_monitor(port=None, baudrate=115200):
     try:
         ser = serial.Serial(port, baudrate=baudrate, timeout=1)
         print(f"[OK] Connected to {port}\n")
+        print("Type a command and press Enter to send it to the module.\n")
+        threading.Thread(target=forward_input, args=(ser,), daemon=True).start()
 
         while True:
             if ser.in_waiting:
-                line = ser.readline().decode('utf-8', errors='ignore').rstrip()
+                # Some SDKs (Realtek) end lines with LF CR; a stray CR would overwrite the timestamp.
+                line = ser.readline().decode('utf-8', errors='ignore').replace('\r', '').rstrip()
                 timestamp = datetime.now().strftime('%H:%M:%S.%f')[:-3]
                 print(f"[{timestamp}] {line}")
             else:

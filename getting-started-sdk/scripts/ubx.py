@@ -565,7 +565,11 @@ def execute(ctx: Context, cmd: list[str], **kwargs) -> int:
         shown = subprocess.list2cmdline(cmd) if host_is_windows() else shlex.join(cmd)
         print(f"[DRY-RUN] {shown}", flush=True)
         return 0
-    return subprocess.call(cmd, **kwargs)
+    try:
+        return subprocess.call(cmd, **kwargs)
+    except KeyboardInterrupt:
+        # The child got the same Ctrl+C; subprocess.call has already stopped it.
+        return 130
 
 
 def to_wsl_path(path: Path) -> str:
@@ -686,6 +690,9 @@ def run(ctx: Context, raw_argv: list[str]) -> int:
             # and a failing doctor is exactly when that matters most.
             execute(ctx, [sys.executable, str(MODULE_CONFIG_SCRIPT),
                           ctx.target.key, "status"], cwd=str(SDK_ROOT))
+        if rc == 130:
+            print("\n[INFO] Stopped (Ctrl+C).")
+            return 130
         if rc != 0:
             return fail(f"{banner}{action} failed (exit {rc}).")
         if action == "list" and not ctx.matter:
@@ -699,7 +706,11 @@ def main(argv: list[str] | None = None, matter: bool = False) -> int:
     parsed = parse(raw, matter=matter)
     if isinstance(parsed, int):
         return parsed
-    return run(parsed, raw)
+    try:
+        return run(parsed, raw)
+    except KeyboardInterrupt:
+        print("\n[INFO] Stopped (Ctrl+C).")
+        return 130
 
 
 if __name__ == "__main__":

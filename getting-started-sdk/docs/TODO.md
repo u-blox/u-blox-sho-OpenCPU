@@ -11,11 +11,12 @@ Last updated 2026-10-12 (branch `cmag_getting_started_sdk`).
 - [ ] **Build ALMA-B20-B21**: `ubx-sdk.cmd alma-b20-b21 --doctor --build hello_world`.
 - [x] NORA-W50-W51 `--build-sdk` runs `configure` first, so the flow is launcher-only;
       `--flash` finds the Wi-Fi Toolbox in `C:\ti\simplelink_wifi_toolbox*` (2026-10-12).
-- [ ] **NORA-W30 boot fault**: build and `--flash` work (2026-10-12), but the
-      default `project_hp` image hits a secure-state Hard Fault about 1 s after
-      "WIFI initialized" (PC 0x0E013176). Resolve the PC with addr2line on
-      `target_img2.axf`, compare with Realtek's prebuilt images, then retest
-      `--log` and the MAC read (`ATW?`).
+- [x] NORA-W30 boot fault after `--flash` (2026-10-12): the image was fine; the
+      chip was left under debugger control and faulted at its first low-power
+      sleep. `--flash` now ends like pressing RESET (debug off, reset pin).
+      `ATW?` answers in `--log`.
+- [ ] Check that Ctrl+C in `--log` exits without a traceback on Windows (unit
+      test only so far; cmd.exe still asks "Terminate batch job").
 - [ ] **Re-run each target once** after the move to `sdks/<vendor>/<version>/`
       and record it in `docs/BUILD_TEST_RESULTS.md` (rewritten 2026-10-12 with
       only the verified results).

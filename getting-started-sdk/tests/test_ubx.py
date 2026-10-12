@@ -420,6 +420,19 @@ def test_no_wsl_suppresses_hop(windows):
     assert windows.cmds[0][0] == sys.executable
 
 
+def test_ctrl_c_stops_quietly(native, monkeypatch, capsys):
+    seen = []
+
+    def interrupted(cmd, **kwargs):
+        seen.append(cmd)
+        raise KeyboardInterrupt
+    monkeypatch.setattr(ubx.subprocess, "call", interrupted)
+    assert ubx.main(["nora-w40", "--flash", "--log"]) == 130
+    assert len(seen) == 1 and "Stopped (Ctrl+C)" in capsys.readouterr().out
+    monkeypatch.setattr(ubx, "run", lambda *a: (_ for _ in ()).throw(KeyboardInterrupt))
+    assert ubx.main(["nora-w40", "--log"]) == 130
+
+
 def test_flash_and_log_stay_on_windows_after_the_hop(windows):
     assert ubx.main(["nora-w30", "--build", "--flash", "--log", "COM191"]) == 0
     hop, flash, log = windows.cmds

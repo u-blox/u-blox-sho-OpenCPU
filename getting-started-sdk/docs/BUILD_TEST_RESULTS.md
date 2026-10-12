@@ -15,7 +15,7 @@ Branch: `cmag_getting_started_sdk`.
 | NORA-W40 | `ubx/rf-calibration` + `--rf-config` (NORA-W401) | ESP-IDF 6.2.0, riscv32-esp-elf 16.1.0 | [OK] `u-blox-nora-w40.bin` 920,544 B, 12% of 1 MB app partition free | 2026-10-12 |
 | NORA-W40 | `ubx/read-mac` | ESP-IDF 6.2.0 (`sdks/esp-idf/master`), riscv32-esp-elf 16.1.0 | [OK] build only: `u-blox-nora-w40-read-mac.bin` 196,304 B, 81% of 1 MB app partition free; not run on hardware yet | 2026-10-12 |
 | NORA-W50-W51 | `ble_wifi_provisioning` | simplelink_wifi_sdk_10_20_00_39, `LP_EM_CC35X1` | [OK] `.out` 16 MB | 2026-09-28 |
-| NORA-W30 | `project_lp` + `project_hp`, `--flash` | Ameba-D `main` in `~/ubx-sdk/sdks` (WSL2 Ubuntu-24.04), asdk-6.4.1; J-Link V9.46, EVK J-Link OB | [OK] build, `km0_km4_image2.bin` 671,744 B; [OK] flash (3 images, J-Link device `RTL8720DF`); [FAIL] boot: Wi-Fi initialises, then a secure-state Hard Fault after about 1 s (PC 0x0E013176) | 2026-10-12 |
+| NORA-W30 | `project_lp` + `project_hp`, `--flash` | Ameba-D `main` in `~/ubx-sdk/sdks` (WSL2 Ubuntu-24.04), asdk-6.4.1; J-Link V9.46, EVK J-Link OB | [OK] build, `km0_km4_image2.bin` 671,744 B; [OK] flash (3 images, J-Link device `RTL8720DF`); [OK] boot and console: `ATW?` reports MAC 54:f8:2a:13:f7:94 | 2026-10-12 |
 | NORA-B20-B21-B22 | `hello_world` (`ubx_evknorab2/nrf54l15/cpuapp`) | NCS v3.4.1 (Zephyr 4.4.2), Zephyr SDK 1.0.1 GCC 14.3.0, Windows | [OK] 30,236 B flash (1.94% of 1524 KB), 5,800 B RAM (2.21%); not run on hardware yet | 2026-10-12 |
 | ALMA-B20-B21 | `hello_world` | NCS v3.4.1 | not built yet | - |
 
@@ -36,4 +36,6 @@ refuses that combination up front. RF configuration was reverted afterwards
 **NORA-W30** builds on Linux only; on Windows the launcher hops into WSL2.
 From `/mnt/e` a `project_hp` build ran for over 40 minutes; with the SDK in
 the WSL2 file system it is much faster. J-Link device `RTL872xCS` connects
-but fails to erase; `RTL8720DF` works.
+but fails to erase; `RTL8720DF` works. Leaving the chip under debugger control
+after flashing made it fault at its first low-power sleep; `--flash` now ends
+with debug off and a reset-pin pulse, like pressing RESET.

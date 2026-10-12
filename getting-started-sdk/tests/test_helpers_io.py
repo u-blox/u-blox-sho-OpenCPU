@@ -224,16 +224,28 @@ def test_validate_port(pyserial, monkeypatch, capsys):
 
 
 def test_monitor_prints_lines_until_ctrl_c(pyserial, capsys):
-    pyserial(lines=[b"*** Booting ***\r\n", None, b"hello\n"])
+    pyserial(lines=[b"*** Booting ***\r\n", None, b"hello\n", b"\rMAC => 54:f8\n"])
     assert sl.open_serial_monitor("COM3", 115200) == 0
     out = capsys.readouterr().out
     assert "] *** Booting ***" in out and "] hello" in out and "Disconnected" in out
+    assert "] MAC => 54:f8" in out
 
 
 def test_monitor_without_ports(pyserial, capsys):
     pyserial()
     assert sl.open_serial_monitor() == 1
     assert "Cannot auto-detect" in capsys.readouterr().out
+
+
+def test_forward_input_sends_lines_with_crlf():
+    sent = []
+    ser = types.SimpleNamespace(write=sent.append)
+    sl.forward_input(ser, ["ATW?\n", "help\r\n"])
+    assert sent == [b"ATW?\r\n", b"help\r\n"]
+
+    def closed(data):
+        raise OSError("port closed")
+    sl.forward_input(types.SimpleNamespace(write=closed), ["ATW?\n"])
 
 
 def test_monitor_autodetects_and_handles_open_error(pyserial, monkeypatch):

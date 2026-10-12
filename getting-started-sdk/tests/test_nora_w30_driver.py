@@ -185,6 +185,7 @@ def test_flash_programs_the_three_images(sdk, monkeypatch, capsys):
              ("km0_km4_image2.bin", "0x08006000")]
     assert [(c.split('"')[1].replace("\\", "/").rsplit("/", 1)[1], c.split()[-1]) for c in loads] == names
     assert all("ubx-w30-" in c for c in loads)
+    assert seen["commands"][-5:] == ["w4 0xE000EDFC 0", "w4 0xE000EDF0 0xA05F0000", "r0", "Sleep 100", "r1"]
 
 
 def test_flash_finds_the_sdk_without_cached_path(cfg, monkeypatch, tmp_path, capsys):

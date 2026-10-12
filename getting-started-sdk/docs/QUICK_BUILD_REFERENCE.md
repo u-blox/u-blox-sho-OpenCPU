@@ -47,7 +47,7 @@ Combinable, and always executed in this order:
 | `--mac-set ADDR [PORT]` | Show how to use another MAC address |
 | `--burn` | With `--mac-set`: store it in eFuse where supported (irreversible) |
 | `--mac [PORT]` | Report the module MAC / Bluetooth device address |
-| `--log [PORT]` | Open the serial monitor (port auto-detected) |
+| `--log [PORT]` | Open the serial console (port auto-detected); typed lines are sent to the module |
 | `--wsl` / `--no-wsl` | Force or suppress the automatic hop into WSL2 |
 | `--` | Pass everything after it verbatim to the driver |
 
