@@ -584,7 +584,10 @@ def cmd_build(target: NcsTarget, args) -> int:
     cfg["last_board"] = board
     save_config(target, cfg)
 
-    print(f"\n[OK] Build complete. Artifacts in {out / 'zephyr'}\n")
+    # Sysbuild nests the application image in <build>/<app>/zephyr.
+    images = out / example_path.name / "zephyr"
+    artifacts = images if (images / "zephyr.elf").exists() else out / "zephyr"
+    print(f"\n[OK] Build complete. Artifacts in {artifacts}\n")
     return 0
 
 

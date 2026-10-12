@@ -141,6 +141,27 @@ def test_build_refuses_missing_board(tmp_path, monkeypatch, calls, capsys):
     assert "ubx_evknorab2" in out and "v2.9.0" in out and ncs.NCS_REVISION in out
 
 
+def test_build_reports_the_sysbuild_image_folder(tmp_path, monkeypatch, calls, capsys):
+    ws = tmp_path / "ncs"
+    sample = ws / "zephyr/samples/hello_world"
+    sample.mkdir(parents=True)
+    (sample / "CMakeLists.txt").write_text("")
+    (sample / "prj.conf").write_text("")
+    make_board(ws, "zephyr/boards/u-blox/ubx_evknorab2")
+    out_dir = ncs.build_dir(str(ws), sample)
+    (out_dir / "hello_world" / "zephyr").mkdir(parents=True)
+    (out_dir / "hello_world" / "zephyr" / "zephyr.elf").write_text("")
+    monkeypatch.setattr(ncs, "detect_workspace", lambda t: str(ws))
+    monkeypatch.setattr(ncs, "detect_west", lambda: ["west"])
+    monkeypatch.setattr(ncs, "workspace_revision", lambda w: ncs.NCS_REVISION)
+    monkeypatch.setattr(ncs, "load_config", lambda t: {})
+    monkeypatch.setattr(ncs, "save_config", lambda t, c: None)
+    monkeypatch.setattr(ncs.subprocess, "call", calls)
+    args = ncs.build_parser().parse_args(["nora-b20-b21-b22", "build", "hello_world"])
+    assert ncs.cmd_build(B2, args) == 0
+    assert f"Artifacts in {out_dir / 'hello_world' / 'zephyr'}" in capsys.readouterr().out
+
+
 def test_variants_share_the_default_board_family():
     for target in ncs.TARGETS.values():
         assert target.board in target.variants

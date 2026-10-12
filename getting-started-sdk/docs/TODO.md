@@ -5,14 +5,10 @@ Last updated 2026-10-12 (branch `cmag_getting_started_sdk`).
 
 ## In progress / resume here
 
-- [ ] **NCS v3.4.1 download into `C:\ncs\v3.4.1`** was started with
-      `ubx-sdk.cmd nora-b20-b21-b22 --clone`. If it did not finish, re-run the same command;
-      it skips `west init` and resumes `west update`.
-- [ ] **Build NORA-B20-B21-B22 and ALMA-B20-B21** once NCS is in place:
-      `ubx-sdk.cmd nora-b20-b21-b22 --doctor --build hello_world`, then the same for `alma-b20-b21`.
-      `--doctor` should now pick `C:\ncs\v3.4.1` over the old v2.9.0 `~/ncs`.
-      Builds may need the Nordic toolchain bundle in `C:\ncs\toolchains` on PATH
-      (`nrfutil sdk-manager toolchain launch`) rather than the Arm GNU toolchain.
+- [x] NCS v3.4.1 is in `C:\ncs\v3.4.1`; NORA-B20-B21-B22 `hello_world` builds
+      (2026-10-12, see `docs/BUILD_TEST_RESULTS.md`). The CMake configure step took
+      about 4 minutes on this machine.
+- [ ] **Build ALMA-B20-B21**: `ubx-sdk.cmd alma-b20-b21 --doctor --build hello_world`.
 - [ ] **Re-run NORA-W30** `ubx-sdk.cmd nora-w30 --build project_hp`. The last attempt
       failed only because E: was full (`fatal error: when writing output to
       wlan_network.i`). Building on `/mnt/e` is slow; consider moving the Ameba-D

@@ -16,7 +16,7 @@ Branch: `cmag_getting_started_sdk`.
 | NORA-W40 | `ubx/read-mac` | ESP-IDF 6.2.0 (`sdks/esp-idf/master`), riscv32-esp-elf 16.1.0 | [OK] build only: `u-blox-nora-w40-read-mac.bin` 196,304 B, 81% of 1 MB app partition free; not run on hardware yet | 2026-10-12 |
 | NORA-W50-W51 | `ble_wifi_provisioning` | simplelink_wifi_sdk_10_20_00_39, `LP_EM_CC35X1` | [OK] `.out` 16 MB | 2026-09-28 |
 | NORA-W30 | `project_hp` | Ameba-D, WSL2 | [FAIL] E: full during build; re-run pending | 2026-10-07 |
-| NORA-B20-B21-B22 | `hello_world` | NCS v3.4.1 | not built yet | - |
+| NORA-B20-B21-B22 | `hello_world` (`ubx_evknorab2/nrf54l15/cpuapp`) | NCS v3.4.1 (Zephyr 4.4.2), Zephyr SDK 1.0.1 GCC 14.3.0, Windows | [OK] 30,236 B flash (1.94% of 1524 KB), 5,800 B RAM (2.21%); not run on hardware yet | 2026-10-12 |
 | ALMA-B20-B21 | `hello_world` | NCS v3.4.1 | not built yet | - |
 
 All results above were taken before the SDKs moved to `sdks/<vendor>/<version>/`

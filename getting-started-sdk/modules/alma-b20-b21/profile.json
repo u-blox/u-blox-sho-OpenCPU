@@ -12,7 +12,9 @@
   "mac": {
     "source": "Nordic FICR DEVICEADDR (random static Bluetooth address). Whether u-blox programs an address on ALMA-B2 is not decided yet.",
     "read": "unsupported",
-    "on_device": { "build": "bluetooth/beacon" },
+    "on_device": {
+      "build": "bluetooth/beacon"
+    },
     "notes": [
       "Zephyr and NCS use the FICR address as the identity address by default; the beacon sample prints it as 'advertising as ...'."
     ]
