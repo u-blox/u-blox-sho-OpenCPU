@@ -4,6 +4,7 @@ Common flash utility for u-blox modules.
 
 Supports:
 - J-Link / MCU-Link (IRIS-W10)
+- J-Link Commander scripts (NORA-W30)
 - XDS110 through the TI SimpleLink Wi-Fi Toolbox (NORA-W50-W51)
 
 The other targets flash through their vendor tools (west, idf.py).
@@ -17,6 +18,7 @@ import sys
 import os
 import shutil
 import subprocess
+import tempfile
 import time
 from pathlib import Path
 from typing import Optional
@@ -83,6 +85,50 @@ def flash_jlink(device: str, firmware_file: str, address: int = 0, serial: Optio
     except (JLinkException, OSError, ValueError) as e:
         print(f"[FAIL] Flash failed: {e}\n")
         return 1
+
+
+def find_jlink_commander() -> Optional[str]:
+    """SEGGER J-Link Commander: JLinkExe on Linux/macOS, JLink.exe on Windows."""
+    found = shutil.which("JLinkExe") or shutil.which("JLink")
+    if found:
+        return found
+    found = target_paths.newest([
+        "C:/Program Files/SEGGER/JLink*/JLink.exe",
+        "C:/Program Files (x86)/SEGGER/JLink*/JLink.exe",
+        "/opt/SEGGER/JLink*/JLinkExe",
+    ])
+    return str(found) if found else None
+
+
+def flash_jlink_script(device: str, commands: list, serial: Optional[str] = None,
+                       speed: int = 2000) -> int:
+    """Run J-Link Commander commands (loadfile, r, ...) against device over SWD."""
+    commander = find_jlink_commander()
+    if not commander:
+        print("[FAIL] SEGGER J-Link software not found. Install it from "
+              "https://www.segger.com/downloads/jlink/")
+        return 1
+
+    fd, script = tempfile.mkstemp(suffix=".jlink", text=True)
+    with os.fdopen(fd, "w") as f:
+        f.write("\n".join([*commands, "qc"]) + "\n")
+    cmd = [commander, "-device", device, "-if", "SWD", "-speed", str(speed),
+           "-autoconnect", "1", "-NoGui", "1", "-ExitOnError", "1"]
+    if serial:
+        cmd += ["-USB", str(serial)]
+    cmd += ["-CommandFile", script]
+    print(f"\nFlashing {device} with {commander}...")
+    try:
+        result = subprocess.run(cmd)
+    except OSError as e:
+        print(f"[FAIL] Flash failed: {e}\n")
+        return 1
+    finally:
+        os.unlink(script)
+
+    if result.returncode == 0:
+        print("[OK] Flash complete!\n")
+    return result.returncode
 
 
 def find_toolbox() -> Optional[str]:

@@ -116,6 +116,12 @@ u-blox-sho-OpenCPU/                  repository root
 
 ## Working rules
 
+- Build, flash, clean and log only through the launcher (`ubx-sdk.cmd` /
+  `./ubx-sdk.sh`), also when testing on real hardware. No manual `make`,
+  `west`, `idf.py`, `wsl ... python scripts/<driver>.py`, file deletion in
+  `sdks/` or hand-written flash commands. When the launcher cannot do a step or
+  does it wrong, fix the launcher or driver (with a test), then rerun it.
+
 - Tests: `python -m pytest tests -q` from the SDK root. Hermetic: no SDK,
   toolchain, WSL2 or hardware. Add a test with every new flag, target, alias,
   profile field or Matter vendor script. CI runs it on Python 3.10 and 3.12,

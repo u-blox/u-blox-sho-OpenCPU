@@ -46,6 +46,14 @@ and `--flash <SERIAL>` with several probes attached. `--log [PORT]` opens the
 console; the EVK exposes several ports, so pass the right one if the first
 shows nothing.
 
+## nRF Connect for VS Code
+
+The workspace from `--clone` is a normal NCS install: select it in the
+extension (it lists `C:\ncs\*` / `~/ncs/*`), open a sample, add a build
+configuration for `ubx_evknorab2/nrf54l15/cpuapp`, then build and debug.
+Install the matching toolchain through the extension. See
+[SETUP.md](SETUP.md#vendor-extensions).
+
 ## Bluetooth address
 
 u-blox programs no address. The firmware uses the random static address in the

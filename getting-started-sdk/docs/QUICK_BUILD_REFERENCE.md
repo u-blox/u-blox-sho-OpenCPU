@@ -68,10 +68,11 @@ is not regulatory compliant. `--doctor` reports whether it has been applied.
 ### NORA-W30 (Realtek RTL8720DF)
 ```bash
 ./ubx-sdk.sh nora-w30 --doctor
-./ubx-sdk.sh nora-w30 --clone --build project_hp
+./ubx-sdk.sh nora-w30 --clone --build project_lp
+./ubx-sdk.sh nora-w30 --build project_hp --flash --log
 ```
-Linux-only build system. Run it from Windows anyway - the launcher hops into
-WSL2 by itself.
+Linux-only build system. Run it from Windows anyway - the launcher builds in
+WSL2 and flashes over J-Link on Windows.
 
 ### NORA-W40 (Espressif ESP32-C6)
 ```bash

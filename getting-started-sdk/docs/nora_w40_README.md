@@ -36,6 +36,14 @@ Output: `<example>/build/` inside the ESP-IDF tree (`.elf`, `.bin`).
 USB serial port (auto-detected; pass it with `--flash COM5`). Leave the monitor
 with Ctrl+].
 
+## ESP-IDF extension
+
+After `--clone --install --rf-config`, choose "Use existing setup" in the
+ESP-IDF extension with `IDF_PATH` set to `sdks/esp-idf/<version>` (tools stay in
+`~/.espressif`). Open any example or
+[esp-idf/nora-w40](../../esp-idf/nora-w40/README.md), target `esp32c6`. See
+[SETUP.md](SETUP.md#vendor-extensions).
+
 ## u-blox examples
 
 | Example | |

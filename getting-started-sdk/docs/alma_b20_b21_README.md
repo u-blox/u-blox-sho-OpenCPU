@@ -6,8 +6,8 @@
 | ALMA-B211 / B216 | nRF54LM20B (adds the Axon NPU) | Pin / PCB |
 
 ALMA-B20-B21 works like [NORA-B20-B21-B22](nora_b20_b21_b22_README.md): same
-nRF Connect SDK workspace, tools, flags, flashing and Matter. Only the board
-differs.
+nRF Connect SDK workspace, tools, flags, flashing, nRF Connect for VS Code and
+Matter. Only the board differs.
 
 u-blox has not published an `ubx_evkalmab2` board yet, so builds use Nordic's
 nRF54LM20 DK board. Pins, antenna path and power rails will not match an

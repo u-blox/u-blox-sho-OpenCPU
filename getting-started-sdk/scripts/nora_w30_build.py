@@ -19,6 +19,16 @@ from target_paths import host_kind
 
 TARGET = "nora_w30"
 
+# J-Link's name for the RTL8720DF KM0 core, as used by u-blox's own Realtek tooling.
+JLINK_DEVICE = "RTL872xCS"
+
+# Ameba-D flash layout (rlx8721d_layout*.ld, LS_IMG2_OTA1_ADDR in rtl8721d_ota.h).
+FLASH_IMAGES = (
+    ("km0_boot_all.bin", 0x08000000),
+    ("km4_boot_all.bin", 0x08004000),
+    ("km0_km4_image2.bin", 0x08006000),
+)
+
 # Windows consoles default to cp1252 and raise UnicodeEncodeError on the status glyphs below.
 for _stream in (sys.stdout, sys.stderr):
     try:
@@ -277,6 +287,48 @@ def cmd_list(args) -> int:
     print("[FAIL] Example sources directory not found.")
     return 1
 
+def find_sdk() -> Optional[Path]:
+    """The SDK in use; the cached path may be a WSL2 one when flashing from Windows."""
+    cached = load_config().get("sdk_path")
+    candidates = ([Path(cached)] if cached else []) + target_paths.installed_sdks(TARGET)
+    return next((p for p in candidates if (p / "project").is_dir()), None)
+
+def cmd_flash(args) -> int:
+    """Program the Ameba-D images over SWD with SEGGER J-Link Commander."""
+    import flash_helper
+
+    sdk_path = find_sdk()
+    if not sdk_path:
+        print("[FAIL] Realtek SDK not found. Run 'python nora_w30_build.py clone' first.")
+        return 1
+
+    gcc_release = sdk_path / "project" / "realtek_amebaD_va0_example" / "GCC-RELEASE"
+    image_dirs = [gcc_release / p / "asdk" / "image" for p in ("project_hp", "project_lp")]
+    images = []
+    for name, address in FLASH_IMAGES:
+        found = next((d / name for d in image_dirs if (d / name).is_file()), None)
+        if not found:
+            print(f"[FAIL] {name} not found in {image_dirs[0]}")
+            print("       Build both cores first: --build project_lp, then --build project_hp")
+            return 1
+        images.append((found, address))
+
+    print("\nNORA-W30 Flash Utility (J-Link, SWD)\n")
+    for path, address in images:
+        print(f"  0x{address:08X}  {path.name}")
+    commands = ["RSetType 4", "r", "Sleep 500",
+                *[f'loadfile "{path}" 0x{address:08X}' for path, address in images],
+                "RSetType 2", "r", "g"]
+    return flash_helper.flash_jlink_script(JLINK_DEVICE, commands, args.serial)
+
+def cmd_log(args) -> int:
+    """Open the serial console (115200 8N1)."""
+    import serial_logger
+
+    print("\nNORA-W30 Serial Monitor (115200 baud)")
+    print("   Use Ctrl+C to exit\n")
+    return serial_logger.open_serial_monitor(args.port, 115200)
+
 def cmd_all(args) -> int:
     """Full pipeline: clone -> build."""
     steps = [
@@ -336,6 +388,13 @@ Note: Best on Linux or WSL2. Windows Cygwin is complex.
     all_parser = subparsers.add_parser("all", help="Full pipeline")
     all_parser.add_argument("project", nargs="?", help="Project name (project_lp or project_hp; default: project_hp)")
 
+    flash_parser = subparsers.add_parser("flash", help="Flash both cores over SWD (J-Link)")
+    flash_parser.add_argument("project", nargs="?", help="Ignored; both cores are always flashed")
+    flash_parser.add_argument("--serial", help="J-Link serial number (when several are connected)")
+
+    log_parser = subparsers.add_parser("log", help="Open the serial console")
+    log_parser.add_argument("port", nargs="?", default=None, help="Serial port (auto-detected if omitted)")
+
     args = parser.parse_args()
 
     commands = {
@@ -346,6 +405,8 @@ Note: Best on Linux or WSL2. Windows Cygwin is complex.
         "clean": cmd_clean,
         "build": cmd_build,
         "all": cmd_all,
+        "flash": cmd_flash,
+        "log": cmd_log,
     }
 
     if not args.command:

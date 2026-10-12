@@ -162,7 +162,48 @@ def test_all_pipeline(monkeypatch, capsys):
     assert "Clone Realtek SDK failed" in capsys.readouterr().out
 
 
+def test_flash_programs_the_three_images(sdk, monkeypatch, capsys):
+    import flash_helper
+    seen = {}
+    monkeypatch.setattr(flash_helper, "flash_jlink_script",
+                        lambda device, commands, serial: seen.update(device=device, commands=commands,
+                                                                     serial=serial) or 0)
+    hp = sdk.joinpath(*GCC) / "project_hp" / "asdk" / "image"
+    lp = sdk.joinpath(*GCC) / "project_lp" / "asdk" / "image"
+    hp.mkdir(parents=True)
+    lp.mkdir(parents=True)
+    assert w30.cmd_flash(ns(serial=None)) == 1
+    assert "Build both cores first" in capsys.readouterr().out
+    (lp / "km0_boot_all.bin").write_bytes(b"0")
+    for name in ("km4_boot_all.bin", "km0_km4_image2.bin"):
+        (hp / name).write_bytes(b"0")
+    assert w30.cmd_flash(ns(serial="1100005639")) == 0
+    assert seen["device"] == "RTL872xCS" and seen["serial"] == "1100005639"
+    loads = [c for c in seen["commands"] if c.startswith("loadfile")]
+    assert loads == [f'loadfile "{lp / "km0_boot_all.bin"}" 0x08000000',
+                     f'loadfile "{hp / "km4_boot_all.bin"}" 0x08004000',
+                     f'loadfile "{hp / "km0_km4_image2.bin"}" 0x08006000']
+
+
+def test_flash_finds_the_sdk_without_cached_path(cfg, monkeypatch, tmp_path, capsys):
+    sdk = tmp_path / "main"
+    (sdk / "project").mkdir(parents=True)
+    monkeypatch.setattr(w30.target_paths, "installed_sdks", lambda t: [sdk])
+    cfg["sdk_path"] = "/mnt/e/not/on/windows"
+    assert w30.find_sdk() == sdk
+    monkeypatch.setattr(w30.target_paths, "installed_sdks", lambda t: [])
+    assert w30.cmd_flash(ns(serial=None)) == 1
+    assert "Realtek SDK not found" in capsys.readouterr().out
+
+
+def test_log(monkeypatch):
+    import serial_logger
+    monkeypatch.setattr(serial_logger, "open_serial_monitor", lambda port, baud: (port, baud))
+    assert w30.cmd_log(ns(port="COM191")) == ("COM191", 115200)
+
+
 @pytest.mark.parametrize("argv,command", [
+    (["flash", "project_hp", "--serial", "1"], "cmd_flash"), (["log", "COM3"], "cmd_log"),
     (["doctor"], "cmd_doctor"), (["clone", "--revision", "v1"], "cmd_clone"),
     (["install"], "cmd_install"), (["list"], "cmd_list"), (["clean", "--all"], "cmd_clean"),
     (["build", "project_lp"], "cmd_build"), (["all"], "cmd_all"),

@@ -45,6 +45,13 @@ run `west flash -r linkserver` in the SDK folder. `--log` opens the console at
 Recovery over the serial boot ROM (`blhost`) is described in
 [mcuxpresso/iris-w10/recovery-tool](../../mcuxpresso/iris-w10/recovery-tool).
 
+## MCUXpresso for VS Code
+
+After `--clone --install --rf-config`, import
+`sdks/mcuxpresso-sdk/<version>` as a local repository, then import an example
+for `rdrw612bga`. Build and debug from the extension (MCU-Link through
+LinkServer, or J-Link). See [SETUP.md](SETUP.md#vendor-extensions).
+
 ## u-blox files
 
 The u-blox files are in [mcuxpresso/iris-w10/sw-config](../../mcuxpresso/iris-w10/sw-config/README.md).

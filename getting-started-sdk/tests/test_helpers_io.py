@@ -138,6 +138,40 @@ def test_xds110_toolbox_in_ti_folder(monkeypatch):
     assert fh.find_toolbox() is None
 
 
+def test_find_jlink_commander(monkeypatch):
+    monkeypatch.setattr(fh.shutil, "which", lambda name: "/usr/bin/JLinkExe" if name == "JLinkExe" else None)
+    assert fh.find_jlink_commander() == "/usr/bin/JLinkExe"
+    monkeypatch.setattr(fh.shutil, "which", lambda name: None)
+    monkeypatch.setattr(fh.target_paths, "newest", lambda patterns: fh.Path("C:/SEGGER/JLink_V946/JLink.exe"))
+    assert fh.find_jlink_commander() == str(fh.Path("C:/SEGGER/JLink_V946/JLink.exe"))
+    monkeypatch.setattr(fh.target_paths, "newest", lambda patterns: None)
+    assert fh.find_jlink_commander() is None
+
+
+def test_flash_jlink_script(monkeypatch, capsys):
+    monkeypatch.setattr(fh, "find_jlink_commander", lambda: "JLink")
+    seen = {}
+
+    def run(cmd, **kw):
+        seen["cmd"] = cmd
+        seen["script"] = open(cmd[-1]).read()
+        return subprocess.CompletedProcess(cmd, 0)
+    monkeypatch.setattr(fh.subprocess, "run", run)
+    assert fh.flash_jlink_script("RTL872xCS", ["r", "loadfile a.bin 0x08000000"], serial="1100005639") == 0
+    assert seen["cmd"][:3] == ["JLink", "-device", "RTL872xCS"]
+    assert seen["cmd"][seen["cmd"].index("-USB") + 1] == "1100005639"
+    assert seen["script"] == "r\nloadfile a.bin 0x08000000\nqc\n"
+    assert not fh.os.path.exists(seen["cmd"][-1])
+
+    def boom(cmd, **kw):
+        raise OSError("blocked")
+    monkeypatch.setattr(fh.subprocess, "run", boom)
+    assert fh.flash_jlink_script("RTL872xCS", []) == 1
+    monkeypatch.setattr(fh, "find_jlink_commander", lambda: None)
+    assert fh.flash_jlink_script("RTL872xCS", []) == 1
+    assert "J-Link software not found" in capsys.readouterr().out
+
+
 @pytest.fixture
 def cli(monkeypatch):
     seen = {}

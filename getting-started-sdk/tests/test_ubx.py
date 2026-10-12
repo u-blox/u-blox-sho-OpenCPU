@@ -243,6 +243,9 @@ def test_clean_variants():
     # NORA-W50-W51 has no clean subcommand; a clean build stands in for it.
     assert argv(["nora-w50-w51", "--clean"], "clean") == ["build", "network_terminal", "--clean"]
     assert argv(["nora-w50-w51", "--clean-all"], "clean") is None
+    # NORA-W30 cleans only the project being built.
+    assert argv(["nora-w30", "--clean", "--build", "project_hp"], "clean") == ["clean", "project_hp"]
+    assert argv(["nora-w30", "--clean"], "clean") == ["clean"]
 
 
 def test_flash_and_log():
@@ -253,8 +256,14 @@ def test_flash_and_log():
 
 
 def test_unsupported_action_is_skipped(capsys):
-    assert argv(["nora-w30", "--flash"], "flash") is None
+    assert argv(["nora-w30", "--build-sdk"], "build-sdk") is None
     assert "not supported" in capsys.readouterr().out
+
+
+def test_nora_w30_flash_and_log():
+    assert argv(["nora-w30", "--flash", "1100005639"], "flash") == \
+        ["flash", "project_hp", "--serial", "1100005639"]
+    assert argv(["nora-w30", "--log", "COM191"], "log") == ["log", "COM191"]
 
 
 def test_build_sdk_only_nora_w50_w51():
@@ -409,6 +418,32 @@ def test_missing_wsl_exe_suggests_vmcompute_restart(windows, monkeypatch, capsys
 def test_no_wsl_suppresses_hop(windows):
     ubx.main(["nora-w30", "--list", "--no-wsl"])
     assert windows.cmds[0][0] == sys.executable
+
+
+def test_flash_and_log_stay_on_windows_after_the_hop(windows):
+    assert ubx.main(["nora-w30", "--build", "--flash", "--log", "COM191"]) == 0
+    hop, flash, log = windows.cmds
+    assert hop[:2] == ["wsl", "--"]
+    assert hop[-1].startswith("export UBX_SKIP_ACTIONS=flash,log && ")
+    assert flash[0] == sys.executable and flash[2:] == ["flash", "project_hp"]
+    assert log[2:] == ["log", "COM191"]
+
+
+def test_flash_alone_does_not_hop(windows):
+    assert ubx.main(["nora-w30", "--flash"]) == 0
+    assert [c[2] for c in windows.cmds] == ["flash"]
+
+
+def test_failed_hop_skips_flash(windows):
+    windows.returns = [2]
+    assert ubx.main(["nora-w30", "--build", "--flash"]) == 2
+    assert len(windows.calls) == 1
+
+
+def test_skipped_actions_inside_the_hop(native, monkeypatch):
+    monkeypatch.setenv(ubx.SKIP_ACTIONS_ENV, "flash,log")
+    assert ubx.main(["nora-w30", "--build", "--flash", "--log"]) == 0
+    assert [c[2] for c in native.cmds] == ["build"]
 
 
 def test_windows_native_targets_do_not_hop(windows):

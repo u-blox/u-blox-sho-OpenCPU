@@ -85,7 +85,7 @@ TARGETS: dict[str, Target] = {
         default_example="project_hp",
         example_word="project",
         linux_only=True,
-        supports=frozenset({"doctor", "clone", "install", "list", "clean", "build"}),
+        supports=frozenset({"doctor", "clone", "install", "list", "clean", "build", "flash", "log"}),
     ),
     "nora-w40": Target(
         key="nora-w40",
@@ -126,6 +126,10 @@ ALIASES = {
 # 'rf-config' mutates the SDK tree, so it has to land before anything is built.
 ACTION_ORDER = ["doctor", "clone", "install", "build-sdk", "rf-config",
                 "list", "clean", "build", "flash", "mac-set", "mac", "log"]
+
+# Actions a Linux-only target still runs on the Windows host after the WSL2 hop.
+NATIVE_ACTIONS = frozenset({"flash", "log"})
+SKIP_ACTIONS_ENV = "UBX_SKIP_ACTIONS"
 
 
 @dataclass
@@ -530,6 +534,9 @@ def argv_for(ctx: Context, action: str) -> list[str] | None:
         argv = ["clean"]
         if ctx.clean_all:
             argv.append("--all")
+        elif t.key == "nora-w30" and ctx.example:
+            # Clean only the named project; the other core's build stays usable.
+            argv.append(ctx.example)
         return argv
 
     if action == "build":
@@ -568,7 +575,7 @@ def to_wsl_path(path: Path) -> str:
     return f"/mnt/{drive}{tail}"
 
 
-def hop_to_wsl(ctx: Context, argv: list[str]) -> int:
+def hop_to_wsl(ctx: Context, argv: list[str], skip: set[str] = frozenset()) -> int:
     """Re-run this invocation inside WSL2, where the Realtek build works."""
     sdk_wsl = to_wsl_path(SDK_ROOT)
     forwarded = shlex.join(argv)
@@ -576,6 +583,8 @@ def hop_to_wsl(ctx: Context, argv: list[str]) -> int:
     print(f"[INFO] {ctx.target.label} builds on Linux; hopping into WSL2.")
     print(f"[INFO] WSL path: {sdk_wsl}")
     command = f"cd {shlex.quote(sdk_wsl)} && {shim} {forwarded}"
+    if skip:
+        command = f"export {SKIP_ACTIONS_ENV}={','.join(sorted(skip))} && {command}"
     matter_root = os.environ.get("UBX_MATTER_ROOT")
     if matter_root:
         # A Linux path such as ~/ubx-matter; '~' has to expand inside WSL.
@@ -634,8 +643,17 @@ def resolve_ubx_example(ctx: Context) -> int:
 
 
 def run(ctx: Context, raw_argv: list[str]) -> int:
+    # Inside a hop the Windows side runs these itself; see below.
+    ctx.actions -= set(filter(None, os.environ.get(SKIP_ACTIONS_ENV, "").split(",")))
+
     if needs_linux(ctx) and host_is_windows() and ctx.use_wsl is not False:
-        return hop_to_wsl(ctx, [a for a in raw_argv if a != "--wsl"])
+        # The debug probe and serial port are on Windows, so flash and log stay here.
+        native = ctx.actions & NATIVE_ACTIONS if not ctx.matter else set()
+        if ctx.actions - native:
+            rc = hop_to_wsl(ctx, [a for a in raw_argv if a != "--wsl"], skip=native)
+            if rc or not native:
+                return rc
+        ctx.actions = native
 
     if ctx.example and ctx.example.startswith("ubx/") and not ctx.matter:
         rc = resolve_ubx_example(ctx)

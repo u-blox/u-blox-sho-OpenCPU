@@ -45,10 +45,20 @@ Images land in
 
 ## Flash and log
 
-The launcher does not flash NORA-W30 yet. Use Realtek's Image Tool from the
-SDK's `tools/` folder over the UART download mode described in the EVK user
-guide. For the log, any terminal at 115200 8N1 works, or
-`python scripts/serial_logger.py <PORT>`.
+```bash
+./ubx-sdk.sh nora-w30 --build project_lp      # KM0 core, once
+./ubx-sdk.sh nora-w30 --build project_hp --flash --log
+```
+
+`--flash` programs both cores over SWD through the EVK's on-board J-Link OB
+(SEGGER J-Link software required): `km0_boot_all.bin` at 0x08000000,
+`km4_boot_all.bin` at 0x08004000 and `km0_km4_image2.bin` at 0x08006000. Pass
+the probe serial number (`--flash <SN>`) when several J-Links are connected.
+`--log` opens the J-Link virtual COM port at 115200. On Windows the build runs
+in WSL2 and `--flash` and `--log` run on Windows, where the probe is.
+
+Realtek's ROM bootloader (hold BOOT while resetting) with the Windows Image
+Tool in the SDK's `tools/` folder is the alternative without a debugger.
 
 ## MAC address
 

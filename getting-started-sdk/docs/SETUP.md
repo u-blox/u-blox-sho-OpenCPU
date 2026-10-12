@@ -32,11 +32,23 @@ code getting-started-sdk/ubx.code-workspace
 
 It opens two roots: the SDK, and the repository root with the u-blox asset
 folders. It points Python at `.venv`, keeps `sdks/` out of search and the file
-watcher, and recommends Python, CMake Tools and Cortex-Debug.
+watcher, and recommends Python, CMake Tools, Cortex-Debug and the vendor
+extensions (nRF Connect, MCUXpresso, ESP-IDF).
 
-The launch configurations run the build scripts directly, to debug them; use
-the launcher for normal work. The Cortex-Debug entries are starting points:
-they need a running GDB server and a matching `.elf`.
+The Python launch configurations run the build scripts directly, to debug
+them; use the launcher for normal work. "Cortex Debug: NORA-W30 KM4 attach"
+attaches to a board flashed with `--flash` and needs `arm-none-eabi-gdb` on the
+Windows `PATH`; it has not been verified on hardware yet.
+
+### Vendor extensions
+
+An SDK fetched by the launcher can also be built and debugged in the vendor's
+own extension; the module guides say what to open (IRIS-W10, NORA-W40,
+NORA-B20-B21-B22, ALMA-B20-B21). Run `--rf-config` once first: it writes the
+u-blox RF data into the SDK tree, so extension builds pick it up. An extension
+build on an SDK without it is not regulatory compliant. NORA-W30 and
+NORA-W50-W51 have no vendor extension and stay on the launcher. The extension
+workflow has not been verified on hardware yet.
 
 If the interpreter is wrong: Ctrl+Shift+P, "Python: Select Interpreter", pick
 `getting-started-sdk/.venv`.

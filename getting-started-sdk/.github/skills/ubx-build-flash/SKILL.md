@@ -18,6 +18,10 @@ argument-hint: '<target> and what you want to do, e.g. "nora-w40 build and flash
    (see skill `ubx-module-config`). A plain `--build` is not regulatory compliant.
 5. Use `--dry-run` to show what a flag combination will execute.
 6. After a real build, record it in `docs/BUILD_TEST_RESULTS.md`.
+7. Never work around the launcher (manual `make`, `west`, `idf.py`, driver
+   calls in WSL2, deleting build folders, own flash commands). If a step fails
+   because a script is wrong or missing a feature, fix the script with a test,
+   then rerun the same launcher command.
 
 ## First build per target
 
