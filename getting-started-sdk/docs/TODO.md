@@ -27,10 +27,9 @@ Last updated 2026-10-12 (branch `cmag_getting_started_sdk`).
       `modules/<target>/config/` (2026-10-12). Old-layout migration code, legacy
       short keys, `migrate_venv.*`, `setup_build_env.sh`, stale build folders and
       the repo-root `mcuxpresso-sdk/` removed.
-- [ ] WSL2 `/root/ubx-matter/NORA-W5` (Ubuntu-22.04, 7 GB) keeps its old name
-      behind a `nora-w50-w51` symlink because its Python env holds absolute paths.
-      Re-run `ubx-matter.cmd nora-w50-w51 --clone --install` into the new name
-      when convenient, then delete the old folder.
+- [ ] NORA-W50-W51 Matter: `/root/ubx-matter/NORA-W5` was renamed to `nora-w50-w51`
+      (2026-10-12) and its bootstrap environment removed. Run
+      `ubx-matter.cmd nora-w50-w51 --install` once to bootstrap it again.
 - [ ] `--rf-config` writes module-specific RF data into the shared
       `sdks/<vendor>/<version>/` tree. Two modules on one vendor SDK version would
       overwrite each other; move the RF data into the build project before that happens.
