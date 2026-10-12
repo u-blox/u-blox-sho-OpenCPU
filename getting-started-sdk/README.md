@@ -63,20 +63,70 @@ without running anything (works for `ubx-matter` too):
 
 The vendor SDKs ship RF data for the vendor's own reference board. Firmware
 built that way is **not regulatory compliant** on a u-blox module. `--rf-config`
-applies the u-blox calibration, TX power limits and flash driver for a specific
-part number before the build:
+applies the u-blox configuration for a specific part number to the fetched SDK
+before the build:
+
+- **Output power**: the u-blox certified TX power tables for the module.
+- **Calibration**: the u-blox Wi-Fi (and on IRIS-W10 Bluetooth/802.15.4)
+  calibration data that replaces the vendor reference-board values.
+- **SDK patches**: small vendor-SDK changes that make the SDK load that data,
+  matched to the SDK version, plus the flash driver for the module's flash part
+  on IRIS-W10.
 
 ```bash
 ./ubx-sdk.sh nora-w30 --variant NORA-W301 --region ETSI --rf-config --build project_hp
 ./ubx-sdk.sh iris-w10 --variant IRIS-W101-00B --rf-config --build demo_apps/hello_world
+./ubx-sdk.sh nora-w40 --variant NORA-W401 --rf-config --build ubx/rf-calibration
 ```
+
+- `--variant` takes the part number; `--rf-config` without it lists the known ones.
+- `--region` (FCC, ISED, ETSI, MKK, ACMA) prints which regulatory domain the
+  application must select at runtime, where the module needs one.
+- `--doctor` reports whether the configuration is applied and whether any file
+  changed since. Vendor files are backed up as `<name>.ubx-orig`;
+  `python scripts/module_config.py <target> revert` restores them.
+
+| Target | RF configuration |
+|--------|------------------|
+| `iris-w10`, `nora-w30`, `nora-w40` | Available for every listed part number |
+| `nora-w50-w51`, `nora-b20-b21-b22`, `alma-b20-b21` | Pending: waiting for the u-blox RF assets |
 
 What gets applied is declared per target in `modules/<target>/profile.json`; the
 assets themselves stay in the per-module folders at the repository root and are
-referenced, never duplicated. `--doctor` reports whether the configuration is
-applied, `--mac` reports the module's MAC / Bluetooth device address, and
-`--mac-set <ADDR>` shows how to use another one (`--burn` stores it in eFuse
-where a host tool exists; irreversible). See `modules/README.md`.
+referenced, never duplicated. See [modules/README.md](modules/README.md).
+
+## MAC address and Bluetooth device address
+
+Every module has a unique address programmed by u-blox in production (eFuse,
+OTP or UICR, depending on the SoC). Firmware uses it automatically; nothing has
+to be configured.
+
+```bash
+./ubx-sdk.sh nora-w40 --mac                          # read it from the module
+./ubx-sdk.sh nora-w40 --mac-set 02:12:34:56:78:9A    # show how to use another one
+```
+
+- `--mac [PORT]` reads the address over the serial port where a host tool
+  exists (NORA-W40, via esptool). For the other targets it explains where the
+  address lives and how the application reads it.
+- `--mac-set <ADDR>` prints the code to use a different address at runtime (RAM
+  only, nothing is written to the module).
+- `--burn` with `--mac-set` stores the address permanently, NORA-W40 only
+  (espefuse, `CUSTOM_MAC` eFuse). It is **irreversible**: an eFuse can be
+  written once.
+
+| Target | Factory address | `--mac` reads it | Permanent change |
+|--------|-----------------|------------------|------------------|
+| `iris-w10` | RW612 OTP | No, print it from the app or the Wi-Fi CLI | No |
+| `nora-w30` | Realtek eFuse | No, `wifi_get_mac_address()` in the app | From the app only (eFuse, one time) |
+| `nora-w40` | ESP32-C6 eFuse (base MAC for Wi-Fi STA/AP, Bluetooth) | Yes | `--mac-set <ADDR> --burn` (one time) |
+| `nora-w50-w51` | CC35xx factory configuration | No | No |
+| `nora-b20-b21-b22`, `alma-b20-b21` | Public Bluetooth address in UICR OTP | No | No |
+
+NCS samples use a random static Bluetooth address by default, not the u-blox
+public address in UICR.
+
+## Launcher details
 
 The launcher picks the shared `.venv` if there is one, hops into WSL2 for
 targets that only build on Linux, and passes anything after `--` straight
