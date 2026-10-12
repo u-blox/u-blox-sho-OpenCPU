@@ -40,6 +40,8 @@ DEFAULT_BOARD = "rdrw612bga"
 JLINK_DEVICE = "RW612"
 # RW612 FlexSPI flash (XIP) base; a raw .bin starts with the boot header here.
 FLASH_BASE = 0x08000000
+# spsdk 3.11 crashes on platformdirs 4.12+ (_optionally_create_directory gained 'private').
+SPSDK_PLATFORMDIRS = "platformdirs<4.12"
 DEFAULT_TOOLCHAIN = "armgcc"
 DEFAULT_EXAMPLE = "examples/demo_apps/hello_world"
 
@@ -308,7 +310,7 @@ def cmd_install(args) -> int:
 
     print("Installing/updating west and spsdk (blhost, for flashing through the boot ROM)...")
     result = subprocess.run(
-        [python, "-m", "pip", "install", "-U", "west", "spsdk"],
+        [python, "-m", "pip", "install", "-U", "west", "spsdk", SPSDK_PLATFORMDIRS],
     )
     if result.returncode != 0:
         print("\n[FAIL] Failed to install west / spsdk.")
@@ -447,14 +449,15 @@ def cmd_flash(args) -> int:
     # J-Link Commander from the newest SEGGER install; the older DLL pylink may load
     # fails to verify the IRIS-W10 flash.
     if firmware_file.suffix == ".bin":
-        # Erase first: J-Link skips sectors it believes unchanged, which goes wrong when a
-        # previous image left a FlexSPI block for another flash part.
-        end = FLASH_BASE + max(1, (firmware_file.stat().st_size + 0xFFF) // 0x1000) * 0x1000 - 1
-        load = [f"erase 0x{FLASH_BASE:08X} 0x{end:08X}",
-                f'loadbin "{firmware_file}" 0x{FLASH_BASE:08X}', f'verifybin "{firmware_file}" 0x{FLASH_BASE:08X}']
+        load = [f'loadbin "{firmware_file}" 0x{FLASH_BASE:08X}', f'verifybin "{firmware_file}" 0x{FLASH_BASE:08X}']
     else:
         load = [f'loadfile "{firmware_file}"']
-    return flash_helper.flash_jlink_script(JLINK_DEVICE, ["r", "h", *load, "r", "g"], serial, speed=4000)
+    rc = flash_helper.flash_jlink_script(JLINK_DEVICE, ["r", "h", *load, "r", "g"], serial, speed=4000)
+    if rc != 0:
+        # J-Link needs a valid FlexSPI config block in flash; only the boot ROM can restore it.
+        print("[INFO] If J-Link cannot program or verify the flash, recover once through the boot ROM:\n"
+              "       SW3 EXT-REQ (position 1) to GND, power-cycle, then 'ubx-sdk iris-w10 --flash COM<n>'.")
+    return rc
 
 def is_serial_port(value: str) -> bool:
     """COMx or /dev/... selects the boot ROM over UART instead of a J-Link serial number."""
@@ -493,9 +496,12 @@ def flash_isp(port: str, firmware: Path) -> int:
         print("[FAIL] blhost not found. Run 'ubx-sdk iris-w10 --install' (it comes with the SDK requirements).")
         return 1
     base = [blhost, "-p", f"{port},115200"]
-    probe = subprocess.run([*base, "-t", "3000", "--", "get-property", "1"], capture_output=True)
+    probe = subprocess.run([*base, "-t", "3000", "--", "get-property", "1"], capture_output=True, text=True)
+    if "Traceback" in (probe.stderr or ""):
+        print(f"[FAIL] blhost crashed. Rerun 'ubx-sdk iris-w10 --install'.\n{probe.stderr.strip().splitlines()[-1]}")
+        return 1
     if probe.returncode != 0:
-        print(f"[FAIL] No boot ROM on {port}. Put the EVK in ISP mode: SW3 REQ=ON, then power-cycle (PW OFF/ON).")
+        print(f"[FAIL] No boot ROM on {port}. Put the EVK in ISP mode: SW3 EXT-REQ to GND (EXT-FREQ/PRI/GNT stay high), then power-cycle.")
         return 1
     part = flash_part()
     print(f"Boot ROM on {port}, flash part {part}\n")
@@ -504,7 +510,7 @@ def flash_isp(port: str, firmware: Path) -> int:
         if subprocess.run([*base, "-t", "60000", "--", *step]).returncode != 0:
             print(f"[FAIL] blhost {step[0]} failed.")
             return 1
-    print("\n[OK] Flash complete. Set SW3 REQ=OFF and power-cycle (PW OFF/ON) to boot the image.\n")
+    print("\n[OK] Flash complete. Set SW3 EXT-REQ back to high (all four high = QSPI flash boot) and power-cycle to boot the image.\n")
     return 0
 
 def resolve_example(workspace: str, name: str) -> Optional[Path]:

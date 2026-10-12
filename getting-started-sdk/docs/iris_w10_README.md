@@ -37,13 +37,21 @@ example (`.elf`, `.bin`, `.hex`).
 
 ## Flash and log
 
-`--flash` programs the `.hex` through J-Link (`pylink-square` from the venv and
-SEGGER J-Link software). To use the EVK's MCU-Link with NXP's tools instead,
-run `west flash -r linkserver` in the SDK folder. `--log` opens the console at
+`--flash` writes the `.bin` at 0x08000000 through J-Link Commander on the EVK's
+MCU-Link (J-Link firmware) and verifies it. `--log` opens the MCU-Link VCOM at
 115200 baud.
 
-Recovery over the serial boot ROM (`blhost`) is described in
-[mcuxpresso/iris-w10/recovery-tool](../../mcuxpresso/iris-w10/recovery-tool).
+J-Link needs a valid flash config block (FCB) in flash. When it cannot program
+or verify (blank or wrong FCB), recover once through the boot ROM with `blhost`
+(installed by `--install`):
+
+1. SW3 position 1 (EXT-REQ) to GND, power-cycle.
+2. `./ubx-sdk.sh iris-w10 --flash COM<n>` (the MCU-Link VCOM).
+3. SW3 position 1 back, power-cycle. J-Link `--flash` works again.
+
+The flash part decides the FCB: Fidelix (modules from date code 2346) is the
+default; for older Macronix modules add `--set flash_part=macronix-8mb` to
+`--rf-config`.
 
 ## MCUXpresso for VS Code
 

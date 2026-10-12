@@ -317,8 +317,14 @@ def test_flash(ws, monkeypatch, capsys):
     (out / "hello_world.bin").write_text("")
     assert iris.cmd_flash(ns(serial="123")) == 0
     bin_path = out / "hello_world.bin"
-    assert seen[-1] == ("RW612", ["r", "h", "erase 0x08000000 0x08000FFF", f'loadbin "{bin_path}" 0x08000000',
+    assert seen[-1] == ("RW612", ["r", "h", f'loadbin "{bin_path}" 0x08000000',
                                   f'verifybin "{bin_path}" 0x08000000', "r", "g"], "123")
+    monkeypatch.setattr(flash_helper, "flash_jlink_script", lambda *a, **kw: 1)
+    capsys.readouterr()
+    assert iris.cmd_flash(ns(serial="123")) == 1
+    assert "--flash COM<n>" in capsys.readouterr().out
+    monkeypatch.setattr(flash_helper, "flash_jlink_script",
+                        lambda dev, commands, serial=None, speed=2000: seen.append((dev, commands, serial)) or 0)
     # Several probes and no way to tell which: stop before flashing.
     monkeypatch.setattr(flash_helper, "pick_jlink", lambda prefer=None: "")
     count = len(seen)
@@ -360,11 +366,18 @@ def test_flash_isp(ws, monkeypatch, capsys, tmp_path):
     monkeypatch.setattr(iris.subprocess, "run", run)
     codes[:] = [1]
     assert iris.flash_isp("COM147", fw) == 1
-    assert "SW3 REQ=ON" in capsys.readouterr().out
+    assert "SW3 EXT-REQ to GND" in capsys.readouterr().out
+    monkeypatch.setattr(iris.subprocess, "run", lambda cmd, **kw: subprocess.CompletedProcess(
+        cmd, 1, stderr="Traceback (most recent call last):\nTypeError: boom"))
+    assert iris.flash_isp("COM147", fw) == 1
+    out = capsys.readouterr().out
+    assert "blhost crashed" in out and "TypeError: boom" in out and "SW3" not in out
+    monkeypatch.setattr(iris.subprocess, "run", run)
+    assert "platformdirs<4.12" in iris.SPSDK_PLATFORMDIRS
     calls.clear()
     assert iris.flash_isp("COM147", fw) == 0
     assert calls[0][:3] == ["blhost", "-p", "COM147,115200"] and calls[-1][-3:] == ["write-memory", "0x08000000", str(fw)]
-    assert "REQ=OFF" in capsys.readouterr().out
+    assert "EXT-REQ back to high" in capsys.readouterr().out
     codes[:] = [0, 0, 5]
     assert iris.flash_isp("COM147", fw) == 1
 

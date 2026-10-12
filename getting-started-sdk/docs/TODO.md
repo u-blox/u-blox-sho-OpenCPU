@@ -21,11 +21,6 @@ Last updated 2026-10-12 (branch `cmag_getting_started_sdk`).
       nrfutil's interactive "select one" prompt; `--log` auto-detect picks a
       J-Link port, not the EVK-NORA-B2 FTDI console. Pick both from the probe serial.
       (J-Link targets already pick the board's probe, e.g. the IRIS-W10 MCU-Link.)
-- [ ] **IRIS-W10 no console output** on EVK-IRIS-W1 (2026-10-12): build,
-      `--rf-config` (now with the module `flash_config.c`), flash and reset work;
-      COM147 (MCU-Link VCOM, FLEXCOMM3 115200, GPIO_24/26) stays silent apart
-      from noise on RESET. Next: look at the raw bytes on RESET, then read the
-      core state over SWD (PC, boot ROM status) to see whether the image starts.
 - [ ] **Re-run each target once** after the move to `sdks/<vendor>/<version>/`
       and record it in `docs/BUILD_TEST_RESULTS.md` (rewritten 2026-10-12 with
       only the verified results).
