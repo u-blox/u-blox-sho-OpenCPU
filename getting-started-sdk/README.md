@@ -252,7 +252,7 @@ recorded instead of executed, and the end-to-end tests use `--dry-run`.
 python -m pytest tests -q
 ```
 
-`setup_venv.py` installs pytest. Run the suite on both Windows and WSL2/Linux;
+`setup_venv.py` installs pytest and pytest-cov. Run the suite on both Windows and WSL2/Linux;
 a few tests are platform-specific and skip elsewhere.
 
 Run it with the venv's Python (activate the venv, or call
@@ -260,12 +260,21 @@ Run it with the venv's Python (activate the venv, or call
 with other pytest plugins installed, such as MSYS2's, can fail before any test
 runs.
 
+To see which lines the tests reach (`htmlcov/index.html` has the per-line view):
+
+```bash
+python -m pytest tests -q --cov=scripts --cov-report=term --cov-report=html
+```
+
+Coverage counts only code run inside the pytest process; the scripts that
+`test_cli.py` starts as subprocesses are not included.
+
 CI runs on every push that touches `getting-started-sdk/`:
 
 | Where | Jobs |
 |-------|------|
-| GitLab (`.gitlab-ci.yml`) | pytest on Linux, Python 3.10 and 3.12; ruff; shellcheck |
-| GitHub Actions (`.github/workflows/getting-started-sdk.yml`, runs on the mirror) | pytest on Linux and Windows, Python 3.10 and 3.12; ruff; shellcheck |
+| GitLab (`.gitlab-ci.yml`) | pytest with coverage on Linux, Python 3.10 and 3.12 (total in the pipeline, covered lines in merge-request diffs); ruff; shellcheck |
+| GitHub Actions (`.github/workflows/getting-started-sdk.yml`, runs on the mirror) | pytest with coverage summary on Linux and Windows, Python 3.10 and 3.12; ruff; shellcheck |
 
 Run the linters locally before pushing (`pip install ruff==0.17.0 shellcheck-py`):
 

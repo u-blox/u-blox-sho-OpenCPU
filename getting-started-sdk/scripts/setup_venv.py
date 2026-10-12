@@ -131,10 +131,11 @@ def install_optional_dependencies(venv_path):
     if not os.path.exists(pip_exe):
         return ["pyserial", "pylink-square"]
 
-    print("Installing optional dependencies (pyserial, pylink, pytest)...")
+    print("Installing optional dependencies (pyserial, pylink, pytest, pytest-cov)...")
     for package, purpose in (("pyserial", "serial logging"),
                              ("pylink-square", "J-Link flashing"),
-                             ("pytest", "launcher tests")):
+                             ("pytest", "launcher tests"),
+                             ("pytest-cov", "test coverage")):
         try:
             subprocess.run([pip_exe, "install", package], check=True, capture_output=True)
             print(f"   [OK] {package} (for {purpose})")

@@ -8,6 +8,10 @@ venv/
 *.pyc
 __pycache__/
 .pytest_cache/
+.coverage
+coverage.xml
+report.xml
+htmlcov/
 
 # Object files & libraries
 *.o

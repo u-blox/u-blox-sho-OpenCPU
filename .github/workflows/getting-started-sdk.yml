@@ -42,8 +42,8 @@ jobs:
             - uses: actions/setup-python@v5
               with:
                   python-version: ${{ matrix.python }}
-            - run: python -m pip install --quiet pytest
-            - run: python -m pytest tests -q -rs
+            - run: python -m pip install --quiet pytest pytest-cov
+            - run: python -m pytest tests -q -rs --cov=scripts --cov-report=term
 
     lint:
         runs-on: ubuntu-latest

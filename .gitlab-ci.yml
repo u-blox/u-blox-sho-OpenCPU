@@ -15,13 +15,18 @@ workflow:
   stage: test
   before_script:
     - cd getting-started-sdk
-    - python -m pip install --quiet pytest
+    - python -m pip install --quiet pytest pytest-cov
   script:
-    - python -m pytest tests -q -rs --junitxml=report.xml
+    - python -m pytest tests -q -rs --junitxml=report.xml --cov=scripts --cov-report=term --cov-report=xml:coverage.xml
+  # Report only for now; no --cov-fail-under until the number has settled.
+  coverage: '/^TOTAL.*\s(\d+%)$/'
   artifacts:
     when: always
     reports:
       junit: getting-started-sdk/report.xml
+      coverage_report:
+        coverage_format: cobertura
+        path: getting-started-sdk/coverage.xml
   rules:
     - changes: [getting-started-sdk/**/*, .gitlab-ci.yml]
 
