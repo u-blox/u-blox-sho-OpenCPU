@@ -11,6 +11,7 @@ Branch: `cmag_getting_started_sdk`.
 | Target | Example | SDK / toolchain | Result | Date |
 |--------|---------|-----------------|--------|------|
 | IRIS-W10 | `demo_apps/hello_world` | MCUXpresso 26.09.00-pvw2, Arm GCC 14.2.1 | [OK] 28,968 B flash (1.4% of 2 MB) | 2026-10-07 |
+| IRIS-W10 | `demo_apps/hello_world` + `--rf-config` (IRIS-W101-00B), `--flash` + `--log` on EVK-IRIS-W1 | MCUXpresso `main` (`sdks/mcuxpresso-sdk/main`), J-Link via the on-board MCU-Link | [OK] build, rf-config (incl. module `flash_config.c`), flash and reset; [FAIL] no `hello world.` on the MCU-Link VCOM yet (only noise on RESET) | 2026-10-12 |
 | NORA-W40 | `hello_world` | ESP-IDF 6.2.0, Windows | [OK] `.bin` 130,736 B, 88% of app partition free | 2026-10-07 |
 | NORA-W40 | `ubx/rf-calibration` + `--rf-config` (NORA-W401) | ESP-IDF 6.2.0, riscv32-esp-elf 16.1.0 | [OK] `u-blox-nora-w40.bin` 920,544 B, 12% of 1 MB app partition free | 2026-10-12 |
 | NORA-W40 | `ubx/rf-calibration`, `--flash` + `--log` on EVK-NORA-W40 (FTDI COM USB, S4 ON) | ESP-IDF 6.2.0 (`sdks/esp-idf/master`), esptool 5.4.0 | [OK] auto-reset into the bootloader over FTDI; log shows `ubx_phy_cal: loading PHY init data from application binary`, MAC f0:f5:bd:13:6f:94 | 2026-10-12 |
