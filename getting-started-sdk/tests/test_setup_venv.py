@@ -154,7 +154,7 @@ def test_main_reports_missing_packages(sdk, monkeypatch, capsys):
     assert "Setup complete" in out and "missing: pyserial" in out and "./ubx-sdk.sh" in out
 
 
-@pytest.mark.parametrize("error", [subprocess.CalledProcessError(1, "pip"), RuntimeError("disk full")])
+@pytest.mark.parametrize("error", [subprocess.CalledProcessError(1, "pip"), OSError("disk full")])
 def test_main_fails_cleanly(monkeypatch, error):
     def boom():
         raise error

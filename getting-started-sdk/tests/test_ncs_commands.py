@@ -54,24 +54,6 @@ def no_workspace(monkeypatch):
 # host and tool detection
 # ---------------------------------------------------------------------------
 
-@pytest.mark.parametrize("system,proc,expected", [
-    ("Windows", None, "windows"),
-    ("Darwin", None, "macos"),
-    ("Linux", "Linux version 5.15 microsoft-standard-WSL2", "wsl"),
-    ("Linux", "Linux version 6.8 generic", "linux"),
-    ("Linux", OSError, "linux"),
-])
-def test_host_kind(monkeypatch, system, proc, expected):
-    monkeypatch.setattr(ncs.platform, "system", lambda: system)
-
-    def read_text(self, **kw):
-        if proc is OSError:
-            raise OSError("no /proc")
-        return proc
-    monkeypatch.setattr(ncs.Path, "read_text", read_text)
-    assert ncs.host_kind() == expected
-
-
 def test_detect_west(monkeypatch):
     monkeypatch.setattr(ncs, "which", lambda name: "/usr/bin/west")
     assert ncs.detect_west() == ["/usr/bin/west"]

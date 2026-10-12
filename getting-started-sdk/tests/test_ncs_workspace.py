@@ -1,6 +1,7 @@
 """NCS workspace selection and the shared disk-space check."""
 
 import argparse
+import sys
 
 import pytest
 
@@ -196,6 +197,7 @@ def test_resolve_config_creates_config_folder(fake_sdk_root):
 
 @pytest.mark.parametrize("system,proc,expected", [
     ("Windows", "", "windows"),
+    ("Darwin", "", "macos"),
     ("Linux", "Linux version 5.15 microsoft-standard-WSL2", "wsl"),
     ("Linux", "Linux version 6.8 generic", "linux"),
     ("Linux", OSError, "linux"),
@@ -227,3 +229,37 @@ def test_check_space_unknown_free_space(monkeypatch, tmp_path, capsys):
     monkeypatch.setattr(target_paths, "free_gb", lambda p: None)
     assert target_paths.check_space(tmp_path, 15, "NCS")
     assert "Could not determine free space" in capsys.readouterr().out
+
+
+def test_json_round_trip(tmp_path):
+    path = tmp_path / "config" / "build.linux.json"
+    assert target_paths.load_json(path) == {}
+    target_paths.save_json(path, {"workspace": "/ws"})
+    assert target_paths.load_json(path) == {"workspace": "/ws"}
+    path.write_text("{broken")
+    assert target_paths.load_json(path) == {}
+
+
+def test_newest_picks_the_highest_version(tmp_path, monkeypatch):
+    for name in ("tool-9.0", "tool-10.1"):
+        (tmp_path / name).mkdir()
+    assert target_paths.newest([str(tmp_path / "tool-*")]).name == "tool-10.1"
+    monkeypatch.chdir(tmp_path)
+    assert target_paths.newest(["tool-9*"]).name == "tool-9.0"
+    assert target_paths.newest([str(tmp_path / "none-*"), ""]) is None
+
+
+def test_short_path(monkeypatch, tmp_path):
+    monkeypatch.setattr(target_paths, "host_kind", lambda: "linux")
+    assert target_paths.short_path("/a b") == "/a b"
+    monkeypatch.setattr(target_paths, "host_kind", lambda: "windows")
+    assert target_paths.short_path("C:\\nospace") == "C:\\nospace"
+    # Off Windows ctypes has no windll; on Windows the path does not exist. Both keep the value.
+    assert target_paths.short_path("C:\\Does Not Exist\\x") == "C:\\Does Not Exist\\x"
+
+
+@pytest.mark.skipif(sys.platform != "win32", reason="GetShortPathNameW is Windows-only")
+def test_short_path_on_windows(tmp_path):
+    spaced = tmp_path / "with space"
+    spaced.mkdir()
+    assert " " not in target_paths.short_path(spaced)

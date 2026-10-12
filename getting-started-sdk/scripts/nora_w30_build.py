@@ -9,13 +9,13 @@ Note: Cygwin on Windows is complex; native Windows build not fully supported.
 
 import os
 import sys
-import json
 import subprocess
 import shutil
 from pathlib import Path
 from typing import Dict, Optional
 
 import target_paths
+from target_paths import host_kind
 
 TARGET = "nora_w30"
 
@@ -25,14 +25,6 @@ for _stream in (sys.stdout, sys.stderr):
         _stream.reconfigure(encoding="utf-8", errors="replace")
     except (AttributeError, OSError):
         pass
-
-# ============================================================================
-# PLATFORM & ENVIRONMENT DETECTION
-# ============================================================================
-
-def host_kind() -> str:
-    """Detect platform type: 'wsl', 'linux', or 'windows'."""
-    return target_paths.host_kind()
 
 # ============================================================================
 # TOOL DETECTION
@@ -67,17 +59,11 @@ def config_file() -> Path:
 
 def load_config() -> Dict:
     """Load cached configuration."""
-    cfg_path = config_file()
-    if cfg_path.exists():
-        try:
-            return json.loads(cfg_path.read_text(encoding="utf-8"))
-        except (json.JSONDecodeError, OSError):
-            pass
-    return {}
+    return target_paths.load_json(config_file())
 
 def save_config(cfg: Dict) -> None:
     """Save configuration to cache."""
-    config_file().write_text(json.dumps(cfg, indent=2), encoding="utf-8")
+    target_paths.save_json(config_file(), cfg)
 
 # ============================================================================
 # COMMANDS

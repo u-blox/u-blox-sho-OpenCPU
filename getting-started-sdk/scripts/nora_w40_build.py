@@ -8,13 +8,13 @@ Supports: Windows, WSL2, Linux
 
 import os
 import sys
-import json
 import subprocess
 import shutil
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Dict, Optional
 
 import target_paths
+from target_paths import host_kind, newest, short_path
 
 TARGET = "nora_w40"
 
@@ -29,54 +29,8 @@ for _stream in (sys.stdout, sys.stderr):
         pass
 
 # ============================================================================
-# PLATFORM & ENVIRONMENT DETECTION
-# ============================================================================
-
-def host_kind() -> str:
-    """Detect platform type: 'windows', 'wsl', or 'linux'."""
-    return target_paths.host_kind()
-
-def short_path(value: str) -> str:
-    """Convert Windows path to 8.3 short form (no spaces)."""
-    if host_kind() != "windows":
-        return value
-    try:
-        import ctypes
-        GetShortPathName = ctypes.windll.kernel32.GetShortPathNameW
-        length = GetShortPathName(value, None, 0)
-        buf = ctypes.create_unicode_buffer(length)
-        GetShortPathName(value, buf, length)
-        return buf.value
-    except (OSError, AttributeError):
-        return value
-
-# ============================================================================
 # TOOL DETECTION
 # ============================================================================
-
-def newest(patterns: List[str], exists_check: bool = True) -> Optional[str]:
-    """Find newest matching path from glob patterns."""
-    candidates = []
-    for pattern in patterns:
-        try:
-            if pattern.startswith(("C:/", "C:\\", "/")):
-                # Absolute path - check directly
-                p = Path(pattern)
-                if p.exists():
-                    candidates.append(p)
-            else:
-                # Relative path - use glob
-                candidates.extend(Path().glob(pattern))
-        except (OSError, ValueError):
-            pass
-
-    if not candidates:
-        return None
-    candidates.sort(key=lambda p: str(p), reverse=True)
-    for c in candidates:
-        if not exists_check or c.exists():
-            return str(c.resolve())
-    return None
 
 def detect_idf() -> Optional[str]:
     """Detect ESP-IDF installation."""
@@ -154,17 +108,11 @@ def config_file() -> Path:
 
 def load_config() -> Dict:
     """Load cached configuration."""
-    cfg_path = config_file()
-    if cfg_path.exists():
-        try:
-            return json.loads(cfg_path.read_text(encoding="utf-8"))
-        except (json.JSONDecodeError, OSError):
-            pass
-    return {}
+    return target_paths.load_json(config_file())
 
 def save_config(cfg: Dict) -> None:
     """Save configuration to cache."""
-    config_file().write_text(json.dumps(cfg, indent=2), encoding="utf-8")
+    target_paths.save_json(config_file(), cfg)
 
 # ============================================================================
 # COMMANDS

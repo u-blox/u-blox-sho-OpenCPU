@@ -80,7 +80,7 @@ def test_config_round_trip(monkeypatch, tmp_path):
 
 
 def test_config_file_and_host(monkeypatch, tmp_path):
-    monkeypatch.setattr(w40.target_paths, "host_kind", lambda: "linux")
+    monkeypatch.setattr(w40, "host_kind", lambda: "linux")
     monkeypatch.setattr(w40.target_paths, "resolve_config", lambda t, h: tmp_path / t / h)
     assert w40.config_file() == tmp_path / "nora_w40" / "linux"
 
@@ -110,26 +110,6 @@ def test_tool_detection(monkeypatch, tmp_path, name):
     monkeypatch.setattr(w40, "newest", lambda patterns: "C:/Program Files/tool.EXE")
     monkeypatch.setattr(w40, "short_path", lambda p: "C:/PROGRA~1/tool.EXE")
     assert getattr(w40, name)() == "C:/PROGRA~1/tool.EXE"
-
-
-def test_newest(tmp_path, monkeypatch):
-    for v in ("1.0", "2.0"):
-        (tmp_path / f"tool-{v}").mkdir()
-    monkeypatch.chdir(tmp_path)
-    assert w40.newest(["tool-*"]).endswith("tool-2.0")
-    assert w40.newest([str(tmp_path / "tool-1.0").replace("\\", "/")]).endswith("tool-1.0")
-    assert w40.newest(["/does/not/exist"]) is None
-
-
-def test_short_path_off_windows(monkeypatch):
-    monkeypatch.setattr(w40, "host_kind", lambda: "linux")
-    assert w40.short_path("/a b") == "/a b"
-
-
-@pytest.mark.skipif(sys.platform != "win32", reason="GetShortPathNameW is Windows-only")
-def test_short_path_on_windows(monkeypatch, tmp_path):
-    monkeypatch.setattr(w40, "host_kind", lambda: "windows")
-    assert w40.short_path(str(tmp_path))
 
 
 def test_detect_python(run):

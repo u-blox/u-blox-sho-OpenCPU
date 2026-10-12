@@ -51,34 +51,6 @@ def test_xds110_command(monkeypatch, tmp_path, serial, param):
                            "programming", "--tool_settings", "out/tool_settings.json", "--verbose"]
 
 
-def test_uart_dfu_is_not_implemented(monkeypatch):
-    monkeypatch.setattr(fh, "HAS_PYSERIAL", True)
-    assert fh.flash_uart_dfu("COM3", "image.bin") == 1
-
-
-def test_find_xdsiod_in_ccs_tree(monkeypatch, tmp_path):
-    exe = "xdsiod.exe" if sys.platform == "win32" else "xdsiod"
-    target = tmp_path / "ccs2041/ccs/ccs_base/common/uscif" / exe
-    target.parent.mkdir(parents=True)
-    target.write_text("")
-    monkeypatch.setattr(fh.shutil, "which", lambda name: None)
-    monkeypatch.setenv("CCS_INSTALL_ROOT", str(tmp_path))
-    assert fh._find_xdsiod() == str(target)
-
-
-def test_xds110_device_listing(monkeypatch):
-    monkeypatch.setattr(fh, "_find_xdsiod", lambda: "xdsiod")
-    out = "Found 1 device\n  XDS110 (03.00.00.32) Probe 0 serial L4100123\nother\n"
-    monkeypatch.setattr(fh.subprocess, "run", lambda *a, **k: subprocess.CompletedProcess(a, 0, out, ""))
-    assert fh.find_xds110_devices() == [{"product": "XDS110 (03.00.00.32) Probe 0 serial L4100123"}]
-
-
-def test_auto_detect_without_probes(monkeypatch):
-    monkeypatch.setattr(fh, "find_jlink_devices", lambda: [])
-    monkeypatch.setattr(fh, "find_xds110_devices", lambda: [])
-    assert fh.auto_detect_debugger() == (None, [])
-
-
 def test_cli_requires_a_debugger(monkeypatch):
     monkeypatch.setattr(sys, "argv", ["flash_helper.py", "--file", "x.bin"])
     with pytest.raises(SystemExit) as exc:

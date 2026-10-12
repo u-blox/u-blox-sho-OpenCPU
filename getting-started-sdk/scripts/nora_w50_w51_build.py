@@ -23,7 +23,6 @@ If you have no installed SDK, get one with:
 from __future__ import annotations
 
 import argparse
-import json
 import os
 import platform
 import re
@@ -33,6 +32,7 @@ import sys
 from pathlib import Path
 
 import target_paths
+from target_paths import host_kind, newest, short_path
 
 TARGET = "nora_w50_w51"
 
@@ -67,19 +67,6 @@ TOOL_KEYS = (
 # Host helpers
 # --------------------------------------------------------------------------- #
 
-def host_kind() -> str:
-    if os.name == "nt":
-        return "windows"
-    if sys.platform.startswith("linux"):
-        try:
-            if "microsoft" in Path("/proc/version").read_text().lower():
-                return "wsl"
-        except OSError:
-            pass
-        return "linux"
-    return platform.system().lower()
-
-
 HOST = host_kind()
 IS_WINDOWS = HOST == "windows"
 EXE = ".exe" if IS_WINDOWS else ""
@@ -101,47 +88,9 @@ def run(cmd: list[str], cwd: Path | None = None, check: bool = True) -> int:
     return rc
 
 
-def natural_key(p: Path):
-    return [int(t) if t.isdigit() else t.lower() for t in re.split(r"(\d+)", p.name)]
-
-
-def newest(patterns: list[str]) -> Path | None:
-    """Highest-versioned existing path across a list of glob patterns."""
-    hits: list[Path] = []
-    for pattern in patterns:
-        expanded = os.path.expanduser(pattern)
-        anchor = Path(expanded).anchor
-        root, rel = (anchor, expanded[len(anchor):]) if anchor else (".", expanded)
-        try:
-            hits.extend(Path(root).glob(rel))
-        except (OSError, ValueError, NotImplementedError):
-            continue
-    hits = [h for h in hits if h.exists()]
-    return sorted(hits, key=natural_key)[-1] if hits else None
-
-
-def short_path(value: str) -> str:
-    """TI's imports.mak cannot handle spaces; fall back to the 8.3 name on Windows."""
-    if not IS_WINDOWS or " " not in value:
-        return value
-    try:
-        import ctypes
-        from ctypes import wintypes
-
-        fn = ctypes.windll.kernel32.GetShortPathNameW
-        fn.argtypes = [wintypes.LPCWSTR, wintypes.LPWSTR, wintypes.DWORD]
-        fn.restype = wintypes.DWORD
-        buf = ctypes.create_unicode_buffer(1024)
-        if fn(value, buf, 1024) and buf.value:
-            return buf.value
-    except Exception:  # noqa: BLE001 - best effort only
-        pass
-    return value
-
-
 def mak_path(p: Path | str) -> str:
     """imports.mak wants forward slashes and no spaces, even on Windows."""
-    return short_path(str(p)).replace("\\", "/")
+    return short_path(p).replace("\\", "/")
 
 
 # --------------------------------------------------------------------------- #
@@ -253,17 +202,13 @@ def config_file() -> Path:
 
 
 def load_config() -> dict:
-    f = config_file()
-    try:
-        return json.loads(f.read_text(encoding="utf-8")) if f.exists() else {}
-    except json.JSONDecodeError:
-        return {}
+    return target_paths.load_json(config_file())
 
 
 def save_config(**updates) -> None:
     cfg = load_config()
     cfg.update({k: v for k, v in updates.items() if v is not None})
-    config_file().write_text(json.dumps(cfg, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    target_paths.save_json(config_file(), cfg)
 
 
 def resolve_tools(args) -> dict[str, str]:
@@ -667,21 +612,16 @@ def cmd_flash(args) -> int:
 
     bdir = build_dir(examples[args.example], args.toolchain)
 
-    # Look for firmware files
-    firmware_files = sorted(p for p in bdir.iterdir()
-                           if p.suffix in (".out", ".axf", ".bin", ".hex"))
-
-    if not firmware_files:
-        print(f"[FAIL] No firmware found in {bdir}")
+    # The Wi-Fi Toolbox programmer takes the build's tool_settings.json (which names
+    # the signed images), not an image file; TI's own Zephyr runner does the same.
+    settings = sorted(bdir.rglob("tool_settings.json"))
+    if not settings:
+        print(f"[FAIL] No tool_settings.json in {bdir}")
         print(f"   Build first with: python nora_w50_w51_build.py build {args.example}")
         return 1
 
-    firmware = firmware_files[0]
-    print(f"Flashing: {firmware.name}")
-    print(f"   Location: {bdir}\n")
-
-    # Flash using XDS110
-    return flash_helper.flash_xds110(str(firmware), args.serial)
+    print(f"Flashing with: {settings[0]}\n")
+    return flash_helper.flash_xds110(str(settings[0]), args.serial, cwd=settings[0].parent)
 
 
 # --------------------------------------------------------------------------- #

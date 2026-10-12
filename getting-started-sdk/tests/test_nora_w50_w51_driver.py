@@ -59,23 +59,6 @@ def parse(*argv):
 # helpers
 # ---------------------------------------------------------------------------
 
-def test_host_kind(monkeypatch):
-    monkeypatch.setattr(w5.os, "name", "nt")
-    assert w5.host_kind() == "windows"
-    monkeypatch.setattr(w5.os, "name", "posix")
-    monkeypatch.setattr(w5.sys, "platform", "linux")
-    monkeypatch.setattr(w5.Path, "read_text", lambda self: "Linux microsoft-standard-WSL2")
-    assert w5.host_kind() == "wsl"
-
-    def missing(self):
-        raise OSError
-    monkeypatch.setattr(w5.Path, "read_text", missing)
-    assert w5.host_kind() == "linux"
-    monkeypatch.setattr(w5.sys, "platform", "darwin")
-    monkeypatch.setattr(w5.platform, "system", lambda: "Darwin")
-    assert w5.host_kind() == "darwin"
-
-
 def test_run(calls_):
     assert w5.run(["make"], cwd=w5.Path("x")) == 0
     calls_.returns = [2, 3]
@@ -393,13 +376,18 @@ def test_log(monkeypatch):
 
 def test_flash(ws, monkeypatch, capsys):
     import flash_helper
-    monkeypatch.setattr(flash_helper, "flash_xds110", lambda fw, serial: (fw, serial))
+    monkeypatch.setattr(flash_helper, "flash_xds110", lambda ts, serial, cwd: (ts, serial, cwd))
     assert w5.cmd_flash(parse("flash", "nope")) == 1
     assert w5.cmd_flash(parse("flash", "network_terminal")) == 1
-    assert "No firmware found" in capsys.readouterr().out
+    assert "No tool_settings.json" in capsys.readouterr().out
     bdir = ws / "wifi-examples/examples/rtos" / BOARD / "demos/network_terminal/freertos/ticlang"
     (bdir / "app.out").write_text("")
-    assert w5.cmd_flash(parse("flash", "network_terminal", "--serial", "L41")) == (str(bdir / "app.out"), "L41")
+    assert w5.cmd_flash(parse("flash", "network_terminal")) == 1
+    settings = bdir / "out" / "tool_settings.json"
+    settings.parent.mkdir()
+    settings.write_text("{}")
+    assert w5.cmd_flash(parse("flash", "network_terminal", "--serial", "L41")) == \
+        (str(settings), "L41", settings.parent)
 
 
 def test_main(monkeypatch, capsys):

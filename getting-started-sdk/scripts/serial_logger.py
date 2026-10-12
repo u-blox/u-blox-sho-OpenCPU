@@ -117,6 +117,7 @@ def open_serial_monitor(port=None, baudrate=115200):
     print(f"\nOpening {port} at {baudrate} baud (Ctrl+C to exit)...")
     print("=" * 70)
 
+    ser = None
     try:
         ser = serial.Serial(port, baudrate=baudrate, timeout=1)
         print(f"[OK] Connected to {port}\n")
@@ -136,10 +137,8 @@ def open_serial_monitor(port=None, baudrate=115200):
         print(f"\n[FAIL] Serial error: {e}")
         return 1
     finally:
-        try:
+        if ser is not None:
             ser.close()
-        except Exception:
-            pass
 
 
 def open_with_screen(port, baudrate=115200):
@@ -159,9 +158,7 @@ def open_with_putty(port, baudrate=115200):
     Fallback: Use PuTTY (Windows).
     """
     try:
-        # PuTTY uses different port format for COM ports
-        putty_port = port.replace('COM', 'COM') if 'COM' in port else port
-        subprocess.run(['putty', '-serial', putty_port, '-sercfg', f'{baudrate},8,1,N,N'])
+        subprocess.run(['putty', '-serial', port, '-sercfg', f'{baudrate},8,1,N,N'])
     except FileNotFoundError:
         print("[FAIL] PuTTY not found")
         return 1
@@ -186,21 +183,11 @@ def main():
     if not HAS_PYSERIAL:
         print("[WARNING] pyserial not available, trying fallback methods...")
         if not port:
-            # Try to auto-detect with manual port listing
-            print("Available serial ports (Windows):")
-            os_name = sys.platform
-            if os_name.startswith('win'):
-                # Windows - list COM ports
-                for i in range(1, 256):
-                    try:
-                        s = __import__('serial').Serial(f'COM{i}', timeout=0.1)
-                        s.close()
-                        print(f"  COM{i}")
-                    except Exception:
-                        pass
+            if sys.platform.startswith('win'):
+                print("Pass the COM port (see Device Manager), or install pyserial for auto-detection.")
             else:
-                # Unix/Linux
                 import glob
+                print("Available serial ports:")
                 for port_path in glob.glob('/dev/ttyUSB*') + glob.glob('/dev/ttyACM*'):
                     print(f"  {port_path}")
             return 1

@@ -289,7 +289,10 @@ west build -p always -b lp_em_cc35x1 -d build_mcuboot bootloader/mcuboot/boot/ze
 
 1. Connect the EVK/LaunchPad over USB — the on-board **XDS110** gives you both debug and a UART.
 2. Flash with the **SimpleLink Wi-Fi toolbox** (part of the SDK installer), with **CCS**, or with
-   **UniFlash**.
+   **UniFlash**. `./ubx-sdk.sh nora-w50-w51 --flash <example>` runs the toolbox programmer
+   with the `tool_settings.json` the build writes (set `TI_TOOLBOX` if it is not on PATH).
+   It fails when the build produced no `tool_settings.json`; this path has not yet been
+   verified on an EVK.
 3. Open a serial terminal on the XDS110 *Application/User UART* port at **115200 8N1**
    (`/dev/ttyACM0` on Linux/WSL, `COMx` on Windows).
 

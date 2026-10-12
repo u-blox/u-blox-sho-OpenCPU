@@ -13,9 +13,7 @@ Supports: Windows, WSL2, Linux, macOS
 """
 
 import argparse
-import json
 import os
-import platform
 import shutil
 import subprocess
 import sys
@@ -24,6 +22,7 @@ from pathlib import Path
 from typing import Dict, List, Optional
 
 import target_paths
+from target_paths import host_kind
 
 # Latest NCS general-availability release. Pinned rather than tracking main so a
 # clone is reproducible.
@@ -105,22 +104,6 @@ def resolve_target(name: str) -> Optional[NcsTarget]:
 # ============================================================================
 # PLATFORM & ENVIRONMENT DETECTION
 # ============================================================================
-
-def host_kind() -> str:
-    """Detect platform type: 'windows', 'wsl', 'linux' or 'macos'."""
-    system = platform.system()
-    if system == "Windows":
-        return "windows"
-    if system == "Darwin":
-        return "macos"
-    try:
-        content = Path("/proc/version").read_text(encoding="utf-8", errors="replace").upper()
-        if "WSL" in content or "MICROSOFT" in content:
-            return "wsl"
-    except OSError:
-        pass
-    return "linux"
-
 
 def which(name: str) -> Optional[str]:
     return shutil.which(name)
@@ -249,19 +232,11 @@ def config_file(target: NcsTarget) -> Path:
 
 
 def load_config(target: NcsTarget) -> Dict:
-    path = config_file(target)
-    if path.exists():
-        try:
-            return json.loads(path.read_text(encoding="utf-8"))
-        except (OSError, json.JSONDecodeError):
-            pass
-    return {}
+    return target_paths.load_json(config_file(target))
 
 
 def save_config(target: NcsTarget, cfg: Dict) -> None:
-    path = config_file(target)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(cfg, indent=2), encoding="utf-8")
+    target_paths.save_json(config_file(target), cfg)
 
 
 # ============================================================================

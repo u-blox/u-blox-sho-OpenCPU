@@ -184,8 +184,8 @@ def main():
     except subprocess.CalledProcessError as e:
         print(f"\n[FAIL] Setup failed: {e}")
         sys.exit(1)
-    except Exception as e:
-        print(f"\n[FAIL] Unexpected error: {e}")
+    except OSError as e:
+        print(f"\n[FAIL] {e}")
         sys.exit(1)
 
 if __name__ == "__main__":

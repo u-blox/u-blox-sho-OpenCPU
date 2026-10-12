@@ -7,12 +7,9 @@ MCUXpresso SDK (west/CMake/Ninja flavour).
 Supports: Windows, WSL2, Linux
 """
 
-import glob
 import os
 import sys
-import json
 import subprocess
-import platform
 import shutil
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
@@ -20,6 +17,7 @@ from typing import Dict, List, Optional, Tuple
 # Import serial logger
 import serial_logger
 import target_paths
+from target_paths import host_kind, newest, short_path
 
 TARGET = "iris_w10"
 
@@ -53,48 +51,9 @@ def is_venv_active() -> bool:
         hasattr(sys, 'base_prefix') and sys.base_prefix != sys.prefix
     )
 
-def host_kind() -> str:
-    """Detect platform type: 'windows', 'wsl', or 'linux'."""
-    system = platform.system()
-    if system == "Windows":
-        return "windows"
-    elif system == "Linux":
-        try:
-            text = Path("/proc/version").read_text(encoding="utf-8", errors="replace")
-            if "microsoft" in text.lower():
-                return "wsl"
-        except OSError:
-            pass
-        return "linux"
-    return "linux"
-
-def short_path(value: str) -> str:
-    """Convert Windows path to 8.3 short form (no spaces)."""
-    if host_kind() != "windows":
-        return value
-    try:
-        import ctypes
-        GetShortPathName = ctypes.windll.kernel32.GetShortPathNameW
-        length = GetShortPathName(value, None, 0)
-        buf = ctypes.create_unicode_buffer(length)
-        GetShortPathName(value, buf, length)
-        return buf.value or value
-    except Exception:
-        return value
-
 # ============================================================================
 # TOOL DETECTION
 # ============================================================================
-
-def newest(patterns: List[str]) -> Optional[str]:
-    """Newest existing path matching any of the absolute glob patterns."""
-    candidates = []
-    for pattern in patterns:
-        candidates.extend(glob.glob(pattern))
-    for c in sorted(candidates, reverse=True):
-        if Path(c).exists():
-            return str(Path(c).resolve())
-    return None
 
 def which(name: str) -> Optional[str]:
     """Locate an executable on PATH."""
@@ -131,39 +90,28 @@ def _python_has_pip(python_exe: str) -> bool:
             capture_output=True, text=True, timeout=5
         )
         return result.returncode == 0
-    except Exception:
+    except (OSError, subprocess.SubprocessError):
         return False
 
 def detect_git() -> Optional[str]:
     return which("git")
 
 def detect_west() -> Optional[str]:
-    """west is a pip console script; fall back to 'python -m west'."""
-    found = which("west")
-    if found:
-        return found
-    try:
-        r = subprocess.run([sys.executable, "-m", "west", "--version"],
-                           capture_output=True, text=True)
-        if r.returncode == 0:
-            return f"{sys.executable} -m west"
-    except Exception:
-        pass
-    return None
+    """west as a printable command, for 'doctor'."""
+    cmd = west_cmd()
+    return " ".join(cmd) if cmd else None
 
 def west_cmd() -> Optional[List[str]]:
-    """Argv prefix for invoking west."""
+    """Argv prefix for invoking west; a pip console script, else 'python -m west'."""
     found = which("west")
     if found:
         return [found]
     try:
         r = subprocess.run([sys.executable, "-m", "west", "--version"],
                            capture_output=True, text=True)
-        if r.returncode == 0:
-            return [sys.executable, "-m", "west"]
-    except Exception:
-        pass
-    return None
+    except OSError:
+        return None
+    return [sys.executable, "-m", "west"] if r.returncode == 0 else None
 
 def detect_cmake() -> Optional[str]:
     if host_kind() == "windows":
@@ -245,16 +193,10 @@ def config_file() -> Path:
     return target_paths.resolve_config(TARGET, host_kind())
 
 def load_config() -> Dict:
-    cfg_path = config_file()
-    if cfg_path.exists():
-        try:
-            return json.loads(cfg_path.read_text(encoding="utf-8"))
-        except (json.JSONDecodeError, OSError):
-            pass
-    return {}
+    return target_paths.load_json(config_file())
 
 def save_config(cfg: Dict) -> None:
-    config_file().write_text(json.dumps(cfg, indent=2), encoding="utf-8")
+    target_paths.save_json(config_file(), cfg)
 
 # ============================================================================
 # COMMANDS

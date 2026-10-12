@@ -59,9 +59,8 @@ def test_config_round_trip(monkeypatch, tmp_path):
 
 
 def test_config_file_and_host(monkeypatch, tmp_path):
-    monkeypatch.setattr(w30.target_paths, "host_kind", lambda: "wsl")
+    monkeypatch.setattr(w30, "host_kind", lambda: "wsl")
     monkeypatch.setattr(w30.target_paths, "resolve_config", lambda t, h: tmp_path / t / h)
-    assert w30.host_kind() == "wsl"
     assert w30.config_file() == tmp_path / "nora_w30" / "wsl"
 
 

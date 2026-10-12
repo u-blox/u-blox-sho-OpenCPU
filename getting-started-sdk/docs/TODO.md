@@ -73,10 +73,12 @@ Last updated 2026-10-12 (branch `cmag_getting_started_sdk`).
 - [ ] Check the first GitLab pipelines went green (python 3.10 + 3.12). If jobs are
       stuck or the image pull fails, point `image:` at the internal registry.
 
-## Hardware (needs EVKs)
+## Hardware (needs EVKs; planned on one machine with every platform)
 
 - [ ] `--flash`, `--log` and `--mac` on every EVK, starting with IRIS-W10 and NORA-W50-W51.
-- [ ] Verify XDS110 flashing with the fixed `-param1 <serial>` argument (NORA-W50-W51).
+- [ ] Verify XDS110 flashing (NORA-W50-W51): `--flash` now passes the build's
+      `tool_settings.json` to the toolbox programmer (as TI's Zephyr runner does), run from
+      its folder, with `-param1 <serial>`. Confirm the SDK example build writes that file.
 
 ## RF configuration (needs the RF team)
 
@@ -91,7 +93,5 @@ Last updated 2026-10-12 (branch `cmag_getting_started_sdk`).
       (Windows). It honours `core.autocrlf`, so with `autocrlf=true` a patched LF file is
       written back as CRLF. Harmless for SDKs cloned with the same setting; decide whether
       to pin `-c core.autocrlf=false` once a CRLF checkout has been tested.
-- [ ] Coverage gate is on the total only (90%). pytest-cov has no per-file minimum; add a
-      `coverage json` check in CI if a per-file floor (75%) is wanted.
 - [ ] `ubx_evkalmab2` board once u-blox publishes it (ALMA-B20-B21 uses `nrf54lm20dk`).
 - [ ] Review and merge `cmag_getting_started_sdk` to master.

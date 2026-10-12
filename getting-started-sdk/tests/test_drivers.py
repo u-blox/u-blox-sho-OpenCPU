@@ -38,7 +38,7 @@ def test_newest_expands_absolute_globs(tmp_path):
         exe.parent.mkdir(parents=True)
         exe.write_text("")
     found = iris_w10_build.newest([str(tmp_path / "Arm GNU Toolchain*" / "bin" / "gcc")])
-    assert "14.2" in found
+    assert "14.2" in str(found)
 
 
 @pytest.mark.parametrize("module", [nora_w30_build, nora_w40_build], ids=["nora_w30", "nora_w40"])

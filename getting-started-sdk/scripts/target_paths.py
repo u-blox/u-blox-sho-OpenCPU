@@ -23,6 +23,7 @@ Paths are anchored to this file, not the working directory.
 
 from __future__ import annotations
 
+import json
 import os
 import platform
 import re
@@ -63,9 +64,12 @@ DEFAULT_VERSIONS: dict[str, str] = {
 
 
 def host_kind() -> str:
-    """Detect platform type: 'windows', 'wsl', or 'linux'."""
-    if platform.system() == "Windows":
+    """Detect platform type: 'windows', 'macos', 'wsl', or 'linux'."""
+    system = platform.system()
+    if system == "Windows":
         return "windows"
+    if system == "Darwin":
+        return "macos"
     try:
         content = Path("/proc/version").read_text(encoding="utf-8", errors="replace").upper()
         if "WSL" in content or "MICROSOFT" in content:
@@ -73,6 +77,55 @@ def host_kind() -> str:
     except OSError:
         pass
     return "linux"
+
+
+def load_json(path: Path) -> dict:
+    """A cached JSON config, or {} when it is missing or unreadable."""
+    try:
+        return json.loads(Path(path).read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return {}
+
+
+def save_json(path: Path, data: dict) -> None:
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8")
+
+
+def newest(patterns: list[str]) -> Path | None:
+    """Highest-versioned existing path across glob patterns ('~' and absolute patterns allowed)."""
+    hits: list[Path] = []
+    for pattern in patterns:
+        expanded = os.path.expanduser(pattern)
+        anchor = Path(expanded).anchor
+        root, rel = (anchor, expanded[len(anchor):]) if anchor else (".", expanded)
+        try:
+            hits.extend(Path(root).glob(rel))
+        except (OSError, ValueError, NotImplementedError):
+            continue
+    hits = [h for h in hits if h.exists()]
+    return max(hits, key=lambda p: _version_key(str(p))) if hits else None
+
+
+def short_path(value: str | Path) -> str:
+    """The Windows 8.3 form of a path with spaces, for makefiles that cannot quote; unchanged elsewhere."""
+    value = str(value)
+    if host_kind() != "windows" or " " not in value:
+        return value
+    try:
+        import ctypes
+        from ctypes import wintypes
+
+        fn = ctypes.windll.kernel32.GetShortPathNameW
+        fn.argtypes = [wintypes.LPCWSTR, wintypes.LPWSTR, wintypes.DWORD]
+        fn.restype = wintypes.DWORD
+        buf = ctypes.create_unicode_buffer(1024)
+        if fn(value, buf, 1024) and buf.value:
+            return buf.value
+    except (OSError, AttributeError, ValueError):
+        pass
+    return value
 
 
 def _slug(target: str) -> str:

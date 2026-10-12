@@ -66,35 +66,12 @@ def ws(tmp_path, monkeypatch, cfg):
 # detection
 # ---------------------------------------------------------------------------
 
-@pytest.mark.parametrize("system,proc,expected", [
-    ("Windows", "", "windows"), ("Darwin", "", "linux"),
-    ("Linux", "Linux 5.15 microsoft-standard-WSL2", "wsl"), ("Linux", "Linux 6.8", "linux"),
-    ("Linux", OSError, "linux"),
-])
-def test_host_kind(monkeypatch, system, proc, expected):
-    monkeypatch.setattr(iris.platform, "system", lambda: system)
-
-    def read_text(self, **kw):
-        if proc is OSError:
-            raise OSError
-        return proc
-    monkeypatch.setattr(iris.Path, "read_text", read_text)
-    assert iris.host_kind() == expected
-
-
 def test_is_venv_active(monkeypatch):
     monkeypatch.setattr(iris.sys, "base_prefix", "/base")
     monkeypatch.setattr(iris.sys, "prefix", "/venv")
     assert iris.is_venv_active()
     monkeypatch.setattr(iris.sys, "prefix", "/base")
     assert not iris.is_venv_active()
-
-
-def test_short_path(monkeypatch, tmp_path):
-    monkeypatch.setattr(iris, "host_kind", lambda: "linux")
-    assert iris.short_path("/a b") == "/a b"
-    monkeypatch.setattr(iris, "host_kind", lambda: "windows")
-    assert iris.short_path(str(tmp_path))  # real call on Windows, AttributeError fallback elsewhere
 
 
 def test_python_detection(monkeypatch, run, tmp_path):
