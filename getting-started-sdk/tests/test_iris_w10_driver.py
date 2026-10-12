@@ -300,7 +300,7 @@ def test_flash(ws, monkeypatch, capsys):
     import flash_helper
     seen = []
     monkeypatch.setattr(flash_helper, "flash_jlink",
-                        lambda dev, fw, address=0, serial=None: seen.append((dev, fw, address, serial)) or 0)
+                        lambda dev, fw, address=0, serial=None, prefer=None: seen.append((dev, fw, address, serial)) or 0)
     assert iris.cmd_flash(ns(example=None)) == 1
     assert iris.cmd_flash(ns(example="nope")) == 1
     assert iris.cmd_flash(ns()) == 1

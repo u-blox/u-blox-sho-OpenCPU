@@ -49,9 +49,13 @@ def fake_serial(ports=(), opens=None, lines=()):
 class FakeJLink:
     log: list = []
     fail = None
+    emulators: list = []
 
     def __init__(self, serial_no=None):
         self.serial_no = serial_no
+
+    def connected_emulators(self):
+        return [types.SimpleNamespace(SerialNumber=sn, acProduct=product) for sn, product in FakeJLink.emulators]
 
     def __enter__(self):
         return self
@@ -71,6 +75,7 @@ class FakeJLink:
 def jlink(monkeypatch):
     FakeJLink.log = []
     FakeJLink.fail = None
+    FakeJLink.emulators = []
     monkeypatch.setattr(fh, "HAS_PYLINK", True)
     monkeypatch.setattr(fh, "JLink", FakeJLink, raising=False)
     monkeypatch.setattr(fh, "JLinkInterfaces", types.SimpleNamespace(SWD="swd"), raising=False)
@@ -87,6 +92,21 @@ def test_flash_jlink_sequence(jlink, tmp_path):
                      "set_reset_pin_low", "set_reset_pin_high", "reset"]
     assert ("reset", (("halt", False),)) in jlink.log
     assert ("flash_file", (str(fw), 0x1000)) in jlink.log
+
+
+def test_pick_jlink_without_dialog(jlink, tmp_path, capsys):
+    assert fh.pick_jlink() is None
+    jlink.emulators = [(59302186, b"J-Link")]
+    assert fh.pick_jlink() == "59302186"
+    jlink.emulators = [(59302186, b"J-Link"), (1060060281, b"J-Link MCU-Link")]
+    assert fh.pick_jlink("MCU-Link") == "1060060281"
+    assert fh.pick_jlink() == ""
+    out = capsys.readouterr().out
+    assert "using J-Link MCU-Link 1060060281" in out and "--flash <SN>" in out and "59302186" in out
+    fw = tmp_path / "hello_world.elf"
+    fw.write_text("")
+    assert fh.flash_jlink("RW612", str(fw)) == 1
+    assert jlink.log == []
 
 
 def test_flash_jlink_reports_failure(jlink, tmp_path, capsys):

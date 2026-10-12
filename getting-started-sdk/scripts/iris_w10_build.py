@@ -435,7 +435,8 @@ def cmd_flash(args) -> int:
     print(f"   Device: {JLINK_DEVICE}\n")
 
     address = FLASH_BASE if firmware_file.suffix == ".bin" else 0
-    return flash_helper.flash_jlink(JLINK_DEVICE, str(firmware_file), address=address, serial=args.serial)
+    return flash_helper.flash_jlink(JLINK_DEVICE, str(firmware_file), address=address, serial=args.serial,
+                                    prefer="MCU-Link")
 
 def resolve_example(workspace: str, name: str) -> Optional[Path]:
     """Map a user-supplied example name to a directory in the workspace.

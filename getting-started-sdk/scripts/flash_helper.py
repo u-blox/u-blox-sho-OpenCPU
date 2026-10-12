@@ -44,7 +44,26 @@ except ImportError:
         """Stand-in so the except clause below works without pylink."""
 
 
-def flash_jlink(device: str, firmware_file: str, address: int = 0, serial: Optional[str] = None) -> int:
+def pick_jlink(prefer: Optional[str] = None) -> Optional[str]:
+    """Serial of the probe to use when none was given; '' when the choice is ambiguous."""
+    probes = []
+    for emu in JLink().connected_emulators():
+        product = emu.acProduct.decode(errors="replace") if isinstance(emu.acProduct, bytes) else str(emu.acProduct)
+        probes.append((str(emu.SerialNumber), product))
+    if len(probes) <= 1:
+        return probes[0][0] if probes else None
+    matches = [p for p in probes if prefer and prefer.lower() in p[1].lower()]
+    if len(matches) == 1:
+        print(f"[INFO] Several probes connected; using {matches[0][1]} {matches[0][0]}.")
+        return matches[0][0]
+    print("[FAIL] Several J-Link probes connected. Pick one with --flash <SN>:")
+    for sn, product in probes:
+        print(f"       {sn}  {product}")
+    return ""
+
+
+def flash_jlink(device: str, firmware_file: str, address: int = 0, serial: Optional[str] = None,
+                prefer: Optional[str] = None) -> int:
     """
     Flash firmware using J-Link.
 
@@ -53,6 +72,7 @@ def flash_jlink(device: str, firmware_file: str, address: int = 0, serial: Optio
         firmware_file: Path to .hex or .bin file
         address: Flash address (for .bin files)
         serial: J-Link serial number (auto-detected if None)
+        prefer: Probe product name to pick when several are connected (e.g. 'MCU-Link')
     """
     if not HAS_PYLINK:
         print("[FAIL] pylink not installed. Install with: pip install pylink-square")
@@ -64,6 +84,10 @@ def flash_jlink(device: str, firmware_file: str, address: int = 0, serial: Optio
         return 1
 
     try:
+        if not serial:
+            serial = pick_jlink(prefer)
+            if serial == "":
+                return 1
         with JLink(serial_no=serial) as jlink:
             jlink.set_tif(JLinkInterfaces.SWD)
             jlink.disable_dialog_boxes()
