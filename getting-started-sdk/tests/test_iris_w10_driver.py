@@ -333,6 +333,70 @@ def test_flash(ws, monkeypatch, capsys):
     assert iris.cmd_flash(ns()) == 1
 
 
+def test_isp_steps(tmp_path):
+    fw = tmp_path / "hello_world.bin"
+    fw.write_bytes(b"\0" * 0x10001)
+    fid = iris.isp_steps("fidelex-8mb", fw)
+    assert fid[0][:2] == ["write-memory", "0x20001000"] and fid[0][2].endswith("FCB_FID.bin")
+    assert fid[-2:] == [["flash-erase-region", "0x08000000", "0x20000"], ["write-memory", "0x08000000", str(fw)]]
+    mx = iris.isp_steps("macronix-8mb", fw)
+    assert mx[0] == ["fill-memory", "0x20001000", "0x4", "0xC0000008"] and mx[-1][0] == "write-memory"
+    assert iris.is_serial_port("COM147") and iris.is_serial_port("/dev/ttyACM0") and not iris.is_serial_port("1060060281")
+
+
+def test_flash_isp(ws, monkeypatch, capsys, tmp_path):
+    fw = tmp_path / "hello_world.bin"
+    fw.write_bytes(b"\0" * 16)
+    monkeypatch.setattr(iris, "find_blhost", lambda: None)
+    assert iris.flash_isp("COM147", fw) == 1
+    assert "--install" in capsys.readouterr().out
+    monkeypatch.setattr(iris, "find_blhost", lambda: "blhost")
+    monkeypatch.setattr(iris, "flash_part", lambda: "fidelex-8mb")
+    calls, codes = [], []
+
+    def run(cmd, **kw):
+        calls.append(cmd)
+        return subprocess.CompletedProcess(cmd, codes.pop(0) if codes else 0)
+    monkeypatch.setattr(iris.subprocess, "run", run)
+    codes[:] = [1]
+    assert iris.flash_isp("COM147", fw) == 1
+    assert "SW3 REQ=ON" in capsys.readouterr().out
+    calls.clear()
+    assert iris.flash_isp("COM147", fw) == 0
+    assert calls[0][:3] == ["blhost", "-p", "COM147,115200"] and calls[-1][-3:] == ["write-memory", "0x08000000", str(fw)]
+    assert "REQ=OFF" in capsys.readouterr().out
+    codes[:] = [0, 0, 5]
+    assert iris.flash_isp("COM147", fw) == 1
+
+
+def test_flash_through_boot_rom(ws, monkeypatch, capsys):
+    out = ws / "build"
+    out.mkdir()
+    (out / "hello_world.elf").write_text("")
+    assert iris.cmd_flash(ns(serial="COM147")) == 1
+    assert "needs a .bin" in capsys.readouterr().out
+    (out / "hello_world.bin").write_text("")
+    monkeypatch.setattr(iris, "flash_isp", lambda port, fw: (port, fw.name))
+    assert iris.cmd_flash(ns(serial="COM147")) == ("COM147", "hello_world.bin")
+
+
+def test_flash_part_from_rf_config(monkeypatch):
+    import module_config
+    monkeypatch.setattr(module_config, "load_state", lambda key: {})
+    assert iris.flash_part() == "fidelex-8mb"
+    monkeypatch.setattr(module_config, "load_state", lambda key: {"variables": {"flash_part": "macronix-8mb"}})
+    assert iris.flash_part() == "macronix-8mb"
+
+
+def test_find_blhost(monkeypatch, tmp_path):
+    monkeypatch.setattr(iris.sys, "executable", str(tmp_path / "python"))
+    monkeypatch.setattr(iris, "which", lambda name: None)
+    assert iris.find_blhost() is None
+    exe = tmp_path / ("blhost.exe" if iris.host_kind() == "windows" else "blhost")
+    exe.write_text("")
+    assert iris.find_blhost() == str(exe)
+
+
 def test_log(monkeypatch):
     monkeypatch.setattr(iris.serial_logger, "open_serial_monitor", lambda port, baud: (port, baud))
     assert iris.cmd_log(ns(port="COM11")) == ("COM11", 115200)

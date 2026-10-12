@@ -435,6 +435,12 @@ def cmd_flash(args) -> int:
     print(f"Firmware: {firmware_file.name}")
     print(f"   Device: {JLINK_DEVICE}\n")
 
+    if args.serial and is_serial_port(args.serial):
+        if firmware_file.suffix != ".bin":
+            print(f"[FAIL] Boot-ROM flashing needs a .bin; found only {firmware_file.name}.")
+            return 1
+        return flash_isp(args.serial, firmware_file)
+
     serial = args.serial or (flash_helper.pick_jlink("MCU-Link") if flash_helper.HAS_PYLINK else None)
     if serial == "":
         return 1
@@ -449,6 +455,57 @@ def cmd_flash(args) -> int:
     else:
         load = [f'loadfile "{firmware_file}"']
     return flash_helper.flash_jlink_script(JLINK_DEVICE, ["r", "h", *load, "r", "g"], serial, speed=4000)
+
+def is_serial_port(value: str) -> bool:
+    """COMx or /dev/... selects the boot ROM over UART instead of a J-Link serial number."""
+    return value.upper().startswith("COM") or value.startswith("/dev/")
+
+def find_blhost() -> Optional[str]:
+    """NXP blhost, installed into the venv by the SDK's Python requirements (spsdk)."""
+    local = Path(sys.executable).parent / ("blhost.exe" if host_kind() == "windows" else "blhost")
+    return str(local) if local.is_file() else which("blhost")
+
+def flash_part() -> str:
+    """Flash part chosen by --rf-config (--set flash_part=...); current modules have Fidelix."""
+    import module_config
+    return module_config.load_state("iris-w10").get("variables", {}).get("flash_part", "fidelex-8mb")
+
+def isp_steps(part: str, firmware: Path) -> List[List[str]]:
+    """blhost commands for the RW612 boot ROM, as in u-blox's IRIS_blhost.bat."""
+    erase = f"0x{max(1, -(-firmware.stat().st_size // 0x10000)) * 0x10000:X}"
+    app = [["flash-erase-region", f"0x{FLASH_BASE:08X}", erase],
+           ["write-memory", f"0x{FLASH_BASE:08X}", str(firmware)]]
+    if part.startswith("fidelex"):
+        fcb = target_paths.SDK_ROOT.parent / "mcuxpresso" / "iris-w10" / "recovery-tool" / "blhost" / \
+            "recovery-bin" / "fidelix" / "FCB_FID.bin"
+        return [["write-memory", "0x20001000", str(fcb)],
+                ["configure-memory", "0x9", "0x20001000"],
+                ["flash-erase-region", f"0x{FLASH_BASE:08X}", "0x1000"],
+                ["fill-memory", "0x20001000", "0x04", "0xf000000f"],
+                ["configure-memory", "0x9", "0x20001000"], *app]
+    return [["fill-memory", "0x20001000", "0x4", "0xC0000008"],
+            ["configure-memory", "0x9", "0x20001000"], *app]
+
+def flash_isp(port: str, firmware: Path) -> int:
+    """Write the image through the RW612 boot ROM; works when J-Link cannot reach the flash."""
+    blhost = find_blhost()
+    if not blhost:
+        print("[FAIL] blhost not found. Run 'ubx-sdk iris-w10 --install' (it comes with the SDK requirements).")
+        return 1
+    base = [blhost, "-p", f"{port},115200"]
+    probe = subprocess.run([*base, "-t", "3000", "--", "get-property", "1"], capture_output=True)
+    if probe.returncode != 0:
+        print(f"[FAIL] No boot ROM on {port}. Put the EVK in ISP mode: SW3 REQ=ON, then power-cycle (PW OFF/ON).")
+        return 1
+    part = flash_part()
+    print(f"Boot ROM on {port}, flash part {part}\n")
+    for step in isp_steps(part, firmware):
+        print(f">> blhost {' '.join(step)}")
+        if subprocess.run([*base, "-t", "60000", "--", *step]).returncode != 0:
+            print(f"[FAIL] blhost {step[0]} failed.")
+            return 1
+    print("\n[OK] Flash complete. Set SW3 REQ=OFF and power-cycle (PW OFF/ON) to boot the image.\n")
+    return 0
 
 def resolve_example(workspace: str, name: str) -> Optional[Path]:
     """Map a user-supplied example name to a directory in the workspace.
@@ -651,7 +708,8 @@ Examples:
     flash_parser = subparsers.add_parser("flash", help="Flash example to device using J-Link")
     flash_parser.add_argument("example", help="Example path or name")
     flash_parser.add_argument("--config", default="debug", help="debug or release (default: debug)")
-    flash_parser.add_argument("--serial", help="J-Link serial number (auto-detected if not specified)")
+    flash_parser.add_argument("--serial",
+                              help="J-Link serial number, or a COM port to flash through the boot ROM (ISP mode)")
 
     all_parser = subparsers.add_parser("all", help="Full pipeline")
     all_parser.add_argument("example", nargs="?", default=DEFAULT_EXAMPLE, help="Example path or name")
