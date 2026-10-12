@@ -67,9 +67,22 @@ IRIS-W10 finds the Arm GNU Toolchain by itself. To force a specific one, add an
 
 ## Copilot context
 
-`getting-started-sdk/.github/copilot-instructions.md` is picked up automatically
-when the SDK folder is in the workspace. It documents the launcher, the target
-matrix and the layout rules.
+Opening `ubx.code-workspace` gives Copilot everything below automatically.
+Opening only the repository root does not, because it lives in this folder.
+
+| File | Loaded |
+|------|--------|
+| `.github/copilot-instructions.md` | Every request: targets, layout, naming, launcher rules |
+| `.github/instructions/*.instructions.md` | When matching files are in play: Python scripts/tests, profiles, Matter, shims, docs |
+| `.github/skills/ubx-build-flash/` | Building, flashing, troubleshooting a target |
+| `.github/skills/ubx-module-config/` | Output power, calibration, patches, MAC, u-blox examples |
+| `.github/skills/ubx-add-target/` | Adding a new module family |
+| `.vscode/mcp.json` | `u-blox-docs` MCP server: u-blox product documentation search |
+
+Skills also appear as `/ubx-build-flash` etc. in chat. Start the MCP server
+once from the MCP view (or when chat asks) so hardware questions are answered
+from u-blox documentation. `tests/test_copilot_files.py` keeps the frontmatter
+valid and the documented flag order in sync with the launcher.
 
 ## Troubleshooting
 
