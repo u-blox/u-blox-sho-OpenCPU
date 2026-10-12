@@ -20,6 +20,7 @@ def cfg(monkeypatch):
     data = {}
     monkeypatch.setattr(w30, "load_config", lambda: dict(data))
     monkeypatch.setattr(w30, "save_config", lambda c: data.clear() or data.update(c))
+    monkeypatch.setattr(w30, "wsl_sdk_from_windows", lambda: None)
     return data
 
 
@@ -178,7 +179,7 @@ def test_flash_programs_the_three_images(sdk, monkeypatch, capsys):
     for name in ("km4_boot_all.bin", "km0_km4_image2.bin"):
         (hp / name).write_bytes(b"0")
     assert w30.cmd_flash(ns(serial="1100005639")) == 0
-    assert seen["device"] == "RTL872xCS" and seen["serial"] == "1100005639"
+    assert seen["device"] == "RTL8720DF" and seen["serial"] == "1100005639"
     loads = [c for c in seen["commands"] if c.startswith("loadfile")]
     names = [("km0_boot_all.bin", "0x08000000"), ("km4_boot_all.bin", "0x08004000"),
              ("km0_km4_image2.bin", "0x08006000")]
@@ -215,18 +216,22 @@ def test_remember_distro(monkeypatch):
     ({"sdk_path": "/home/u/sdk"}, None),
     ({}, None),
 ])
-def test_wsl_sdk_from_windows(monkeypatch, tmp_path, cached, expected):
+def test_wsl_sdk_from_windows(monkeypatch, run, cached, expected):
     monkeypatch.setattr(w30.target_paths, "load_json", lambda path: cached)
     result = w30.wsl_sdk_from_windows()
     assert (result and str(result).replace("/", "\\")) == expected
+    woken = [cmd for cmd, _ in run]
+    assert woken == ([["wsl", "-d", "Ubuntu", "--", "true"]] if "wsl$" in str(expected) else [])
 
 
-def test_find_sdk_on_windows_uses_the_wsl_build(cfg, monkeypatch, tmp_path):
+def test_find_sdk_on_windows_uses_the_wsl_build(cfg, monkeypatch, tmp_path, capsys):
     sdk = tmp_path / "wsl-main"
-    (sdk / "project").mkdir(parents=True)
     monkeypatch.setattr(w30, "host_kind", lambda: "windows")
     monkeypatch.setattr(w30, "wsl_sdk_from_windows", lambda: sdk)
-    monkeypatch.setattr(w30.target_paths, "installed_sdks", lambda t: [])
+    monkeypatch.setattr(w30.target_paths, "installed_sdks", lambda t: [tmp_path])
+    assert w30.find_sdk() is None
+    assert "net start vmcompute" in capsys.readouterr().out
+    (sdk / "project").mkdir(parents=True)
     assert w30.find_sdk() == sdk
 
 

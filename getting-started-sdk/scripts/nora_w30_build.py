@@ -20,8 +20,8 @@ from target_paths import host_kind
 
 TARGET = "nora_w30"
 
-# J-Link's name for the RTL8720DF KM0 core, as used by u-blox's own Realtek tooling.
-JLINK_DEVICE = "RTL872xCS"
+# J-Link's device for the NORA-W30 SoC; its flash loader runs on the KM0 core.
+JLINK_DEVICE = "RTL8720DF"
 
 # Ameba-D flash layout (rlx8721d_layout*.ld, LS_IMG2_OTA1_ADDR in rtl8721d_ota.h).
 FLASH_IMAGES = (
@@ -313,17 +313,26 @@ def wsl_sdk_from_windows() -> Optional[Path]:
     if path.startswith("/mnt/") and len(path) > 6:
         return Path(f"{path[5].upper()}:" + path[6:].replace("/", "\\"))
     if path.startswith("/") and cfg.get("wsl_distro"):
-        return Path(f"\\\\wsl$\\{cfg['wsl_distro']}" + path.replace("/", "\\"))
+        sdk = Path(f"\\\\wsl$\\{cfg['wsl_distro']}" + path.replace("/", "\\"))
+        if not sdk.is_dir():
+            # \\wsl$ only shows a running distro.
+            subprocess.run(["wsl", "-d", cfg["wsl_distro"], "--", "true"])
+        return sdk
     return None
 
 def find_sdk() -> Optional[Path]:
     """The SDK in use; from Windows that is the one the WSL2 build cached."""
-    cached = load_config().get("sdk_path")
-    candidates = [Path(cached)] if cached else []
     if host_kind() == "windows":
-        candidates.append(wsl_sdk_from_windows())
-    candidates += target_paths.installed_sdks(TARGET)
-    return next((p for p in candidates if p and (p / "project").is_dir()), None)
+        wsl_sdk = wsl_sdk_from_windows()
+        if wsl_sdk:
+            if (wsl_sdk / "project").is_dir():
+                return wsl_sdk
+            print(f"[FAIL] Cannot reach the WSL2 SDK at {wsl_sdk}; WSL2 did not start.")
+            print("       Administrator prompt: net stop vmcompute, then net start vmcompute.")
+            return None
+    cached = load_config().get("sdk_path")
+    candidates = ([Path(cached)] if cached else []) + target_paths.installed_sdks(TARGET)
+    return next((p for p in candidates if (p / "project").is_dir()), None)
 
 def cmd_flash(args) -> int:
     """Program the Ameba-D images over SWD with SEGGER J-Link Commander."""
@@ -351,9 +360,9 @@ def cmd_flash(args) -> int:
     # J-Link Commander may not open \\wsl$ paths; give it local copies.
     with tempfile.TemporaryDirectory(prefix="ubx-w30-") as tmp:
         local = [(Path(shutil.copy(path, tmp)), address) for path, address in images]
-        commands = ["RSetType 4", "r", "Sleep 500",
+        commands = ["r",
                     *[f'loadfile "{path}" 0x{address:08X}' for path, address in local],
-                    "RSetType 2", "r", "g"]
+                    "r", "g"]
         return flash_helper.flash_jlink_script(JLINK_DEVICE, commands, args.serial)
 
 def cmd_log(args) -> int:
