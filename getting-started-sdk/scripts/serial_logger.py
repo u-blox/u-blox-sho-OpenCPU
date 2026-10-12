@@ -137,7 +137,7 @@ def open_serial_monitor(port=None, baudrate=115200):
         while True:
             if ser.in_waiting:
                 # Some SDKs (Realtek) end lines with LF CR; a stray CR would overwrite the timestamp.
-                line = ser.readline().decode('utf-8', errors='ignore').replace('\r', '').rstrip()
+                line = ser.readline().decode('utf-8', errors='backslashreplace').replace('\r', '').rstrip()
                 timestamp = datetime.now().strftime('%H:%M:%S.%f')[:-3]
                 print(f"[{timestamp}] {line}")
             else:

@@ -114,6 +114,12 @@
       "src": "sw-config/flash-drv/{flash_vendor}-{flash_size}/{sdk_release}/mflash_drv.h",
       "dst": "components/flash/mflash/rdrw612bga/mflash_drv.h",
       "note": "MFlash driver header for the {flash_vendor} {flash_size} part on {variant}"
+    },
+    {
+      "op": "replace",
+      "src": "sw-config/flash-config/{flash_vendor}-{flash_size}/flash_config.c",
+      "dst": "examples/_boards/rdrw612bga/flash_config/flash_config.c",
+      "note": "FlexSPI boot configuration block for the {flash_vendor} {flash_size} part; the RD board's one does not boot the module"
     }
   ],
   "regulatory": {

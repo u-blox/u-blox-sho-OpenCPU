@@ -245,11 +245,13 @@ def test_validate_port(pyserial, monkeypatch, capsys):
 
 
 def test_monitor_prints_lines_until_ctrl_c(pyserial, capsys):
-    pyserial(lines=[b"*** Booting ***\r\n", None, b"hello\n", b"\rMAC => 54:f8\n"])
+    pyserial(lines=[b"*** Booting ***\r\n", None, b"hello\n", b"\rMAC => 54:f8\n", b"\xf0\x80\n"])
     assert sl.open_serial_monitor("COM3", 115200) == 0
     out = capsys.readouterr().out
     assert "] *** Booting ***" in out and "] hello" in out and "Disconnected" in out
     assert "] MAC => 54:f8" in out
+    # Line noise (e.g. a wrong baud rate) stays visible instead of turning into empty lines.
+    assert "] \\xf0\\x80" in out
 
 
 def test_monitor_without_ports(pyserial, capsys):
