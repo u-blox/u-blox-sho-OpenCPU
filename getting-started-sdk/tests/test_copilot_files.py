@@ -1,5 +1,6 @@
 """Copilot customization files stay loadable and in sync with the launcher."""
 
+import os
 import re
 
 import pytest
@@ -93,6 +94,12 @@ def test_hints_name_the_launcher_not_the_driver(script):
     """Users run ubx-sdk; a hint to call a driver directly sends them around it."""
     text = script.read_text(encoding="utf-8")
     assert not re.findall(r"(?:Run|run|Build with|Next)[: ]+'?python3? (?:scripts/)?\w+_build\.py", text)
+
+
+@pytest.mark.skipif(not os.environ.get("CI") or bool(os.environ.get("UBX_FRESH_CLONE")), reason="CI only")
+def test_ci_can_run_the_fresh_clone_check():
+    from test_fresh_clone import _git_works
+    assert _git_works(), "CI must provide git, or every fresh-clone test silently skips"
 
 
 LINT_COMMANDS = (

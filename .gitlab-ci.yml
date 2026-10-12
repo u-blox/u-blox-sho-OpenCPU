@@ -18,6 +18,9 @@ workflow:
 .sdk-tests:
   stage: test
   before_script:
+    # The slim image has neither; the fresh-clone and patch tests need them.
+    - apt-get update -qq && apt-get install -y -qq --no-install-recommends git patch > /dev/null
+    - git config --global --add safe.directory "$CI_PROJECT_DIR"
     - cd getting-started-sdk
     - python -m pip install --quiet pytest pytest-cov
   script:
