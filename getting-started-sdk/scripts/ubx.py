@@ -129,6 +129,8 @@ ACTION_ORDER = ["doctor", "clone", "install", "build-sdk", "rf-config",
 
 # Actions a Linux-only target still runs on the Windows host after the WSL2 hop.
 NATIVE_ACTIONS = frozenset({"flash", "log"})
+# Actions that can fix what a failing --doctor reports.
+SETUP_ACTIONS = frozenset({"clone", "install", "build-sdk"})
 SKIP_ACTIONS_ENV = "UBX_SKIP_ACTIONS"
 
 
@@ -194,7 +196,7 @@ Flags (combinable; always run in this order)
   --setup-venv          Create/refresh the shared .venv, then exit
   --wsl / --no-wsl      Force or suppress the automatic hop into WSL2
   --dry-run             Print the commands that would run, without running them
-  --                    Pass every remaining argument verbatim to the driver
+  --                    Pass every remaining argument verbatim to --build
   --help                Show this help
 
 Firmware built without --rf-config uses the vendor reference-board RF data and
@@ -448,6 +450,8 @@ def parse(argv: list[str], matter: bool = False) -> Context | int:
         print("[WARNING] --variant/--region/--set only take effect with --rf-config; ignoring.")
     if ctx.burn and "mac-set" not in ctx.actions:
         return fail("--burn only makes sense with --mac-set <ADDR>.")
+    if ctx.extra and "build" not in ctx.actions:
+        print("[WARNING] Arguments after -- are passed to --build only; ignoring them.")
     return ctx
 
 
@@ -544,9 +548,9 @@ def argv_for(ctx: Context, action: str) -> list[str] | None:
         argv = ["clean"]
         if ctx.clean_all:
             argv.append("--all")
-        elif ctx.example and t.key != "iris-w10":
+        elif (ctx.example or "build" in ctx.actions) and t.key != "iris-w10":
             # Clean only the example being built; IRIS-W10 has one shared build folder.
-            argv.append(ctx.example)
+            argv.append(example)
         return argv
 
     if action == "build":
@@ -703,6 +707,10 @@ def run(ctx: Context, raw_argv: list[str]) -> int:
         if rc == 130:
             print("\n[INFO] Stopped (Ctrl+C).")
             return 130
+        if rc != 0 and action == "doctor" and ctx.actions & SETUP_ACTIONS:
+            # On a fresh host the missing pieces are exactly what --clone/--install fetch.
+            print("[WARNING] --doctor reported missing items; continuing with the setup steps.")
+            continue
         if rc != 0:
             return fail(f"{banner}{action} failed (exit {rc}).")
         if action == "list" and not ctx.matter:

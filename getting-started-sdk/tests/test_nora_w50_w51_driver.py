@@ -171,8 +171,7 @@ def test_workspace_selection(cfg, monkeypatch, tmp_path):
     assert w5.default_workspace() == (tmp_path / "old").resolve()
     monkeypatch.delenv("NORA_W5_WORKSPACE")
     monkeypatch.setattr(w5, "HOST", "wsl")
-    monkeypatch.setattr(w5.Path, "home", lambda: tmp_path)
-    assert w5.default_workspace() == tmp_path / "nora-w50-w51"
+    assert w5.default_workspace() == w5.target_paths.sdk_dir(w5.TARGET)
     monkeypatch.setattr(w5, "HOST", "linux")
     assert w5.default_workspace() == w5.target_paths.sdk_dir(w5.TARGET)
     assert w5.workspace_of(parse("--workspace", str(tmp_path), "doctor")) == tmp_path.resolve()
@@ -267,16 +266,16 @@ class WslPath(PurePosixPath):
 
 
 def test_doctor(ws, capsys, monkeypatch):
-    w5.cmd_doctor(parse("doctor"))
+    assert w5.cmd_doctor(parse("doctor")) == 0
     out = capsys.readouterr().out
-    assert "all required tools found" in out and f"boards: {BOARD}" in out
+    assert "All required tools found" in out and f"boards: {BOARD}" in out
     monkeypatch.setattr(w5, "HOST", "wsl")
     monkeypatch.setattr(w5, "detect_tools", lambda: {"CMAKE": "C:/Program Files/CMake/cmake.exe"})
     monkeypatch.setattr(w5, "workspace_of", lambda args: WslPath("/mnt/c/ws"))
     monkeypatch.setattr(w5, "discover_trees", lambda ws: {})
-    w5.cmd_doctor(parse("doctor"))
+    assert w5.cmd_doctor(parse("doctor")) == 1
     out = capsys.readouterr().out
-    assert "very slow" in out and "missing: GIT, MAKE, SYSCONFIG_TOOL" in out
+    assert "very slow" in out and "Missing: GIT, MAKE, SYSCONFIG_TOOL" in out
     assert "none found" in out and "spaces" in out
 
 
@@ -405,4 +404,4 @@ def test_main(monkeypatch, capsys):
         monkeypatch.setattr(w5, "cmd_doctor", func)
         monkeypatch.setattr(sys, "argv", ["nora_w50_w51_build.py", "doctor"])
         assert w5.main() == rc
-    assert "ERROR: boom" in capsys.readouterr().out
+    assert "[FAIL] boom" in capsys.readouterr().out

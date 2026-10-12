@@ -172,9 +172,9 @@ def test_ubx_example_needing_rf_config(native, monkeypatch, capsys):
 
 
 def test_ubx_drop_in_example_explains_instead_of_building(native, capsys):
-    assert ubx.main(["iris-w10", "--build", "ubx/read-mac-address"]) == 1
+    assert ubx.main(["iris-w10", "--build", "ubx/read-otp-parameters"]) == 1
     assert not native.calls
-    assert "wifi_examples/wifi_test_mode/main.c" in capsys.readouterr().out
+    assert "driver_examples/romapi/otp/main.c" in capsys.readouterr().out
 
 
 def test_unknown_ubx_example(native, capsys):
@@ -351,6 +351,23 @@ def test_failing_doctor_still_reports_rf_status(native):
     native.returns = [1]
     assert ubx.main(["nora-w40", "--doctor", "--build"]) == 1
     assert steps(native.cmds) == [("nora_w40_build.py", "doctor"), ("module_config.py", "status")]
+
+
+def test_failing_doctor_does_not_block_setup(native, capsys):
+    native.returns = [1]
+    assert ubx.main(["iris-w10", "--doctor", "--clone", "--build"]) == 0
+    assert [a for _, a in steps(native.cmds)] == ["doctor", "status", "clone", "build"]
+    assert "continuing with the setup steps" in capsys.readouterr().out
+
+
+def test_extra_without_build_warns(capsys):
+    ctx(["nora-w40", "--flash", "--", "--foo"])
+    assert "passed to --build only" in capsys.readouterr().out
+
+
+def test_clean_with_build_cleans_the_default_example():
+    assert argv(["nora-w40", "--clean", "--build"], "clean") == ["clean", "hello_world"]
+    assert argv(["iris-w10", "--clean", "--build"], "clean") == ["clean"]
 
 
 def test_drivers_run_with_this_python_from_sdk_root(native):

@@ -452,4 +452,4 @@ def test_main_without_command(monkeypatch, capsys):
     monkeypatch.setattr(sys, "argv", ["iris_w10_build.py"])
     assert iris.main() == 0
     out = capsys.readouterr().out
-    assert "[TIP]" in out and "usage" in out
+    assert "--setup-venv" in out and "usage" in out

@@ -273,7 +273,7 @@ def cmd_install(target: MatterTarget, args) -> int:
     root = matter_root(target)
     missing = [r.name for r in target.repos if not (root / r.name / ".git").exists()]
     if missing:
-        print(f"[FAIL] Not cloned yet: {', '.join(missing)}. Run clone first.")
+        print(f"[FAIL] Not cloned yet: {', '.join(missing)}. Run: ubx-matter {target.key} --clone")
         return 1
     if vendor_script(target) is None:
         print(f"[FAIL] --install is not wired for {target.key} yet. See the vendor SDK README.")

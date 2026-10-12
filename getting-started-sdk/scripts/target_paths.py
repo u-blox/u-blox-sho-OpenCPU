@@ -197,6 +197,13 @@ def installed_sdks(target: str) -> list[Path]:
     return sorted(found.values(), key=lambda p: _version_key(p.name), reverse=True)
 
 
+def is_fetched(path: str | Path) -> bool:
+    """True for an SDK folder inside sdks/ (or its WSL2 twin); never a user's own install."""
+    resolved = Path(path).resolve()
+    roots = {Path(r).resolve() for r in (SDKS_DIR, WSL_SDKS_DIR, sdks_root())}
+    return any(root in resolved.parents for root in roots)
+
+
 def config_dir(target: str) -> Path:
     return module_dir(target) / "config"
 

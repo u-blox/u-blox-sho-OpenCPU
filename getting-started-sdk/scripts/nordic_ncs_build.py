@@ -101,6 +101,13 @@ def resolve_target(name: str) -> Optional[NcsTarget]:
     return TARGETS.get(name.lower().replace("_", "-"))
 
 
+WEST_MISSING = "[FAIL] west not found. Run: ubx-sdk --setup-venv, or install nRF Connect for Desktop."
+
+
+def no_workspace(target: NcsTarget) -> str:
+    return f"[FAIL] NCS workspace not found. Run: ubx-sdk {target.key} --clone"
+
+
 # ============================================================================
 # PLATFORM & ENVIRONMENT DETECTION
 # ============================================================================
@@ -311,6 +318,7 @@ def missing_board_hint(target: NcsTarget, workspace: str, board: str) -> None:
     print(f"       It needs a newer NCS. Fetch the pinned {NCS_REVISION} into {default_workspace()} with:")
     print(f"         ubx-sdk {target.key} --clone")
     print(f"       or select another workspace: python scripts/nordic_ncs_build.py {target.key} use <path>")
+    print(f"       (or set {WORKSPACE_ENV}=<path>)")
 
 
 # ============================================================================
@@ -385,7 +393,7 @@ def cmd_doctor(target: NcsTarget, args) -> int:
 def cmd_clone(target: NcsTarget, args) -> int:
     west = detect_west()
     if not west:
-        print("[FAIL] west not found. Run: python scripts/setup_venv.py")
+        print(WEST_MISSING)
         return 1
 
     workspace = Path(args.workspace) if args.workspace else default_workspace(args.revision)
@@ -455,8 +463,7 @@ def cmd_install(target: NcsTarget, args) -> int:
     """Install the Python requirements the NCS workspace declares."""
     workspace = detect_workspace(target)
     if not workspace:
-        print(f"[FAIL] NCS workspace not found. "
-              f"Run: python nordic_ncs_build.py {target.key} clone")
+        print(no_workspace(target))
         return 1
 
     requirements = Path(workspace) / "zephyr" / "scripts" / "requirements.txt"
@@ -482,8 +489,7 @@ def cmd_install(target: NcsTarget, args) -> int:
 def cmd_list(target: NcsTarget, args) -> int:
     workspace = detect_workspace(target)
     if not workspace:
-        print(f"[FAIL] NCS workspace not found. "
-              f"Run: python nordic_ncs_build.py {target.key} clone")
+        print(no_workspace(target))
         return 1
 
     only_matter = getattr(args, "matter", False)
@@ -519,13 +525,12 @@ def cmd_list(target: NcsTarget, args) -> int:
 def cmd_build(target: NcsTarget, args) -> int:
     workspace = detect_workspace(target)
     if not workspace:
-        print(f"[FAIL] NCS workspace not found. "
-              f"Run: python nordic_ncs_build.py {target.key} clone")
+        print(no_workspace(target))
         return 1
 
     west = detect_west()
     if not west:
-        print("[FAIL] west not found. Run: python scripts/setup_venv.py")
+        print(WEST_MISSING)
         return 1
 
     example_path = resolve_example(workspace, args.example or target.default_example)
@@ -547,7 +552,11 @@ def cmd_build(target: NcsTarget, args) -> int:
     cmd = [*west, "build", "-b", board, "-d", str(out)]
     if args.clean:
         cmd.append("--pristine")
-    cmd += [str(example_path), *args.extra]
+    # west build takes CMake cache entries only after its own '--'.
+    cmake_args = [a for a in args.extra if a.startswith("-D")]
+    cmd += [*(a for a in args.extra if not a.startswith("-D")), str(example_path)]
+    if cmake_args:
+        cmd += ["--", *cmake_args]
 
     rc = subprocess.call(cmd, cwd=workspace)
     if rc != 0:
@@ -573,11 +582,22 @@ def cmd_clean(target: NcsTarget, args) -> int:
         return 0
 
     if args.all:
+        cfg = load_config(target)
+        created = cfg.get("revision") and cfg.get("workspace") \
+            and Path(cfg["workspace"]).resolve() == Path(workspace).resolve()
+        if not created:
+            # Detected or selected with 'use': it may belong to nRF Connect for Desktop.
+            print(f"[FAIL] {workspace} was not created by 'ubx-sdk {target.key} --clone'; not removing it.")
+            print("       Delete it yourself if you no longer need it.")
+            return 1
         print(f"Removing: {workspace}")
         shutil.rmtree(workspace, ignore_errors=True)
-        cfg = load_config(target)
         cfg.pop("workspace", None)
+        cfg.pop("revision", None)
         save_config(target, cfg)
+        if Path(workspace).exists():
+            print(f"[FAIL] Could not remove everything in {workspace} (files in use?).")
+            return 1
         print("[OK] nRF Connect SDK removed.\n")
         return 0
 
@@ -601,13 +621,12 @@ def cmd_clean(target: NcsTarget, args) -> int:
 def cmd_flash(target: NcsTarget, args) -> int:
     workspace = detect_workspace(target)
     if not workspace:
-        print(f"[FAIL] NCS workspace not found. "
-              f"Run: python nordic_ncs_build.py {target.key} clone")
+        print(no_workspace(target))
         return 1
 
     west = detect_west()
     if not west:
-        print("[FAIL] west not found. Run: python scripts/setup_venv.py")
+        print(WEST_MISSING)
         return 1
 
     example_path = resolve_example(workspace, args.example or target.default_example)
@@ -620,8 +639,9 @@ def cmd_flash(target: NcsTarget, args) -> int:
         print(f"       Build first: --build {example_path.name}")
         return 1
 
-    print(f"\nFlashing {example_path.name} via {args.runner} ({target.jlink_device})\n")
-    cmd = [*west, "flash", "-d", str(out), "-r", args.runner]
+    runner = args.runner or ("nrfutil" if detect_nrfutil() else "jlink")
+    print(f"\nFlashing {example_path.name} via {runner} ({target.jlink_device})\n")
+    cmd = [*west, "flash", "-d", str(out), "-r", runner]
     if args.serial:
         # Both runners take the probe/segger id under the same option name.
         cmd += ["--dev-id", args.serial]
@@ -687,8 +707,8 @@ def build_parser() -> argparse.ArgumentParser:
     sp = add("flash", cmd_flash, "flash a built sample")
     sp.add_argument("example", nargs="?", help="sample name or path")
     sp.add_argument("--serial", help="debug probe serial number")
-    sp.add_argument("--runner", default="nrfutil", choices=["nrfutil", "jlink"],
-                    help="west runner (default: nrfutil)")
+    sp.add_argument("--runner", choices=["nrfutil", "jlink"],
+                    help="west runner (default: nrfutil, or jlink when nrfutil is not installed)")
 
     sp = add("log", cmd_log, "open the serial monitor")
     sp.add_argument("port", nargs="?", default=None,
@@ -698,8 +718,38 @@ def build_parser() -> argparse.ArgumentParser:
     return p
 
 
+def build_passthrough(argv: List[str]) -> List[str]:
+    """Arguments of 'build' meant for west, in the order they were given."""
+    out: List[str] = []
+    example_seen = False
+    rest = argv[2:]
+    i = 0
+    while i < len(rest):
+        arg = rest[i]
+        if arg == "--":
+            out += rest[i + 1:]
+            break
+        if arg == "--board":
+            i += 2
+            continue
+        if arg.startswith("--board=") or arg == "--clean":
+            pass
+        elif not example_seen and not arg.startswith("-"):
+            example_seen = True
+        else:
+            out.append(arg)
+        i += 1
+    return out
+
+
 def main() -> int:
-    args = build_parser().parse_args()
+    parser = build_parser()
+    args, unknown = parser.parse_known_args()
+    if args.command == "build":
+        # Options this driver does not know (-DCONFIG_X=y, --sysbuild, -S snippet) go to west.
+        args.extra = build_passthrough(sys.argv[1:])
+    elif unknown:
+        parser.error(f"unrecognized arguments: {' '.join(unknown)}")
     target = resolve_target(args.target)
     if target is None:
         print(f"[FAIL] Unknown target: {args.target}")

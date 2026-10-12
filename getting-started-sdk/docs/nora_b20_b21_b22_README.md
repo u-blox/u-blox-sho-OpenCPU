@@ -33,6 +33,8 @@ NORA-B26x and B27x are u-connectXpress modules and are not built here.
   (`/ns` for TF-M, `cpuflpr` for the coprocessor).
 - `--list` searches `nrf/samples`, `nrf/applications` and `zephyr/samples`; a
   unique name such as `peripheral_uart` is enough.
+- Options after `--` go to `west build`, CMake ones included:
+  `--build hello_world -- -DCONFIG_LOG=y`.
 
 The u-blox RF configuration for this module is pending, so `--rf-config` has
 nothing to apply yet.
@@ -41,8 +43,8 @@ Output: `<workspace>/build/<sample>/<sample>/zephyr/` (`zephyr.elf`, `.hex`, `.b
 
 ## Flash and log
 
-`--flash` runs `west flash` with `nrfutil`; pass `-- --runner jlink` for J-Link
-and `--flash <SERIAL>` with several probes attached. `--log [PORT]` opens the
+`--flash` runs `west flash` with `nrfutil`, or with J-Link when `nrfutil` is not
+installed; pass `--flash <SERIAL>` with several probes attached. `--log [PORT]` opens the
 console. On EVK-NORA-B2 it is the FTDI "USB Serial Port" (switch S2 ON), not
 the two "JLink CDC UART Port" entries.
 
@@ -73,6 +75,7 @@ Matter comes with NCS, so nothing extra is fetched and there is no WSL2 hop:
 | Symptom | Fix |
 |---------|-----|
 | Board target not found | The workspace is older than NCS v3; `--clone`, or select another with `use` |
+| `--clean-all` refuses to remove the workspace | It was not created by `--clone` (e.g. nRF Connect for Desktop's); delete it yourself |
 | No toolchain | Install the Zephyr SDK, or set `ZEPHYR_SDK_INSTALL_DIR` |
 | `west update` interrupted | Re-run `--clone`; it resumes |
 | Serial port not accessible (Linux) | `sudo usermod -aG dialout $USER`, then log in again |

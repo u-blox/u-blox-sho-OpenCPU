@@ -45,6 +45,9 @@ SPSDK_PLATFORMDIRS = "platformdirs<4.12"
 DEFAULT_TOOLCHAIN = "armgcc"
 DEFAULT_EXAMPLE = "examples/demo_apps/hello_world"
 
+NO_WORKSPACE = "[FAIL] SDK workspace not found. Run: ubx-sdk iris-w10 --clone"
+NO_WEST = "[FAIL] west not found. Run: ubx-sdk iris-w10 --install"
+
 # ============================================================================
 # PLATFORM & ENVIRONMENT DETECTION
 # ============================================================================
@@ -239,13 +242,13 @@ def cmd_doctor(args) -> int:
     print(f"Config:     {config_file()}")
 
     if not toolchain:
-        print("\n[WARNING] No Arm GNU toolchain found. Run 'install' for instructions,")
+        print("\n[WARNING] No Arm GNU toolchain found. Run 'ubx-sdk iris-w10 --install' for instructions,")
         print("    or set ARMGCC_DIR to the toolchain root (the folder containing bin/).")
 
     if all_ok and toolchain:
         print("\n[OK] All tools detected!\n")
         return 0
-    print("\n[WARNING] Some tools missing. See README for setup instructions.\n")
+    print("\n[WARNING] Some tools missing. See docs/iris_w10_README.md.\n")
     return 1
 
 def cmd_clone(args) -> int:
@@ -254,7 +257,7 @@ def cmd_clone(args) -> int:
 
     west = west_cmd()
     if not west:
-        print("[FAIL] west not found. Run 'python iris_w10_build.py install' first.")
+        print(NO_WEST)
         return 1
 
     if args.revision:
@@ -350,14 +353,14 @@ def cmd_install(args) -> int:
     else:
         print("[OK] CMake, Ninja and Arm GCC already present.\n")
 
-    print("\nNext: python iris_w10_build.py clone\n")
+    print("\nNext: ubx-sdk iris-w10 --clone\n")
     return 0
 
 def cmd_list(args) -> int:
     """List available examples."""
     workspace = detect_workspace()
     if not workspace:
-        print("[FAIL] SDK workspace not found. Run 'python iris_w10_build.py clone' first.")
+        print(NO_WORKSPACE)
         return 1
 
     root = examples_root(workspace)
@@ -403,7 +406,7 @@ def cmd_flash(args) -> int:
 
     workspace = detect_workspace()
     if not workspace:
-        print("[FAIL] SDK workspace not found. Run 'python iris_w10_build.py clone' first.")
+        print(NO_WORKSPACE)
         return 1
 
     example_path = resolve_example(workspace, args.example)
@@ -417,7 +420,7 @@ def cmd_flash(args) -> int:
 
     if not build_root:
         print(f"[FAIL] Build directory not found: {build}")
-        print(f"   Build with: python iris_w10_build.py build {args.example}")
+        print(f"   Build with: ubx-sdk iris-w10 --build {args.example}")
         return 1
 
     # The .bin is the whole XIP image from the flash base (boot header and FCB included),
@@ -431,7 +434,7 @@ def cmd_flash(args) -> int:
 
     if not firmware_file:
         print(f"[FAIL] No firmware found in {build_root}")
-        print(f"   Build with: python iris_w10_build.py build {args.example}")
+        print(f"   Build with: ubx-sdk iris-w10 --build {args.example}")
         return 1
 
     print(f"Firmware: {firmware_file.name}")
@@ -521,7 +524,7 @@ def resolve_example(workspace: str, name: str) -> Optional[Path]:
     root = examples_root(workspace)
     if not root:
         print(f"[FAIL] No examples directory under {workspace}.")
-        print("       Run 'python iris_w10_build.py clone' to populate the workspace.")
+        print("       Run 'ubx-sdk iris-w10 --clone' to populate the workspace.")
         return None
 
     candidate = root / name
@@ -548,12 +551,12 @@ def cmd_build(args) -> int:
 
     workspace = detect_workspace()
     if not workspace:
-        print("[FAIL] SDK workspace not found. Run 'python iris_w10_build.py clone' first.")
+        print(NO_WORKSPACE)
         return 1
 
     west = west_cmd()
     if not west:
-        print("[FAIL] west not found. Run 'python iris_w10_build.py install' first.")
+        print(NO_WEST)
         return 1
 
     example_path = resolve_example(workspace, args.example)
@@ -563,7 +566,7 @@ def cmd_build(args) -> int:
     toolchain, source = armgcc_dir()
     if args.toolchain == "armgcc":
         if not toolchain:
-            print("[FAIL] No Arm GNU toolchain found. Run 'python iris_w10_build.py install',")
+            print("[FAIL] No Arm GNU toolchain found. Run 'ubx-sdk iris-w10 --install' for instructions,")
             print("    or set ARMGCC_DIR to the toolchain root (the folder containing bin/).")
             return 1
         print(f"Toolchain: {toolchain} ({source})")
@@ -655,11 +658,7 @@ def main():
 
     # Check if virtual environment is active (recommended but not required)
     if not is_venv_active():
-        print("[TIP] Running outside virtual environment.")
-        print("   Consider setting up the shared venv for better isolation:")
-        print("   1. cd .. && python ../scripts/setup_venv.py")
-        print("   2. Then activate: .venv\\Scripts\\activate (Windows) or source .venv/bin/activate (Linux/macOS)")
-        print()
+        print("[INFO] Running outside the shared venv. Create it with: ubx-sdk --setup-venv\n")
 
     parser = argparse.ArgumentParser(
         prog="iris_w10_build.py",

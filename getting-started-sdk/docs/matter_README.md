@@ -40,7 +40,8 @@ NORA-W30 means adding a script there and setting `vendor_script` in
 The vendor Matter toolchains are Linux-only, so on Windows every `ubx-matter`
 action for these four targets hops into WSL2. The SDKs are cloned to
 `~/ubx-matter/<target>` inside WSL2, because connectedhomeip and esp-matter must
-not be built from a `/mnt/<drive>` path. Set `UBX_MATTER_ROOT` to use another
+not be built from a `/mnt/<drive>` path. On a native Linux host they go to
+`sdks/matter/<target>`. Set `UBX_MATTER_ROOT` to use another
 location; the launcher forwards it into WSL2.
 
 NORA-W50-W51 runs in the `Ubuntu-22.04` distro because TI supports nothing else. The
@@ -72,7 +73,8 @@ linux connectedhomeip submodules and runs the esp-matter bootstrap.
 
 The u-blox PHY calibration is not applied by `ubx-matter`; without it the
 firmware runs on Espressif's default RF data and is **not regulatory
-compliant**. Apply it to the Matter ESP-IDF checkout (inside WSL2):
+compliant**. Apply it to the Matter ESP-IDF checkout inside WSL2 by calling
+the module configuration script (the launcher has no flag for this yet):
 
 ```bash
 python3 scripts/module_config.py nora-w40 apply --variant NORA-W401 --region ETSI \

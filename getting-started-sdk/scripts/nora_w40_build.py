@@ -21,6 +21,10 @@ TARGET = "nora_w40"
 # NORA-W40 is an ESP32-C6 (RISC-V), not the Xtensa ESP32 that idf.py assumes by default.
 IDF_TARGET = "esp32c6"
 
+NO_IDF = "[FAIL] ESP-IDF not found. Run: ubx-sdk nora-w40 --clone"
+NO_IDF_PYTHON = ("[FAIL] ESP-IDF Python environment not found or incomplete.\n"
+                 "       Run: ubx-sdk nora-w40 --install")
+
 # Windows consoles default to cp1252 and raise UnicodeEncodeError on the status glyphs below.
 for _stream in (sys.stdout, sys.stderr):
     try:
@@ -144,7 +148,7 @@ def cmd_doctor(args) -> int:
         print("\n[OK] All tools detected!\n")
         return 0
     else:
-        print("\n[WARNING] Some tools missing. See README for setup instructions.\n")
+        print("\n[WARNING] Some tools missing. See docs/nora_w40_README.md.\n")
         return 1
 
 def cmd_clone(args) -> int:
@@ -196,7 +200,7 @@ def cmd_install(args) -> int:
 
     idf_dir = detect_idf()
     if not idf_dir:
-        print("[FAIL] ESP-IDF not found. Run 'python nora_w40_build.py clone' first.")
+        print(NO_IDF)
         return 1
 
     idf_path = Path(idf_dir)
@@ -234,15 +238,7 @@ def cmd_install(args) -> int:
 
     if result.returncode == 0:
         print("\n[OK] ESP-IDF environment installed successfully!")
-        print("\nNext steps:")
-        if platform_type == "windows":
-            print("   - Open PowerShell in the ESP-IDF directory")
-            print("   - Run: .\\export.ps1")
-            print("   - Then you can build examples")
-        else:
-            print("   - Run: source .\\export.sh")
-            print("   - Then you can build examples")
-        print()
+        print("\nNext: ubx-sdk nora-w40 --build hello_world   (the launcher sets up the ESP-IDF environment)\n")
     return result.returncode
 
 def detect_idf_python(idf_dir):
@@ -343,7 +339,7 @@ def resolve_example(idf_dir, name):
     if not matches:
         return None, (
             f"Example '{name}' not found under {examples_root}.\n"
-            "       Run 'python nora_w40_build.py list' to see what is available."
+            "       Run 'ubx-sdk nora-w40 --list' to see what is available."
         )
 
     # Real examples live near the top; deeper hits are build-system fixtures.
@@ -372,7 +368,7 @@ def cmd_build(args) -> int:
 
     idf_dir = detect_idf()
     if not idf_dir:
-        print("[FAIL] ESP-IDF not found. Run 'python nora_w40_build.py clone' first.")
+        print(NO_IDF)
         return 1
 
     example_path, error = resolve_example(idf_dir, args.example)
@@ -384,8 +380,7 @@ def cmd_build(args) -> int:
 
     idf_python = detect_idf_python(idf_dir)
     if not idf_python:
-        print("[FAIL] ESP-IDF Python environment not found or incomplete.")
-        print("       Run: python nora_w40_build.py install")
+        print(NO_IDF_PYTHON)
         return 1
 
     env = idf_environment(idf_dir, idf_python)
@@ -424,6 +419,9 @@ def cmd_clean(args) -> int:
         # Remove entire ESP-IDF directory
         idf_dir = detect_idf()
         if idf_dir and Path(idf_dir).exists():
+            if not target_paths.is_fetched(idf_dir):
+                print(f"[FAIL] {idf_dir} is your own ESP-IDF, not one fetched by --clone; not removing it.\n")
+                return 1
             print(f"Removing: {idf_dir}")
             shutil.rmtree(idf_dir)
             # Clear config
@@ -496,7 +494,7 @@ def _idf_invoke(args, verb: str, extra: list) -> int:
     """Run an idf.py verb inside an example directory."""
     idf_dir = detect_idf()
     if not idf_dir:
-        print("[FAIL] ESP-IDF not found. Run 'python nora_w40_build.py clone' first.")
+        print(NO_IDF)
         return 1
 
     example_path, error = resolve_example(idf_dir, args.example)
@@ -506,8 +504,7 @@ def _idf_invoke(args, verb: str, extra: list) -> int:
 
     idf_python = detect_idf_python(idf_dir)
     if not idf_python:
-        print("[FAIL] ESP-IDF Python environment not found or incomplete.")
-        print("       Run: python nora_w40_build.py install")
+        print(NO_IDF_PYTHON)
         return 1
 
     idf_py = Path(idf_dir) / "tools" / "idf.py"

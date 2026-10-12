@@ -22,8 +22,7 @@ is not regulatory compliant on the module. It also installs the flash driver
 for the module's flash part.
 
 - `--clone` fetches only what `rdrw612bga` needs (about 2 GB); `--clone v25.09.00`
-  picks a release. For the whole SDK (about 7 GB) run
-  `python scripts/iris_w10_build.py clone --full`.
+  picks a release. `--clone --full` fetches the whole SDK (about 7 GB).
 - Needs CMake 3.30+, Ninja 1.12+ and the Arm GNU Toolchain. `--install`
   installs `west` and the SDK's Python requirements and names whatever else is
   missing. The toolchain is found by itself (Arm installer, MCUXpresso
@@ -32,8 +31,8 @@ for the module's flash part.
   is unique.
 - Release build: `--build <example> -- --config release`.
 
-Output: `sdks/mcuxpresso-sdk/<version>/build/<debug|release>/`, named after the
-example (`.elf`, `.bin`, `.hex`).
+Output: `sdks/mcuxpresso-sdk/<version>/build/`, named after the example
+(`.elf`, `.bin`, `.hex`); older SDK releases use `build/<debug|release>/`.
 
 ## Flash and log
 
@@ -79,5 +78,5 @@ Set by u-blox in the RW612 OTP. Read it on the module:
 |---------|-----|
 | `No Arm GNU toolchain found` | Install it, or set `ARMGCC_DIR` to the toolchain root (not `bin/`) |
 | `west not found` | `--install` |
-| Example missing after `--clone` | It is outside the board-only fetch: `python scripts/iris_w10_build.py clone --full` |
+| Example missing after `--clone` | It is outside the board-only fetch: `--clone --full` |
 | Stale build | `--clean --build <example>` |

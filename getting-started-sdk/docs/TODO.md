@@ -5,6 +5,16 @@ Last updated 2026-10-12 (branch `cmag_getting_started_sdk`).
 
 ## In progress / resume here
 
+- [x] Review pass (2026-10-12, dry-run and pytest only, nothing built): NCS `--build ... -- -D...`
+      now reaches CMake; NCS `--flash` falls back to J-Link without nrfutil; `--clean-all`
+      no longer deletes an NCS workspace or ESP-IDF the launcher did not fetch; a failing
+      `--doctor` no longer blocks `--clone`/`--install`; `--clean --build` cleans the default
+      example; driver hints name launcher commands (test-enforced); doc links are test-checked.
+- [ ] Confirm on hardware the review changes that touch real tools: NCS `west build ... -- -DX=y`,
+      `west flash -r jlink` fallback, NORA-W50-W51 fresh `--clone` inside WSL2 (now
+      `~/ubx-sdk/sdks/simplelink-wifi/main`; an existing `~/nora-w50-w51` stays in use via the
+      saved config).
+- [ ] No launcher flag to force `west flash -r jlink` while nrfutil is installed (driver only).
 - [x] NCS v3.4.1 is in `C:\ncs\v3.4.1`; NORA-B20-B21-B22 `hello_world` builds
       (2026-10-12, see `docs/BUILD_TEST_RESULTS.md`). The CMake configure step took
       about 4 minutes on this machine.
@@ -44,9 +54,10 @@ Last updated 2026-10-12 (branch `cmag_getting_started_sdk`).
       not targets of this SDK). Confirm.
 - [ ] IRIS-W10 `ubx/read-otp-parameters` is a drop-in file; make it a buildable
       `project` once `driver_examples/romapi/otp` exists in the MCUXpresso workspace.
-      The MAC is now read with `wifi_examples/wifi_cli` + `wlan-mac` instead of the
-      `ubx/read-mac-address` drop-in (its base `wifi_examples/wifi_test_mode` is not in
-      the board-only fetch, and the file contains non-breaking spaces gcc rejects).
+      The MAC is read with `wifi_examples/wifi_cli` + `wlan-mac`; the `ubx/read-mac-address`
+      drop-in was removed from the profile (2026-10-12): its base `wifi_examples/wifi_test_mode`
+      is not in the board-only fetch, and the file contains non-breaking spaces gcc rejects.
+      Ask the asset owner to fix the file if it should come back.
 - [x] MAC on NORA-B20-B21-B22: u-blox programs no address; the Nordic FICR
       `DEVICEADDR` (random static) is used, shown by `bluetooth/beacon` (2026-10-12).
 - [x] ALMA-B20-B21: treated like NORA-B2, no u-blox address in production; the FICR

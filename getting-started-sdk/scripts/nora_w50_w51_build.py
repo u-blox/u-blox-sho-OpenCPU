@@ -226,9 +226,7 @@ def default_workspace() -> Path:
     env = os.environ.get("NORA_W50_W51_WORKSPACE") or os.environ.get("NORA_W5_WORKSPACE")
     if env:
         return Path(env).expanduser().resolve()
-    if HOST == "wsl":
-        # /mnt/<drive> builds are painfully slow under WSL2.
-        return Path.home() / "nora-w50-w51"
+    # Under WSL2 from a /mnt checkout this is ~/ubx-sdk/sdks: /mnt builds are painfully slow.
     return target_paths.sdk_dir(TARGET)
 
 
@@ -297,7 +295,7 @@ def active_tree(args) -> Tree:
         raise Fail(
             "no SDK found. Either install the TI SimpleLink Wi-Fi SDK "
             "(https://www.ti.com/tool/download/SIMPLELINK-WIFI-SDK), "
-            "or run: python nora_w50_w51_build.py clone"
+            "or run: ubx-sdk nora-w50-w51 --clone"
         )
 
     wanted = getattr(args, "source", None) or load_config().get("source")
@@ -400,7 +398,7 @@ def make_cmd(tools: dict[str, str], jobs: int, target: str | None = None) -> lis
 # Commands
 # --------------------------------------------------------------------------- #
 
-def cmd_doctor(args) -> None:
+def cmd_doctor(args) -> int:
     ws = workspace_of(args)
     tools = resolve_tools(args)
 
@@ -408,7 +406,7 @@ def cmd_doctor(args) -> None:
     print(f"python      : {sys.version.split()[0]}")
     print(f"workspace   : {ws}  {'(exists)' if ws.is_dir() else '(not created)'}")
     if HOST == "wsl" and str(ws).startswith("/mnt/"):
-        print("  WARNING   : workspace is on a Windows drive; WSL2 builds will be very slow.")
+        print("[WARNING] The workspace is on a Windows drive; WSL2 builds will be very slow.")
 
     print("\ntoolchain:")
     required = ["GIT", "MAKE", "CMAKE", "SYSCONFIG_TOOL"]
@@ -428,25 +426,26 @@ def cmd_doctor(args) -> None:
     print("\nSDK trees:")
     trees = discover_trees(ws)
     if not trees:
-        print("  none found -- install the TI SDK or run 'clone'")
+        print("  none found -- install the TI SDK or run: ubx-sdk nora-w50-w51 --clone")
     for name, tree in trees.items():
         print(f"  {name:<20} {tree.sdk}")
         print(f"  {'':<20} boards: {', '.join(list_boards(tree)) or 'no examples'}")
 
     if missing:
-        print("\nmissing: " + ", ".join(missing))
-        print("See README.md section 2 for download links, or pass explicit paths:")
-        print("  python nora_w50_w51_build.py --gcc_armcompiler <dir> configure")
-    else:
-        print("\nall required tools found.")
-    print()
+        print("\n[WARNING] Missing: " + ", ".join(missing))
+        print("          Download links: docs/nora_w50_w51_README.md (Tools). To pass a path yourself:")
+        print("          python scripts/nora_w50_w51_build.py --gcc_armcompiler <dir> configure")
+        print()
+        return 1
+    print("\n[OK] All required tools found.\n")
+    return 0
 
 
 def cmd_clone(args) -> None:
     ws = workspace_of(args)
     ws.mkdir(parents=True, exist_ok=True)
     if HOST == "wsl" and str(ws).startswith("/mnt/"):
-        log("WARNING: cloning onto a Windows drive from WSL2 - expect very slow builds.")
+        log("[WARNING] Cloning onto a Windows drive from WSL2; expect very slow builds.")
     missing = [r for r in REPOS if args.repo in ("both", r) and not (ws / r / ".git").exists()]
     # Approximate per example repo, SDK submodule included.
     if missing and not target_paths.check_space(ws, 2 * len(missing), "the TI example repos"):
@@ -469,17 +468,16 @@ def cmd_clone(args) -> None:
 
 def cmd_install(args) -> None:
     """Show TI toolchain installation info."""
-    log("[OK] Environment Setup for NORA-W50-W51 (TI SimpleLink)\n")
-    log("TI toolchain consists of separate installers:\n")
+    log("[INFO] The TI toolchain comes as separate installers; install them yourself:\n")
     log("  1. SysConfig      -> https://www.ti.com/tool/SYSCONFIG")
     log("  2. TI Arm Clang   -> https://www.ti.com/tool/download/ARM-CGT-CLANG")
     log("  3. Arm GNU        -> https://developer.arm.com/downloads/-/arm-gnu-toolchain-downloads")
     log("  4. CMake          -> https://cmake.org/download")
     log("  5. SimpleLink SDK -> https://www.ti.com/tool/download/SIMPLELINK-WIFI-SDK")
     log("      or clone:    -> https://github.com/TexasInstruments/simplelink-wifi-sdk\n")
-    log("To verify installation, run:")
-    log("  python nora_w50_w51_build.py doctor\n")
-    log("For detailed setup instructions, see README.md section 2.\n")
+    log("To verify the installation, run:")
+    log("  ubx-sdk nora-w50-w51 --doctor\n")
+    log("Setup notes: docs/nora_w50_w51_README.md (Tools).\n")
 
 
 def cmd_configure(args) -> None:
@@ -618,7 +616,7 @@ def cmd_flash(args) -> int:
     settings = sorted(bdir.rglob("tool_settings.json"))
     if not settings:
         print(f"[FAIL] No tool_settings.json in {bdir}")
-        print(f"   Build first with: python nora_w50_w51_build.py build {args.example}")
+        print(f"   Build first with: ubx-sdk nora-w50-w51 --build {args.example}")
         return 1
 
     print(f"Flashing with: {settings[0]}\n")
@@ -707,7 +705,7 @@ def main() -> int:
     try:
         rc = args.func(args)
     except Fail as exc:
-        log(f"ERROR: {exc}")
+        print(f"[FAIL] {exc}", flush=True)
         return 1
     except KeyboardInterrupt:
         log("interrupted")

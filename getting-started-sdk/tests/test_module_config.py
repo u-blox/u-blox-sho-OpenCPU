@@ -98,7 +98,7 @@ def test_examples_command(capsys):
     assert mc.main(["nora-w40", "examples"]) == 0
     assert "--build ubx/rf-calibration" in capsys.readouterr().out
     assert mc.main(["iris-w10", "examples"]) == 0
-    assert "Manual: replace wifi_examples/wifi_test_mode/main.c" in capsys.readouterr().out
+    assert "Manual: replace driver_examples/romapi/otp/main.c" in capsys.readouterr().out
     assert mc.main(["nora-w50-w51", "examples"]) == 0
     assert "(none yet)" in capsys.readouterr().out
 

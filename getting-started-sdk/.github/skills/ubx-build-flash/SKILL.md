@@ -27,12 +27,16 @@ argument-hint: '<target> and what you want to do, e.g. "nora-w40 build and flash
 
 ```bash
 ./ubx-sdk.sh iris-w10 --doctor --clone --install --build demo_apps/hello_world --flash --log
-./ubx-sdk.sh nora-w30 --clone --build project_hp                 # hops into WSL2 on Windows
+./ubx-sdk.sh nora-w30 --clone --build project_lp                 # KM0 once; hops into WSL2 on Windows
+./ubx-sdk.sh nora-w30 --build project_hp --flash --log
 ./ubx-sdk.sh nora-w40 --clone --install --build hello_world --flash --log
 ./ubx-sdk.sh nora-w50-w51 --clone --build-sdk --build network_terminal
 ./ubx-sdk.sh nora-b20-b21-b22 --clone --install --build hello_world --flash --log
 ./ubx-sdk.sh alma-b20-b21 --build hello_world -- --board nrf54lm20dk/nrf54lm20b/cpuapp
 ```
+
+A failing `--doctor` does not stop a following `--clone`/`--install`/`--build-sdk`
+(they fetch what it reports missing); it stops anything else.
 
 u-blox examples from the repository build the same way: `--list` shows them
 as `ubx/<name>`, e.g. `nora-w40 --variant NORA-W401 --rf-config --build ubx/rf-calibration`.
@@ -45,7 +49,9 @@ as `ubx/<name>`, e.g. `nora-w40 --variant NORA-W401 --rf-config --build ubx/rf-c
 | NORA-W30 | `sdks/ameba-rtos-d/<version>` | `.../GCC-RELEASE/project_hp/asdk/image/km4_image2_all.bin` |
 | NORA-W40 | `sdks/esp-idf/<version>` | `<example>/build/<project>.bin` |
 | NORA-W50-W51 | `sdks/simplelink-wifi/<version>/` | `<example>/<rtos>/<board>/<toolchain>/*.out` |
-| NORA-B20-B21-B22, ALMA-B20-B21 | `C:\ncs\<rev>` or `~/ncs/<rev>` | `<ncs>/build/<sample>/zephyr/zephyr.{elf,hex,bin}` |
+| NORA-B20-B21-B22, ALMA-B20-B21 | `C:\ncs\<rev>` or `~/ncs/<rev>` | `<ncs>/build/<sample>/<sample>/zephyr/zephyr.{elf,hex,bin}` (sysbuild) |
+
+Inside WSL2 from a `/mnt/<drive>` checkout, `sdks/` above is `~/ubx-sdk/sdks/`.
 
 ## Flash and log
 
@@ -54,7 +60,7 @@ as `ubx/<name>`, e.g. `nora-w40 --variant NORA-W401 --rf-config --build ubx/rf-c
 | IRIS-W10 | MCU-Link with J-Link firmware, J-Link device `RW612`; `--flash COM<n>` = boot-ROM recovery with blhost (SW3 position 1 EXT-REQ to GND) when J-Link cannot verify (blank/wrong FCB) |
 | NORA-W40 | USB serial via `idf.py flash`; `--log` runs `idf.py monitor` in the example |
 | NORA-W50-W51 | XDS110 (`--flash <serial>`) |
-| NORA-B20-B21-B22, ALMA-B20-B21 | on-board J-Link OB via `west flash -r nrfutil` (needs `nrfutil`) |
+| NORA-B20-B21-B22, ALMA-B20-B21 | on-board J-Link OB via `west flash -r nrfutil`, or `-r jlink` when `nrfutil` is not installed |
 | NORA-W30 | on-board J-Link OB, J-Link device `RTL8720DF`; built in WSL2, flashed and logged from Windows |
 
 `--log [PORT]` auto-detects the port when omitted. With several probes attached,
@@ -67,9 +73,12 @@ J-Link targets pick the board's probe by product name, or pass its serial.
 |----------|-----|
 | `ARMGCC_DIR` | Force an Arm GNU toolchain for IRIS-W10 (root, not `bin/`); normally auto-detected |
 | `NORA_W50_W51_WORKSPACE` | Override the NORA-W50-W51 workspace |
+| `UBX_NCS_WORKSPACE` | Use this NCS workspace for the Nordic targets |
 | `ZEPHYR_BASE` | Points the Nordic driver at an existing NCS workspace |
+| `UBX_SDKS_DIR` | Fetch vendor SDKs here instead of `sdks/` |
 | `UBX_SKIP_SPACE_CHECK=1` | Clone even when the disk-space estimate says no |
 | `UBX_WSL_DISTRO` | WSL2 distro for the hop |
+| `UBX_MATTER_ROOT` | Where `ubx-matter` puts the vendor Matter SDKs |
 
 ## Troubleshooting
 
@@ -77,7 +86,8 @@ J-Link targets pick the board's probe by product name, or pass its serial.
   MCUXpresso Installer; the driver searches the Arm install paths,
   `~/.mcuxpressotools` and `PATH`. `--doctor` shows the pick.
 - **NORA-W30 on Windows**: the Realtek build is Linux-only; the launcher hops
-  into WSL2. Building from `/mnt/<drive>` is slow but works.
+  into WSL2 and fetches the SDK into `~/ubx-sdk/sdks/` there. An older SDK on
+  `/mnt/<drive>` still works, slowly; `--clone main` moves it.
 - **WSL2 itself fails** (does not start, hangs, `Wsl/Service/...` error): restart
   its compute service from an Administrator prompt, then rerun:
   `net stop vmcompute` and `net start vmcompute`. The launcher prints this after

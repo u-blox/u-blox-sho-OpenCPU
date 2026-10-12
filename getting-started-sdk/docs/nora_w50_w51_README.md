@@ -43,9 +43,11 @@ nothing to apply yet.
 
 `--build-sdk` first writes the detected tool paths into the SDK's `imports.mak`
 (backup `imports.mak.orig`); TI's makefiles do not accept spaces, so Windows
-paths are converted to their 8.3 form. Override a path it cannot find with,
-e.g., `python scripts/nora_w50_w51_build.py --gcc_armcompiler <dir> configure`.
-Pass build options after `--`, e.g. `--build network_terminal -- --toolchain gcc`.
+paths are converted to their 8.3 form. To override a path it cannot find, call
+the driver (the launcher has no flag for this):
+`python scripts/nora_w50_w51_build.py --gcc_armcompiler <dir> configure`.
+Pass build options after `--`, e.g. `--build network_terminal -- --toolchain gcc`;
+`--flash` expects the default `ticlang` build.
 
 ## Examples
 
@@ -85,8 +87,8 @@ Not yet verified on an EVK. UniFlash, also from TI, flashes without an IDE.
 
 ## WSL2
 
-Keep the workspace in the Linux file system (the default is `~/nora-w50-w51`);
-`/mnt/c` builds are very slow. USB is not visible in WSL2 by default: attach it
+Run inside WSL2 from a checkout on a Windows drive, `--clone` fetches into
+`~/ubx-sdk/sdks/simplelink-wifi/main`: `/mnt/...` builds are very slow. USB is not visible in WSL2 by default: attach it
 with `usbipd attach --wsl --busid <BUSID>` from an admin PowerShell, or flash
 from Windows.
 

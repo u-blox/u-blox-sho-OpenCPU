@@ -101,7 +101,8 @@ u-blox-sho-OpenCPU/                  repository root
   not `python scripts/<driver>.py`. Drivers are run directly only to debug them.
 - Flags combine and always run in this order: `--doctor` `--clone` `--install`
   `--build-sdk` `--rf-config` `--list` `--clean` `--build` `--flash` `--mac-set`
-  `--mac` `--log`. Everything after `--` goes to the driver verbatim.
+  `--mac` `--log`. Everything after `--` goes verbatim to the driver's build
+  step (`--build` only). A failing `--doctor` does not stop `--clone`/`--install`.
 - `--rf-config`, `--mac-set`, `--mac` and the u-blox examples (`ubx/<name>`)
   are driven by `modules/<target>/profile.json` through `module_config.py`.
   Supporting a new part number, asset or example is a profile edit, never a

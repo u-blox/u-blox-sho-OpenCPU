@@ -151,7 +151,7 @@ def vendor_sdk_root(key: str) -> Path | None:
         marker = "component/common/drivers/wlan"
     elif key == "nora-w40":
         candidates = [cfg.get("idf_path"), *target_paths.installed_sdks(s),
-                      Path.home() / "esp" / "esp-idf"]
+                      Path.home() / "esp" / "esp-idf", "/opt/esp/esp-idf", "C:/esp/esp-idf"]
         marker = "components/esp_phy"
     elif key == "iris-w10":
         candidates = [cfg.get("workspace"), *target_paths.installed_sdks(s)]

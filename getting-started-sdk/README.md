@@ -129,7 +129,7 @@ automatically; nothing has to be configured.
 
 The launcher picks the shared `.venv` if there is one, hops into WSL2 for
 targets that only build on Linux, and passes anything after `--` straight
-through to the vendor driver:
+through to the driver's build step (`--build` only):
 
 ```bash
 ./ubx-sdk.sh iris-w10 --build hello_world -- --config release

@@ -208,7 +208,7 @@ def test_install(idf, monkeypatch, run, capsys):
         (idf / script).write_text("")
         assert w40.cmd_install(ns()) == 0
         assert run[-1][0][-1] == str(idf / script) and "MSYSTEM" not in run[-1][1]["env"]
-    assert "export.ps1" in capsys.readouterr().out
+    assert "ubx-sdk nora-w40 --build" in capsys.readouterr().out
 
 
 def test_install_without_idf(monkeypatch):
@@ -281,6 +281,9 @@ def test_clean(idf, capsys):
 
 def test_clean_all(idf, cfg, monkeypatch, capsys):
     cfg["idf_path"] = str(idf)
+    assert w40.cmd_clean(ns(all=True)) == 1
+    assert idf.exists() and "your own ESP-IDF" in capsys.readouterr().out
+    monkeypatch.setattr(w40.target_paths, "SDKS_DIR", idf.parent)
     assert w40.cmd_clean(ns(all=True)) == 0
     assert not idf.exists() and cfg == {}
     monkeypatch.setattr(w40, "detect_idf", lambda: None)

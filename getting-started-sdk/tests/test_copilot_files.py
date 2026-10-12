@@ -58,6 +58,43 @@ def test_skills_referenced_by_the_instructions_exist():
         assert (GITHUB / "skills" / name / "SKILL.md").is_file(), name
 
 
+REPO_ROOT = SDK_ROOT.parent
+DOCS = sorted({*SDK_ROOT.glob("*.md"), *SDK_ROOT.glob("docs/*.md"), SDK_ROOT / "modules" / "README.md",
+               *GITHUB.rglob("*.md"), *REPO_ROOT.glob("*.md")})
+
+
+def anchors(path):
+    """GitHub-style heading anchors of a Markdown file."""
+    text = re.sub(r"```.*?```", "", path.read_text(encoding="utf-8"), flags=re.S)
+    return {re.sub(r"[^\w\- ]", "", h.strip().lower()).replace(" ", "-")
+            for h in re.findall(r"^#+\s+(.+)$", text, re.M)}
+
+
+@pytest.mark.parametrize("doc", DOCS, ids=lambda p: p.relative_to(REPO_ROOT).as_posix())
+def test_relative_links_resolve(doc):
+    text = re.sub(r"```.*?```", "", doc.read_text(encoding="utf-8"), flags=re.S)
+    broken = []
+    for link in re.findall(r"\]\(([^)\s]+)\)", text):
+        if re.match(r"[a-z]+:", link):
+            continue
+        target, _, anchor = link.partition("#")
+        # A leading '/' is the repository root on GitLab and GitHub.
+        base = REPO_ROOT if target.startswith("/") else doc.parent
+        path = (base / target.lstrip("/")).resolve() if target else doc
+        if not path.exists():
+            broken.append(link)
+        elif anchor and path.suffix == ".md" and anchor not in anchors(path):
+            broken.append(link)
+    assert not broken, f"broken links: {broken}"
+
+
+@pytest.mark.parametrize("script", sorted((SDK_ROOT / "scripts").glob("*_build.py")), ids=lambda p: p.name)
+def test_hints_name_the_launcher_not_the_driver(script):
+    """Users run ubx-sdk; a hint to call a driver directly sends them around it."""
+    text = script.read_text(encoding="utf-8")
+    assert not re.findall(r"(?:Run|run|Build with|Next)[: ]+'?python3? (?:scripts/)?\w+_build\.py", text)
+
+
 LINT_COMMANDS = (
     "ruff==0.17.0",
     "ruff check --isolated --target-version py310 --select E4,E7,E9,F",

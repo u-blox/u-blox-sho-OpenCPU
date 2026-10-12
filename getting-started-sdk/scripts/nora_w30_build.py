@@ -30,6 +30,8 @@ FLASH_IMAGES = (
     ("km0_km4_image2.bin", 0x08006000),
 )
 
+NO_SDK = "[FAIL] Realtek SDK not found. Run: ubx-sdk nora-w30 --clone"
+
 # Windows consoles default to cp1252 and raise UnicodeEncodeError on the status glyphs below.
 for _stream in (sys.stdout, sys.stderr):
     try:
@@ -86,9 +88,8 @@ def cmd_doctor(args) -> int:
     print(f"\nNORA-W30 Build Environment Check ({current_host})\n")
 
     if current_host == "windows":
-        print("[NOTE] Windows detected.")
-        print("    Realtek SDK build on Windows requires WSL2 or Cygwin.")
-        print("    Recommend: Use WSL2 with Ubuntu instead.\n")
+        print("[INFO] The Realtek Ameba-D build runs on Linux only.")
+        print("       Run without --no-wsl: the launcher hops into WSL2 by itself.\n")
         return 1
 
     tools = {
@@ -112,7 +113,7 @@ def cmd_doctor(args) -> int:
         print("\n[OK] All tools detected!\n")
         return 0
     else:
-        print("\n[WARNING] Some tools missing. See README for setup instructions.\n")
+        print("\n[WARNING] Some tools missing: sudo apt install build-essential gcc-arm-none-eabi git python3\n")
         return 1
 
 def cmd_clone(args) -> int:
@@ -173,10 +174,10 @@ def cmd_install(args) -> int:
     print("Realtek SDK uses standard Linux tools (arm-none-eabi-gcc, make, git).")
     print("These are installed via your system package manager (apt, yum, etc.).")
     print("\nTo install missing tools, run:")
-    print("  Ubuntu/Debian: sudo apt install arm-none-eabi-gcc make git python3")
+    print("  Ubuntu/Debian: sudo apt install build-essential gcc-arm-none-eabi git python3")
     print("  Other Linux:   Use your package manager to install the above tools")
     print("\nTo verify your installation, run:")
-    print("  python3 nora_w30_build.py doctor")
+    print("  ubx-sdk nora-w30 --doctor")
     print()
     return 0
 
@@ -215,7 +216,7 @@ def cmd_clean(args) -> int:
     for project in projects:
         project_dir = sdk_path / "project" / "realtek_amebaD_va0_example" / "GCC-RELEASE" / project
         if not project_dir.exists():
-            print(f"[WARN] Project not found: {project}\n")
+            print(f"[WARNING] Project not found: {project}\n")
             continue
 
         print(f"Running make clean for: {project}\n")
@@ -234,7 +235,7 @@ def cmd_build(args) -> int:
 
     sdk_path = load_config().get("sdk_path")
     if not sdk_path or not Path(sdk_path).exists():
-        print("[FAIL] Realtek SDK not found. Run 'python nora_w30_build.py clone' first.")
+        print(NO_SDK)
         return 1
 
     sdk_path = Path(sdk_path)
@@ -340,7 +341,7 @@ def cmd_flash(args) -> int:
 
     sdk_path = find_sdk()
     if not sdk_path:
-        print("[FAIL] Realtek SDK not found. Run 'python nora_w30_build.py clone' first.")
+        print(NO_SDK)
         return 1
 
     gcc_release = sdk_path / "project" / "realtek_amebaD_va0_example" / "GCC-RELEASE"

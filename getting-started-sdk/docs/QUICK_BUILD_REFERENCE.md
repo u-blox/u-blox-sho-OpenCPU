@@ -32,8 +32,9 @@ Combinable, and always executed in this order:
 
 | Flag | Purpose |
 |------|---------|
-| `--doctor` | Verify host tools for the target |
+| `--doctor` | Verify host tools for the target; a failure does not stop a following `--clone`/`--install` |
 | `--clone [VERSION]` | Fetch the vendor SDK on demand into `sdks/<vendor>/<VERSION>` (branch or tag; default: vendor default branch) |
+| `--full` | With `--clone`, IRIS-W10 only: the whole MCUXpresso SDK instead of the RW612 board set |
 | `--install` | Install/refresh the SDK's own tool environment |
 | `--build-sdk` | NORA-W50-W51 only: build the SDK libraries |
 | `--rf-config` | Apply the u-blox output power, calibration and SDK patches |
@@ -50,7 +51,8 @@ Combinable, and always executed in this order:
 | `--mac [PORT]` | Report the module MAC / Bluetooth device address |
 | `--log [PORT]` | Open the serial console (port auto-detected); typed lines are sent to the module |
 | `--wsl` / `--no-wsl` | Force or suppress the automatic hop into WSL2 |
-| `--` | Pass everything after it verbatim to the driver |
+| `--dry-run` | Print the commands the other flags would run, without running them |
+| `--` | Pass everything after it verbatim to the driver's build step (`--build` only) |
 
 Firmware built without `--rf-config` uses the vendor reference-board RF data and
 is not regulatory compliant. `--doctor` reports whether it has been applied.
@@ -98,7 +100,8 @@ Pick one explicitly with `python scripts/nordic_ncs_build.py nora-b20-b21-b22 us
 
 ### ALMA-B20-B21 (Nordic nRF54LM20)
 ```bash
-./ubx-sdk.sh alma-b20-b21 --clone --install --build hello_world
+./ubx-sdk.sh alma-b20-b21 --doctor
+./ubx-sdk.sh alma-b20-b21 --clone --install --build hello_world --flash --log
 ./ubx-sdk.sh alma-b20-b21 --build hello_world -- --board nrf54lm20dk/nrf54lm20b/cpuapp
 ```
 Under development - builds against Nordic's nRF54LM20 DK, not a u-blox board.
@@ -123,12 +126,12 @@ Under development - builds against Nordic's nRF54LM20 DK, not a u-blox board.
 
 | Target | Artifacts | Location |
 |--------|-----------|----------|
-| IRIS-W10 | `<example>.elf`, `.bin`, `.hex` | `<west workspace>/build/` |
+| IRIS-W10 | `<example>.elf`, `.bin`, `.hex` | `sdks/mcuxpresso-sdk/<version>/build/` |
 | NORA-W30 | `*.bin` | in-source, under the example directory |
 | NORA-W40 | `*.elf`, `*.bin` | `<esp-idf>/examples/<example>/build/` |
 | NORA-W50-W51 | `*.out`, `*.map` | `<examples>/<rtos>/<board>/<toolchain>/` |
-| NORA-B20-B21-B22 | `zephyr.elf/.hex/.bin` | `<ncs>/build/<sample>/zephyr/` |
-| ALMA-B20-B21 | `zephyr.elf/.hex/.bin` | `<ncs>/build/<sample>/zephyr/` |
+| NORA-B20-B21-B22 | `zephyr.elf/.hex/.bin` | `<ncs>/build/<sample>/<sample>/zephyr/` |
+| ALMA-B20-B21 | `zephyr.elf/.hex/.bin` | `<ncs>/build/<sample>/<sample>/zephyr/` |
 
 Vendor SDKs land in `sdks/<vendor>/<version>/` and are gitignored. Per-host tool
 caches live in `modules/<target>/config/build.<host>.json`.
@@ -150,7 +153,7 @@ same flag order. See [matter_README.md](matter_README.md).
 | `No Arm GNU toolchain found` | Install it, or set `ARMGCC_DIR` to the toolchain **root**, not `bin/` |
 | "u-connectXpress module" error | You typed an AT-command part; use the Open CPU sibling it names |
 | Build fails after an SDK update | `./ubx-sdk.sh <target> --clean --build NAME` |
-| SDK clone interrupted | Re-run `--clone`; it resumes rather than restarting |
+| SDK clone interrupted | Re-run `--clone` |
 | Stale environment | Restart the shell; for NORA-W40 re-run `--install` |
 | Wrong serial port picked | Pass it: `--log COM12` or `--log /dev/ttyUSB0` |
 | Nordic board target not found | Needs NCS v3.x; clone a current workspace |

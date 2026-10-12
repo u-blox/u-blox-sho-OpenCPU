@@ -158,13 +158,6 @@
   },
   "examples": [
     {
-      "name": "read-mac-address",
-      "kind": "drop-in",
-      "description": "Print the Wi-Fi STA MAC address",
-      "file": "example-code/read-mac-address/main.c",
-      "base": "wifi_examples/wifi_test_mode"
-    },
-    {
       "name": "read-otp-parameters",
       "kind": "drop-in",
       "description": "Print the module type and serial number from OTP",

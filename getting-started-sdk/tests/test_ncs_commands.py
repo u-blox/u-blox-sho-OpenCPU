@@ -211,9 +211,40 @@ def test_build_command_line(ws, cfg, calls, capsys):
     assert ncs.cmd_build(B2, parse("build", "--clean", "hello_world", "--", "-DFOO=1")) == 0
     out = ws / "build" / "hello_world"
     assert calls.cmds[0] == ["west", "build", "-b", B2.board, "-d", str(out), "--pristine",
-                             str(ws / "zephyr/samples/hello_world"), "-DFOO=1"]
+                             str(ws / "zephyr/samples/hello_world"), "--", "-DFOO=1"]
     assert cfg == {"last_example": "zephyr/samples/hello_world", "last_board": B2.board}
     assert f"Artifacts in {out / 'zephyr'}" in capsys.readouterr().out
+
+
+def test_build_west_options_stay_before_the_cmake_args(ws, calls):
+    args = parse("build", "hello_world")
+    args.extra = ["-DFOO=1", "-S", "rtt-console", "-DBAR=2"]
+    assert ncs.cmd_build(B2, args) == 0
+    assert calls.cmds[0][-6:] == ["-S", "rtt-console", str(ws / "zephyr/samples/hello_world"),
+                                  "--", "-DFOO=1", "-DBAR=2"]
+
+
+@pytest.mark.parametrize("argv,expected", [
+    (["hello_world"], []),
+    (["hello_world", "-DCONFIG_X=y", "--board", "b/c", "--clean"], ["-DCONFIG_X=y"]),
+    (["hello_world", "-S", "snippet", "--board=b/c", "-DX=1"], ["-S", "snippet", "-DX=1"]),
+    (["hello_world", "--", "--board", "x"], ["--board", "x"]),
+])
+def test_build_passthrough_keeps_order(argv, expected):
+    assert ncs.build_passthrough(["nora-b20-b21-b22", "build", *argv]) == expected
+
+
+def test_main_forwards_unknown_build_options(monkeypatch):
+    seen = {}
+    monkeypatch.setattr(ncs.target_paths, "ensure", lambda slug: None)
+    monkeypatch.setattr(ncs, "cmd_build", lambda t, a: seen.update(vars(a)) or 0)
+    monkeypatch.setattr(sys, "argv", ["nordic_ncs_build.py", "nora-b20-b21-b22", "build", "hello_world",
+                                      "-DCONFIG_X=y", "--board", "ubx_evknorab2/nrf54l10/cpuapp"])
+    assert ncs.main() == 0
+    assert seen["extra"] == ["-DCONFIG_X=y"] and seen["board"] == "ubx_evknorab2/nrf54l10/cpuapp"
+    monkeypatch.setattr(sys, "argv", ["nordic_ncs_build.py", "nora-b20-b21-b22", "list", "--bogus"])
+    with pytest.raises(SystemExit):
+        ncs.main()
 
 
 def test_build_unknown_board_warns(ws, calls, capsys):
@@ -244,22 +275,34 @@ def test_clean_paths(ws, capsys):
 
 
 def test_clean_all_removes_workspace(ws, cfg):
-    cfg["workspace"] = str(ws)
+    cfg.update(workspace=str(ws), revision=ncs.NCS_REVISION)
     assert ncs.cmd_clean(B2, parse("clean", "--all")) == 0
     assert not ws.exists() and "workspace" not in cfg
+
+
+def test_clean_all_keeps_a_workspace_it_did_not_create(ws, cfg, capsys):
+    cfg.update(workspace=str(ws))
+    assert ncs.cmd_clean(B2, parse("clean", "--all")) == 1
+    assert ws.exists() and "not removing" in capsys.readouterr().out
 
 
 def test_clean_without_workspace(no_workspace):
     assert ncs.cmd_clean(B2, parse("clean")) == 0
 
 
-def test_flash(ws, calls, capsys):
+def test_flash(ws, calls, capsys, monkeypatch):
+    monkeypatch.setattr(ncs, "detect_nrfutil", lambda: "/bin/nrfutil")
     assert ncs.cmd_flash(B2, parse("flash")) == 1
     assert "Build first" in capsys.readouterr().out
     (ws / "build" / "hello_world").mkdir(parents=True)
     assert ncs.cmd_flash(B2, parse("flash", "--runner", "jlink", "--serial", "1050")) == 0
     assert calls.cmds[-1] == ["west", "flash", "-d", str(ws / "build" / "hello_world"),
                               "-r", "jlink", "--dev-id", "1050"]
+    assert ncs.cmd_flash(B2, parse("flash")) == 0
+    assert calls.cmds[-1][-2:] == ["-r", "nrfutil"]
+    monkeypatch.setattr(ncs, "detect_nrfutil", lambda: None)
+    assert ncs.cmd_flash(B2, parse("flash")) == 0
+    assert calls.cmds[-1][-2:] == ["-r", "jlink"]
     calls.returns = [1]
     assert ncs.cmd_flash(B2, parse("flash")) == 1
     assert ncs.cmd_flash(B2, parse("flash", "nope")) == 1

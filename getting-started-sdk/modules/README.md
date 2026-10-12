@@ -73,8 +73,8 @@ One `profile.json` per target, applied by `scripts/module_config.py`.
   },
   "examples": [
     { "name": "rf-calibration", "kind": "project", "path": ".", "description": "..." },
-    { "name": "read-mac-address", "kind": "drop-in", "file": "example-code/read-mac-address/main.c",
-      "base": "wifi_examples/wifi_test_mode" }
+    { "name": "read-otp-parameters", "kind": "drop-in", "file": "example-code/read-otp-parameters/main.c",
+      "base": "driver_examples/romapi/otp" }
   ],
   "manual_steps": [ "..." ],
   "verify": { "log_contains": "..." }

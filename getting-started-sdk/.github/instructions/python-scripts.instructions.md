@@ -9,7 +9,7 @@ applyTo: "**/scripts/**/*.py,**/tests/**/*.py"
 
 Every per-target driver (`<target>_build.py`, `nordic_ncs_build.py`) follows:
 
-1. `host_kind()` - `windows`, `wsl` or `linux`
+1. `host_kind()` - `windows`, `wsl`, `linux` or `macos`
 2. `detect_*()` - one function per tool; `cmd_doctor()` reports them all
 3. `load_config()` / `save_config()` via `target_paths.resolve_config(TARGET)`
    -> `modules/<target>/config/build.<host>.json`
@@ -24,6 +24,10 @@ Every per-target driver (`<target>_build.py`, `nordic_ncs_build.py`) follows:
 - Return 0 on success and non-zero on failure, and propagate it from `main()`.
   A driver that swallows the return code makes every failure look green.
 - Output uses `[OK]` `[FAIL]` `[WARNING]` `[INFO]`; no emoji.
+- Hints name launcher commands (`Run: ubx-sdk <target> --clone`), not driver
+  calls; a driver call is only for what the launcher cannot do. A test enforces it.
+- `--clean-all` removes only an SDK the launcher fetched (`target_paths.is_fetched`,
+  or for NCS a workspace its `clone` created), never a user's own install.
 - Use `shutil.which`, never shell out to `which` (absent on cmd.exe/PowerShell).
 - Every clone calls `target_paths.check_space()` first; `UBX_SKIP_SPACE_CHECK=1`
   overrides. A full drive once produced misleading compiler errors.
@@ -38,11 +42,11 @@ Every per-target driver (`<target>_build.py`, `nordic_ncs_build.py`) follows:
 ## Tests
 
 - Hermetic: no vendor SDK, toolchain, WSL2, network or hardware.
-- `conftest.calls` replaces `subprocess.call`; the autouse
-  `no_sdk_adoption` fixture stops tests from moving the developer's real SDKs.
-  Patch new side effects the same way.
+- `conftest.calls` replaces `subprocess.call`; the autouse `isolated_sdks`
+  fixture points `target_paths.SDKS_DIR` at `tmp_path` so tests never touch the
+  developer's real SDKs. Patch new side effects the same way.
 - `tests/test_cli.py` runs the real entry points with `--dry-run`.
-- Fake SDK trees go under `tmp_path`; monkeypatch `target_paths.SDK_ROOT` /
-  `TARGETS_DIR` or `UBX_MATTER_ROOT`, never write into the repository.
+- Fake SDK trees go under `tmp_path`; monkeypatch `target_paths.SDKS_DIR` /
+  `MODULES_DIR` or `UBX_MATTER_ROOT`, never write into the repository.
 - Shim and drive-letter tests are platform-specific and skip on the other host.
 - Every new flag, target, alias, profile field or Matter vendor script gets a test.

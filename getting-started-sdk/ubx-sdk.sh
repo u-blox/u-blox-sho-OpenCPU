@@ -14,7 +14,7 @@
 set -euo pipefail
 
 SDK_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-UBX_PY="${SDK_DIR}/scripts/ubx.py"
+UBX_PY="${SDK_DIR}/scripts/ubx_sdk.py"
 
 if [ ! -f "${UBX_PY}" ]; then
     echo "[FAIL] Not found: ${UBX_PY}" >&2

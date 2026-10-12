@@ -16,7 +16,7 @@ WINDOWS = sys.platform == "win32"
 def run(script, *args, env=None):
     proc = subprocess.run([sys.executable, str(SCRIPTS / script), *args],
                           capture_output=True, text=True, cwd=SDK_ROOT,
-                          env={**os.environ, **(env or {})})
+                          env={**os.environ, **(env or {})}, stdin=subprocess.DEVNULL, timeout=120)
     return proc.returncode, proc.stdout + proc.stderr
 
 
