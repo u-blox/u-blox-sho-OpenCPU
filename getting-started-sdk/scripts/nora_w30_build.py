@@ -461,4 +461,4 @@ Note: Best on Linux or WSL2. Windows Cygwin is complex.
     return commands[args.command](args)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    sys.exit(target_paths.run_main(main))

@@ -84,6 +84,14 @@ def host_kind() -> str:
     return "linux"
 
 
+def run_main(main) -> int:
+    """A driver's entry point. Ctrl+C reaches every process in the console; the launcher reports it."""
+    try:
+        return main()
+    except KeyboardInterrupt:
+        return 130
+
+
 def load_json(path: Path) -> dict:
     """A cached JSON config, or {} when it is missing or unreadable."""
     try:

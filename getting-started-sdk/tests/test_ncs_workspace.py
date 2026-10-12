@@ -188,6 +188,14 @@ def test_installed_sdks_without_any(fake_sdk_root):
     assert target_paths.installed_sdks("iris_w10") == []
 
 
+def test_run_main_turns_ctrl_c_into_130():
+    assert target_paths.run_main(lambda: 3) == 3
+
+    def interrupted():
+        raise KeyboardInterrupt
+    assert target_paths.run_main(interrupted) == 130
+
+
 def test_sdks_root_moves_into_wsl2_for_a_mnt_checkout(fake_sdk_root, monkeypatch, tmp_path):
     monkeypatch.setattr(target_paths, "WSL_SDKS_DIR", tmp_path / "home" / "sdks")
     assert target_paths.sdks_root() == fake_sdk_root / "sdks"

@@ -13,6 +13,7 @@ Branch: `cmag_getting_started_sdk`.
 | IRIS-W10 | `demo_apps/hello_world` | MCUXpresso 26.09.00-pvw2, Arm GCC 14.2.1 | [OK] 28,968 B flash (1.4% of 2 MB) | 2026-10-07 |
 | NORA-W40 | `hello_world` | ESP-IDF 6.2.0, Windows | [OK] `.bin` 130,736 B, 88% of app partition free | 2026-10-07 |
 | NORA-W40 | `ubx/rf-calibration` + `--rf-config` (NORA-W401) | ESP-IDF 6.2.0, riscv32-esp-elf 16.1.0 | [OK] `u-blox-nora-w40.bin` 920,544 B, 12% of 1 MB app partition free | 2026-10-12 |
+| NORA-W40 | `ubx/rf-calibration`, `--flash` + `--log` on EVK-NORA-W40 (FTDI COM USB, S4 ON) | ESP-IDF 6.2.0 (`sdks/esp-idf/master`), esptool 5.4.0 | [OK] auto-reset into the bootloader over FTDI; log shows `ubx_phy_cal: loading PHY init data from application binary`, MAC f0:f5:bd:13:6f:94 | 2026-10-12 |
 | NORA-W40 | `ubx/read-mac` | ESP-IDF 6.2.0 (`sdks/esp-idf/master`), riscv32-esp-elf 16.1.0 | [OK] build only: `u-blox-nora-w40-read-mac.bin` 196,304 B, 81% of 1 MB app partition free; not run on hardware yet | 2026-10-12 |
 | NORA-W50-W51 | `ble_wifi_provisioning` | simplelink_wifi_sdk_10_20_00_39, `LP_EM_CC35X1` | [OK] `.out` 16 MB | 2026-09-28 |
 | NORA-W30 | `project_lp` + `project_hp`, `--flash` | Ameba-D `main` in `~/ubx-sdk/sdks` (WSL2 Ubuntu-24.04), asdk-6.4.1; J-Link V9.46, EVK J-Link OB | [OK] build, `km0_km4_image2.bin` 671,744 B; [OK] flash (3 images, J-Link device `RTL8720DF`); [OK] boot and console: `ATW?` reports MAC 54:f8:2a:13:f7:94 | 2026-10-12 |
