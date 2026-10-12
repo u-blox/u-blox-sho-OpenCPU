@@ -25,6 +25,32 @@ Last updated 2026-10-07 (branch `cmag_getting_started_sdk`, commit `384030e`).
         partition free
       - NORA-W50-W51 `ble_wifi_provisioning` (2026-09-28, not re-run)
 
+## Asset layout (after merging `mhan-new-structure`)
+
+- [ ] **Finish moving the vendor SDKs into `targets/<t>/sdk/`.** IRIS-W10 moved.
+      `GettingStartedSDK/esp-idf` and `GettingStartedSDK/ameba-rtos-d` were locked
+      (Access denied). Close VS Code and every shell using them, run
+      `wsl --shutdown`, then run any `ubx-sdk.cmd nora-w40 ...` and
+      `ubx-sdk.cmd nora-w30 ...` command. The launcher moves them. After that,
+      run `--clean` once per example: CMake caches still hold the old path.
+- [ ] Repo-root `mcuxpresso-sdk/` is an old west workspace that is no longer tracked
+      (it had been committed as gitlinks by accident). Delete it once
+      `targets/iris-w10/sdk/mcuxpresso-sdk` is confirmed to build.
+- [ ] Agree with the asset owner on folder names for the coming targets:
+      `simplelink/nora-w50-w51/`, `zephyr/nora-b20-b21-b22/`, `zephyr/alma-b20-b21/`
+      (target key as the module folder, like `esp-idf/nora-w40/`).
+- [ ] `esp-idf/nora-w10/` and `esp-idf/nina-w10/` stay asset-only (NORA-W1/NINA-W1 are
+      not targets of this SDK). Confirm.
+- [ ] IRIS-W10 `ubx/read-mac-address` and `ubx/read-otp-parameters` are drop-in files.
+      Make them buildable `project` examples once the matching base example exists in
+      the MCUXpresso workspace (`wifi_examples/wifi_test_mode`, `driver_examples/romapi/otp`
+      were not found in the board-only fetch).
+- [ ] `--mac-set` runtime lines for NORA-W50-W51, NORA-B20-B21-B22 and ALMA-B20-B21
+      (only IRIS-W10, NORA-W30 and NORA-W40 are documented). `--burn` is wired for
+      NORA-W40 (espefuse) only; untested on hardware.
+- [ ] Zephyr `BOARD_ROOT=<repo>/zephyr` for targets that need a u-blox board that is not
+      upstream. Not needed today: `ubx_evknorab2` is upstream, ALMA-B20-B21 uses the DK.
+
 ## Disk space
 
 - [ ] E: had only ~8.7 GB free. Check `%TEMP%\e_sizes.txt` (size scan of E:) and
