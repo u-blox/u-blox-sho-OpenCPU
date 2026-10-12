@@ -12,6 +12,7 @@
   "settings": {
     "python.defaultInterpreterPath": "${workspaceFolder:getting-started-sdk}/.venv/Scripts/python.exe",
     "cmake.configureOnOpen": false,
+    "cmake.ignoreCMakeListsMissing": true,
     "editor.formatOnSave": true,
     "[python]": {
       "editor.defaultFormatter": "ms-python.python",
@@ -52,8 +53,6 @@
     "recommendations": [
       "ms-python.python",
       "ms-python.vscode-pylance",
-      "ms-cmake-tools.cmake-tools",
-      "ms-vscode.cmake-language-support",
       "marus25.cortex-debug",
       "nordic-semiconductor.nrf-connect-extension-pack",
       "NXPSemiconductors.mcuxpresso",

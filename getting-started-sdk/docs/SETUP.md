@@ -32,7 +32,7 @@ code getting-started-sdk/ubx.code-workspace
 
 It opens two roots: the SDK, and the repository root with the u-blox asset
 folders. It points Python at `.venv`, keeps `sdks/` out of search and the file
-watcher, and recommends Python, CMake Tools, Cortex-Debug and the vendor
+watcher, and recommends Python, Cortex-Debug and the vendor
 extensions (nRF Connect, MCUXpresso, ESP-IDF).
 
 The Python launch configurations run the build scripts directly, to debug
