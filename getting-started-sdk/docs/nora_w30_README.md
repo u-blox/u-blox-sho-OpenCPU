@@ -41,7 +41,12 @@ Ameba-D builds a complete firmware image, not one example at a time:
 firmware through the SDK configuration, not built as separate targets.
 
 Images land in
-`sdks/ameba-rtos-d/main/project/realtek_amebaD_va0_example/GCC-RELEASE/<project>/asdk/image/`.
+`<sdk>/project/realtek_amebaD_va0_example/GCC-RELEASE/<project>/asdk/image/`.
+`<sdk>` is `~/ubx-sdk/sdks/ameba-rtos-d/main` when the launcher runs in WSL2
+from a Windows drive (`/mnt/...` builds are many times slower), otherwise
+`sdks/ameba-rtos-d/main`. `UBX_SDKS_DIR` picks another folder. An SDK cloned
+earlier onto the Windows drive is still used, with a warning; `--clone main`
+fetches it into WSL2 and switches to it (then build `project_lp` again).
 
 ## Flash and log
 
@@ -72,4 +77,5 @@ runtime.
 |---------|-----|
 | WSL2 does not start, hangs or shows a `Wsl/Service/...` error | Administrator prompt: `net stop vmcompute`, then `net start vmcompute` |
 | `arm-none-eabi-gcc` or `make` not found | Install the packages above inside WSL2 |
+| Build very slow | The SDK is on `/mnt/...`; `--clone main` moves it into WSL2 (see above) |
 | Serial port not visible in WSL2 | Flash and log from Windows, or attach the port with `usbipd` |

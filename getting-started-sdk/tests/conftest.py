@@ -33,3 +33,5 @@ def isolated_sdks(monkeypatch, tmp_path):
     """Never read or create the real sdks/ folder of the machine running the tests."""
     import target_paths
     monkeypatch.setattr(target_paths, "SDKS_DIR", tmp_path / "sdks")
+    monkeypatch.setattr(target_paths, "WSL_SDKS_DIR", tmp_path / "sdks")
+    monkeypatch.delenv("UBX_SDKS_DIR", raising=False)

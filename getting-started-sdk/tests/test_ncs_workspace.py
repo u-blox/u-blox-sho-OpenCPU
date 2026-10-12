@@ -188,6 +188,26 @@ def test_installed_sdks_without_any(fake_sdk_root):
     assert target_paths.installed_sdks("iris_w10") == []
 
 
+def test_sdks_root_moves_into_wsl2_for_a_mnt_checkout(fake_sdk_root, monkeypatch, tmp_path):
+    monkeypatch.setattr(target_paths, "WSL_SDKS_DIR", tmp_path / "home" / "sdks")
+    assert target_paths.sdks_root() == fake_sdk_root / "sdks"
+    monkeypatch.setattr(target_paths, "host_kind", lambda: "wsl")
+    assert target_paths.sdks_root() == fake_sdk_root / "sdks"
+    monkeypatch.setattr(target_paths, "SDK_ROOT", target_paths.Path("/mnt/e/getting-started-sdk"))
+    assert target_paths.sdk_dir("nora_w30") == tmp_path / "home" / "sdks" / "ameba-rtos-d" / "main"
+    monkeypatch.setenv("UBX_SDKS_DIR", str(tmp_path / "custom"))
+    assert target_paths.vendor_dir("nora_w30") == tmp_path / "custom" / "ameba-rtos-d"
+
+
+def test_installed_sdks_also_lists_the_in_tree_ones(fake_sdk_root, monkeypatch, tmp_path):
+    monkeypatch.setenv("UBX_SDKS_DIR", str(tmp_path / "wsl"))
+    (tmp_path / "wsl" / "ameba-rtos-d" / "main").mkdir(parents=True)
+    (fake_sdk_root / "sdks" / "ameba-rtos-d" / "main").mkdir(parents=True)
+    (fake_sdk_root / "sdks" / "ameba-rtos-d" / "v1.0").mkdir(parents=True)
+    assert target_paths.installed_sdks("nora_w30") == [
+        fake_sdk_root / "sdks" / "ameba-rtos-d" / "v1.0", tmp_path / "wsl" / "ameba-rtos-d" / "main"]
+
+
 def test_resolve_config_creates_config_folder(fake_sdk_root):
     path = target_paths.resolve_config("nora_w30", "wsl")
     assert path == fake_sdk_root / "modules" / "nora-w30" / "config" / "build.wsl.json"

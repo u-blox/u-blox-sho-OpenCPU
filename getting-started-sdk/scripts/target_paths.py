@@ -15,6 +15,10 @@ SDK path cached in build.<host>.json picks the one a target builds with.
 nRF Connect SDK defaults to C:\ncs\<rev> or ~/ncs/<rev>, and the WSL2 Matter
 SDKs to ~/ubx-matter/<target>; both stay outside this tree.
 
+Under WSL2 with this tree on /mnt/<drive>, vendor SDKs go to ~/ubx-sdk/sdks
+instead: builds on the Windows drive are many times slower. UBX_SDKS_DIR
+overrides the location on any host.
+
 Build artifacts stay where each vendor build system puts them, inside the SDK
 or example tree.
 
@@ -33,6 +37,7 @@ from pathlib import Path
 SDK_ROOT = Path(__file__).resolve().parent.parent
 MODULES_DIR = SDK_ROOT / "modules"
 SDKS_DIR = SDK_ROOT / "sdks"
+WSL_SDKS_DIR = Path.home() / "ubx-sdk" / "sdks"
 
 # Script slug -> folder name under modules/ (the target key).
 TARGETS: dict[str, str] = {
@@ -139,9 +144,19 @@ def module_dir(target: str) -> Path:
     return MODULES_DIR / TARGETS[_slug(target)]
 
 
+def sdks_root() -> Path:
+    """Where new vendor SDKs are fetched: sdks/, or the WSL2 file system when this tree is on /mnt."""
+    override = os.environ.get("UBX_SDKS_DIR")
+    if override:
+        return Path(override).expanduser()
+    if host_kind() == "wsl" and SDK_ROOT.as_posix().startswith("/mnt/"):
+        return WSL_SDKS_DIR
+    return SDKS_DIR
+
+
 def vendor_dir(target: str) -> Path:
     """sdks/<vendor>, holding one folder per fetched version."""
-    return SDKS_DIR / VENDORS[_slug(target)]
+    return sdks_root() / VENDORS[_slug(target)]
 
 
 def default_version(target: str) -> str:
@@ -165,10 +180,13 @@ def _version_key(name: str) -> list:
 
 def installed_sdks(target: str) -> list[Path]:
     """Fetched versions of the target's vendor SDK, newest tag first, branch names last."""
-    root = vendor_dir(target)
-    if not root.is_dir():
-        return []
-    return sorted((p for p in root.iterdir() if p.is_dir()), key=lambda p: _version_key(p.name), reverse=True)
+    found: dict[str, Path] = {}
+    for root in (vendor_dir(target), SDKS_DIR / VENDORS[_slug(target)]):
+        if root.is_dir():
+            for p in root.iterdir():
+                if p.is_dir():
+                    found.setdefault(p.name, p)
+    return sorted(found.values(), key=lambda p: _version_key(p.name), reverse=True)
 
 
 def config_dir(target: str) -> Path:

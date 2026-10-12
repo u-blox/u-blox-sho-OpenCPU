@@ -180,20 +180,64 @@ def test_flash_programs_the_three_images(sdk, monkeypatch, capsys):
     assert w30.cmd_flash(ns(serial="1100005639")) == 0
     assert seen["device"] == "RTL872xCS" and seen["serial"] == "1100005639"
     loads = [c for c in seen["commands"] if c.startswith("loadfile")]
-    assert loads == [f'loadfile "{lp / "km0_boot_all.bin"}" 0x08000000',
-                     f'loadfile "{hp / "km4_boot_all.bin"}" 0x08004000',
-                     f'loadfile "{hp / "km0_km4_image2.bin"}" 0x08006000']
+    names = [("km0_boot_all.bin", "0x08000000"), ("km4_boot_all.bin", "0x08004000"),
+             ("km0_km4_image2.bin", "0x08006000")]
+    assert [(c.split('"')[1].replace("\\", "/").rsplit("/", 1)[1], c.split()[-1]) for c in loads] == names
+    assert all("ubx-w30-" in c for c in loads)
 
 
 def test_flash_finds_the_sdk_without_cached_path(cfg, monkeypatch, tmp_path, capsys):
     sdk = tmp_path / "main"
     (sdk / "project").mkdir(parents=True)
     monkeypatch.setattr(w30.target_paths, "installed_sdks", lambda t: [sdk])
+    monkeypatch.setattr(w30, "wsl_sdk_from_windows", lambda: None)
     cfg["sdk_path"] = "/mnt/e/not/on/windows"
     assert w30.find_sdk() == sdk
     monkeypatch.setattr(w30.target_paths, "installed_sdks", lambda t: [])
     assert w30.cmd_flash(ns(serial=None)) == 1
     assert "Realtek SDK not found" in capsys.readouterr().out
+
+
+def test_remember_distro(monkeypatch):
+    monkeypatch.setattr(w30, "host_kind", lambda: "wsl")
+    monkeypatch.setenv("WSL_DISTRO_NAME", "Ubuntu-24.04")
+    cfg = {}
+    assert w30.remember_distro(cfg) is True and cfg == {"wsl_distro": "Ubuntu-24.04"}
+    assert w30.remember_distro(cfg) is False
+    monkeypatch.setattr(w30, "host_kind", lambda: "linux")
+    assert w30.remember_distro({}) is False
+
+
+@pytest.mark.parametrize("cached,expected", [
+    ({"sdk_path": "/home/u/ubx-sdk/sdks/ameba-rtos-d/main", "wsl_distro": "Ubuntu"},
+     r"\\wsl$\Ubuntu\home\u\ubx-sdk\sdks\ameba-rtos-d\main"),
+    ({"sdk_path": "/mnt/e/sdks/main"}, r"E:\sdks\main"),
+    ({"sdk_path": "/home/u/sdk"}, None),
+    ({}, None),
+])
+def test_wsl_sdk_from_windows(monkeypatch, tmp_path, cached, expected):
+    monkeypatch.setattr(w30.target_paths, "load_json", lambda path: cached)
+    result = w30.wsl_sdk_from_windows()
+    assert (result and str(result).replace("/", "\\")) == expected
+
+
+def test_find_sdk_on_windows_uses_the_wsl_build(cfg, monkeypatch, tmp_path):
+    sdk = tmp_path / "wsl-main"
+    (sdk / "project").mkdir(parents=True)
+    monkeypatch.setattr(w30, "host_kind", lambda: "windows")
+    monkeypatch.setattr(w30, "wsl_sdk_from_windows", lambda: sdk)
+    monkeypatch.setattr(w30.target_paths, "installed_sdks", lambda t: [])
+    assert w30.find_sdk() == sdk
+
+
+def test_build_warns_on_mnt_sdk(sdk, run, monkeypatch, cfg, capsys):
+    monkeypatch.setattr(w30, "host_kind", lambda: "wsl")
+    monkeypatch.setenv("WSL_DISTRO_NAME", "Ubuntu")
+    assert w30.on_windows_drive(w30.Path("/mnt/e/sdk")) and not w30.on_windows_drive(sdk)
+    monkeypatch.setattr(w30, "on_windows_drive", lambda p: True)
+    assert w30.cmd_build(ns()) == 0
+    assert "very slow" in capsys.readouterr().out
+    assert cfg["wsl_distro"] == "Ubuntu"
 
 
 def test_log(monkeypatch):

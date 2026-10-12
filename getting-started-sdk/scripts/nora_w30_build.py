@@ -11,6 +11,7 @@ import os
 import sys
 import subprocess
 import shutil
+import tempfile
 from pathlib import Path
 from typing import Dict, Optional
 
@@ -159,6 +160,7 @@ def cmd_clone(args) -> int:
         print("\n[OK] Realtek SDK cloned successfully!\n")
         cfg = load_config()
         cfg["sdk_path"] = str(sdk_dir)
+        remember_distro(cfg)
         save_config(cfg)
     else:
         print("\n[FAIL] Clone failed. Check URL and network connection.\n")
@@ -247,6 +249,12 @@ def cmd_build(args) -> int:
         return 1
 
     print(f"\nBuilding {project} (Ameba-D Firmware)...\n")
+    if on_windows_drive(sdk_path):
+        print(f"[WARNING] The SDK is on the Windows drive ({sdk_path}); WSL2 builds there are very slow.")
+        print("          '--clone main' fetches a copy into the WSL2 file system and uses it from then on.\n")
+    cfg = load_config()
+    if remember_distro(cfg):
+        save_config(cfg)
 
     env = os.environ.copy()
     env["SDK_ROOT"] = str(sdk_path)
@@ -287,11 +295,35 @@ def cmd_list(args) -> int:
     print("[FAIL] Example sources directory not found.")
     return 1
 
+def on_windows_drive(path: Path) -> bool:
+    return host_kind() == "wsl" and Path(path).as_posix().startswith("/mnt/")
+
+def remember_distro(cfg: Dict) -> bool:
+    """Store the WSL2 distro so Windows can reach the SDK for flashing; True when cfg changed."""
+    distro = os.environ.get("WSL_DISTRO_NAME")
+    if host_kind() != "wsl" or not distro or cfg.get("wsl_distro") == distro:
+        return False
+    cfg["wsl_distro"] = distro
+    return True
+
+def wsl_sdk_from_windows() -> Optional[Path]:
+    """The SDK the WSL2 build uses, as a Windows path."""
+    cfg = target_paths.load_json(target_paths.config_file(TARGET, "wsl"))
+    path = cfg.get("sdk_path", "")
+    if path.startswith("/mnt/") and len(path) > 6:
+        return Path(f"{path[5].upper()}:" + path[6:].replace("/", "\\"))
+    if path.startswith("/") and cfg.get("wsl_distro"):
+        return Path(f"\\\\wsl$\\{cfg['wsl_distro']}" + path.replace("/", "\\"))
+    return None
+
 def find_sdk() -> Optional[Path]:
-    """The SDK in use; the cached path may be a WSL2 one when flashing from Windows."""
+    """The SDK in use; from Windows that is the one the WSL2 build cached."""
     cached = load_config().get("sdk_path")
-    candidates = ([Path(cached)] if cached else []) + target_paths.installed_sdks(TARGET)
-    return next((p for p in candidates if (p / "project").is_dir()), None)
+    candidates = [Path(cached)] if cached else []
+    if host_kind() == "windows":
+        candidates.append(wsl_sdk_from_windows())
+    candidates += target_paths.installed_sdks(TARGET)
+    return next((p for p in candidates if p and (p / "project").is_dir()), None)
 
 def cmd_flash(args) -> int:
     """Program the Ameba-D images over SWD with SEGGER J-Link Commander."""
@@ -316,10 +348,13 @@ def cmd_flash(args) -> int:
     print("\nNORA-W30 Flash Utility (J-Link, SWD)\n")
     for path, address in images:
         print(f"  0x{address:08X}  {path.name}")
-    commands = ["RSetType 4", "r", "Sleep 500",
-                *[f'loadfile "{path}" 0x{address:08X}' for path, address in images],
-                "RSetType 2", "r", "g"]
-    return flash_helper.flash_jlink_script(JLINK_DEVICE, commands, args.serial)
+    # J-Link Commander may not open \\wsl$ paths; give it local copies.
+    with tempfile.TemporaryDirectory(prefix="ubx-w30-") as tmp:
+        local = [(Path(shutil.copy(path, tmp)), address) for path, address in images]
+        commands = ["RSetType 4", "r", "Sleep 500",
+                    *[f'loadfile "{path}" 0x{address:08X}' for path, address in local],
+                    "RSetType 2", "r", "g"]
+        return flash_helper.flash_jlink_script(JLINK_DEVICE, commands, args.serial)
 
 def cmd_log(args) -> int:
     """Open the serial console (115200 8N1)."""

@@ -74,7 +74,9 @@ u-blox-sho-OpenCPU/                  repository root
   versions sit side by side and the path cached in `build.<host>.json` picks
   one. `scripts/target_paths.py` is the single source of truth. Exceptions: nRF
   Connect SDK in `C:\ncs\<rev>` or `~/ncs/<rev>`, Matter SDKs in
-  `~/ubx-matter/<target>` inside WSL2.
+  `~/ubx-matter/<target>` inside WSL2, and any SDK fetched inside WSL2 from a
+  `/mnt/<drive>` checkout, which goes to `~/ubx-sdk/sdks/<vendor>/<version>`
+  for speed (`UBX_SDKS_DIR` overrides).
 - Only `README.md`, `.gitattributes`, `.gitlab-ci.yml` and
   `.github/workflows/` may sit at the
   repository root besides the asset folders. The SDK root holds only the two
