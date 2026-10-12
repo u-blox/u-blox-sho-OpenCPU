@@ -300,18 +300,27 @@ def test_flash(ws, monkeypatch, capsys):
     import flash_helper
     seen = []
     monkeypatch.setattr(flash_helper, "flash_jlink",
-                        lambda dev, fw, serial=None: seen.append((dev, fw, serial)) or 0)
+                        lambda dev, fw, address=0, serial=None: seen.append((dev, fw, address, serial)) or 0)
     assert iris.cmd_flash(ns(example=None)) == 1
     assert iris.cmd_flash(ns(example="nope")) == 1
     assert iris.cmd_flash(ns()) == 1
     assert "Build directory not found" in capsys.readouterr().out
-    out = ws / "build" / "release"
-    out.mkdir(parents=True)
-    assert iris.cmd_flash(ns(config="release")) == 1
-    (out / "hello_world.elf").write_text("")
+    # Current SDKs build straight into build/; .elf wins over .bin.
+    out = ws / "build"
+    out.mkdir()
+    assert iris.cmd_flash(ns()) == 1
     (out / "hello_world.bin").write_text("")
-    assert iris.cmd_flash(ns(config="release", serial="123")) == 0
-    assert seen == [("RW612", str(out / "hello_world.bin"), "123")]
+    assert iris.cmd_flash(ns(serial="123")) == 0
+    assert seen[-1] == ("RW612", str(out / "hello_world.bin"), iris.FLASH_BASE, "123")
+    (out / "hello_world.elf").write_text("")
+    assert iris.cmd_flash(ns()) == 0
+    assert seen[-1] == ("RW612", str(out / "hello_world.elf"), 0, None)
+    # Older SDKs: build/<config>.
+    release = out / "release"
+    release.mkdir()
+    (release / "hello_world.hex").write_text("")
+    assert iris.cmd_flash(ns(config="release")) == 0
+    assert seen[-1][1] == str(release / "hello_world.hex")
     monkeypatch.setattr(iris, "detect_workspace", lambda: None)
     assert iris.cmd_flash(ns()) == 1
 

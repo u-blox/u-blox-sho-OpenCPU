@@ -79,6 +79,8 @@ def flash_jlink(device: str, firmware_file: str, address: int = 0, serial: Optio
             jlink.set_reset_pin_low()
             time.sleep(0.1)
             jlink.set_reset_pin_high()
+            # Not every probe (e.g. the EVK-IRIS-W1 MCU-Link) drives nRESET; a core reset always runs.
+            jlink.reset(halt=False)
 
             print("[OK] Flash complete!\n")
             return 0

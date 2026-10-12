@@ -60,10 +60,10 @@ class FakeJLink:
         return False
 
     def __getattr__(self, name):
-        def record(*args):
+        def record(*args, **kwargs):
             if name == self.fail:
                 raise fh.JLinkException(f"{name} failed")
-            FakeJLink.log.append((name, args))
+            FakeJLink.log.append((name, args + tuple(kwargs.items())))
         return record
 
 
@@ -84,7 +84,8 @@ def test_flash_jlink_sequence(jlink, tmp_path):
     assert fh.flash_jlink("RW612", str(fw), 0x1000) == 0
     names = [name for name, _ in jlink.log]
     assert names == ["set_tif", "disable_dialog_boxes", "connect", "halt", "flash_file",
-                     "set_reset_pin_low", "set_reset_pin_high"]
+                     "set_reset_pin_low", "set_reset_pin_high", "reset"]
+    assert ("reset", (("halt", False),)) in jlink.log
     assert ("flash_file", (str(fw), 0x1000)) in jlink.log
 
 

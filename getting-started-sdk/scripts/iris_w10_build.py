@@ -38,6 +38,8 @@ MANIFEST_URL = "https://github.com/nxp-mcuxpresso/mcuxsdk-manifests.git"
 DEFAULT_BOARD = "rdrw612bga"
 # J-Link knows the SoC, not the board target.
 JLINK_DEVICE = "RW612"
+# RW612 FlexSPI flash (XIP) base; a raw .bin starts with the boot header here.
+FLASH_BASE = 0x08000000
 DEFAULT_TOOLCHAIN = "armgcc"
 DEFAULT_EXAMPLE = "examples/demo_apps/hello_world"
 
@@ -406,22 +408,22 @@ def cmd_flash(args) -> int:
     if not example_path:
         return 1
 
-    # Determine build directory
+    # Determine build directory: older SDKs use build/<config>, current ones build/ itself.
     build_config = "release" if args.config == "release" else "debug"
-    build_root = Path(workspace) / "build" / build_config
+    build = Path(workspace) / "build"
+    build_root = next((d for d in (build / build_config, build) if d.is_dir()), None)
 
-    if not build_root.exists():
-        print(f"[FAIL] Build directory not found: {build_root}")
+    if not build_root:
+        print(f"[FAIL] Build directory not found: {build}")
         print(f"   Build with: python iris_w10_build.py build {args.example}")
         return 1
 
-    # The MCUXpresso build names its artifacts after the example, not 'zephyr'.
-    # Prefer .hex for J-Link, then .bin, then .elf.
+    # Artefacts are named after the example; .hex and .elf carry their own load addresses.
     firmware_file = None
-    for suffix in (".hex", ".bin", ".elf"):
-        candidates = sorted(build_root.glob(f"*{suffix}"))
-        if candidates:
-            firmware_file = candidates[0]
+    for suffix in (".hex", ".elf", ".bin"):
+        candidates = [build_root / f"{example_path.name}{suffix}"] + sorted(build_root.glob(f"*{suffix}"))
+        firmware_file = next((c for c in candidates if c.is_file()), None)
+        if firmware_file:
             break
 
     if not firmware_file:
@@ -432,7 +434,8 @@ def cmd_flash(args) -> int:
     print(f"Firmware: {firmware_file.name}")
     print(f"   Device: {JLINK_DEVICE}\n")
 
-    return flash_helper.flash_jlink(JLINK_DEVICE, str(firmware_file), serial=args.serial)
+    address = FLASH_BASE if firmware_file.suffix == ".bin" else 0
+    return flash_helper.flash_jlink(JLINK_DEVICE, str(firmware_file), address=address, serial=args.serial)
 
 def resolve_example(workspace: str, name: str) -> Optional[Path]:
     """Map a user-supplied example name to a directory in the workspace.
