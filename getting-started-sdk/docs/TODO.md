@@ -87,5 +87,11 @@ Last updated 2026-10-12 (branch `cmag_getting_started_sdk`).
 ## Nice to have
 
 - [ ] Space estimates in the drivers are rough; refine them from real clone sizes.
+- [ ] `--rf-config` patch ops fall back to `git apply` when GNU `patch` is not on PATH
+      (Windows). It honours `core.autocrlf`, so with `autocrlf=true` a patched LF file is
+      written back as CRLF. Harmless for SDKs cloned with the same setting; decide whether
+      to pin `-c core.autocrlf=false` once a CRLF checkout has been tested.
+- [ ] Test coverage is 43% (report only). Next gaps: the per-target drivers' clone/build
+      paths and `flash_helper.py`; then add `--cov-fail-under` just below the current value.
 - [ ] `ubx_evkalmab2` board once u-blox publishes it (ALMA-B20-B21 uses `nrf54lm20dk`).
 - [ ] Review and merge `cmag_getting_started_sdk` to master.
