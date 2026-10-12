@@ -36,6 +36,11 @@ Output: `<example>/build/` inside the ESP-IDF tree (`.elf`, `.bin`).
 USB serial port (auto-detected; pass it with `--flash COM5`). Leave the monitor
 with Ctrl+].
 
+On EVK-NORA-W40 the FTDI (U7) drives reset and boot, so esptool enters the
+bootloader by itself: no BOOT button press. Keep S4 ON (UART0 to the FTDI); the
+console is the first of the two FTDI COM ports. Because these lines are used
+for reset, UART0 hardware flow control and DSR are not available in this setup.
+
 ## ESP-IDF extension
 
 After `--clone --install --rf-config`, choose "Use existing setup" in the
