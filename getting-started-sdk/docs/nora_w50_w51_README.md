@@ -65,8 +65,23 @@ The EVK's on-board XDS110 gives debug and a UART. `--flash` runs the Wi-Fi
 Toolbox programmer with the `tool_settings.json` the build writes. The toolbox
 is found in `C:\ti\simplelink_wifi_toolbox*` or `~/ti/`, on PATH, or through
 `TI_TOOLBOX`. It fails when the build wrote
-none. Not yet verified on an EVK. CCS and UniFlash also work. `--log` opens the
-XDS110 *Application/User UART* at 115200.
+none. Not yet verified on an EVK. `--log` opens the XDS110
+*Application/User UART* at 115200.
+
+## Code Composer Studio
+
+TI has no VS Code extension; its IDE is [CCS Theia](https://www.ti.com/tool/CCSTUDIO)
+(v20+, VS Code look, separate app). It bundles TI Arm Clang, SysConfig and the
+XDS110 debugger. To build and debug in CCS an SDK set up by the launcher:
+
+1. `--clone --build-sdk` once.
+2. Add `sdks/simplelink-wifi/<version>` (or the TI-installed SDK) under
+   Preferences > Code Composer Studio Settings > Products.
+3. File > Import Projects, select an example under
+   `examples/rtos/LP_EM_CC35X1/`, toolchain `ticlang`.
+4. Build, then Run > Start Debugging over the XDS110.
+
+Not yet verified on an EVK. UniFlash, also from TI, flashes without an IDE.
 
 ## WSL2
 
