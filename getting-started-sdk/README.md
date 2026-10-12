@@ -206,6 +206,11 @@ python -m pytest tests -q
 `setup_venv.py` installs pytest. Run the suite on both Windows and WSL2/Linux;
 a few tests are platform-specific and skip elsewhere.
 
+Run it with the venv's Python (activate the venv, or call
+`.venv\Scripts\python.exe -m pytest tests -q` on Windows). A system Python
+with other pytest plugins installed, such as MSYS2's, can fail before any test
+runs.
+
 CI runs on every push that touches `getting-started-sdk/`:
 
 | Where | Jobs |
