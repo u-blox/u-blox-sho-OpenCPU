@@ -10,7 +10,7 @@
     "when": "build time"
   },
   "mac": {
-    "source": "Nordic FICR DEVICEADDR (random static Bluetooth address). Whether u-blox programs an address on ALMA-B2 is not decided yet.",
+    "source": "Nordic FICR DEVICEADDR (random static Bluetooth address). As on NORA-B2, u-blox programs no address in production.",
     "read": "unsupported",
     "on_device": {
       "build": "bluetooth/beacon"

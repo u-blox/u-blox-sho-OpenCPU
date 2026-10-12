@@ -436,7 +436,7 @@ def cmd_doctor(args) -> None:
     if missing:
         print("\nmissing: " + ", ".join(missing))
         print("See README.md section 2 for download links, or pass explicit paths:")
-        print("  python nora_w50_w51_build.py configure --gcc_armcompiler <dir>")
+        print("  python nora_w50_w51_build.py --gcc_armcompiler <dir> configure")
     else:
         print("\nall required tools found.")
     print()

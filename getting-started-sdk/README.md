@@ -123,7 +123,7 @@ automatically; nothing has to be configured.
 | `nora-w30` | Realtek eFuse | `--build project_hp --flash --log`, then type `ATW?` | From the app only (eFuse, one time) |
 | `nora-w40` | ESP32-C6 eFuse (base for Wi-Fi, Bluetooth LE, 802.15.4) | `--mac` from the PC, or `--build ubx/read-mac --flash --log` | `--mac-set <ADDR> --burn` (one time) |
 | `nora-w50-w51` | CC35xx factory configuration | Not yet | No |
-| `nora-b20-b21-b22`, `alma-b20-b21` | Nordic FICR `DEVICEADDR` (random static Bluetooth address); u-blox programs none on NORA-B2, ALMA-B2 not decided | `--build bluetooth/beacon --flash --log` ("advertising as ...") | No |
+| `nora-b20-b21-b22`, `alma-b20-b21` | Nordic FICR `DEVICEADDR` (random static Bluetooth address); u-blox programs none | `--build bluetooth/beacon --flash --log` ("advertising as ...") | No |
 
 ## Launcher details
 
@@ -137,53 +137,19 @@ through to the vendor driver:
 
 ## Matter (optional)
 
-Matter works through `ubx-matter` for all six targets. You can ignore the
-launcher completely if you are not building Matter — nothing in the plain SDK
-flow touches it, and the multi-GB Matter SDKs are only fetched when you ask.
+`ubx-matter` builds the Matter examples each vendor ships, for all six
+targets. Nothing in the plain SDK flow touches it, and the multi-GB Matter SDKs
+are only fetched when you ask.
 
 ```bash
 ./ubx-matter.sh nora-w40 --doctor
-./ubx-matter.sh nora-w40 --clone --install
-./ubx-matter.sh nora-w40 --list
-./ubx-matter.sh nora-w40 --build light
-```
-
-Only the examples each vendor's Matter SDK ships are listed and built; this
-layer adds no u-blox application code. The set differs per vendor, so run
-`--list` per target.
-
-For IRIS-W10, NORA-W30, NORA-W40 and NORA-W50-W51, Matter is a separate vendor SDK,
-fetched by `--clone` into `~/ubx-matter/<target>` inside WSL2 (or
-`UBX_MATTER_ROOT`). These toolchains are Linux-only, so on Windows every
-`ubx-matter` action for them hops into WSL2. `--build` is wired for NORA-W40 and
-NORA-W50-W51; IRIS-W10 and NORA-W30 examples are listed only for now.
-
-| Target | Vendor Matter SDK | Default example |
-|--------|-------------------|-----------------|
-| `iris-w10` | `NXP/matter` | `lighting-app` (list only) |
-| `nora-w30` | `ameba-rtos-matter` | `light` (list only) |
-| `nora-w40` | `esp-matter` | `light` |
-| `nora-w50-w51` | `TexasInstruments/matter` | `lighting-app` |
-| `nora-b20-b21-b22`, `alma-b20-b21` | nRF Connect SDK | `light_bulb` |
-
-NORA-W50-W51 Matter needs the `Ubuntu-22.04` WSL2 distro (TI supports nothing else)
-plus the Linux SysConfig and SimpleLink Wi-Fi Toolbox installed under `~/ti`.
-
-Matter builds also use the vendor's reference-board RF data; `--rf-config` is
-an `ubx-sdk` flag and is not applied to the Matter SDKs. See the Matter guide
-for applying it on NORA-W40.
-
-NORA-B20-B21-B22 and ALMA-B20-B21 instead get Matter from the nRF Connect SDK itself, so
-`--clone` fetches the same NCS workspace `ubx-sdk` uses and nothing extra is
-downloaded. `--list` shows the `nrf/samples/matter` apps, and `--flash`/`--log`
-work too:
-
-```bash
-./ubx-matter.sh nora-b20-b21-b22 --list
+./ubx-matter.sh nora-w40 --clone --install --build light
 ./ubx-matter.sh nora-b20-b21-b22 --build light_bulb --flash --log
 ```
 
-See [docs/matter_README.md](docs/matter_README.md).
+The Nordic targets use the NCS workspace `ubx-sdk` already fetched; the others
+fetch a vendor Matter SDK into WSL2. `--rf-config` is not applied to the Matter
+SDKs. See [docs/matter_README.md](docs/matter_README.md).
 
 ## Layout
 
@@ -221,11 +187,8 @@ copies or patches those files into the fetched SDK.
 ## Setup
 
 The launcher works with any Python 3.10+. For an isolated environment with
-`west` and the serial tooling pre-installed:
-
-```bash
-python scripts/setup_venv.py
-```
+`west` and the serial tooling pre-installed, run `python scripts/setup_venv.py`;
+see [docs/SETUP.md](docs/SETUP.md) for the venv and the VS Code workspace.
 
 IRIS-W10 additionally needs the Arm GNU Toolchain. The driver finds it on its own
 (standard Arm installer paths, the MCUXpresso Installer's `~/.mcuxpressotools`,
@@ -244,41 +207,17 @@ Every `--clone` checks free disk space against an estimate for that SDK first
 
 ## Tests
 
-The launchers, the Matter driver and the module configuration have a pytest
-suite. It needs no vendor SDK, toolchain, WSL2 or hardware: driver calls are
-recorded instead of executed, and the end-to-end tests use `--dry-run`.
+The pytest suite needs no vendor SDK, toolchain, WSL2 or hardware: driver calls
+are recorded instead of executed, and the end-to-end tests use `--dry-run`. Run
+it with the venv's Python, on Windows and on WSL2/Linux:
 
 ```bash
-python -m pytest tests -q
+python -m pytest tests -q --cov=scripts --cov-report=term
 ```
 
-`setup_venv.py` installs pytest and pytest-cov. Run the suite on both Windows and WSL2/Linux;
-a few tests are platform-specific and skip elsewhere.
-
-Run it with the venv's Python (activate the venv, or call
-`.venv\Scripts\python.exe -m pytest tests -q` on Windows). A system Python
-with other pytest plugins installed, such as MSYS2's, can fail before any test
-runs.
-
-To see which lines the tests reach (`htmlcov/index.html` has the per-line view):
-
-```bash
-python -m pytest tests -q --cov=scripts --cov-report=term --cov-report=html
-```
-
-Coverage counts only code run inside the pytest process; the scripts that
-`test_cli.py` starts as subprocesses are not included. Total coverage is about
-96%, and every file in `scripts/` is above 80%. CI fails below 90% total; new
-code needs tests that keep it there.
-
-CI runs on every push that touches `getting-started-sdk/`:
-
-| Where | Jobs |
-|-------|------|
-| GitLab (`.gitlab-ci.yml`) | pytest with coverage on Linux, Python 3.10 and 3.12 (fails below 90%; total in the pipeline, covered lines in merge-request diffs); ruff; shellcheck |
-| GitHub Actions (`.github/workflows/getting-started-sdk.yml`, runs on the mirror) | pytest with coverage on Linux and Windows, Python 3.10 and 3.12 (fails below 90%); ruff; shellcheck |
-
-Run the linters locally before pushing (`pip install ruff==0.17.0 shellcheck-py`):
+CI (GitLab, and GitHub Actions on the mirror) runs it on Linux and Windows with
+Python 3.10 and 3.12 and fails below 90% coverage, plus these linters
+(`pip install ruff==0.17.0 shellcheck-py`):
 
 ```bash
 ruff check --isolated --target-version py310 --select E4,E7,E9,F scripts tests
@@ -289,18 +228,10 @@ shellcheck -S warning ubx-*.sh scripts/matter_vendor/*.sh
 
 | Document | Contents |
 |----------|----------|
-| [docs/iris_w10_README.md](docs/iris_w10_README.md) | IRIS-W10 (NXP RW612) |
-| [docs/nora_w30_README.md](docs/nora_w30_README.md) | NORA-W30 (Realtek, WSL2) |
-| [docs/nora_w40_README.md](docs/nora_w40_README.md) | NORA-W40 (ESP32-C6) |
-| [docs/nora_w50_w51_README.md](docs/nora_w50_w51_README.md) | NORA-W50-W51 (TI CC3501E/CC3551E) |
-| [docs/nora_b20_b21_b22_README.md](docs/nora_b20_b21_b22_README.md) | NORA-B20-B21-B22 (Nordic nRF54L) |
-| [docs/alma_b20_b21_README.md](docs/alma_b20_b21_README.md) | ALMA-B20-B21 (Nordic nRF54LM20) |
-| [docs/BUILD_ALL_EXAMPLES.md](docs/BUILD_ALL_EXAMPLES.md) | Full build guide |
-| [docs/BUILD_INSTRUCTIONS.md](docs/BUILD_INSTRUCTIONS.md) | Build instructions |
-| [docs/BUILD_TEST_RESULTS.md](docs/BUILD_TEST_RESULTS.md) | Build verification status |
-| [docs/QUICK_BUILD_REFERENCE.md](docs/QUICK_BUILD_REFERENCE.md) | Command cheat sheet |
-| [docs/VENV_SETUP.md](docs/VENV_SETUP.md) | Virtual environment details |
-| [docs/WORKSPACE_SETUP.md](docs/WORKSPACE_SETUP.md) | VS Code workspace |
-| [docs/REVIEWERS_GUIDE.md](docs/REVIEWERS_GUIDE.md) | Review procedure |
-| [docs/matter_README.md](docs/matter_README.md) | Matter SDKs and vendor examples |
-| [modules/README.md](modules/README.md) | Module config profile schema |
+| [docs/QUICK_BUILD_REFERENCE.md](docs/QUICK_BUILD_REFERENCE.md) | Every flag, first build per target, troubleshooting |
+| `docs/<target>_README.md` | One per module: [IRIS-W10](docs/iris_w10_README.md), [NORA-W30](docs/nora_w30_README.md), [NORA-W40](docs/nora_w40_README.md), [NORA-W50-W51](docs/nora_w50_w51_README.md), [NORA-B20-B21-B22](docs/nora_b20_b21_b22_README.md), [ALMA-B20-B21](docs/alma_b20_b21_README.md) |
+| [docs/matter_README.md](docs/matter_README.md) | Matter |
+| [docs/SETUP.md](docs/SETUP.md) | Python venv, VS Code workspace, Copilot context |
+| [modules/README.md](modules/README.md) | Module configuration profiles |
+| [docs/BUILD_TEST_RESULTS.md](docs/BUILD_TEST_RESULTS.md) | Builds verified so far |
+| [docs/TODO.md](docs/TODO.md) | Open work |

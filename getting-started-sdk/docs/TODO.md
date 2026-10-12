@@ -9,6 +9,8 @@ Last updated 2026-10-12 (branch `cmag_getting_started_sdk`).
       (2026-10-12, see `docs/BUILD_TEST_RESULTS.md`). The CMake configure step took
       about 4 minutes on this machine.
 - [ ] **Build ALMA-B20-B21**: `ubx-sdk.cmd alma-b20-b21 --doctor --build hello_world`.
+- [ ] NORA-W50-W51 `configure` has no launcher flag; run it from `--build-sdk` (or
+      `--install`) so the documented flow is launcher-only.
 - [ ] **Re-run NORA-W30** `ubx-sdk.cmd nora-w30 --build project_hp`. The last attempt
       failed only because E: was full (`fatal error: when writing output to
       wlan_network.i`). Building on `/mnt/e` is slow; consider moving the Ameba-D
@@ -41,8 +43,8 @@ Last updated 2026-10-12 (branch `cmag_getting_started_sdk`).
       the board-only fetch, and the file contains non-breaking spaces gcc rejects).
 - [x] MAC on NORA-B20-B21-B22: u-blox programs no address; the Nordic FICR
       `DEVICEADDR` (random static) is used, shown by `bluetooth/beacon` (2026-10-12).
-- [ ] ALMA-B20-B21: ask u-blox whether a public address will be programmed (and where).
-      Until then the profile documents the FICR address like NORA-B2.
+- [x] ALMA-B20-B21: treated like NORA-B2, no u-blox address in production; the FICR
+      address is used (decided 2026-10-12).
 - [ ] `--mac-set` runtime lines for the Nordic targets (own public address via the
       controller, or a static random identity with `bt_id_create()`), confirmed in NCS.
 - [ ] Verify on hardware: NORA-W40 `--mac` derived addresses and `ubx/read-mac`,

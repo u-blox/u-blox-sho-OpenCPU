@@ -18,6 +18,10 @@ IRIS-W10, NORA-W30, NORA-W40, NORA-W50-W51, NORA-B20-B21-B22 and ALMA-B20-B21:
 `getting-started-sdk/ubx-sdk.cmd <target> --doctor` on Windows,
 `./getting-started-sdk/ubx-sdk.sh <target> --doctor` on Linux, WSL2 and macOS.
 
+To get started you only need `getting-started-sdk/`. The other folders hold
+u-blox assets (RF data, board files, examples) that it applies, plus board
+support for older modules that the SDK does not build.
+
 ## Contents
 
 | Folder | SDK / environment | Content |

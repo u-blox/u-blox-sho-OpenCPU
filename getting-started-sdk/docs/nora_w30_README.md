@@ -1,498 +1,65 @@
-# NORA-W30 Getting Started Guide
+# NORA-W30 (Realtek RTL8720DF)
 
-## Overview
+| | |
+|---|---|
+| Radio | Dual-band Wi-Fi 4 (802.11a/b/g/n, 2.4 and 5 GHz), Bluetooth LE 5.3 |
+| MCU | Dual core: Cortex-M33 compatible (KM4, application) and Cortex-M23 compatible (KM0, low power) |
+| Memory | 512 kB RAM, 4 MB flash |
+| Parts | NORA-W301 (antenna pin), NORA-W306 (internal PCB antenna) |
+| SDK | Realtek Ameba-D (`ameba-rtos-d`), GNU Make, `arm-none-eabi-gcc` |
+| Host | Linux only. On Windows the launcher hops into WSL2 by itself. |
 
-NORA-W30 modules are based on the **Realtek RTL872x** SoC with Wi-Fi 6 (802.11ax) and Bluetooth LE 5.3. This guide covers building and deploying firmware using the **Realtek RTOS SDK** (or Ameba-RTOS).
-
-**Key Features:**
-- Single-core Cortex-M4 @ 200 MHz
-- 2.4 GHz Wi-Fi 6 + Bluetooth LE 5.3
-- 2 MB internal flash, up to 16 MB external flash
-- Excellent Linux support; Windows requires WSL2 or Cygwin
-
-**SDK:** Realtek RTOS / Ameba-RTOS (latest)
-**Platforms:** Linux (native), WSL2 (recommended for Windows)
-**Build System:** GNU Make
-**Toolchain:** arm-none-eabi-gcc
-
----
-
-## Prerequisites
-
-### Linux (Ubuntu/Debian) — Recommended
+## Quick start
 
 ```bash
-sudo apt-get update
-sudo apt-get install -y \
-  python3 python3-pip \
-  git build-essential \
-  gcc-arm-none-eabi \
-  libusb-1.0-0 udev
+./ubx-sdk.sh nora-w30 --doctor
+./ubx-sdk.sh nora-w30 --clone
+./ubx-sdk.sh nora-w30 --variant NORA-W301 --region ETSI --rf-config --build project_hp
 ```
 
-Grant serial port access:
-```bash
-sudo usermod -a -G dialout $USER
-sudo usermod -a -G plugdev $USER
-# Log out and back in to apply group changes
-```
+Without `--rf-config` the firmware uses Realtek's reference-board TX power
+tables and is not regulatory compliant on the module. `--variant` is
+`NORA-W301` or `NORA-W306`; `--region` prints the channel plan the application
+must select at runtime.
 
-### WSL2 (Windows via Ubuntu)
-
-Install WSL2:
-```powershell
-wsl --install
-```
-
-Then use Linux setup above (same commands in WSL2 Ubuntu).
-
-### Windows (Cygwin) — Not Recommended
-
-Cygwin setup for Realtek SDK is complex and error-prone. Use **WSL2 instead**.
-
-If you must use Cygwin:
-1. Install Cygwin 64-bit from https://cygwin.com/install.html
-2. Select packages: `gcc-core`, `gcc-g++`, `make`, `git`, `wget`, `arm-none-eabi-gcc`
-3. Follow Realtek's Cygwin-specific build guide
-4. Run builds in Cygwin terminal only
-
----
-
-## Quick Start (Scripted Path)
-
-The `nora_w30_build.py` script automates the build process:
+Inside WSL2 (or on Linux) the build needs:
 
 ```bash
-# From the repository root
-cd getting-started-sdk
-
-# 1. Activate virtual environment
-source .venv/bin/activate          # Linux/WSL2
-# or on Windows: .venv\Scripts\activate
-
-# 2. Check environment
-python scripts/nora_w30_build.py doctor
-
-# 3. Clone Realtek Ameba-D SDK
-python scripts/nora_w30_build.py clone
-
-# 4. List available example sources (included in firmware)
-python scripts/nora_w30_build.py list
-
-# 5. Build KM4 firmware (project_hp, default)
-python scripts/nora_w30_build.py build
-
-# 6. Or build KM0 firmware (project_lp)
-python scripts/nora_w30_build.py build project_lp
-
-# 7. Clean build artifacts
-python scripts/nora_w30_build.py clean
+sudo apt install build-essential gcc-arm-none-eabi git python3
 ```
 
-**Output locations:**
-- KM4 firmware (project_hp): `ameba-rtos-d/project/realtek_amebaD_va0_example/GCC-RELEASE/project_hp/asdk/image/`
-- KM0 firmware (project_lp): `ameba-rtos-d/project/realtek_amebaD_va0_example/GCC-RELEASE/project_lp/asdk/image/`
+## What gets built
 
-**Build artifacts:**
-- `km4_boot_all.bin` / `km0_boot_all.bin` — Bootloader (KM4 or KM0 project)
-- `km4_km0_image2.bin` / `km0_image2_all.bin` — Application firmware
-- `ram_1.bin` — RAM image
-- `xip_boot.bin` — XIP boot image
+Ameba-D builds a complete firmware image, not one example at a time:
 
----
+| Project | Core | |
+|---------|------|---|
+| `project_hp` | KM4 | Your application (default) |
+| `project_lp` | KM0 | Low-power core and boot |
 
-## Understanding Ameba-D Architecture
+`--list` shows the `example_sources/` folders. They are compiled into the
+firmware through the SDK configuration, not built as separate targets.
 
-Ameba-D is a **dual-core Cortex-M SoC** with:
-- **KM0 core** (project_lp): Low-power core, runs bootloader and power management
-- **KM4 core** (project_hp): High-performance core, runs main application
+Images land in
+`sdks/ameba-rtos-d/main/project/realtek_amebaD_va0_example/GCC-RELEASE/<project>/asdk/image/`.
 
-**Note:** The `example_sources/` directory contains example code that can be included in the firmware build by modifying configuration files (not separate compile targets).
+## Flash and log
 
----
+The launcher does not flash NORA-W30 yet. Use Realtek's Image Tool from the
+SDK's `tools/` folder over the UART download mode described in the EVK user
+guide. For the log, any terminal at 115200 8N1 works, or
+`python scripts/serial_logger.py <PORT>`.
 
-## Manual Build (Track B)
+## MAC address
 
-## Manual Build (Track B)
-
-### Step 1: Clone Ameba-D SDK
-
-```bash
-git clone https://github.com/ambiot/ameba-rtos-d.git
-cd ameba-rtos-d
-```
-
-### Step 2: Install Toolchain
-
-**Ubuntu/Debian:**
-```bash
-sudo apt-get install gcc-arm-none-eabi make git python3 libusb-1.0-0
-```
-
-**WSL2 Ubuntu:**
-```bash
-sudo apt-get install gcc-arm-none-eabi make git python3 libusb-1.0-0
-```
-
-**Verify:**
-```bash
-arm-none-eabi-gcc --version
-make --version
-```
-
-### Step 3: Build Firmware
-
-Ameba-D builds the **complete firmware** (not individual examples):
-
-**Build KM4 Project (recommended for most applications):**
-```bash
-cd project/realtek_amebaD_va0_example/GCC-RELEASE/project_hp
-make all
-```
-
-**Build KM0 Project (bootloader & power management):**
-```bash
-cd project/realtek_amebaD_va0_example/GCC-RELEASE/project_lp
-make all
-```
-
-**Build both (full dual-core firmware):**
-```bash
-cd project/realtek_amebaD_va0_example/GCC-RELEASE/project_lp
-make all
-cd ../project_hp
-make all
-```
-
-### Step 4: Verify Build Output
-
-Check for generated images:
-```bash
-ls -la project_hp/asdk/image/*.bin
-ls -la project_lp/asdk/image/*.bin
-```
-
-Expected files:
-- `km4_boot_all.bin` (project_hp)
-- `km4_km0_image2.bin` or `km0_km4_image2.bin`
-- `ram_1.bin`
-
-### Step 5: Flash Firmware
-
-Use Realtek's ImageTool (Windows) or command-line tools:
-
-```bash
-# Check Realtek ImageTool documentation for UART download mode
-# Typically: press UART_DL button, power cycle, release button
-# Then use ImageTool.exe to flash the .bin files
-```
-
-Refer to the official Realtek README for detailed flashing instructions.
-picocom /dev/ttyUSB0 -b 115200
-# Or
-screen /dev/ttyUSB0 115200
-# Or
-minicom -D /dev/ttyUSB0 -b 115200
-```
-
-Exit: `Ctrl+A Ctrl+X` (picocom) or `Ctrl+A, then Q` (screen)
-
----
-
-## Examples
-
-Realtek SDK includes examples in various locations:
-
-### Common Examples
-
-1. **hello_world** — Classic "Hello World" to UART
-   ```bash
-   cd ameba-rtos/examples/hello_world
-   make
-   ```
-
-2. **wifi/sta** — Wi-Fi station (connect to AP)
-   ```bash
-   cd ameba-rtos/examples/wifi/sta
-   make
-   # Edit config to set SSID & password
-   ```
-
-3. **ble/example** — Bluetooth LE peripheral
-   ```bash
-   cd ameba-rtos/examples/ble
-   make
-   ```
-
-4. **gpio/blink** — GPIO LED toggle
-   ```bash
-   cd ameba-rtos/examples/gpio/blink
-   make
-   ```
-
-5. **ota** — Over-the-air firmware update
-   ```bash
-   cd ameba-rtos/examples/ota
-   make
-   ```
-
-**To list all examples:**
-```bash
-find ameba-rtos -name Makefile | head -20
-```
-
----
-
-## Configuring Your Build
-
-### Environment Variables
-
-Set SDK root (if not auto-detected):
-
-```bash
-export SDK_ROOT=$(pwd)/ameba-rtos
-```
-
-### Build Flags
-
-Common make flags:
-
-```bash
-make clean              # Remove build artifacts
-make -j4               # Parallel build (faster)
-make V=1               # Verbose output (debug build issues)
-make TARGET=<target>   # Specify target (check Makefile)
-```
-
-### Flash Configuration
-
-Edit example's config file (varies by project):
-- `config.h` or `platform_conf.h`
-- GPIO pins, UART baud rates, Wi-Fi credentials, etc.
-
-Recompile after changes:
-```bash
-make clean
-make
-```
-
----
-
-## Flashing Firmware
-
-### Using Realtek Flash Tool
-
-1. **Download the flash tool** (from Realtek or SDK docs)
-2. **Put device in bootloader mode:**
-   - Press RESET button while holding DOWNLOAD/BOOT button
-   - Or use a specific GPIO sequence (check EVK manual)
-3. **Run flash command:**
-   ```bash
-   ./flash_tool.py -p /dev/ttyUSB0 -f output.bin -a 0x0
-   ```
-
-### Using USB Direct (if supported)
-
-Some EVKs support direct USB flash:
-```bash
-cp output.bin /media/username/DEVICE_NAME/
-# Eject device
-```
-
-### Manual UART Flash
-
-If using a custom bootloader:
-```bash
-# Use xmodem or similar
-sx output.bin > /dev/ttyUSB0
-```
-
----
+Set by u-blox in eFuse. Read it on the module: build `project_hp`, flash it and
+type `ATW?` in the console. `--mac-set` shows how to use another address at
+runtime.
 
 ## Troubleshooting
 
-### WSL2 does not start, hangs, or reports a `Wsl/Service/...` error
-
-Restart the WSL2 compute service from an Administrator prompt, then rerun the
-launcher command:
-```bat
-net stop vmcompute
-net start vmcompute
-```
-
-### "arm-none-eabi-gcc: command not found" (Linux)
-
-Install toolchain:
-```bash
-sudo apt-get install gcc-arm-none-eabi
-```
-
-Verify:
-```bash
-which arm-none-eabi-gcc
-```
-
-### "make: command not found"
-
-Install make:
-```bash
-sudo apt-get install make
-```
-
-### Serial port not accessible (Linux)
-
-Add user to dialout group:
-```bash
-sudo usermod -a -G dialout $USER
-# Log out and log back in
-```
-
-Verify:
-```bash
-ls -la /dev/ttyUSB0  # Should have 'dialout' in permissions
-```
-
-### Build fails with "Permission denied"
-
-Check file permissions:
-```bash
-ls -la Makefile
-# Should be readable (r-x)
-```
-
-### Flash tool not found
-
-Flash tools are SDK-specific. Check:
-- `tools/flash/` directory in SDK
-- Realtek documentation
-- EVK user manual
-
-### Serial monitor shows garbage
-
-Verify baud rate matches firmware:
-```bash
-picocom /dev/ttyUSB0 -b 115200
-# or
-picocom /dev/ttyUSB0 -b 9600  # Common alternative
-```
-
----
-
-## Custom Application
-
-### Create from Template
-
-Most Realtek SDKs provide a project template:
-
-```bash
-cd ameba-rtos
-cp -r examples/hello_world my-app
-cd my-app
-```
-
-### Project Structure (Typical)
-
-```
-my-app/
-├── Makefile              (Build configuration)
-├── main.c               (Main application)
-├── config.h             (Configuration)
-├── build/               (Build artifacts - auto-generated)
-└── output/              (Compiled firmware)
-```
-
-### Edit & Build
-
-1. **Edit main.c** with your code
-2. **Configure** in config.h or Makefile
-3. **Build:** `make`
-4. **Flash:** Use flash tool (see above)
-5. **Monitor:** Connect to serial port at correct baud rate
-
-### Key APIs
-
-- **Wi-Fi:** `wifi_api.h`, `wifi_config.h`
-- **BLE:** `ble_api.h`, `gattdefs.h`
-- **GPIO:** `gpio_api.h`, `diag.h`
-- **UART:** `serial_api.h`, `sys_api.h`
-- **SPI:** `spi_api.h`
-- **I2C:** `i2c_api.h`
-- **Timer:** `timer_api.h`
-- **Flash/NVS:** `flash_api.h`
-
-See Realtek SDK documentation or header files for details.
-
----
-
-## Documentation & Resources
-
-- **Ameba-RTOS GitHub:** https://github.com/ambiot/ameba-rtos
-- **Realtek RTL872x Datasheet:** Contact Realtek or u-blox
-- **Realtek Documentation:** Check SDK docs/ folder
-- **u-blox NORA-W30 Datasheet:** https://www.u-blox.com/
-- **Realtek Official:** https://www.realtek.com/
-
----
-
-## Windows & WSL2 Setup
-
-### Install WSL2
-
-```powershell
-# Run PowerShell as Administrator
-wsl --install
-# Restart required
-
-# Verify
-wsl -l -v
-```
-
-### Use Linux Build in WSL2
-
-```powershell
-wsl
-# Now in Ubuntu bash
-cd /mnt/c/path/to/your/workspace
-python3 nora_w30_build.py doctor
-```
-
-### Share Windows files with WSL2
-
-Windows file access from WSL2:
-```bash
-cd /mnt/c/Users/YourName/Documents/my-project
-```
-
-WSL2 file access from Windows Explorer:
-```
-\\wsl$\Ubuntu\home\username\
-```
-
----
-
-## Support & Issues
-
-- **Ameba-RTOS Issues:** https://github.com/ambiot/ameba-rtos/issues
-- **u-blox Support:** https://www.u-blox.com/support
-- **Community:** Check Realtek forums
-
----
-
-## Verified Setup
-
-[OK] **Tested on:**
-- Ubuntu 24.04 LTS (native)
-- Ubuntu 22.04 LTS (WSL2 on Windows 11)
-- Debian 12 (bookworm)
-
-[OK] **Toolchain:** arm-none-eabi-gcc 12.x+
-
-[OK] **SDK:** Ameba-RTOS (latest stable)
-
----
-
-## License & Disclaimer
-
-NORA-W30 is produced by u-blox. Ameba-RTOS is open-source under Apache 2.0 or GPL (varies by component).
-
-See u-blox and Realtek licensing terms for details.
+| Symptom | Fix |
+|---------|-----|
+| WSL2 does not start, hangs or shows a `Wsl/Service/...` error | Administrator prompt: `net stop vmcompute`, then `net start vmcompute` |
+| `arm-none-eabi-gcc` or `make` not found | Install the packages above inside WSL2 |
+| Serial port not visible in WSL2 | Flash and log from Windows, or attach the port with `usbipd` |

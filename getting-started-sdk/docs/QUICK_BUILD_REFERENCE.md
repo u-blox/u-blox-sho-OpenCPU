@@ -61,7 +61,7 @@ is not regulatory compliant. `--doctor` reports whether it has been applied.
 ### IRIS-W10 (NXP RW612/RW610)
 ```bash
 ./ubx-sdk.sh iris-w10 --doctor                      # shows the Arm toolchain it found
-./ubx-sdk.sh iris-w10 --clone                       # add --full for the whole SDK
+./ubx-sdk.sh iris-w10 --clone                       # board-only, about 2 GB
 ./ubx-sdk.sh iris-w10 --build demo_apps/hello_world --flash --log
 ```
 
@@ -135,28 +135,8 @@ caches live in `modules/<target>/config/build.<host>.json`.
 
 ## Matter
 
-`ubx-matter` drives all six targets, using only the examples each vendor's
-Matter SDK ships:
-
-```bash
-./ubx-matter.sh <target> --doctor
-./ubx-matter.sh <target> --clone --install
-./ubx-matter.sh <target> --list
-./ubx-matter.sh <target> --build [example]
-```
-
-For IRIS-W10, NORA-W30, NORA-W40 and NORA-W50-W51 this fetches a multi-GB vendor Matter
-SDK into `~/ubx-matter/<target>` inside WSL2, and every action hops into WSL2 on
-Windows. `--build` is wired for NORA-W40 and NORA-W50-W51; IRIS-W10 and NORA-W30 are
-listed only. See [matter_README.md](matter_README.md).
-
-NORA-B20-B21-B22 and ALMA-B20-B21 get Matter from the nRF Connect SDK instead, so `--clone`
-fetches the same NCS workspace `ubx-sdk` uses, `--list` shows the
-`nrf/samples/matter` apps, `--flash`/`--log` work, and there is no WSL2 hop:
-
-```bash
-./ubx-matter.sh nora-b20-b21-b22 --build light_bulb --flash --log
-```
+`./ubx-matter.sh <target> --doctor | --clone | --install | --list | --build [example]`,
+same flag order. See [matter_README.md](matter_README.md).
 
 ---
 
@@ -177,14 +157,7 @@ fetches the same NCS workspace `ubx-sdk` uses, `--list` shows the
 
 ## Related documents
 
-| Document | Contents |
-|----------|----------|
-| [BUILD_ALL_EXAMPLES.md](BUILD_ALL_EXAMPLES.md) | Full build guide |
-| [iris_w10_README.md](iris_w10_README.md) | IRIS-W10 details |
-| [nora_w30_README.md](nora_w30_README.md) | NORA-W30 details, WSL2 setup |
-| [nora_w40_README.md](nora_w40_README.md) | NORA-W40 details |
-| [nora_w50_w51_README.md](nora_w50_w51_README.md) | NORA-W50-W51 details |
-| [nora_b20_b21_b22_README.md](nora_b20_b21_b22_README.md) | NORA-B20-B21-B22 details |
-| [alma_b20_b21_README.md](alma_b20_b21_README.md) | ALMA-B20-B21 details |
-| [VENV_SETUP.md](VENV_SETUP.md) | Virtual environment |
-| [WORKSPACE_SETUP.md](WORKSPACE_SETUP.md) | VS Code workspace |
+Per module: [IRIS-W10](iris_w10_README.md), [NORA-W30](nora_w30_README.md),
+[NORA-W40](nora_w40_README.md), [NORA-W50-W51](nora_w50_w51_README.md),
+[NORA-B20-B21-B22](nora_b20_b21_b22_README.md), [ALMA-B20-B21](alma_b20_b21_README.md).
+Setup: [SETUP.md](SETUP.md).

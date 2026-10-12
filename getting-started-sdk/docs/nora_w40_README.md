@@ -1,378 +1,63 @@
-# NORA-W40 Getting Started Guide
+# NORA-W40 (Espressif ESP32-C6)
 
-## Overview
+| | |
+|---|---|
+| Radio | 2.4 GHz Wi-Fi 6, Bluetooth LE 5.3, IEEE 802.15.4 (Thread, Zigbee) |
+| MCU | RISC-V up to 160 MHz plus a low-power RISC-V core, 512 kB SRAM, 4 or 8 MB flash |
+| Parts | NORA-W401 (antenna pin), NORA-W406 (internal PCB antenna) |
+| SDK | ESP-IDF (`idf.py`), target `esp32c6` |
+| Host | Windows, WSL2, Linux, macOS |
 
-NORA-W40 modules are based on the **Espressif ESP32-C6** SoC with 2.4 GHz Wi-Fi 6 (802.11ax) and Bluetooth LE 5.3. This guide covers building and deploying firmware using the latest **ESP-IDF** (Espressif IoT Development Framework).
-
-**Key Features:**
-- Dual-core RISC-V processor @ 160 MHz
-- 2.4 GHz Wi-Fi 6 + Bluetooth LE 5.3
-- 8 MB internal flash, up to 16 MB external flash
-- Excellent Windows & Linux support
-
-**SDK:** ESP-IDF v5.x (latest stable)
-**Platforms:** Windows (native), WSL2, Linux (Ubuntu/Debian)
-**Build System:** CMake + GNU Make
-**Toolchain:** riscv32-esp-elf (installed via esp-idf-tools)
-
----
-
-## Prerequisites
-
-### Windows
-
-1. **Python 3.8+** (for ESP-IDF tools)
-   - Download: https://www.python.org/downloads/
-   - Add to PATH during installation
-
-2. **Git** (for cloning ESP-IDF)
-   - Download: https://git-scm.com/download/win
-   - Use default settings (Git Bash)
-
-3. **CMake 3.20+**
-   - Download: https://cmake.org/download/
-   - Add to PATH
-
-4. **USB Driver** (CH340 or CP2102 depending on EVK)
-   - CH340: https://sparks.gogo.co.nz/ch340.html
-   - CP2102: https://www.silabs.com/developers/usb-to-uart-bridge-vcp-drivers
-
-### Linux (Ubuntu/Debian)
+## Quick start
 
 ```bash
-sudo apt-get update
-sudo apt-get install -y \
-  python3 python3-pip python3-venv \
-  git cmake build-essential \
-  libusb-1.0-0 udev
+./ubx-sdk.sh nora-w40 --doctor
+./ubx-sdk.sh nora-w40 --clone --install
+./ubx-sdk.sh nora-w40 --variant NORA-W401 --rf-config --build ubx/rf-calibration --flash --log
 ```
 
-Grant serial port access:
-```bash
-sudo usermod -a -G dialout $USER
-sudo usermod -a -G plugdev $USER
-# Log out and back in to apply
-```
+Without `--rf-config` the firmware runs on Espressif's default PHY data and is
+not regulatory compliant on the module. `ubx/rf-calibration` is a Wi-Fi station
+built on the u-blox PHY data; its log must contain
+`ubx_phy_cal: loading PHY init data from application binary`.
 
-### WSL2
+- `--clone` fetches ESP-IDF `master` into `sdks/esp-idf/master`; `--clone v5.5.1`
+  fetches a release next to it.
+- `--install` runs ESP-IDF's own installer (toolchain and Python environment
+  under `~/.espressif`). It works from cmd, PowerShell, Git Bash and Linux.
+- `--build` sets the target to `esp32c6` before the first build. Any example
+  from `--list` works, e.g. `--build hello_world` or `--build wifi/getting_started/station`.
 
-Use the Linux setup above (same commands work in WSL2 Ubuntu).
+Output: `<example>/build/` inside the ESP-IDF tree (`.elf`, `.bin`).
 
----
+## Flash and log
 
-## Quick Start (Scripted Path)
+`--flash` and `--log` run `idf.py flash` and `idf.py monitor` over the EVK's
+USB serial port (auto-detected; pass it with `--flash COM5`). Leave the monitor
+with Ctrl+].
 
-The `nora_w40_build.py` script automates the entire process:
+## u-blox examples
 
-```bash
-# 1. Check environment
-python nora_w40_build.py doctor
+| Example | |
+|---------|---|
+| `ubx/rf-calibration` | Wi-Fi station on the u-blox PHY init data (needs `--rf-config`) |
+| `ubx/read-mac` | Prints the base, Wi-Fi, Bluetooth and 802.15.4 addresses at boot |
 
-# 2. Clone ESP-IDF
-python nora_w40_build.py clone
+They live in [esp-idf/nora-w40](../../esp-idf/nora-w40/README.md), with the RF data
+and SDK patches `--rf-config` applies.
 
-# 3. List available examples
-python nora_w40_build.py list
+## MAC address
 
-# 4. Build an example
-python nora_w40_build.py build hello_world
-
-# 5. Full pipeline (clone + build)
-python nora_w40_build.py all hello_world
-```
-
----
-
-## Manual Setup (Track B)
-
-### Step 1: Clone ESP-IDF
-
-```bash
-cd your-workspace
-git clone --depth=1 https://github.com/espressif/esp-idf.git
-cd esp-idf
-```
-
-### Step 2: Install ESP-IDF Tools
-
-```bash
-python tools/idf_tools.py install
-python tools/idf_tools.py install-python-env
-```
-
-On Windows, run:
-```bash
-install.bat
-```
-
-### Step 3: Set IDF_PATH Environment Variable
-
-**Linux/WSL2:**
-```bash
-export IDF_PATH=$(pwd)
-```
-
-**Windows (permanent, via setx):**
-```cmd
-setx IDF_PATH "C:\path\to\esp-idf"
-```
-
-### Step 4: Source the Environment
-
-**Linux/WSL2:**
-```bash
-source export.sh
-```
-
-**Windows (Git Bash):**
-```bash
-source export.sh
-# Or use:
-. ./export.bat (in cmd.exe)
-```
-
-### Step 5: Navigate to Example and Build
-
-```bash
-cd examples/hello_world
-idf.py build
-idf.py flash -p COM3 -b 921600  # Windows: replace COM3 with your port
-idf.py flash -p /dev/ttyUSB0    # Linux
-```
-
-Monitor output:
-```bash
-idf.py monitor
-# Or with custom baudrate:
-idf.py monitor -b 115200
-```
-
----
-
-## Examples
-
-ESP-IDF includes many examples in `examples/` directory:
-
-### Recommended Starting Points
-
-1. **hello_world** — Classic "Hello World" output to UART
-   ```bash
-   python nora_w40_build.py build hello_world
-   ```
-
-2. **wifi/getting_started/station** — Connect to Wi-Fi, ping a host
-   ```bash
-   cd $IDF_PATH/examples/wifi/getting_started/station
-   idf.py menuconfig  # Set Wi-Fi SSID & password
-   idf.py build
-   idf.py flash
-   ```
-
-3. **bluetooth/ble/gatt_server** — Bluetooth LE GATT server
-   ```bash
-   python nora_w40_build.py build bluetooth/ble/gatt_server
-   ```
-
-4. **get-started/blink** — GPIO LED blink example
-   ```bash
-   python nora_w40_build.py build get-started/blink
-   ```
-
-### Full Example List
-
-Run `nora_w40_build.py list` to see all available examples.
-
----
-
-## Flashing & Monitoring
-
-### Identify Serial Port
-
-**Windows:**
-```cmd
-mode  # Lists COM ports, or check Device Manager
-```
-
-**Linux:**
-```bash
-ls /dev/tty* | grep USB
-# Usually /dev/ttyUSB0 or /dev/ttyACM0
-```
-
-### Flash Firmware
-
-```bash
-idf.py flash -p COM3              # Windows
-idf.py flash -p /dev/ttyUSB0      # Linux
-idf.py flash -p /dev/ttyUSB0 -b 921600  # Custom baud rate
-```
-
-### Monitor Output
-
-```bash
-idf.py monitor -p COM3
-idf.py monitor -p /dev/ttyUSB0
-# Exit: Ctrl+]
-```
-
----
-
-## Configuration (menuconfig)
-
-Customize build settings:
-
-```bash
-idf.py menuconfig
-```
-
-Navigate with arrow keys:
-- **Component config** -> Customize drivers, Wi-Fi, BLE, etc.
-- **SDK tool configuration** -> Build system options
-- **Partition table** -> Flash layout
-
-Common settings:
-- **Component config** -> Wi-Fi -> Max TX Power
-- **Component config** -> Bluetooth -> Max TX Power
-- **Partition table** -> Select custom layout (if needed)
-
----
+Set by u-blox in eFuse; Wi-Fi, Bluetooth and 802.15.4 addresses are derived
+from it. `--mac` reads it from the PC with esptool and lists every derived
+address. `--mac-set <ADDR>` shows how to use another one at runtime, and
+`--mac-set <ADDR> --burn` writes it to the `CUSTOM_MAC` eFuse (one time,
+irreversible).
 
 ## Troubleshooting
 
-### "python: command not found" on Linux
-
-Install Python:
-```bash
-sudo apt-get install python3
-python3 nora_w40_build.py doctor
-```
-
-Or create alias:
-```bash
-alias python=python3
-```
-
-### Serial port not found
-
-**Windows:**
-- Open Device Manager, look for "USB Serial" device
-- Check CH340 or CP2102 driver installation
-- Try reseating the USB cable
-
-**Linux:**
-- Run `ls /dev/tty*` with and without EVK connected
-- Check `dmesg` for USB errors
-- Verify user is in `dialout` group: `id` should show `dialout`
-
-### "Permission denied" when flashing (Linux)
-
-Add your user to dialout group:
-```bash
-sudo usermod -a -G dialout $USER
-# Log out and back in
-```
-
-### idf.py: command not found
-
-Run `source export.sh` (Linux) or `export.bat` (Windows) first.
-
-### Failed to build
-
-Check for obvious issues:
-```bash
-idf.py fullclean
-idf.py build -v  # Verbose output
-```
-
-Look for missing dependencies or toolchain issues. Check IDF version matches your example.
-
----
-
-## Custom Application
-
-### Create a New Project
-
-Use the ESP-IDF template:
-
-```bash
-idf.py create-project my-app
-cd my-app
-```
-
-Or copy an existing example:
-
-```bash
-cp -r $IDF_PATH/examples/hello_world my-app
-cd my-app
-```
-
-### Project Structure
-
-```
-my-app/
-├── CMakeLists.txt              (Build configuration)
-├── main/
-│   ├── CMakeLists.txt
-│   └── hello_world_main.c      (Main application code)
-├── build/                       (Build artifacts - auto-generated)
-└── sdkconfig                    (Build settings - from menuconfig)
-```
-
-### Edit & Build
-
-1. **Edit main/hello_world_main.c** with your code
-2. **Build:** `idf.py build`
-3. **Flash:** `idf.py flash`
-4. **Monitor:** `idf.py monitor`
-
-### Key APIs
-
-- **Wi-Fi:** `esp_wifi.h`, `esp_netif.h`
-- **BLE:** `esp_gap_ble.h`, `esp_gatts_api.h`, `esp_gattc_api.h`
-- **GPIO:** `driver/gpio.h`, `driver/rmt.h`
-- **UART:** `driver/uart.h`
-- **SPI:** `driver/spi_master.h`
-- **I2C:** `driver/i2c.h`
-- **Timer:** `driver/timer.h`
-- **NVS (flash storage):** `nvs_flash.h`
-
-See [ESP-IDF API Reference](https://docs.espressif.com/projects/esp-idf/en/latest/esp32c6/api-reference/index.html).
-
----
-
-## Documentation & Resources
-
-- **ESP-IDF Official Docs:** https://docs.espressif.com/projects/esp-idf/
-- **ESP32-C6 Datasheet:** https://www.espressif.com/en/products/socs/esp32-c6/overview
-- **ESP-IDF Examples:** https://github.com/espressif/esp-idf/tree/master/examples
-- **Espressif GitHub:** https://github.com/espressif/esp-idf
-- **u-blox NORA-W40 Datasheet:** https://www.u-blox.com/
-
----
-
-## Support & Issues
-
-- **ESP-IDF Issues:** https://github.com/espressif/esp-idf/issues
-- **u-blox Support:** https://www.u-blox.com/support
-- **Community Forums:** https://www.espressif.com/en/community
-
----
-
-## Verified Setup
-
-[OK] **Tested on:**
-- Windows 11 (22H2) with Python 3.12, CMake 3.28, Git 2.53
-- Ubuntu 24.04 LTS (native & WSL2)
-- Debian 12 (bookworm)
-
-[OK] **ESP-IDF Version:** v5.2.x (latest stable)
-
-[OK] **Toolchain:** riscv32-esp-elf (bundled with ESP-IDF tools)
-
----
-
-## License & Disclaimer
-
-NORA-W40 is produced by u-blox. ESP-IDF is open-source under the Apache 2.0 license.
-
-See u-blox and Espressif licensing terms for details.
+| Symptom | Fix |
+|---------|-----|
+| `idf.py` or the toolchain not found | `--install` |
+| No serial port (Linux) | `sudo usermod -aG dialout $USER`, then log in again |
+| No serial port (WSL2) | Flash from Windows, or attach the port with `usbipd` |

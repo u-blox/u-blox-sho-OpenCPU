@@ -6,6 +6,9 @@ Always-on context for `getting-started-sdk/`. Task procedures are skills in
 ## Style
 
 - Concise and technical. No emoji in code, script output or docs.
+- Docs stay minimal, yet powerful and useful: a fixed set of documents, each
+  fact in one place, launcher commands only. Rules in
+  `.github/instructions/docs.instructions.md`.
 - Status markers are plain text: `[OK]` `[FAIL]` `[WARNING]` `[INFO]`.
 - Chat replies: when a reply or summary is longer than a screen, start it with
   a `TL;DR` of 2-4 lines: what changed, whether it works, and anything the
