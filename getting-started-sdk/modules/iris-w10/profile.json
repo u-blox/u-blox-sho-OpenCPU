@@ -7,7 +7,7 @@
   "source": "sw-config/README.md",
   "variables": {
     "sdk_release": "sdk-24-12-00",
-    "flash_vendor": "macronix"
+    "flash_part": "fidelex-8mb"
   },
   "variants": {
     "IRIS-W101-00B": {
@@ -105,21 +105,21 @@
   "patches": [
     {
       "op": "replace",
-      "src": "sw-config/flash-drv/{flash_vendor}-{flash_size}/{sdk_release}/mflash_drv.c",
+      "src": "sw-config/flash-drv/{flash_part}/{sdk_release}/mflash_drv.c",
       "dst": "components/flash/mflash/rdrw612bga/mflash_drv.c",
-      "note": "MFlash driver for the {flash_vendor} {flash_size} part on {variant}"
+      "note": "MFlash driver for the {flash_part} flash on {variant}"
     },
     {
       "op": "replace",
-      "src": "sw-config/flash-drv/{flash_vendor}-{flash_size}/{sdk_release}/mflash_drv.h",
+      "src": "sw-config/flash-drv/{flash_part}/{sdk_release}/mflash_drv.h",
       "dst": "components/flash/mflash/rdrw612bga/mflash_drv.h",
-      "note": "MFlash driver header for the {flash_vendor} {flash_size} part on {variant}"
+      "note": "MFlash driver header for the {flash_part} flash on {variant}"
     },
     {
       "op": "replace",
-      "src": "sw-config/flash-config/{flash_vendor}-{flash_size}/flash_config.c",
+      "src": "sw-config/flash-config/{flash_part}/flash_config.c",
       "dst": "examples/_boards/rdrw612bga/flash_config/flash_config.c",
-      "note": "FlexSPI boot configuration block for the {flash_vendor} {flash_size} part; the RD board's one does not boot the module"
+      "note": "FlexSPI boot configuration block for the {flash_part} flash; the RD board's one does not boot the module"
     }
   ],
   "regulatory": {
@@ -173,6 +173,7 @@
     }
   ],
   "manual_steps": [
+    "Flash part: modules built from week 46 of 2023 (build 2346) on have Fidelix flash, the default. Older ones (build 2345 and earlier) have Macronix: add --set flash_part=macronix-8mb (or macronix-16mb) to --rf-config.",
     {
       "sdk_version": ">=24.12,<25.6",
       "text": "SDK 24.12.00 / 25.03.00: add '#define CONFIG_WLAN_CALDATA_1ANT 1' to the example's wifi_config.h, otherwise the u-blox Wi-Fi calibration is not used."

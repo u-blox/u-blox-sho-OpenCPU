@@ -144,6 +144,7 @@ class Context:
     burn: bool = False
     variant: str | None = None
     region: str | None = None
+    sets: list[str] = field(default_factory=list)
     full: bool = False
     sdk_version: str | None = None
     clean_all: bool = False
@@ -179,6 +180,7 @@ Flags (combinable; always run in this order)
   --rf-config           Apply the u-blox RF calibration / TX power configuration
     --variant <PART>      Module part number, e.g. NORA-W301, IRIS-W101-00B
     --region <DOMAIN>     Regulatory domain: FCC, ISED, ETSI, MKK, ACMA
+    --set KEY=VALUE       Override a profile variable, e.g. flash_part=macronix-8mb
   --list                List available examples, including the u-blox ones (ubx/...)
   --clean               Clean build artifacts
   --clean-all           Remove the SDK version in use (other versions in sdks/ stay)
@@ -360,7 +362,7 @@ def parse(argv: list[str], matter: bool = False) -> Context | int:
             return fail(f"Matter has its own launcher: ubx-matter {target.key} {others}".rstrip())
         if matter and arg in ("--full", "--build-sdk", "--clean-all"):
             return fail(f"{arg} is an SDK-only flag and has no Matter equivalent.")
-        if matter and arg in ("--rf-config", "--mac", "--mac-set", "--burn", "--variant", "--region"):
+        if matter and arg in ("--rf-config", "--mac", "--mac-set", "--burn", "--variant", "--region", "--set"):
             return fail(f"{arg} is an SDK-only flag. Apply the module configuration with\n"
                         f"       'ubx-sdk {target.key} {arg} ...' before building Matter.")
         if matter and arg in ("--flash", "--log") and not is_ncs_matter(ctx):
@@ -380,6 +382,12 @@ def parse(argv: list[str], matter: bool = False) -> Context | int:
                 return fail(f"{arg} needs a value. Run '{name} {target.key} --rf-config' "
                             f"with no variant to see the known part numbers.")
             setattr(ctx, arg[2:], value)
+            i += 1
+        elif arg == "--set":
+            value = peek()
+            if not value or "=" not in value:
+                return fail("--set needs KEY=VALUE, e.g. --set flash_part=macronix-8mb")
+            ctx.sets.append(value)
             i += 1
         elif arg == "--clean-all":
             ctx.actions.add("clean")
@@ -436,8 +444,8 @@ def parse(argv: list[str], matter: bool = False) -> Context | int:
     if not ctx.actions:
         print(usage)
         return 0
-    if (ctx.variant or ctx.region) and "rf-config" not in ctx.actions:
-        print("[WARNING] --variant/--region only take effect with --rf-config; ignoring.")
+    if (ctx.variant or ctx.region or ctx.sets) and "rf-config" not in ctx.actions:
+        print("[WARNING] --variant/--region/--set only take effect with --rf-config; ignoring.")
     if ctx.burn and "mac-set" not in ctx.actions:
         return fail("--burn only makes sense with --mac-set <ADDR>.")
     return ctx
@@ -476,6 +484,8 @@ def argv_for(ctx: Context, action: str) -> list[str] | None:
             argv += ["--variant", ctx.variant]
         if ctx.region:
             argv += ["--region", ctx.region]
+        for kv in ctx.sets:
+            argv += ["--set", kv]
         return argv
     if action == "mac":
         return ["mac", "--serial", ctx.mac_port] if ctx.mac_port else ["mac"]

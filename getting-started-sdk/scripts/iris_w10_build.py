@@ -418,9 +418,10 @@ def cmd_flash(args) -> int:
         print(f"   Build with: python iris_w10_build.py build {args.example}")
         return 1
 
-    # Artefacts are named after the example; .hex and .elf carry their own load addresses.
+    # The .bin is the whole XIP image from the flash base (boot header and FCB included),
+    # which is what loads and verifies reliably on IRIS-W10.
     firmware_file = None
-    for suffix in (".hex", ".elf", ".bin"):
+    for suffix in (".hex", ".bin", ".elf"):
         candidates = [build_root / f"{example_path.name}{suffix}"] + sorted(build_root.glob(f"*{suffix}"))
         firmware_file = next((c for c in candidates if c.is_file()), None)
         if firmware_file:
@@ -434,9 +435,20 @@ def cmd_flash(args) -> int:
     print(f"Firmware: {firmware_file.name}")
     print(f"   Device: {JLINK_DEVICE}\n")
 
-    address = FLASH_BASE if firmware_file.suffix == ".bin" else 0
-    return flash_helper.flash_jlink(JLINK_DEVICE, str(firmware_file), address=address, serial=args.serial,
-                                    prefer="MCU-Link")
+    serial = args.serial or (flash_helper.pick_jlink("MCU-Link") if flash_helper.HAS_PYLINK else None)
+    if serial == "":
+        return 1
+    # J-Link Commander from the newest SEGGER install; the older DLL pylink may load
+    # fails to verify the IRIS-W10 flash.
+    if firmware_file.suffix == ".bin":
+        # Erase first: J-Link skips sectors it believes unchanged, which goes wrong when a
+        # previous image left a FlexSPI block for another flash part.
+        end = FLASH_BASE + max(1, (firmware_file.stat().st_size + 0xFFF) // 0x1000) * 0x1000 - 1
+        load = [f"erase 0x{FLASH_BASE:08X} 0x{end:08X}",
+                f'loadbin "{firmware_file}" 0x{FLASH_BASE:08X}', f'verifybin "{firmware_file}" 0x{FLASH_BASE:08X}']
+    else:
+        load = [f'loadfile "{firmware_file}"']
+    return flash_helper.flash_jlink_script(JLINK_DEVICE, ["r", "h", *load, "r", "g"], serial, speed=4000)
 
 def resolve_example(workspace: str, name: str) -> Optional[Path]:
     """Map a user-supplied example name to a directory in the workspace.

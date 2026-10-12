@@ -282,6 +282,17 @@ def test_rf_config_and_mac_go_to_module_config():
     assert argv(["nora-w40", "--mac", "COM7"], "mac") == ["mac", "--serial", "COM7"]
 
 
+def test_set_overrides_a_profile_variable(capsys):
+    assert argv(["iris-w10", "--rf-config", "--set", "flash_part=macronix-8mb", "--set", "a=b"], "rf-config") == \
+        ["apply", "--set", "flash_part=macronix-8mb", "--set", "a=b"]
+    assert ubx.parse(["iris-w10", "--rf-config", "--set", "flash_part"]) == 1
+    assert ubx.parse(["iris-w10", "--rf-config", "--set"]) == 1
+    assert "KEY=VALUE" in capsys.readouterr().out
+    assert ubx.parse(["iris-w10", "--set", "a=b", "--rf-config"], matter=True) == 1
+    ctx(["iris-w10", "--set", "a=b", "--build"])
+    assert "--set only take effect with --rf-config" in capsys.readouterr().out
+
+
 def test_matter_vendor_translation():
     assert argv(["nora-w50-w51", "--list"], "list", matter=True) == ["list"]
     assert argv(["nora-w50-w51", "--build"], "build", matter=True) == ["build"]
