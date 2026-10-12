@@ -7,7 +7,7 @@ import pytest
 import nordic_ncs_build as ncs
 import target_paths
 
-B2 = ncs.TARGETS["nora-b2"]
+B2 = ncs.TARGETS["nora-b20-b21-b22"]
 
 
 def make_ws(path, board=True):
@@ -119,7 +119,7 @@ def test_clone_refuses_when_disk_is_full(host, monkeypatch, calls, capsys):
     monkeypatch.setattr(ncs.subprocess, "call", calls)
     monkeypatch.setattr(target_paths, "free_gb", lambda p: 1.0)
     monkeypatch.delenv("UBX_SKIP_SPACE_CHECK", raising=False)
-    args = ncs.build_parser().parse_args(["nora-b2", "clone"])
+    args = ncs.build_parser().parse_args(["nora-b20-b21-b22", "clone"])
     assert ncs.cmd_clone(B2, args) == 1
     assert not calls.calls
     assert "Not enough disk space" in capsys.readouterr().out
@@ -149,3 +149,32 @@ def test_check_space_override(monkeypatch, tmp_path):
 
 def test_free_gb_walks_up_to_existing_parent(tmp_path):
     assert target_paths.free_gb(tmp_path / "not" / "yet" / "created") > 0
+
+
+# ---------------------------------------------------------------------------
+# target_paths.adopt_legacy
+# ---------------------------------------------------------------------------
+
+def test_adopt_legacy_merges_old_folder(tmp_path):
+    old = tmp_path / "NORA-W4"
+    (old / "sdk" / "esp-idf").mkdir(parents=True)
+    (old / "config").mkdir()
+    (old / "config" / "rf_config.json").write_text("{}")
+    new = tmp_path / "nora-w40"
+    (new / "sdk").mkdir(parents=True)
+    (new / "sdk" / ".gitkeep").write_text("")
+
+    assert target_paths.adopt_legacy(new, "nora_w40") == new
+    assert (new / "sdk" / "esp-idf").is_dir()
+    assert (new / "config" / "rf_config.json").read_text() == "{}"
+    assert not old.exists()
+
+
+def test_adopt_legacy_without_old_folder(tmp_path):
+    new = tmp_path / "nora-w50-w51"
+    assert target_paths.adopt_legacy(new, "nora_w50_w51") == new
+    assert not new.exists()
+
+
+def test_every_target_has_a_legacy_name():
+    assert set(target_paths.LEGACY) == set(target_paths.TARGETS)

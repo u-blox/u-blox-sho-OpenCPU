@@ -7,8 +7,8 @@ REM users never need them. Thin shim -- picks a Python interpreter (shared
 REM .venv first) and forwards every argument to scripts\ubx_matter.py.
 REM
 REM   ubx-matter.cmd --help
-REM   ubx-matter.cmd nora-w4 --doctor
-REM   ubx-matter.cmd nora-w4 --clone --build light
+REM   ubx-matter.cmd nora-w40 --doctor
+REM   ubx-matter.cmd nora-w40 --clone --build light
 REM ========================================================================
 
 setlocal

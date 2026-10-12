@@ -1,7 +1,7 @@
 {
   "schema": 1,
-  "target": "iris-w1",
-  "label": "IRIS-W1 (NXP RW612/RW610)",
+  "target": "iris-w10",
+  "label": "IRIS-W10 (NXP RW612/RW610)",
   "status": "ready",
   "source": "MCUXpresso/IRIS-W1/sw_config/README.md",
   "variables": {

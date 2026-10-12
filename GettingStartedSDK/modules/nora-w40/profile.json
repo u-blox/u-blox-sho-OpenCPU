@@ -1,7 +1,7 @@
 {
   "schema": 1,
-  "target": "nora-w4",
-  "label": "NORA-W4 (Espressif ESP32-C6)",
+  "target": "nora-w40",
+  "label": "NORA-W40 (Espressif ESP32-C6)",
   "status": "ready",
   "source": "NORA-W40-OutputPower/README.md",
   "requires": {

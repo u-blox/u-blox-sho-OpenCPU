@@ -1,7 +1,7 @@
 {
   "schema": 1,
-  "target": "nora-w3",
-  "label": "NORA-W3 (Realtek RTL8720DF)",
+  "target": "nora-w30",
+  "label": "NORA-W30 (Realtek RTL8720DF)",
   "status": "ready",
   "source": "NORA-W30-OutputPower/README.md",
   "variants": {

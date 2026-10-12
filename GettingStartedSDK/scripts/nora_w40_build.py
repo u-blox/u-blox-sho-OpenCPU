@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-NORA-W4 (ESP32-C6) Build Driver
-Automated cross-platform build orchestration for NORA-W4 Open CPU modules using ESP-IDF.
+NORA-W40 (ESP32-C6) Build Driver
+Automated cross-platform build orchestration for NORA-W40 Open CPU modules using ESP-IDF.
 
 Supports: Windows, WSL2, Linux
 """
@@ -17,9 +17,9 @@ from typing import Dict, List, Optional, Tuple
 
 import target_paths
 
-TARGET = "nora_w4"
+TARGET = "nora_w40"
 
-# NORA-W4 is an ESP32-C6 (RISC-V), not the Xtensa ESP32 that idf.py assumes by default.
+# NORA-W40 is an ESP32-C6 (RISC-V), not the Xtensa ESP32 that idf.py assumes by default.
 IDF_TARGET = "esp32c6"
 
 # Windows consoles default to cp1252 and raise UnicodeEncodeError on the status glyphs below.
@@ -156,7 +156,7 @@ def detect_python() -> Optional[str]:
 # ============================================================================
 
 def config_file() -> Path:
-    """Get per-platform config file path (targets/NORA-W4/config)."""
+    """Get per-platform config file path (targets/nora-w40/config)."""
     return target_paths.resolve_config(TARGET, host_kind())
 
 def load_config() -> Dict:
@@ -248,7 +248,7 @@ def cmd_install(args) -> int:
 
     idf_dir = detect_idf()
     if not idf_dir:
-        print("[FAIL] ESP-IDF not found. Run 'python nora_w4_build.py clone' first.")
+        print("[FAIL] ESP-IDF not found. Run 'python nora_w40_build.py clone' first.")
         return 1
 
     idf_path = Path(idf_dir)
@@ -395,7 +395,7 @@ def resolve_example(idf_dir, name):
     if not matches:
         return None, (
             f"Example '{name}' not found under {examples_root}.\n"
-            "       Run 'python nora_w4_build.py list' to see what is available."
+            "       Run 'python nora_w40_build.py list' to see what is available."
         )
 
     # Real examples live near the top; deeper hits are build-system fixtures.
@@ -424,7 +424,7 @@ def cmd_build(args) -> int:
 
     idf_dir = detect_idf()
     if not idf_dir:
-        print("[FAIL] ESP-IDF not found. Run 'python nora_w4_build.py clone' first.")
+        print("[FAIL] ESP-IDF not found. Run 'python nora_w40_build.py clone' first.")
         return 1
 
     example_path, error = resolve_example(idf_dir, args.example)
@@ -437,7 +437,7 @@ def cmd_build(args) -> int:
     idf_python = detect_idf_python(idf_dir)
     if not idf_python:
         print("[FAIL] ESP-IDF Python environment not found or incomplete.")
-        print("       Run: python nora_w4_build.py install")
+        print("       Run: python nora_w40_build.py install")
         return 1
 
     env = idf_environment(idf_dir, idf_python)
@@ -548,7 +548,7 @@ def _idf_invoke(args, verb: str, extra: list) -> int:
     """Run an idf.py verb inside an example directory."""
     idf_dir = detect_idf()
     if not idf_dir:
-        print("[FAIL] ESP-IDF not found. Run 'python nora_w4_build.py clone' first.")
+        print("[FAIL] ESP-IDF not found. Run 'python nora_w40_build.py clone' first.")
         return 1
 
     example_path, error = resolve_example(idf_dir, args.example)
@@ -559,7 +559,7 @@ def _idf_invoke(args, verb: str, extra: list) -> int:
     idf_python = detect_idf_python(idf_dir)
     if not idf_python:
         print("[FAIL] ESP-IDF Python environment not found or incomplete.")
-        print("       Run: python nora_w4_build.py install")
+        print("       Run: python nora_w40_build.py install")
         return 1
 
     idf_py = Path(idf_dir) / "tools" / "idf.py"
@@ -611,20 +611,20 @@ def main():
     import argparse
 
     parser = argparse.ArgumentParser(
-        description="NORA-W4 (ESP32-C6) Build Driver",
+        description="NORA-W40 (ESP32-C6) Build Driver",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
-  python nora_w4_build.py doctor              # Check environment
-  python nora_w4_build.py clone               # Clone ESP-IDF
-  python nora_w4_build.py install             # Install ESP-IDF environment
-  python nora_w4_build.py list                # List examples
-  python nora_w4_build.py build hello_world   # Build example
-  python nora_w4_build.py flash hello_world   # Flash over USB/UART
-  python nora_w4_build.py log hello_world     # Open serial monitor
-  python nora_w4_build.py clean hello_world   # Clean example build
-  python nora_w4_build.py clean --all         # Remove ESP-IDF entirely
-  python nora_w4_build.py all hello_world     # Full pipeline
+  python nora_w40_build.py doctor              # Check environment
+  python nora_w40_build.py clone               # Clone ESP-IDF
+  python nora_w40_build.py install             # Install ESP-IDF environment
+  python nora_w40_build.py list                # List examples
+  python nora_w40_build.py build hello_world   # Build example
+  python nora_w40_build.py flash hello_world   # Flash over USB/UART
+  python nora_w40_build.py log hello_world     # Open serial monitor
+  python nora_w40_build.py clean hello_world   # Clean example build
+  python nora_w40_build.py clean --all         # Remove ESP-IDF entirely
+  python nora_w40_build.py all hello_world     # Full pipeline
         """
     )
 

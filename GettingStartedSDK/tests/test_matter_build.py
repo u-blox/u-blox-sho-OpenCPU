@@ -6,9 +6,9 @@ import pytest
 
 import matter_build as mb
 
-W4 = mb.TARGETS["nora-w4"]
-W5 = mb.TARGETS["nora-w5"]
-IRIS = mb.TARGETS["iris-w1"]
+W4 = mb.TARGETS["nora-w40"]
+W5 = mb.TARGETS["nora-w50-w51"]
+IRIS = mb.TARGETS["iris-w10"]
 
 
 def make(root, *dirs, files=()):
@@ -24,18 +24,18 @@ def sdk(tmp_path, monkeypatch, calls):
     """A fake UBX_MATTER_ROOT with just enough of each vendor tree to be discovered."""
     monkeypatch.setenv("UBX_MATTER_ROOT", str(tmp_path))
     monkeypatch.setattr(mb.subprocess, "call", calls)
-    make(tmp_path / "NORA-W5" / "ti-matter",
+    make(tmp_path / "nora-w50-w51" / "ti-matter",
          ".git",
          "examples/lighting-app/ti/cc35xx",
          "examples/platform/ti/cc35xx",
          "examples/lock-app/ti/cc13x4_26x4")
-    make(tmp_path / "NORA-W4",
+    make(tmp_path / "nora-w40",
          "esp-idf/.git", "esp-matter/.git",
          "esp-matter/examples/common",
          "esp-matter/examples/docs_only",
          files=["esp-matter/examples/light/CMakeLists.txt",
                 "esp-matter/examples/door_lock/CMakeLists.txt"])
-    make(tmp_path / "IRIS-W1" / "connectedhomeip",
+    make(tmp_path / "iris-w10" / "connectedhomeip",
          ".git", "examples/lighting-app/nxp/rt/rw61x", "examples/thermostat/nxp/rt/rw61x")
     return tmp_path
 
@@ -68,29 +68,29 @@ def test_vendor_scripts_use_lf():
 
 def test_matter_root_override(monkeypatch, tmp_path):
     monkeypatch.setenv("UBX_MATTER_ROOT", str(tmp_path))
-    assert mb.matter_root(W5) == tmp_path / "NORA-W5"
+    assert mb.matter_root(W5) == tmp_path / "nora-w50-w51"
 
 
 def test_matter_root_defaults_to_home_in_wsl(monkeypatch, tmp_path):
     monkeypatch.delenv("UBX_MATTER_ROOT", raising=False)
     monkeypatch.setattr(mb, "host_kind", lambda: "wsl")
     monkeypatch.setattr(mb.target_paths, "sdk_dir", lambda slug: tmp_path / slug)
-    assert mb.matter_root(W5) == mb.Path.home() / "ubx-matter" / "NORA-W5"
+    assert mb.matter_root(W5) == mb.Path.home() / "ubx-matter" / "nora-w50-w51"
 
 
 def test_matter_root_keeps_existing_in_tree_clone(monkeypatch, tmp_path):
     monkeypatch.delenv("UBX_MATTER_ROOT", raising=False)
     monkeypatch.setattr(mb, "host_kind", lambda: "wsl")
     monkeypatch.setattr(mb.target_paths, "sdk_dir", lambda slug: tmp_path / slug)
-    make(tmp_path / "nora_w5" / "matter" / "ti-matter", ".git")
-    assert mb.matter_root(W5) == tmp_path / "nora_w5" / "matter"
+    make(tmp_path / "nora_w50_w51" / "matter" / "ti-matter", ".git")
+    assert mb.matter_root(W5) == tmp_path / "nora_w50_w51" / "matter"
 
 
 def test_matter_root_in_tree_on_windows(monkeypatch, tmp_path):
     monkeypatch.delenv("UBX_MATTER_ROOT", raising=False)
     monkeypatch.setattr(mb, "host_kind", lambda: "windows")
     monkeypatch.setattr(mb.target_paths, "sdk_dir", lambda slug: tmp_path / slug)
-    assert mb.matter_root(W4) == tmp_path / "nora_w4" / "matter"
+    assert mb.matter_root(W4) == tmp_path / "nora_w40" / "matter"
 
 
 # ---------------------------------------------------------------------------
@@ -110,7 +110,7 @@ def test_nxp_examples(sdk):
 
 
 def test_no_sdk_no_examples(sdk):
-    assert mb.list_vendor_examples(mb.TARGETS["nora-w3"]) == {}
+    assert mb.list_vendor_examples(mb.TARGETS["nora-w30"]) == {}
 
 
 # ---------------------------------------------------------------------------
@@ -126,7 +126,7 @@ def test_list_marks_default(sdk, capsys):
 
 
 def test_list_without_sdk(sdk, capsys):
-    assert mb.cmd_list(mb.TARGETS["nora-w3"], ns()) == 0
+    assert mb.cmd_list(mb.TARGETS["nora-w30"], ns()) == 0
     out = capsys.readouterr().out
     assert "[WARNING]" in out and "--clone" in out
 
@@ -147,7 +147,7 @@ def test_doctor_reports_repos_and_examples(sdk, monkeypatch, capsys):
 
 def test_doctor_flags_missing_tools_and_clone(sdk, monkeypatch, capsys):
     monkeypatch.setattr(mb.shutil, "which", lambda tool: None)
-    assert mb.cmd_doctor(mb.TARGETS["nora-w3"], ns()) == 0
+    assert mb.cmd_doctor(mb.TARGETS["nora-w30"], ns()) == 0
     out = capsys.readouterr().out
     assert "[FAIL] git" in out
     assert "[FAIL] ameba-rtos-d" in out
@@ -162,15 +162,15 @@ def test_build_default_example(sdk, calls):
     assert mb.cmd_build(W5, ns(app=None, extra=[])) == 0
     call = calls.calls[0]
     assert call["cmd"][0] == "bash"
-    assert call["cmd"][1].endswith("nora_w5.sh")
-    assert call["cmd"][2:] == ["build", str(sdk / "NORA-W5/ti-matter/examples/lighting-app/ti/cc35xx")]
-    assert call["env"]["UBX_MATTER_SDK_ROOT"] == str(sdk / "NORA-W5")
-    assert call["cwd"] == str(sdk / "NORA-W5")
+    assert call["cmd"][1].endswith("nora_w50_w51.sh")
+    assert call["cmd"][2:] == ["build", str(sdk / "nora-w50-w51/ti-matter/examples/lighting-app/ti/cc35xx")]
+    assert call["env"]["UBX_MATTER_SDK_ROOT"] == str(sdk / "nora-w50-w51")
+    assert call["cwd"] == str(sdk / "nora-w50-w51")
 
 
 def test_build_forwards_extra(sdk, calls):
     mb.cmd_build(W4, ns(app="door_lock", extra=["-DFOO=1"]))
-    assert calls.cmds[0][2:] == ["build", str(sdk / "NORA-W4/esp-matter/examples/door_lock"), "-DFOO=1"]
+    assert calls.cmds[0][2:] == ["build", str(sdk / "nora-w40/esp-matter/examples/door_lock"), "-DFOO=1"]
 
 
 def test_build_empty_name_means_default(sdk, calls):
@@ -201,7 +201,7 @@ def test_clean(sdk, calls):
 
 
 def test_install_requires_clone(sdk, calls, capsys):
-    assert mb.cmd_install(mb.TARGETS["nora-w3"], ns()) == 1
+    assert mb.cmd_install(mb.TARGETS["nora-w30"], ns()) == 1
     assert "Not cloned yet" in capsys.readouterr().out
 
 
@@ -220,10 +220,10 @@ def test_install_not_wired(sdk, calls, capsys):
 # ---------------------------------------------------------------------------
 
 def test_clone_is_shallow_and_pinned(sdk, calls):
-    assert mb.cmd_clone(mb.TARGETS["nora-w3"], ns()) == 0
+    assert mb.cmd_clone(mb.TARGETS["nora-w30"], ns()) == 0
     first = calls.cmds[0]
     assert first[:6] == ["git", "clone", "--branch", "main", "--depth", "1"]
-    assert first[-1] == str(sdk / "NORA-W3" / "ameba-rtos-d")
+    assert first[-1] == str(sdk / "nora-w30" / "ameba-rtos-d")
 
 
 def test_clone_skips_existing(sdk, calls, capsys):
@@ -234,5 +234,5 @@ def test_clone_skips_existing(sdk, calls, capsys):
 
 def test_clone_stops_on_failure(sdk, calls):
     calls.returns = [128]
-    assert mb.cmd_clone(mb.TARGETS["nora-w3"], ns()) == 128
+    assert mb.cmd_clone(mb.TARGETS["nora-w30"], ns()) == 128
     assert len(calls.calls) == 1

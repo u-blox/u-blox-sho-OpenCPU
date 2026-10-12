@@ -6,7 +6,7 @@ Every target owns a base folder under ``targets/`` that holds the things we
 generate, so the checked-in vendor SDKs (ameba-rtos-d, esp-idf,
 mcuxpresso-sdk) stay untouched at the repo root:
 
-    targets/<TARGET>/
+    targets/<target>/
         sdk/        on-demand SDK clones / west workspaces
         config/     build.<host>.json tool cache
 
@@ -29,12 +29,22 @@ TARGETS_DIR = SDK_ROOT / "targets"
 
 # Script slug -> base folder name shown in the explorer.
 TARGETS: dict[str, str] = {
-    "alma_b2": "ALMA-B2",
-    "iris_w1": "IRIS-W1",
-    "nora_b2": "NORA-B2",
-    "nora_w3": "NORA-W3",
-    "nora_w4": "NORA-W4",
-    "nora_w5": "NORA-W5",
+    "alma_b20_b21": "alma-b20-b21",
+    "iris_w10": "iris-w10",
+    "nora_b20_b21_b22": "nora-b20-b21-b22",
+    "nora_w30": "nora-w30",
+    "nora_w40": "nora-w40",
+    "nora_w50_w51": "nora-w50-w51",
+}
+
+# Names used before the switch to full series names: (script slug, folder).
+LEGACY: dict[str, tuple[str, str]] = {
+    "alma_b20_b21": ("alma_b2", "ALMA-B2"),
+    "iris_w10": ("iris_w1", "IRIS-W1"),
+    "nora_b20_b21_b22": ("nora_b2", "NORA-B2"),
+    "nora_w30": ("nora_w3", "NORA-W3"),
+    "nora_w40": ("nora_w4", "NORA-W4"),
+    "nora_w50_w51": ("nora_w5", "NORA-W5"),
 }
 
 SUBDIRS = ("sdk", "config")
@@ -59,9 +69,32 @@ def _slug(target: str) -> str:
     return target
 
 
+def _merge(old: Path, new: Path) -> None:
+    """Move old's contents into new without overwriting, then drop old if empty."""
+    new.mkdir(parents=True, exist_ok=True)
+    for child in old.iterdir():
+        dest = new / child.name
+        if not dest.exists():
+            child.rename(dest)
+        elif child.is_dir() and dest.is_dir():
+            _merge(child, dest)
+    try:
+        old.rmdir()
+    except OSError:
+        pass
+
+
+def adopt_legacy(new: Path, target: str) -> Path:
+    """Return new, first moving in a sibling folder that still has the old target name."""
+    old = new.parent / LEGACY[_slug(target)][1]
+    if old.is_dir() and old.name != new.name:
+        _merge(old, new)
+    return new
+
+
 def base_dir(target: str) -> Path:
-    """Base folder for a target, e.g. targets/NORA-W3."""
-    return TARGETS_DIR / TARGETS[_slug(target)]
+    """Base folder for a target, e.g. targets/nora-w30."""
+    return adopt_legacy(TARGETS_DIR / TARGETS[_slug(target)], target)
 
 
 def sdk_dir(target: str) -> Path:
@@ -78,7 +111,7 @@ def config_file(target: str, host: str | None = None) -> Path:
 
 def legacy_config_file(target: str, host: str | None = None) -> Path:
     """Pre-targets/ location: a dotfile at the SDK root."""
-    return SDK_ROOT / f".{_slug(target)}_build.{host or host_kind()}.json"
+    return SDK_ROOT / f".{LEGACY[_slug(target)][0]}_build.{host or host_kind()}.json"
 
 
 def ensure(target: str) -> Path:

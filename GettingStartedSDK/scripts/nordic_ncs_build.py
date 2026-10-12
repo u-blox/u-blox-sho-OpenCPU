@@ -7,7 +7,7 @@ J-Link device; the toolchain, west workspace layout and build verbs are
 identical. The target key is the first positional argument, matching the way
 matter_build.py is invoked by the launcher:
 
-    python scripts/nordic_ncs_build.py nora-b2 build hello_world
+    python scripts/nordic_ncs_build.py nora-b20-b21-b22 build hello_world
 
 Supports: Windows, WSL2, Linux, macOS
 """
@@ -50,10 +50,10 @@ class NcsTarget:
 
 
 TARGETS: Dict[str, NcsTarget] = {
-    "nora-b2": NcsTarget(
-        key="nora-b2",
-        slug="nora_b2",
-        label="NORA-B2 (Nordic nRF54L15/L10/L05)",
+    "nora-b20-b21-b22": NcsTarget(
+        key="nora-b20-b21-b22",
+        slug="nora_b20_b21_b22",
+        label="NORA-B20-B21-B22 (Nordic nRF54L15/L10/L05)",
         soc="nRF54L15",
         board="ubx_evknorab2/nrf54l15/cpuapp",
         jlink_device="nRF54L15_M33",
@@ -71,10 +71,10 @@ TARGETS: Dict[str, NcsTarget] = {
         ),
         note="EVK-NORA-B201 / EVK-NORA-B206. Board is upstream in Zephyr and NCS.",
     ),
-    "alma-b2": NcsTarget(
-        key="alma-b2",
-        slug="alma_b2",
-        label="ALMA-B2 (Nordic nRF54LM20A/B)",
+    "alma-b20-b21": NcsTarget(
+        key="alma-b20-b21",
+        slug="alma_b20_b21",
+        label="ALMA-B20-B21 (Nordic nRF54LM20A/B)",
         soc="nRF54LM20",
         # u-blox has not published ubx_evkalmab2 yet; Nordic's DK is the
         # documented stand-in and is pin-compatible enough to bring code up.
@@ -95,8 +95,8 @@ TARGETS: Dict[str, NcsTarget] = {
 }
 
 ALIASES = {
-    "norab2": "nora-b2", "nora_b2": "nora-b2",
-    "almab2": "alma-b2", "alma_b2": "alma-b2",
+    "norab2": "nora-b20-b21-b22", "nora-b2": "nora-b20-b21-b22",
+    "almab2": "alma-b20-b21", "alma-b2": "alma-b20-b21",
 }
 
 # Where samples are searched for, in priority order, relative to the workspace.
@@ -406,7 +406,7 @@ def cmd_doctor(target: NcsTarget, args) -> int:
         if set(missing) - {"board", "workspace"}:
             print("          Install the nRF Connect SDK toolchain via nRF Connect for "
                   "Desktop (Toolchain Manager),")
-            print("          or see docs/nora_b2_README.md for a manual setup.")
+            print("          or see docs/nora_b20_b21_b22_README.md for a manual setup.")
         print()
         return 1
 

@@ -6,11 +6,11 @@ Mirrors the per-target SDK drivers, but for the Matter layer: the vendor's
 Matter SDK for a target is fetched on demand and only the examples that SDK
 ships are listed and built. No u-blox application code lives here.
 
-    python scripts/matter_build.py nora-w4 doctor
-    python scripts/matter_build.py nora-w4 clone
-    python scripts/matter_build.py nora-w4 build light
+    python scripts/matter_build.py nora-w40 doctor
+    python scripts/matter_build.py nora-w40 clone
+    python scripts/matter_build.py nora-w40 build light
 
-Usually invoked via the Matter launcher: ``ubx-matter nora-w4 --doctor``.
+Usually invoked via the Matter launcher: ``ubx-matter nora-w40 --doctor``.
 """
 
 from __future__ import annotations
@@ -58,11 +58,11 @@ class MatterTarget:
 
 
 TARGETS: dict[str, MatterTarget] = {
-    "iris-w1": MatterTarget(
-        key="iris-w1",
-        slug="iris_w1",
-        folder="IRIS-W1",
-        label="IRIS-W1 (NXP RW612) Matter",
+    "iris-w10": MatterTarget(
+        key="iris-w10",
+        slug="iris_w10",
+        folder="iris-w10",
+        label="IRIS-W10 (NXP RW612) Matter",
         repos=(
             Repo("connectedhomeip", "https://github.com/NXP/matter.git",
                  "v1.6.0.0.1", 10),
@@ -72,11 +72,11 @@ TARGETS: dict[str, MatterTarget] = {
         examples="connectedhomeip/examples/*/nxp/rt/rw61x",
         default_example="lighting-app",
     ),
-    "nora-w3": MatterTarget(
-        key="nora-w3",
-        slug="nora_w3",
-        folder="NORA-W3",
-        label="NORA-W3 (Realtek RTL8720DF) Matter",
+    "nora-w30": MatterTarget(
+        key="nora-w30",
+        slug="nora_w30",
+        folder="nora-w30",
+        label="NORA-W30 (Realtek RTL8720DF) Matter",
         repos=(
             Repo("ameba-rtos-d", "https://github.com/Ameba-AIoT/ameba-rtos-d.git",
                  "main", 2),
@@ -88,11 +88,11 @@ TARGETS: dict[str, MatterTarget] = {
         examples="ameba-rtos-matter/examples/*",
         default_example="light",
     ),
-    "nora-w4": MatterTarget(
-        key="nora-w4",
-        slug="nora_w4",
-        folder="NORA-W4",
-        label="NORA-W4 (Espressif ESP32-C6) Matter",
+    "nora-w40": MatterTarget(
+        key="nora-w40",
+        slug="nora_w40",
+        folder="nora-w40",
+        label="NORA-W40 (Espressif ESP32-C6) Matter",
         repos=(
             Repo("esp-idf", "https://github.com/espressif/esp-idf.git",
                  "v5.5.5", 3, submodules=True),
@@ -105,13 +105,13 @@ TARGETS: dict[str, MatterTarget] = {
         examples="esp-matter/examples/*",
         default_example="light",
         example_marker="CMakeLists.txt",
-        vendor_script="nora_w4.sh",
+        vendor_script="nora_w40.sh",
     ),
-    "nora-w5": MatterTarget(
-        key="nora-w5",
-        slug="nora_w5",
-        folder="NORA-W5",
-        label="NORA-W5 (TI CC3551E) Matter",
+    "nora-w50-w51": MatterTarget(
+        key="nora-w50-w51",
+        slug="nora_w50_w51",
+        folder="nora-w50-w51",
+        label="NORA-W50-W51 (TI CC3551E) Matter",
         repos=(
             # --install fetches only the cc35xx + linux submodules.
             Repo("ti-matter", "https://github.com/TexasInstruments/matter.git",
@@ -121,7 +121,7 @@ TARGETS: dict[str, MatterTarget] = {
         note="TI connectedhomeip fork, CC3551E on LP-EM-CC35X1. Ubuntu 22.04 only.",
         examples="ti-matter/examples/*/ti/cc35xx",
         default_example="lighting-app",
-        vendor_script="nora_w5.sh",
+        vendor_script="nora_w50_w51.sh",
     ),
 }
 
@@ -134,11 +134,11 @@ def matter_root(target: MatterTarget) -> Path:
     """
     override = os.environ.get("UBX_MATTER_ROOT")
     if override:
-        return Path(override).expanduser() / target.folder
+        return target_paths.adopt_legacy(Path(override).expanduser() / target.folder, target.slug)
     in_tree = target_paths.sdk_dir(target.slug) / "matter"
     if host_kind() == "wsl" and not any((in_tree / r.name / ".git").exists() for r in target.repos):
         # The repo is on a /mnt/<drive> path, where these SDKs must not be built.
-        return Path.home() / "ubx-matter" / target.folder
+        return target_paths.adopt_legacy(Path.home() / "ubx-matter" / target.folder, target.slug)
     return in_tree
 
 

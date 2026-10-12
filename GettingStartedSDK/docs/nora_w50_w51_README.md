@@ -72,7 +72,7 @@ sudo usermod -aG dialout,plugdev $USER   # log out / in afterwards
 
 Use the Linux instructions inside WSL2, plus:
 
-1. Keep the source tree in the **Linux** filesystem (`~/nora-w5`), not `/mnt/c` — builds are much faster.
+1. Keep the source tree in the **Linux** filesystem (`~/nora-w50-w51`), not `/mnt/c` — builds are much faster.
 2. USB (XDS110 / UART) is not visible by default. From an **admin PowerShell** on Windows:
    ```powershell
    winget install usbipd
@@ -90,25 +90,25 @@ Use the Linux instructions inside WSL2, plus:
 
 ### 3.0 Scripted path (recommended)
 
-[../scripts/nora_w5_build.py](../scripts/nora_w5_build.py) automates everything below on Windows,
+[../scripts/nora_w50_w51_build.py](../scripts/nora_w50_w51_build.py) automates everything below on Windows,
 WSL2 and Linux. It finds an installed SDK (or clones TI's example repos), writes the detected tool
 paths into `imports.mak`, builds the SDK libraries and then builds examples.
 
 Drive it through the launcher:
 
 ```bash
-./ubx-sdk.sh nora-w5 --doctor               # what is installed, what is missing
-./ubx-sdk.sh nora-w5 --clone                # only if no SDK is installed
-./ubx-sdk.sh nora-w5 --build-sdk            # build SDK libraries (slow, once per SDK)
-./ubx-sdk.sh nora-w5 --list                 # show real example names
-./ubx-sdk.sh nora-w5 --build network_terminal
+./ubx-sdk.sh nora-w50-w51 --doctor               # what is installed, what is missing
+./ubx-sdk.sh nora-w50-w51 --clone                # only if no SDK is installed
+./ubx-sdk.sh nora-w50-w51 --build-sdk            # build SDK libraries (slow, once per SDK)
+./ubx-sdk.sh nora-w50-w51 --list                 # show real example names
+./ubx-sdk.sh nora-w50-w51 --build network_terminal
 ```
 
 `configure` has no launcher flag, so call the driver directly if you need to rewrite `imports.mak`
 by hand:
 
 ```bash
-python scripts/nora_w5_build.py configure   # patch imports.mak (backs up as imports.mak.orig)
+python scripts/nora_w50_w51_build.py configure   # patch imports.mak (backs up as imports.mak.orig)
 ```
 
 | Command | Purpose |
@@ -173,7 +173,7 @@ On Linux/WSL the same variables point at `/opt/ti/...` and `sysconfig_cli.sh`.
 Two rules the SDK enforces:
 
 - **Paths must not contain spaces.** On Windows use the 8.3 short form
-  (`C:/Progra~1/...`) — `nora_w5_build.py configure` does this conversion for you.
+  (`C:/Progra~1/...`) — `nora_w50_w51_build.py configure` does this conversion for you.
 - Setting a `*_ARMCOMPILER` variable to empty disables that toolchain. Leave only the one
   you actually have if you want faster builds.
 
@@ -304,7 +304,7 @@ screen /dev/ttyACM0 115200
 
 1. Copy `drivers/empty` (bare skeleton) or the demo closest to your use case into your own repo.
 2. Open its `.syscfg` in SysConfig -> set the CC35x1E device/package, pinmux, UART, Wi-Fi and
-   BLE settings to match the NORA-W5x module.
+   BLE settings to match the NORA-W50x/W51x module.
 3. Adjust the linker command file for **4 MB vs 8 MB** flash.
 4. Keep the example's `makefile` / `.projectspec`; only the relative
    `SIMPLELINK_WIFI_SDK_INSTALL_DIR` path needs to stay correct.
@@ -319,7 +319,7 @@ screen /dev/ttyACM0 115200
 | `sysconfig_cli` not found | Wrong `SYSCONFIG_TOOL` in `imports.mak`; on Windows it must be the `.bat`. |
 | `tiarmclang` / `arm-none-eabi-gcc` not found | Fix `TICLANG_ARMCOMPILER` / `GCC_ARMCOMPILER` in `imports.mak`. |
 | `make` not found on Windows | Use `gmake` from `ccs/utils/bin/`, or `winget install ezwinports.make`. |
-| Odd path errors in the makefiles | A tool path contains spaces. Use the 8.3 short form, or run `nora_w5_build.py configure`. |
+| Odd path errors in the makefiles | A tool path contains spaces. Use the 8.3 short form, or run `nora_w50_w51_build.py configure`. |
 | Build fails only after an SDK update | Rebuild SDK libs and re-check SysConfig version in the release notes. |
 | Device not enumerating in WSL | `usbipd attach --wsl --busid <BUSID>` from admin PowerShell. |
 | No serial output | Wrong port (pick the *Application* UART, not the *Auxiliary* one) or wrong baud (115200). |
@@ -334,5 +334,5 @@ screen /dev/ttyACM0 115200
 - Driver examples — <https://github.com/TexasInstruments/simplelink-coresdk_wifi-examples>
 - TI Zephyr downstream — <https://github.com/TexasInstruments/simplelink-zephyr>
 - SDK docs (TI Resource Explorer) — <https://dev.ti.com/tirex/explore>
-- NORA-W5 series product page — <https://www.u-blox.com/en/product/nora-w5-series>
+- NORA-W50-W51 series product page — <https://www.u-blox.com/en/product/nora-w5-series>
 - TI E2E support forum — <https://e2e.ti.com/>

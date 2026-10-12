@@ -14,7 +14,7 @@ Then activate it:
     # Linux/macOS/WSL:
     source .venv/bin/activate
 
-All build scripts (iris_w1_build.py, nora_w5_build.py, etc.) will work
+All build scripts (iris_w10_build.py, nora_w50_w51_build.py, etc.) will work
 with this shared venv. It installs 'west' (MCUXpresso SDK manager) which all
 variants need.
 """
@@ -146,7 +146,7 @@ def main():
         print("Next step: Activate the virtual environment\n")
         print(f"  {activate_cmd}\n")
         print(f"Then run any build script, e.g.:\n")
-        print(f"  python scripts/iris_w1_build.py doctor")
+        print(f"  python scripts/iris_w10_build.py doctor")
         print(f"\nTo deactivate later, run:")
         print(f"  deactivate")
         print(f"{'='*60}\n")

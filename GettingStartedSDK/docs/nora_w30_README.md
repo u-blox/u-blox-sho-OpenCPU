@@ -1,8 +1,8 @@
-# NORA-W3 Getting Started Guide
+# NORA-W30 Getting Started Guide
 
 ## Overview
 
-NORA-W3 modules are based on the **Realtek RTL872x** SoC with Wi-Fi 6 (802.11ax) and Bluetooth LE 5.3. This guide covers building and deploying firmware using the **Realtek RTOS SDK** (or Ameba-RTOS).
+NORA-W30 modules are based on the **Realtek RTL872x** SoC with Wi-Fi 6 (802.11ax) and Bluetooth LE 5.3. This guide covers building and deploying firmware using the **Realtek RTOS SDK** (or Ameba-RTOS).
 
 **Key Features:**
 - Single-core Cortex-M4 @ 200 MHz
@@ -60,7 +60,7 @@ If you must use Cygwin:
 
 ## Quick Start (Scripted Path)
 
-The `nora_w3_build.py` script automates the build process:
+The `nora_w30_build.py` script automates the build process:
 
 ```bash
 # From GettingStartedSDK directory
@@ -71,22 +71,22 @@ source .venv/bin/activate          # Linux/WSL2
 # or on Windows: .venv\Scripts\activate
 
 # 2. Check environment
-python scripts/nora_w3_build.py doctor
+python scripts/nora_w30_build.py doctor
 
 # 3. Clone Realtek Ameba-D SDK
-python scripts/nora_w3_build.py clone
+python scripts/nora_w30_build.py clone
 
 # 4. List available example sources (included in firmware)
-python scripts/nora_w3_build.py list
+python scripts/nora_w30_build.py list
 
 # 5. Build KM4 firmware (project_hp, default)
-python scripts/nora_w3_build.py build
+python scripts/nora_w30_build.py build
 
 # 6. Or build KM0 firmware (project_lp)
-python scripts/nora_w3_build.py build project_lp
+python scripts/nora_w30_build.py build project_lp
 
 # 7. Clean build artifacts
-python scripts/nora_w3_build.py clean
+python scripts/nora_w30_build.py clean
 ```
 
 **Output locations:**
@@ -420,7 +420,7 @@ See Realtek SDK documentation or header files for details.
 - **Ameba-RTOS GitHub:** https://github.com/ambiot/ameba-rtos
 - **Realtek RTL872x Datasheet:** Contact Realtek or u-blox
 - **Realtek Documentation:** Check SDK docs/ folder
-- **u-blox NORA-W3 Datasheet:** https://www.u-blox.com/
+- **u-blox NORA-W30 Datasheet:** https://www.u-blox.com/
 - **Realtek Official:** https://www.realtek.com/
 
 ---
@@ -444,7 +444,7 @@ wsl -l -v
 wsl
 # Now in Ubuntu bash
 cd /mnt/c/path/to/your/workspace
-python3 nora_w3_build.py doctor
+python3 nora_w30_build.py doctor
 ```
 
 ### Share Windows files with WSL2
@@ -484,6 +484,6 @@ WSL2 file access from Windows Explorer:
 
 ## License & Disclaimer
 
-NORA-W3 is produced by u-blox. Ameba-RTOS is open-source under Apache 2.0 or GPL (varies by component).
+NORA-W30 is produced by u-blox. Ameba-RTOS is open-source under Apache 2.0 or GPL (varies by component).
 
 See u-blox and Realtek licensing terms for details.

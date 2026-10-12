@@ -4,7 +4,7 @@ u-blox module configuration: RF calibration, TX power limits, regulatory
 domain and MAC / Bluetooth device address.
 
 One applier for every target. What gets applied is data, not code: each target
-has a profile at ``modules/<TARGET>/profile.json`` listing operations against
+has a profile at ``modules/<target>/profile.json`` listing operations against
 the fetched vendor SDK tree. The assets themselves stay where u-blox publishes
 them, in the per-module folders at the repository root, and are referenced
 rather than duplicated.
@@ -44,7 +44,7 @@ MODULES_DIR = SDK_ROOT / "modules"
 BACKUP_SUFFIX = ".ubx-orig"
 STATE_NAME = "rf_config.json"
 
-TARGET_KEYS = ("alma-b2", "iris-w1", "nora-b2", "nora-w3", "nora-w4", "nora-w5")
+TARGET_KEYS = ("alma-b20-b21", "iris-w10", "nora-b20-b21-b22", "nora-w30", "nora-w40", "nora-w50-w51")
 
 
 def slug(key: str) -> str:
@@ -130,18 +130,18 @@ def vendor_sdk_root(key: str) -> Path | None:
     cfg = _build_config(key)
     s = slug(key)
 
-    if key == "nora-w3":
+    if key == "nora-w30":
         candidates = [cfg.get("sdk_path"),
                       SDK_ROOT / "ameba-rtos-d",
                       target_paths.sdk_dir(s) / "realtek-rtos-sdk"]
         marker = "component/common/drivers/wlan"
-    elif key == "nora-w4":
+    elif key == "nora-w40":
         candidates = [cfg.get("idf_path"),
                       target_paths.sdk_dir(s) / "esp-idf",
                       SDK_ROOT / "esp-idf",
                       Path.home() / "esp" / "esp-idf"]
         marker = "components/esp_phy"
-    elif key == "iris-w1":
+    elif key == "iris-w10":
         candidates = [cfg.get("workspace"),
                       target_paths.sdk_dir(s) / "mcuxpresso-sdk",
                       SDK_ROOT / "mcuxpresso-sdk",
@@ -191,9 +191,9 @@ def mcux_version(root: Path) -> tuple[int, int] | None:
 
 
 def sdk_version(key: str, root: Path) -> tuple[int, int] | None:
-    if key == "nora-w4":
+    if key == "nora-w40":
         return idf_version(root)
-    if key == "iris-w1":
+    if key == "iris-w10":
         return mcux_version(root)
     return None
 
@@ -231,7 +231,7 @@ def version_matches(found: tuple[int, int], spec: str) -> bool:
 def check_requires(key: str, profile: dict, root: Path) -> list[str]:
     """Return a list of unmet requirements, empty when the SDK is usable."""
     spec = (profile.get("requires") or {}).get("sdk_version")
-    if not spec or key != "nora-w4":
+    if not spec or key != "nora-w40":
         return []
     found = sdk_version(key, root)
     if found is None:

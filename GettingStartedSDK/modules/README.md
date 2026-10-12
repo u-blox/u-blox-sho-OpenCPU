@@ -20,12 +20,12 @@ path. One copy, one place to update.
 
 | Target | Status | Covers |
 |--------|--------|--------|
-| `iris-w1` | ready | Wi-Fi TX power limits, Wi-Fi cal, BT/802.15.4 cal, MFlash driver |
-| `nora-w3` | ready | TX power limit tables (W301/W306), build-system swap |
-| `nora-w4` | ready | `ubx_phy_cal` component + ESP-IDF PHY init patch (IDF 5.1, 5.5 and 6.2) |
-| `nora-w5` | pending | No u-blox assets in this repository yet |
-| `nora-b2` | pending | BLE needs no cal table; device address + TX power are manual |
-| `alma-b2` | pending | Under development |
+| `iris-w10` | ready | Wi-Fi TX power limits, Wi-Fi cal, BT/802.15.4 cal, MFlash driver |
+| `nora-w30` | ready | TX power limit tables (W301/W306), build-system swap |
+| `nora-w40` | ready | `ubx_phy_cal` component + ESP-IDF PHY init patch (IDF 5.1, 5.5 and 6.2) |
+| `nora-w50-w51` | pending | No u-blox assets in this repository yet |
+| `nora-b20-b21-b22` | pending | BLE needs no cal table; device address + TX power are manual |
+| `alma-b20-b21` | pending | Under development |
 
 ## Profile schema
 
@@ -34,8 +34,8 @@ One `profile.json` per target, applied by `scripts/module_config.py`.
 ```jsonc
 {
   "schema": 1,
-  "target": "nora-w3",
-  "label": "NORA-W3 (Realtek RTL8720DF)",
+  "target": "nora-w30",
+  "label": "NORA-W30 (Realtek RTL8720DF)",
   "status": "ready",                 // "ready" or "pending"
   "requires": { "sdk_version": ">=5.1,<5.2 || >=6.2,<6.3" },
   "variables": { "flash_vendor": "Macronix" },   // defaults, --set overrides
@@ -72,7 +72,7 @@ Any op may also carry:
 
 `manual_steps` entries are plain strings, or `{ "text": ..., "sdk_version": ... }`
 to show a step only for the matching SDK release. SDK versions are detected for
-NORA-W4 (`esp_idf_version.h`) and IRIS-W1 (`MCUX_VERSION`, as `YY.MM`).
+NORA-W40 (`esp_idf_version.h`) and IRIS-W10 (`MCUX_VERSION`, as `YY.MM`).
 
 Every op is idempotent: re-running `--rf-config` reports `already applied`
 rather than failing or double-patching.
@@ -80,7 +80,7 @@ rather than failing or double-patching.
 ### Backup and revert
 
 Before a vendor file is overwritten it is copied to `<name>.ubx-orig`, and what
-was applied is recorded in `targets/<TARGET>/config/rf_config.json` with a
+was applied is recorded in `targets/<target>/config/rf_config.json` with a
 SHA-256 per file. That gives:
 
 - `--doctor` a drift check: a file changed since apply, or a patch that no
@@ -91,7 +91,7 @@ SHA-256 per file. That gives:
 ## Adding a target or a variant
 
 1. Put the assets in the module's folder at the repository root.
-2. Add the variant to `modules/<TARGET>/profile.json` with any `vars` the ops
+2. Add the variant to `modules/<target>/profile.json` with any `vars` the ops
    need, and flip `status` to `ready`.
 3. `python scripts/module_config.py <target> variants` to check the part
    numbers resolve, then `apply` and `revert` to check the ops round-trip.

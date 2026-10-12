@@ -1,14 +1,14 @@
-# ALMA-B2 Getting Started Guide
+# ALMA-B20-B21 Getting Started Guide
 
-> **Status:** ALMA-B2 is under development at u-blox. There is no
+> **Status:** ALMA-B20-B21 is under development at u-blox. There is no
 > `ubx_evkalmab2` board definition in Zephyr or the nRF Connect SDK yet, so
 > this target builds against Nordic's nRF54LM20 DK board. Treat it as a
 > bring-up path, not a production configuration.
 
 ## Overview
 
-ALMA-B2 modules are based on the **Nordic nRF54LM20** SoC and are built with the
-**nRF Connect SDK** (NCS), exactly like NORA-B2. The nRF54LM20B variant adds the
+ALMA-B20-B21 modules are based on the **Nordic nRF54LM20** SoC and are built with the
+**nRF Connect SDK** (NCS), exactly like NORA-B20-B21-B22. The nRF54LM20B variant adds the
 Nordic **Axon NPU**, an edge-AI accelerator that is substantially more energy
 efficient than running the same inference on the MCU.
 
@@ -60,22 +60,22 @@ target is an emulation configuration on the same hardware.
 Select the B-variant with:
 
 ```bash
-./ubx-sdk.sh alma-b2 --build hello_world -- --board nrf54lm20dk/nrf54lm20b/cpuapp
+./ubx-sdk.sh alma-b20-b21 --build hello_world -- --board nrf54lm20dk/nrf54lm20b/cpuapp
 ```
 
 Because the board is a DK rather than the module, pin assignments, the antenna
-path and power rails will not match a real ALMA-B2 design. Expect to supply a
+path and power rails will not match a real ALMA-B20-B21 design. Expect to supply a
 devicetree overlay for anything beyond CPU-level bring-up.
 
 ---
 
 ## Prerequisites
 
-Identical to NORA-B2 - see [nora_b2_README.md](nora_b2_README.md#prerequisites).
+Identical to NORA-B20-B21-B22 - see [nora_b20_b21_b22_README.md](nora_b20_b21_b22_README.md#prerequisites).
 The quickest route is nRF Connect for Desktop and its Toolchain Manager.
 
 ```bash
-./ubx-sdk.sh alma-b2 --doctor
+./ubx-sdk.sh alma-b20-b21 --doctor
 ```
 
 ---
@@ -83,17 +83,17 @@ The quickest route is nRF Connect for Desktop and its Toolchain Manager.
 ## Quick start
 
 ```bash
-./ubx-sdk.sh alma-b2 --clone
-./ubx-sdk.sh alma-b2 --install
-./ubx-sdk.sh alma-b2 --list
-./ubx-sdk.sh alma-b2 --build hello_world --flash --log
+./ubx-sdk.sh alma-b20-b21 --clone
+./ubx-sdk.sh alma-b20-b21 --install
+./ubx-sdk.sh alma-b20-b21 --list
+./ubx-sdk.sh alma-b20-b21 --build hello_world --flash --log
 ```
 
-NORA-B2 and ALMA-B2 share one NCS workspace: `--clone` puts it in
+NORA-B20-B21-B22 and ALMA-B20-B21 share one NCS workspace: `--clone` puts it in
 `C:\ncs\v3.4.1` (Windows) or `~/ncs/v3.4.1` (Linux) after checking for about
 15 GB free, and both targets detect it. Select a different workspace with
-`python scripts/nordic_ncs_build.py alma-b2 use <path>`; see
-[nora_b2_README.md](nora_b2_README.md#where-the-sdk-lives).
+`python scripts/nordic_ncs_build.py alma-b20-b21 use <path>`; see
+[nora_b20_b21_b22_README.md](nora_b20_b21_b22_README.md#where-the-sdk-lives).
 
 ---
 
@@ -103,8 +103,8 @@ Matter support ships inside the nRF Connect SDK, so there is no separate Matter
 SDK to fetch — `--clone` pulls the same NCS workspace the plain SDK flow uses:
 
 ```bash
-./ubx-matter.sh alma-b2 --list                      # the nrf/samples/matter apps
-./ubx-matter.sh alma-b2 --build light_bulb --flash --log
+./ubx-matter.sh alma-b20-b21 --list                      # the nrf/samples/matter apps
+./ubx-matter.sh alma-b20-b21 --build light_bulb --flash --log
 ```
 
 A bare app name is scoped to `matter/`, so `light_bulb` cannot collide with a
@@ -130,7 +130,7 @@ Matter runs over Thread here, since the nRF54LM20 has no Wi-Fi radio.
 ## Flashing
 
 ```bash
-./ubx-sdk.sh alma-b2 --flash hello_world
+./ubx-sdk.sh alma-b20-b21 --flash hello_world
 ```
 
 `nrfutil` is the default runner. J-Link device names:
@@ -156,6 +156,6 @@ Note that the `A` device name is used for both SoC variants.
 
 ## References
 
-- ALMA-B2 product page: https://www.u-blox.com/en/product/alma-b2-series
+- ALMA-B20-B21 product page: https://www.u-blox.com/en/product/alma-b2-series
 - nRF Connect SDK documentation: https://docs.nordicsemi.com/bundle/ncs-latest/page/nrf/index.html
-- NORA-B2 guide (same toolchain): [nora_b2_README.md](nora_b2_README.md)
+- NORA-B20-B21-B22 guide (same toolchain): [nora_b20_b21_b22_README.md](nora_b20_b21_b22_README.md)

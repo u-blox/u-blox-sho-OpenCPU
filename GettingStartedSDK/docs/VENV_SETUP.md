@@ -19,10 +19,10 @@ u-blox-sho-OpenCPU/
 │   │   ├── ubx.py
 │   │   ├── setup_venv.py         <- Run this from GettingStartedSDK/
 │   │   ├── migrate_venv.sh / .bat
-│   │   ├── iris_w1_build.py
-│   │   ├── nora_w5_build.py
-│   │   ├── nora_w3_build.py
-│   │   └── nora_w4_build.py
+│   │   ├── iris_w10_build.py
+│   │   ├── nora_w50_w51_build.py
+│   │   ├── nora_w30_build.py
+│   │   └── nora_w40_build.py
 │   ├── docs/
 │   └── README.md
 │
@@ -102,8 +102,8 @@ With venv activated, run scripts from GettingStartedSDK:
 
 ```bash
 cd GettingStartedSDK
-python scripts/iris_w1_build.py doctor
-python scripts/nora_w5_build.py build empty
+python scripts/iris_w10_build.py doctor
+python scripts/nora_w50_w51_build.py build empty
 ```
 
 Or run with full path:
@@ -111,7 +111,7 @@ Or run with full path:
 ```bash
 cd e:/u-blox/u-blox-sho-OpenCPU
 source GettingStartedSDK/.venv/bin/activate
-python GettingStartedSDK/scripts/iris_w1_build.py doctor
+python GettingStartedSDK/scripts/iris_w10_build.py doctor
 ```
 
 ## What Changed
@@ -157,7 +157,7 @@ Make sure you're running scripts from within the activated venv:
 ```bash
 cd GettingStartedSDK
 source .venv/bin/activate  # or appropriate activation command
-python scripts/iris_w1_build.py doctor
+python scripts/iris_w10_build.py doctor
 ```
 
 ## Verification
@@ -169,7 +169,7 @@ cd GettingStartedSDK
 ls -la .venv  # Should show venv directory
 source .venv/bin/activate  # or appropriate command
 which python  # Should show path inside .venv
-python scripts/iris_w1_build.py doctor  # Should work
+python scripts/iris_w10_build.py doctor  # Should work
 ```
 
 ---

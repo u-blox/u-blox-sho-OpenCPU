@@ -1,8 +1,8 @@
-# NORA-W4 Getting Started Guide
+# NORA-W40 Getting Started Guide
 
 ## Overview
 
-NORA-W4 modules are based on the **Espressif ESP32-C6** SoC with 2.4 GHz Wi-Fi 6 (802.11ax) and Bluetooth LE 5.3. This guide covers building and deploying firmware using the latest **ESP-IDF** (Espressif IoT Development Framework).
+NORA-W40 modules are based on the **Espressif ESP32-C6** SoC with 2.4 GHz Wi-Fi 6 (802.11ax) and Bluetooth LE 5.3. This guide covers building and deploying firmware using the latest **ESP-IDF** (Espressif IoT Development Framework).
 
 **Key Features:**
 - Dual-core RISC-V processor @ 160 MHz
@@ -62,23 +62,23 @@ Use the Linux setup above (same commands work in WSL2 Ubuntu).
 
 ## Quick Start (Scripted Path)
 
-The `nora_w4_build.py` script automates the entire process:
+The `nora_w40_build.py` script automates the entire process:
 
 ```bash
 # 1. Check environment
-python nora_w4_build.py doctor
+python nora_w40_build.py doctor
 
 # 2. Clone ESP-IDF
-python nora_w4_build.py clone
+python nora_w40_build.py clone
 
 # 3. List available examples
-python nora_w4_build.py list
+python nora_w40_build.py list
 
 # 4. Build an example
-python nora_w4_build.py build hello_world
+python nora_w40_build.py build hello_world
 
 # 5. Full pipeline (clone + build)
-python nora_w4_build.py all hello_world
+python nora_w40_build.py all hello_world
 ```
 
 ---
@@ -157,7 +157,7 @@ ESP-IDF includes many examples in `examples/` directory:
 
 1. **hello_world** — Classic "Hello World" output to UART
    ```bash
-   python nora_w4_build.py build hello_world
+   python nora_w40_build.py build hello_world
    ```
 
 2. **wifi/getting_started/station** — Connect to Wi-Fi, ping a host
@@ -170,17 +170,17 @@ ESP-IDF includes many examples in `examples/` directory:
 
 3. **bluetooth/ble/gatt_server** — Bluetooth LE GATT server
    ```bash
-   python nora_w4_build.py build bluetooth/ble/gatt_server
+   python nora_w40_build.py build bluetooth/ble/gatt_server
    ```
 
 4. **get-started/blink** — GPIO LED blink example
    ```bash
-   python nora_w4_build.py build get-started/blink
+   python nora_w40_build.py build get-started/blink
    ```
 
 ### Full Example List
 
-Run `nora_w4_build.py list` to see all available examples.
+Run `nora_w40_build.py list` to see all available examples.
 
 ---
 
@@ -244,7 +244,7 @@ Common settings:
 Install Python:
 ```bash
 sudo apt-get install python3
-python3 nora_w4_build.py doctor
+python3 nora_w40_build.py doctor
 ```
 
 Or create alias:
@@ -346,7 +346,7 @@ See [ESP-IDF API Reference](https://docs.espressif.com/projects/esp-idf/en/lates
 - **ESP32-C6 Datasheet:** https://www.espressif.com/en/products/socs/esp32-c6/overview
 - **ESP-IDF Examples:** https://github.com/espressif/esp-idf/tree/master/examples
 - **Espressif GitHub:** https://github.com/espressif/esp-idf
-- **u-blox NORA-W4 Datasheet:** https://www.u-blox.com/
+- **u-blox NORA-W40 Datasheet:** https://www.u-blox.com/
 
 ---
 
@@ -373,6 +373,6 @@ See [ESP-IDF API Reference](https://docs.espressif.com/projects/esp-idf/en/lates
 
 ## License & Disclaimer
 
-NORA-W4 is produced by u-blox. ESP-IDF is open-source under the Apache 2.0 license.
+NORA-W40 is produced by u-blox. ESP-IDF is open-source under the Apache 2.0 license.
 
 See u-blox and Espressif licensing terms for details.

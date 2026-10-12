@@ -37,61 +37,61 @@ ls -la GettingStartedSDK/
 
 ### 4. Test Infrastructure
 
-#### Test NORA-W5 (Fully Working)
+#### Test NORA-W50-W51 (Fully Working)
 ```bash
 cd GettingStartedSDK
 
 # List available examples
-./ubx-sdk.sh nora-w5 --list
+./ubx-sdk.sh nora-w50-w51 --list
 
 # Build a simple example
-./ubx-sdk.sh nora-w5 --build empty
+./ubx-sdk.sh nora-w50-w51 --build empty
 
 # Build WiFi example
-./ubx-sdk.sh nora-w5 --build ble_wifi_provisioning
+./ubx-sdk.sh nora-w50-w51 --build ble_wifi_provisioning
 ```
 
-#### Test IRIS-W1 (NXP MCUXpresso)
+#### Test IRIS-W10 (NXP MCUXpresso)
 ```bash
 # Check environment (reports the Arm toolchain it will use)
-python GettingStartedSDK/scripts/iris_w1_build.py doctor
+python GettingStartedSDK/scripts/iris_w10_build.py doctor
 
 # Clone SDK (~2 GB - targeted download)
-python GettingStartedSDK/scripts/iris_w1_build.py clone
+python GettingStartedSDK/scripts/iris_w10_build.py clone
 
 # List examples
-python GettingStartedSDK/scripts/iris_w1_build.py list
+python GettingStartedSDK/scripts/iris_w10_build.py list
 
 # Build hello_world
-python GettingStartedSDK/scripts/iris_w1_build.py build demo_apps/hello_world
+python GettingStartedSDK/scripts/iris_w10_build.py build demo_apps/hello_world
 ```
 
-#### Test NORA-W3 (Realtek - WSL2 Recommended)
+#### Test NORA-W30 (Realtek - WSL2 Recommended)
 ```bash
 # On WSL2 Ubuntu:
 cd /mnt/e/u-blox/u-blox-sho-OpenCPU
 source .venv/bin/activate
-python GettingStartedSDK/scripts/nora_w3_build.py doctor
-python GettingStartedSDK/scripts/nora_w3_build.py clone
-python GettingStartedSDK/scripts/nora_w3_build.py build wlan_sample
+python GettingStartedSDK/scripts/nora_w30_build.py doctor
+python GettingStartedSDK/scripts/nora_w30_build.py clone
+python GettingStartedSDK/scripts/nora_w30_build.py build wlan_sample
 ```
 
-#### Test NORA-W4 (ESP-IDF)
+#### Test NORA-W40 (ESP-IDF)
 ```bash
 # Check tools
-python GettingStartedSDK/scripts/nora_w4_build.py doctor
+python GettingStartedSDK/scripts/nora_w40_build.py doctor
 
 # Clone ESP-IDF
-python GettingStartedSDK/scripts/nora_w4_build.py clone
+python GettingStartedSDK/scripts/nora_w40_build.py clone
 
 # Build example
-python GettingStartedSDK/scripts/nora_w4_build.py build hello_world
+python GettingStartedSDK/scripts/nora_w40_build.py build hello_world
 ```
 
 ### 5. Review Key Files
 
 - **Structure**: `GettingStartedSDK/` folder layout
-  - `scripts/` - 4 build drivers (iris_w1, nora_w5, nora_w3, nora_w4)
+  - `scripts/` - 4 build drivers (iris_w10, nora_w50_w51, nora_w30, nora_w40)
   - `docs/` - Individual variant READMEs
   - `setup_venv.py` - Shared venv initialization
   - `BUILD_ALL_EXAMPLES.md` - Comprehensive guide
@@ -100,18 +100,18 @@ python GettingStartedSDK/scripts/nora_w4_build.py build hello_world
 
 - **Each Build Script**:
   - Check `config_file()` function - now delegates to `target_paths.py`
-  - Configs stored per-target: `targets/<TARGET>/config/build.<host>.json`
+  - Configs stored per-target: `targets/<target>/config/build.<host>.json`
   - Legacy root dotfiles (`.iris_w1_build.*.json`) auto-migrated on first run
   - Check `detect_python()` function - handles venv activation
   - Review error handling and tool detection logic
 
 - **Documentation**:
-  - `GettingStartedSDK/docs/iris_w1_README.md` - IRIS-W1 setup (10 steps)
-  - `GettingStartedSDK/docs/nora_w5_README.md` - NORA-W5 setup
-  - `GettingStartedSDK/docs/nora_w3_README.md` - NORA-W3 setup
-  - `GettingStartedSDK/docs/nora_w4_README.md` - NORA-W4 setup
-  - `GettingStartedSDK/docs/nora_b2_README.md` - NORA-B2 setup
-  - `GettingStartedSDK/docs/alma_b2_README.md` - ALMA-B2 setup
+  - `GettingStartedSDK/docs/iris_w10_README.md` - IRIS-W10 setup (10 steps)
+  - `GettingStartedSDK/docs/nora_w50_w51_README.md` - NORA-W50-W51 setup
+  - `GettingStartedSDK/docs/nora_w30_README.md` - NORA-W30 setup
+  - `GettingStartedSDK/docs/nora_w40_README.md` - NORA-W40 setup
+  - `GettingStartedSDK/docs/nora_b20_b21_b22_README.md` - NORA-B20-B21-B22 setup
+  - `GettingStartedSDK/docs/alma_b20_b21_README.md` - ALMA-B20-B21 setup
 
 ## What's New (Since Consolidation)
 
@@ -120,7 +120,7 @@ python GettingStartedSDK/scripts/nora_w4_build.py build hello_world
 ```
 repo/
 ├── IRIS-W10-GettingStartedSDK/
-├── NORA-W5-GettingStartedSDK/
+├── NORA-W50-W51-GettingStartedSDK/
 ├── NORA-W30-GettingStartedSDK/
 ├── NORA-W40-GettingStartedSDK/
 └── BUILD_ALL_EXAMPLES.md
@@ -136,10 +136,10 @@ repo/
     │           per-target build drivers, target_paths.py, setup_venv.py,
     │           migrate_venv.*, matter_vendor/)
     ├── targets/ (per-target base folders: sdk/, config/)
-    │   ├── IRIS-W1/
-    │   ├── NORA-W3/
-    │   ├── NORA-W4/
-    │   └── NORA-W5/
+    │   ├── iris-w10/
+    │   ├── nora-w30/
+    │   ├── nora-w40/
+    │   └── nora-w50-w51/
     ├── docs/ (4 variant READMEs + build guides)
     ├── .github/ (consolidated instructions)
     └── README.md
@@ -152,10 +152,10 @@ repo/
 - Works on Windows, WSL2, and Linux
 
 ### [OK] Verified Working
-- NORA-W5: [OK] Tested - builds WiFi provisioning example
-- IRIS-W1: [OK] Ready - needs SDK clone
-- NORA-W3: [OK] Ready - WSL2 environment
-- NORA-W4: [OK] Ready - needs ESP-IDF
+- NORA-W50-W51: [OK] Tested - builds WiFi provisioning example
+- IRIS-W10: [OK] Ready - needs SDK clone
+- NORA-W30: [OK] Ready - WSL2 environment
+- NORA-W40: [OK] Ready - needs ESP-IDF
 
 ## Review Checklist
 
@@ -163,7 +163,7 @@ repo/
 - [ ] **Build Scripts**: Do all target scripts work correctly?
 - [ ] **Documentation**: Are the READMEs clear and complete?
 - [ ] **Venv Setup**: Does `setup_venv.py` work on your system?
-- [ ] **Config Files**: Are `targets/<TARGET>/config/build.<host>.json` files created?
+- [ ] **Config Files**: Are `targets/<target>/config/build.<host>.json` files created?
 - [ ] **Cross-Platform**: Can you test on multiple platforms (Windows, WSL2, Linux)?
 - [ ] **Examples**: Did you successfully build at least one example per variant?
 - [ ] **Output Files**: Are firmware binaries created in expected locations?

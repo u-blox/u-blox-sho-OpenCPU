@@ -1,15 +1,15 @@
 #!/usr/bin/env bash
-# NORA-W5 (TI CC35xx) Matter: build TI's own examples from the ti-matter fork.
+# NORA-W50-W51 (TI CC35xx) Matter: build TI's own examples from the ti-matter fork.
 #
-#   nora_w5.sh setup                    cc35xx submodules, bootstrap, SDK libraries
-#   nora_w5.sh build <example-dir> [gn args...]
-#   nora_w5.sh clean <example-dir>
+#   nora_w50_w51.sh setup                    cc35xx submodules, bootstrap, SDK libraries
+#   nora_w50_w51.sh build <example-dir> [gn args...]
+#   nora_w50_w51.sh clean <example-dir>
 #
 # Host tools are looked up under $TI_HOME (default ~/ti). Override with
 # TI_SYSCONFIG_ROOT, TI_WIFI_TOOLBOX_ROOT and GCC_ARMCOMPILER.
 set -euo pipefail
 
-SDK="${UBX_MATTER_SDK_ROOT:?UBX_MATTER_SDK_ROOT not set; run via ubx-matter nora-w5}"
+SDK="${UBX_MATTER_SDK_ROOT:?UBX_MATTER_SDK_ROOT not set; run via ubx-matter nora-w50-w51}"
 CHIP="${SDK}/ti-matter"
 TI_SDK="${CHIP}/third_party/ti_simplelink_sdk/repo_cc35xx"
 TI_HOME="${TI_HOME:-$HOME/ti}"
@@ -56,8 +56,8 @@ install_gcc() {
 }
 
 activate() {
-    [ -f "${CHIP}/scripts/activate.sh" ] || die "ti-matter missing at ${CHIP}. Run: ubx-matter nora-w5 --clone"
-    [ -d "${CHIP}/.environment" ] || die "Matter environment not bootstrapped. Run: ubx-matter nora-w5 --install"
+    [ -f "${CHIP}/scripts/activate.sh" ] || die "ti-matter missing at ${CHIP}. Run: ubx-matter nora-w50-w51 --clone"
+    [ -d "${CHIP}/.environment" ] || die "Matter environment not bootstrapped. Run: ubx-matter nora-w50-w51 --install"
     use_python311
     set +u
     # shellcheck source=/dev/null
@@ -66,7 +66,7 @@ activate() {
 }
 
 setup() {
-    [ -d "${CHIP}/.git" ] || die "ti-matter missing at ${CHIP}. Run: ubx-matter nora-w5 --clone"
+    [ -d "${CHIP}/.git" ] || die "ti-matter missing at ${CHIP}. Run: ubx-matter nora-w50-w51 --clone"
     if ! grep -q '22.04' /etc/os-release; then
         echo "[WARNING] TI supports the CC35xx Matter build on Ubuntu 22.04 only."
     fi

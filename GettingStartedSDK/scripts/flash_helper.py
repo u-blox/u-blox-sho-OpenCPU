@@ -3,11 +3,11 @@
 Common flash utility for u-blox modules.
 
 Supports:
-- J-Link / MCU-Link (IRIS-W1)
-- J-Link OB (NORA-B2, ALMA-B2)
-- XDS110 (NORA-W5)
-- ESP-IDF tools (NORA-W4)
-- UART DFU (NORA-W3)
+- J-Link / MCU-Link (IRIS-W10)
+- J-Link OB (NORA-B20-B21-B22, ALMA-B20-B21)
+- XDS110 (NORA-W50-W51)
+- ESP-IDF tools (NORA-W40)
+- UART DFU (NORA-W30)
 
 Usage:
     python flash_helper.py --device RW612 --file build/zephyr.hex --jlink
@@ -203,7 +203,7 @@ def flash_xds110(firmware_file: str, device_serial: Optional[str] = None) -> int
 
 def flash_uart_dfu(port: str, firmware_file: str, baudrate: int = 115200) -> int:
     """
-    Flash firmware using UART DFU protocol (NORA-W3 Realtek).
+    Flash firmware using UART DFU protocol (NORA-W30 Realtek).
 
     Args:
         port: Serial port
@@ -221,7 +221,7 @@ def flash_uart_dfu(port: str, firmware_file: str, baudrate: int = 115200) -> int
 
 def flash_esptool(firmware_file: str, port: Optional[str] = None, baudrate: int = 460800) -> int:
     """
-    Flash firmware using esptool (NORA-W4 ESP32).
+    Flash firmware using esptool (NORA-W40 ESP32).
 
     Args:
         firmware_file: Path to firmware or app.bin

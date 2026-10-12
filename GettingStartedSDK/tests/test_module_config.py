@@ -57,5 +57,5 @@ def test_expand_reports_undefined_variables():
 
 
 def test_unknown_variant_is_a_clean_failure(capsys):
-    assert mc.main(["nora-w3", "apply", "--variant", "NORA-W999"]) == 1
+    assert mc.main(["nora-w30", "apply", "--variant", "NORA-W999"]) == 1
     assert "[FAIL]" in capsys.readouterr().out

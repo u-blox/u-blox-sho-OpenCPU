@@ -1,20 +1,20 @@
 #!/usr/bin/env bash
-# NORA-W4 (ESP32-C6) Matter: build Espressif's own esp-matter examples.
+# NORA-W40 (ESP32-C6) Matter: build Espressif's own esp-matter examples.
 #
-#   nora_w4.sh setup                    ESP-IDF tools + esp-matter install
-#   nora_w4.sh build <example-dir> [idf.py args...]
-#   nora_w4.sh clean <example-dir>
+#   nora_w40.sh setup                    ESP-IDF tools + esp-matter install
+#   nora_w40.sh build <example-dir> [idf.py args...]
+#   nora_w40.sh clean <example-dir>
 set -euo pipefail
 
-SDK="${UBX_MATTER_SDK_ROOT:?UBX_MATTER_SDK_ROOT not set; run via ubx-matter nora-w4}"
+SDK="${UBX_MATTER_SDK_ROOT:?UBX_MATTER_SDK_ROOT not set; run via ubx-matter nora-w40}"
 IDF_PATH="${IDF_PATH:-${SDK}/esp-idf}"
 ESP_MATTER_PATH="${ESP_MATTER_PATH:-${SDK}/esp-matter}"
 
 die() { echo "[FAIL] $*" >&2; exit 1; }
 
 require_sdk() {
-    [ -f "${IDF_PATH}/export.sh" ] || die "ESP-IDF missing at ${IDF_PATH}. Run: ubx-matter nora-w4 --clone"
-    [ -d "${ESP_MATTER_PATH}/components" ] || die "esp-matter missing at ${ESP_MATTER_PATH}. Run: ubx-matter nora-w4 --clone"
+    [ -f "${IDF_PATH}/export.sh" ] || die "ESP-IDF missing at ${IDF_PATH}. Run: ubx-matter nora-w40 --clone"
+    [ -d "${ESP_MATTER_PATH}/components" ] || die "esp-matter missing at ${ESP_MATTER_PATH}. Run: ubx-matter nora-w40 --clone"
 }
 
 setup() {
@@ -38,7 +38,7 @@ setup() {
 
 activate() {
     require_sdk
-    [ -f "${ESP_MATTER_PATH}/export.sh" ] || die "esp-matter not installed. Run: ubx-matter nora-w4 --install"
+    [ -f "${ESP_MATTER_PATH}/export.sh" ] || die "esp-matter not installed. Run: ubx-matter nora-w40 --install"
     set +u
     # shellcheck source=/dev/null
     . "${IDF_PATH}/export.sh"

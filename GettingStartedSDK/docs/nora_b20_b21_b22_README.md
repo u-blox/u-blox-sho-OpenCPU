@@ -1,8 +1,8 @@
-# NORA-B2 Getting Started Guide
+# NORA-B20-B21-B22 Getting Started Guide
 
 ## Overview
 
-NORA-B2 modules are based on the **Nordic nRF54L** SoC family and are built with
+NORA-B20-B21-B22 modules are based on the **Nordic nRF54L** SoC family and are built with
 the **nRF Connect SDK** (NCS) - Nordic's Zephyr RTOS distribution. The modules
 ship with no pre-flashed software: you own the whole application.
 
@@ -58,7 +58,7 @@ Connect SDK, so no out-of-tree board definition is needed.
 Override the default with `--board`:
 
 ```bash
-./ubx-sdk.sh nora-b2 --build hello_world -- --board ubx_evknorab2/nrf54l10/cpuapp
+./ubx-sdk.sh nora-b20-b21-b22 --build hello_world -- --board ubx_evknorab2/nrf54l10/cpuapp
 ```
 
 ---
@@ -81,7 +81,7 @@ Manual setup needs:
 Check what is present:
 
 ```bash
-./ubx-sdk.sh nora-b2 --doctor
+./ubx-sdk.sh nora-b20-b21-b22 --doctor
 ```
 
 ### Linux serial and probe access
@@ -97,16 +97,16 @@ sudo usermod -a -G dialout $USER
 
 ```bash
 # Fetch the nRF Connect SDK (several GB, once)
-./ubx-sdk.sh nora-b2 --clone
+./ubx-sdk.sh nora-b20-b21-b22 --clone
 
 # Install the Zephyr Python requirements
-./ubx-sdk.sh nora-b2 --install
+./ubx-sdk.sh nora-b20-b21-b22 --install
 
 # See what you can build
-./ubx-sdk.sh nora-b2 --list
+./ubx-sdk.sh nora-b20-b21-b22 --list
 
 # Build, flash and watch the output
-./ubx-sdk.sh nora-b2 --build hello_world --flash --log
+./ubx-sdk.sh nora-b20-b21-b22 --build hello_world --flash --log
 ```
 
 ### Where the SDK lives
@@ -120,8 +120,8 @@ and `ZEPHYR_BASE`. The one that has the board, preferably at v3.4.1, is used.
 `--doctor` lists them all. To pick one explicitly:
 
 ```bash
-python scripts/nordic_ncs_build.py nora-b2 use                    # list
-python scripts/nordic_ncs_build.py nora-b2 use C:\ncs\v3.4.1      # select
+python scripts/nordic_ncs_build.py nora-b20-b21-b22 use                    # list
+python scripts/nordic_ncs_build.py nora-b20-b21-b22 use C:\ncs\v3.4.1      # select
 # or for one shell: set UBX_NCS_WORKSPACE=C:\ncs\v3.4.1
 ```
 
@@ -151,8 +151,8 @@ Matter support ships inside the nRF Connect SDK, so there is no separate Matter
 SDK to fetch — `--clone` pulls the same NCS workspace the plain SDK flow uses:
 
 ```bash
-./ubx-matter.sh nora-b2 --list                      # the nrf/samples/matter apps
-./ubx-matter.sh nora-b2 --build light_bulb --flash --log
+./ubx-matter.sh nora-b20-b21-b22 --list                      # the nrf/samples/matter apps
+./ubx-matter.sh nora-b20-b21-b22 --build light_bulb --flash --log
 ```
 
 A bare app name is scoped to `matter/`, so `light_bulb` cannot collide with a
@@ -176,7 +176,7 @@ you give the full path (`--build matter/light_bulb`).
 ## Flashing
 
 ```bash
-./ubx-sdk.sh nora-b2 --flash hello_world
+./ubx-sdk.sh nora-b20-b21-b22 --flash hello_world
 ```
 
 Both EVKs carry a SEGGER J-LINK-OB, so no external probe is needed. `nrfutil`
@@ -202,20 +202,20 @@ Install the Zephyr SDK, or set `ZEPHYR_SDK_INSTALL_DIR` /
 The `ubx_evknorab2` board needs NCS v3.x. `--doctor` shows the version of the
 workspace in use. An older workspace (for example an NCS v2.9 install at
 `~/ncs`) does not contain the board; clone a current one with
-`./ubx-sdk.sh nora-b2 --clone`, or select another with `use` (see above).
+`./ubx-sdk.sh nora-b20-b21-b22 --clone`, or select another with `use` (see above).
 
 **`west update` fails or is interrupted**
-Re-run `./ubx-sdk.sh nora-b2 --clone`. It skips `west init` when the workspace
+Re-run `./ubx-sdk.sh nora-b20-b21-b22 --clone`. It skips `west init` when the workspace
 already exists and resumes the update.
 
 **No serial output after flashing**
 The EVK exposes several COM ports. Pass the right one explicitly:
-`./ubx-sdk.sh nora-b2 --log COM12`.
+`./ubx-sdk.sh nora-b20-b21-b22 --log COM12`.
 
 ---
 
 ## References
 
-- NORA-B2 product page: https://www.u-blox.com/en/product/nora-b2-series
+- NORA-B20-B21-B22 product page: https://www.u-blox.com/en/product/nora-b2-series
 - nRF Connect SDK documentation: https://docs.nordicsemi.com/bundle/ncs-latest/page/nrf/index.html
 - Zephyr board documentation: `<ncs workspace>/zephyr/boards/u-blox/ubx_evknorab2/`

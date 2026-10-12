@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-IRIS-W1 (NXP RW612/RW610) Build Driver
-Automated cross-platform build orchestration for IRIS-W1 Open CPU modules using the
+IRIS-W10 (NXP RW612/RW610) Build Driver
+Automated cross-platform build orchestration for IRIS-W10 Open CPU modules using the
 MCUXpresso SDK (west/CMake/Ninja flavour).
 
 Supports: Windows, WSL2, Linux
@@ -21,7 +21,7 @@ from typing import Dict, List, Optional, Tuple
 import serial_logger
 import target_paths
 
-TARGET = "iris_w1"
+TARGET = "iris_w10"
 
 # Windows consoles default to cp1252 and raise UnicodeEncodeError on the status glyphs below.
 for _stream in (sys.stdout, sys.stderr):
@@ -37,7 +37,7 @@ for _stream in (sys.stdout, sys.stderr):
 MANIFEST_URL = "https://github.com/nxp-mcuxpresso/mcuxsdk-manifests.git"
 WORKSPACE_NAME = "mcuxpresso-sdk"
 
-# IRIS-W1 uses NXP RW612 (with Thread) or RW610 (BLE + Wi-Fi only); rdrw612bga is the matching MCUXpresso board target.
+# IRIS-W10 uses NXP RW612 (with Thread) or RW610 (BLE + Wi-Fi only); rdrw612bga is the matching MCUXpresso board target.
 DEFAULT_BOARD = "rdrw612bga"
 # J-Link knows the SoC, not the board target.
 JLINK_DEVICE = "RW612"
@@ -246,7 +246,7 @@ def examples_root(workspace: str) -> Optional[Path]:
 # ============================================================================
 
 def config_file() -> Path:
-    """Get per-platform config file path (targets/IRIS-W1/config)."""
+    """Get per-platform config file path (targets/iris-w10/config)."""
     return target_paths.resolve_config(TARGET, host_kind())
 
 def load_config() -> Dict:
@@ -313,7 +313,7 @@ def cmd_clone(args) -> int:
 
     west = west_cmd()
     if not west:
-        print("[FAIL] west not found. Run 'python iris_w1_build.py install' first.")
+        print("[FAIL] west not found. Run 'python iris_w10_build.py install' first.")
         return 1
 
     workspace = target_paths.sdk_dir(TARGET) / WORKSPACE_NAME
@@ -356,7 +356,7 @@ def cmd_clone(args) -> int:
 
 def cmd_install(args) -> int:
     """Install west and report on the remaining toolchain prerequisites."""
-    print("\nSetting up IRIS-W1 build environment...\n")
+    print("\nSetting up IRIS-W10 build environment...\n")
 
     python = detect_python()
     if not python:
@@ -405,14 +405,14 @@ def cmd_install(args) -> int:
     else:
         print("[OK] CMake, Ninja and Arm GCC already present.\n")
 
-    print("\nNext: python iris_w1_build.py clone\n")
+    print("\nNext: python iris_w10_build.py clone\n")
     return 0
 
 def cmd_list(args) -> int:
     """List available examples."""
     workspace = detect_workspace()
     if not workspace:
-        print("[FAIL] SDK workspace not found. Run 'python iris_w1_build.py clone' first.")
+        print("[FAIL] SDK workspace not found. Run 'python iris_w10_build.py clone' first.")
         return 1
 
     root = examples_root(workspace)
@@ -458,7 +458,7 @@ def cmd_flash(args) -> int:
 
     workspace = detect_workspace()
     if not workspace:
-        print("[FAIL] SDK workspace not found. Run 'python iris_w1_build.py clone' first.")
+        print("[FAIL] SDK workspace not found. Run 'python iris_w10_build.py clone' first.")
         return 1
 
     example_path = resolve_example(workspace, args.example)
@@ -471,7 +471,7 @@ def cmd_flash(args) -> int:
 
     if not build_root.exists():
         print(f"[FAIL] Build directory not found: {build_root}")
-        print(f"   Build with: python iris_w1_build.py build {args.example}")
+        print(f"   Build with: python iris_w10_build.py build {args.example}")
         return 1
 
     # The MCUXpresso build names its artifacts after the example, not 'zephyr'.
@@ -485,7 +485,7 @@ def cmd_flash(args) -> int:
 
     if not firmware_file:
         print(f"[FAIL] No firmware found in {build_root}")
-        print(f"   Build with: python iris_w1_build.py build {args.example}")
+        print(f"   Build with: python iris_w10_build.py build {args.example}")
         return 1
 
     print(f"Firmware: {firmware_file.name}")
@@ -501,7 +501,7 @@ def resolve_example(workspace: str, name: str) -> Optional[Path]:
     root = examples_root(workspace)
     if not root:
         print(f"[FAIL] No examples directory under {workspace}.")
-        print("       Run 'python iris_w1_build.py clone' to populate the workspace.")
+        print("       Run 'python iris_w10_build.py clone' to populate the workspace.")
         return None
 
     candidate = root / name
@@ -528,12 +528,12 @@ def cmd_build(args) -> int:
 
     workspace = detect_workspace()
     if not workspace:
-        print("[FAIL] SDK workspace not found. Run 'python iris_w1_build.py clone' first.")
+        print("[FAIL] SDK workspace not found. Run 'python iris_w10_build.py clone' first.")
         return 1
 
     west = west_cmd()
     if not west:
-        print("[FAIL] west not found. Run 'python iris_w1_build.py install' first.")
+        print("[FAIL] west not found. Run 'python iris_w10_build.py install' first.")
         return 1
 
     example_path = resolve_example(workspace, args.example)
@@ -543,7 +543,7 @@ def cmd_build(args) -> int:
     toolchain, source = armgcc_dir()
     if args.toolchain == "armgcc":
         if not toolchain:
-            print("[FAIL] No Arm GNU toolchain found. Run 'python iris_w1_build.py install',")
+            print("[FAIL] No Arm GNU toolchain found. Run 'python iris_w10_build.py install',")
             print("    or set ARMGCC_DIR to the toolchain root (the folder containing bin/).")
             return 1
         print(f"Toolchain: {toolchain} ({source})")
@@ -641,25 +641,25 @@ def main():
         print()
 
     parser = argparse.ArgumentParser(
-        prog="iris_w1_build.py",
-        description="IRIS-W1 (NXP RW612/RW610) Build Driver",
+        prog="iris_w10_build.py",
+        description="IRIS-W10 (NXP RW612/RW610) Build Driver",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
-  python iris_w1_build.py doctor                        # Check environment
-  python iris_w1_build.py install                       # Install west + toolchain info
-  python iris_w1_build.py clone                         # Init west workspace (RW612 only)
-  python iris_w1_build.py clone --full                  # Fetch the complete SDK (~7 GB)
-  python iris_w1_build.py list                          # List examples
-  python iris_w1_build.py build demo_apps/hello_world   # Build example
-  python iris_w1_build.py build hello_world --config release
-  python iris_w1_build.py log                           # Open serial monitor (auto-detect port)
-  python iris_w1_build.py log COM11                     # Open serial monitor on specific port
-  python iris_w1_build.py flash demo_apps/hello_world   # Flash via J-Link (auto-detect)
-  python iris_w1_build.py flash hello_world --serial 1234567
-  python iris_w1_build.py clean                         # Remove build directory
-  python iris_w1_build.py clean --all                   # Remove entire workspace
-  python iris_w1_build.py all demo_apps/hello_world     # Full pipeline
+  python iris_w10_build.py doctor                        # Check environment
+  python iris_w10_build.py install                       # Install west + toolchain info
+  python iris_w10_build.py clone                         # Init west workspace (RW612 only)
+  python iris_w10_build.py clone --full                  # Fetch the complete SDK (~7 GB)
+  python iris_w10_build.py list                          # List examples
+  python iris_w10_build.py build demo_apps/hello_world   # Build example
+  python iris_w10_build.py build hello_world --config release
+  python iris_w10_build.py log                           # Open serial monitor (auto-detect port)
+  python iris_w10_build.py log COM11                     # Open serial monitor on specific port
+  python iris_w10_build.py flash demo_apps/hello_world   # Flash via J-Link (auto-detect)
+  python iris_w10_build.py flash hello_world --serial 1234567
+  python iris_w10_build.py clean                         # Remove build directory
+  python iris_w10_build.py clean --all                   # Remove entire workspace
+  python iris_w10_build.py all demo_apps/hello_world     # Full pipeline
         """
     )
     parser.add_argument("--board", default=DEFAULT_BOARD,

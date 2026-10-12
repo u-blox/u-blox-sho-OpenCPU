@@ -10,12 +10,12 @@ Linux/WSL2/macOS. The examples below use the shell form.
 
 | Target | SoC | Framework | Host notes |
 |--------|-----|-----------|------------|
-| `iris-w1` | NXP RW612/RW610 | MCUXpresso | Arm GNU Toolchain (auto-detected) |
-| `nora-w3` | Realtek RTL8720DF | Ameba-D | Linux/WSL2 only (auto hop) |
-| `nora-w4` | Espressif ESP32-C6 | ESP-IDF | Any |
-| `nora-w5` | TI CC3501E/CC3551E | SimpleLink | Any |
-| `nora-b2` | Nordic nRF54L15/L10/L05 | nRF Connect SDK | Any |
-| `alma-b2` | Nordic nRF54LM20A/B | nRF Connect SDK | Any; Nordic DK board |
+| `iris-w10` | NXP RW612/RW610 | MCUXpresso | Arm GNU Toolchain (auto-detected) |
+| `nora-w30` | Realtek RTL8720DF | Ameba-D | Linux/WSL2 only (auto hop) |
+| `nora-w40` | Espressif ESP32-C6 | ESP-IDF | Any |
+| `nora-w50-w51` | TI CC3501E/CC3551E | SimpleLink | Any |
+| `nora-b20-b21-b22` | Nordic nRF54L15/L10/L05 | nRF Connect SDK | Any |
+| `alma-b20-b21` | Nordic nRF54LM20A/B | nRF Connect SDK | Any; Nordic DK board |
 
 u-connectXpress parts (NORA-W36x, W56x, W57x, B26x, B27x) ship pre-flashed with
 AT-command firmware and are not built from this Open CPU SDK.
@@ -35,7 +35,7 @@ Combinable, and always executed in this order:
 | `--doctor` | Verify host tools for the target |
 | `--clone` | Fetch the vendor SDK on demand |
 | `--install` | Install/refresh the SDK's own tool environment |
-| `--build-sdk` | NORA-W5 only: build the SDK libraries |
+| `--build-sdk` | NORA-W50-W51 only: build the SDK libraries |
 | `--rf-config` | Apply the u-blox RF calibration / TX power configuration |
 | `--variant <PART>` | Module part number, e.g. `NORA-W301`, `IRIS-W101-00B` |
 | `--region <DOMAIN>` | Regulatory domain: FCC, ISED, ETSI, MKK, ACMA |
@@ -56,46 +56,46 @@ is not regulatory compliant. `--doctor` reports whether it has been applied.
 
 ## First build, per target
 
-### IRIS-W1 (NXP RW612/RW610)
+### IRIS-W10 (NXP RW612/RW610)
 ```bash
-./ubx-sdk.sh iris-w1 --doctor                      # shows the Arm toolchain it found
-./ubx-sdk.sh iris-w1 --clone                       # add --full for the whole SDK
-./ubx-sdk.sh iris-w1 --build demo_apps/hello_world --flash --log
+./ubx-sdk.sh iris-w10 --doctor                      # shows the Arm toolchain it found
+./ubx-sdk.sh iris-w10 --clone                       # add --full for the whole SDK
+./ubx-sdk.sh iris-w10 --build demo_apps/hello_world --flash --log
 ```
 
-### NORA-W3 (Realtek RTL8720DF)
+### NORA-W30 (Realtek RTL8720DF)
 ```bash
-./ubx-sdk.sh nora-w3 --doctor
-./ubx-sdk.sh nora-w3 --clone --build project_hp
+./ubx-sdk.sh nora-w30 --doctor
+./ubx-sdk.sh nora-w30 --clone --build project_hp
 ```
 Linux-only build system. Run it from Windows anyway - the launcher hops into
 WSL2 by itself.
 
-### NORA-W4 (Espressif ESP32-C6)
+### NORA-W40 (Espressif ESP32-C6)
 ```bash
-./ubx-sdk.sh nora-w4 --doctor
-./ubx-sdk.sh nora-w4 --clone --install --build hello_world --flash --log
+./ubx-sdk.sh nora-w40 --doctor
+./ubx-sdk.sh nora-w40 --clone --install --build hello_world --flash --log
 ```
 
-### NORA-W5 (TI CC3501E/CC3551E)
+### NORA-W50-W51 (TI CC3501E/CC3551E)
 ```bash
-./ubx-sdk.sh nora-w5 --doctor
-./ubx-sdk.sh nora-w5 --clone --build-sdk --build network_terminal
+./ubx-sdk.sh nora-w50-w51 --doctor
+./ubx-sdk.sh nora-w50-w51 --clone --build-sdk --build network_terminal
 ```
 
-### NORA-B2 (Nordic nRF54L)
+### NORA-B20-B21-B22 (Nordic nRF54L)
 ```bash
-./ubx-sdk.sh nora-b2 --doctor
-./ubx-sdk.sh nora-b2 --clone --install --build hello_world --flash --log
+./ubx-sdk.sh nora-b20-b21-b22 --doctor
+./ubx-sdk.sh nora-b20-b21-b22 --clone --install --build hello_world --flash --log
 ```
 Existing NCS workspaces (`C:\ncs\*`, `~/ncs*`, `ZEPHYR_BASE`) are detected and
 the one with the board is used; `--clone` creates `C:\ncs\v3.4.1` (about 15 GB).
-Pick one explicitly with `python scripts/nordic_ncs_build.py nora-b2 use <path>`.
+Pick one explicitly with `python scripts/nordic_ncs_build.py nora-b20-b21-b22 use <path>`.
 
-### ALMA-B2 (Nordic nRF54LM20)
+### ALMA-B20-B21 (Nordic nRF54LM20)
 ```bash
-./ubx-sdk.sh alma-b2 --clone --install --build hello_world
-./ubx-sdk.sh alma-b2 --build hello_world -- --board nrf54lm20dk/nrf54lm20b/cpuapp
+./ubx-sdk.sh alma-b20-b21 --clone --install --build hello_world
+./ubx-sdk.sh alma-b20-b21 --build hello_world -- --board nrf54lm20dk/nrf54lm20b/cpuapp
 ```
 Under development - builds against Nordic's nRF54LM20 DK, not a u-blox board.
 
@@ -119,15 +119,15 @@ Under development - builds against Nordic's nRF54LM20 DK, not a u-blox board.
 
 | Target | Artifacts | Location |
 |--------|-----------|----------|
-| IRIS-W1 | `<example>.elf`, `.bin` | `<west workspace>/build/<config>/` |
-| NORA-W3 | `*.bin` | in-source, under the example directory |
-| NORA-W4 | `*.elf`, `*.bin` | `<esp-idf>/examples/<example>/build/` |
-| NORA-W5 | `*.out`, `*.map` | `<examples>/<rtos>/<board>/<toolchain>/` |
-| NORA-B2 | `zephyr.elf/.hex/.bin` | `<ncs>/build/<sample>/zephyr/` |
-| ALMA-B2 | `zephyr.elf/.hex/.bin` | `<ncs>/build/<sample>/zephyr/` |
+| IRIS-W10 | `<example>.elf`, `.bin` | `<west workspace>/build/<config>/` |
+| NORA-W30 | `*.bin` | in-source, under the example directory |
+| NORA-W40 | `*.elf`, `*.bin` | `<esp-idf>/examples/<example>/build/` |
+| NORA-W50-W51 | `*.out`, `*.map` | `<examples>/<rtos>/<board>/<toolchain>/` |
+| NORA-B20-B21-B22 | `zephyr.elf/.hex/.bin` | `<ncs>/build/<sample>/zephyr/` |
+| ALMA-B20-B21 | `zephyr.elf/.hex/.bin` | `<ncs>/build/<sample>/zephyr/` |
 
-Vendor SDKs land in `targets/<TARGET>/sdk/` and are gitignored. Per-host tool
-caches live in `targets/<TARGET>/config/build.<host>.json`.
+Vendor SDKs land in `targets/<target>/sdk/` and are gitignored. Per-host tool
+caches live in `targets/<target>/config/build.<host>.json`.
 
 ---
 
@@ -143,17 +143,17 @@ Matter SDK ships:
 ./ubx-matter.sh <target> --build [example]
 ```
 
-For IRIS-W1, NORA-W3, NORA-W4 and NORA-W5 this fetches a multi-GB vendor Matter
-SDK into `~/ubx-matter/<TARGET>` inside WSL2, and every action hops into WSL2 on
-Windows. `--build` is wired for NORA-W4 and NORA-W5; IRIS-W1 and NORA-W3 are
+For IRIS-W10, NORA-W30, NORA-W40 and NORA-W50-W51 this fetches a multi-GB vendor Matter
+SDK into `~/ubx-matter/<target>` inside WSL2, and every action hops into WSL2 on
+Windows. `--build` is wired for NORA-W40 and NORA-W50-W51; IRIS-W10 and NORA-W30 are
 listed only. See [matter_README.md](matter_README.md).
 
-NORA-B2 and ALMA-B2 get Matter from the nRF Connect SDK instead, so `--clone`
+NORA-B20-B21-B22 and ALMA-B20-B21 get Matter from the nRF Connect SDK instead, so `--clone`
 fetches the same NCS workspace `ubx-sdk` uses, `--list` shows the
 `nrf/samples/matter` apps, `--flash`/`--log` work, and there is no WSL2 hop:
 
 ```bash
-./ubx-matter.sh nora-b2 --build light_bulb --flash --log
+./ubx-matter.sh nora-b20-b21-b22 --build light_bulb --flash --log
 ```
 
 ---
@@ -167,7 +167,7 @@ fetches the same NCS workspace `ubx-sdk` uses, `--list` shows the
 | "u-connectXpress module" error | You typed an AT-command part; use the Open CPU sibling it names |
 | Build fails after an SDK update | `./ubx-sdk.sh <target> --clean --build NAME` |
 | SDK clone interrupted | Re-run `--clone`; it resumes rather than restarting |
-| Stale environment | Restart the shell; for NORA-W4 re-run `--install` |
+| Stale environment | Restart the shell; for NORA-W40 re-run `--install` |
 | Wrong serial port picked | Pass it: `--log COM12` or `--log /dev/ttyUSB0` |
 | Nordic board target not found | Needs NCS v3.x; clone a current workspace |
 
@@ -178,11 +178,11 @@ fetches the same NCS workspace `ubx-sdk` uses, `--list` shows the
 | Document | Contents |
 |----------|----------|
 | [BUILD_ALL_EXAMPLES.md](BUILD_ALL_EXAMPLES.md) | Full build guide |
-| [iris_w1_README.md](iris_w1_README.md) | IRIS-W1 details |
-| [nora_w3_README.md](nora_w3_README.md) | NORA-W3 details, WSL2 setup |
-| [nora_w4_README.md](nora_w4_README.md) | NORA-W4 details |
-| [nora_w5_README.md](nora_w5_README.md) | NORA-W5 details |
-| [nora_b2_README.md](nora_b2_README.md) | NORA-B2 details |
-| [alma_b2_README.md](alma_b2_README.md) | ALMA-B2 details |
+| [iris_w10_README.md](iris_w10_README.md) | IRIS-W10 details |
+| [nora_w30_README.md](nora_w30_README.md) | NORA-W30 details, WSL2 setup |
+| [nora_w40_README.md](nora_w40_README.md) | NORA-W40 details |
+| [nora_w50_w51_README.md](nora_w50_w51_README.md) | NORA-W50-W51 details |
+| [nora_b20_b21_b22_README.md](nora_b20_b21_b22_README.md) | NORA-B20-B21-B22 details |
+| [alma_b20_b21_README.md](alma_b20_b21_README.md) | ALMA-B20-B21 details |
 | [VENV_SETUP.md](VENV_SETUP.md) | Virtual environment |
 | [WORKSPACE_SETUP.md](WORKSPACE_SETUP.md) | VS Code workspace |

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-NORA-W3 (Realtek RTL872x) Build Driver
-Automated cross-platform build orchestration for NORA-W3 Open CPU modules using Realtek RTOS SDK.
+NORA-W30 (Realtek RTL872x) Build Driver
+Automated cross-platform build orchestration for NORA-W30 Open CPU modules using Realtek RTOS SDK.
 
 Supports: Linux (native & WSL2) | Windows (WSL2 recommended)
 Note: Cygwin on Windows is complex; native Windows build not fully supported.
@@ -18,7 +18,7 @@ from typing import Dict, List, Optional
 
 import target_paths
 
-TARGET = "nora_w3"
+TARGET = "nora_w30"
 
 # Windows consoles default to cp1252 and raise UnicodeEncodeError on the status glyphs below.
 for _stream in (sys.stdout, sys.stderr):
@@ -88,7 +88,7 @@ def detect_python() -> Optional[str]:
 # ============================================================================
 
 def config_file() -> Path:
-    """Get per-platform config file path (targets/NORA-W3/config)."""
+    """Get per-platform config file path (targets/nora-w30/config)."""
     return target_paths.resolve_config(TARGET, host_kind())
 
 def load_config() -> Dict:
@@ -175,8 +175,8 @@ def cmd_clone(args) -> int:
     if not target_paths.check_space(sdk_dir, 2, "the Realtek Ameba-D SDK"):
         return 1
 
-    # Note: NORA-W3 uses Realtek RTL8720DF which requires Ameba-D SDK (not main ameba-rtos)
-    repo_url = "https://github.com/Ameba-AIoT/ameba-rtos-d.git"  # Ameba-D SDK (specifically for RTL8720DF used in NORA-W3)
+    # Note: NORA-W30 uses Realtek RTL8720DF which requires Ameba-D SDK (not main ameba-rtos)
+    repo_url = "https://github.com/Ameba-AIoT/ameba-rtos-d.git"  # Ameba-D SDK (specifically for RTL8720DF used in NORA-W30)
 
     print(f"Cloning from: {repo_url}\n")
 
@@ -197,14 +197,14 @@ def cmd_clone(args) -> int:
 
 def cmd_install(args) -> int:
     """Verify Realtek SDK environment (tools already installed via system package manager)."""
-    print("\n[OK] Environment Check for NORA-W3 (Realtek RTOS)\n")
+    print("\n[OK] Environment Check for NORA-W30 (Realtek RTOS)\n")
     print("Realtek SDK uses standard Linux tools (arm-none-eabi-gcc, make, git).")
     print("These are installed via your system package manager (apt, yum, etc.).")
     print("\nTo install missing tools, run:")
     print("  Ubuntu/Debian: sudo apt install arm-none-eabi-gcc make git python3")
     print("  Other Linux:   Use your package manager to install the above tools")
     print("\nTo verify your installation, run:")
-    print("  python3 nora_w3_build.py doctor")
+    print("  python3 nora_w30_build.py doctor")
     print()
     return 0
 
@@ -306,7 +306,7 @@ def cmd_build(args) -> int:
 
     sdk_path = load_config().get("sdk_path")
     if not sdk_path or not Path(sdk_path).exists():
-        print("[FAIL] Realtek SDK not found. Run 'python nora_w3_build.py clone' first.")
+        print("[FAIL] Realtek SDK not found. Run 'python nora_w30_build.py clone' first.")
         return 1
 
     sdk_path = Path(sdk_path)
@@ -385,18 +385,18 @@ def main():
     import argparse
 
     parser = argparse.ArgumentParser(
-        description="NORA-W3 (Realtek RTL872x) Build Driver",
+        description="NORA-W30 (Realtek RTL872x) Build Driver",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
-  python nora_w3_build.py doctor              # Check environment
-  python nora_w3_build.py clone               # Clone Realtek SDK
-  python nora_w3_build.py install             # Show tool installation info
-  python nora_w3_build.py list                # List example sources
-  python nora_w3_build.py build               # Build firmware (project_hp default)
-  python nora_w3_build.py build project_lp   # Build KM0 project
-  python nora_w3_build.py clean               # Clean firmware artifacts
-  python nora_w3_build.py clean --all         # Remove Realtek SDK entirely
+  python nora_w30_build.py doctor              # Check environment
+  python nora_w30_build.py clone               # Clone Realtek SDK
+  python nora_w30_build.py install             # Show tool installation info
+  python nora_w30_build.py list                # List example sources
+  python nora_w30_build.py build               # Build firmware (project_hp default)
+  python nora_w30_build.py build project_lp   # Build KM0 project
+  python nora_w30_build.py clean               # Clean firmware artifacts
+  python nora_w30_build.py clean --all         # Remove Realtek SDK entirely
 
 Note: Best on Linux or WSL2. Windows Cygwin is complex.
         """
