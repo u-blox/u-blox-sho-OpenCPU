@@ -379,7 +379,7 @@ def run_patch(patch: Path, directory: Path, strip: int, reverse: bool = False) -
 
     if result.returncode != 0:
         lines = (result.stderr or result.stdout).strip().splitlines()
-        detail = next((l for l in lines if l.startswith(("error", "Skipped"))), lines[0] if lines else "")
+        detail = next((line for line in lines if line.startswith(("error", "Skipped"))), lines[0] if lines else "")
         return False, f"[FAIL] {patch.name}: {detail or 'patch failed'}"
     return True, f"[OK]   {patch.name}"
 

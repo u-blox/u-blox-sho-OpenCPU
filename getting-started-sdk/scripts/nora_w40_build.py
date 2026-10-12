@@ -10,10 +10,9 @@ import os
 import sys
 import json
 import subprocess
-import platform
 import shutil
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional
 
 import target_paths
 
@@ -48,7 +47,7 @@ def short_path(value: str) -> str:
         buf = ctypes.create_unicode_buffer(length)
         GetShortPathName(value, buf, length)
         return buf.value
-    except:
+    except (OSError, AttributeError):
         return value
 
 def mak_path(p: str) -> str:
@@ -72,7 +71,7 @@ def newest(patterns: List[str], exists_check: bool = True) -> Optional[str]:
             else:
                 # Relative path - use glob
                 candidates.extend(Path().glob(pattern))
-        except:
+        except (OSError, ValueError):
             pass
 
     if not candidates:
@@ -163,7 +162,7 @@ def load_config() -> Dict:
     if cfg_path.exists():
         try:
             return json.loads(cfg_path.read_text(encoding="utf-8"))
-        except:
+        except (json.JSONDecodeError, OSError):
             pass
     return {}
 
@@ -212,7 +211,7 @@ def cmd_clone(args) -> int:
     try:
         git_cmd = ["git", "--version"]
         subprocess.run(git_cmd, capture_output=True, check=True)
-    except:
+    except (OSError, subprocess.CalledProcessError):
         print("[FAIL] Git not found or not in PATH!")
         return 1
 

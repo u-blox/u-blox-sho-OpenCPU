@@ -13,10 +13,8 @@ Examples:
 """
 
 import sys
-import os
 import time
 import subprocess
-from pathlib import Path
 from datetime import datetime
 
 # Windows consoles default to cp1252 and raise UnicodeEncodeError on the status glyphs below.
@@ -140,7 +138,7 @@ def open_serial_monitor(port=None, baudrate=115200):
     finally:
         try:
             ser.close()
-        except:
+        except Exception:
             pass
 
 
@@ -198,7 +196,7 @@ def main():
                         s = __import__('serial').Serial(f'COM{i}', timeout=0.1)
                         s.close()
                         print(f"  COM{i}")
-                    except:
+                    except Exception:
                         pass
             else:
                 # Unix/Linux

@@ -32,3 +32,24 @@ sdk-tests:
     matrix:
       # 3.10 is the launcher's documented minimum.
       - PYTHON_VERSION: ["3.10", "3.12"]
+
+# Real bugs only (pyflakes + core pycodestyle errors). Rules and version are pinned
+# so a new ruff release cannot turn the pipeline red. Same command in GitHub Actions.
+sdk-ruff:
+  stage: test
+  image: python:3.12-slim
+  script:
+    - python -m pip install --quiet ruff==0.17.0
+    - cd getting-started-sdk
+    - ruff check --isolated --target-version py310 --select E4,E7,E9,F scripts tests
+  rules:
+    - changes: [getting-started-sdk/**/*, .gitlab-ci.yml]
+
+sdk-shellcheck:
+  stage: test
+  image: koalaman/shellcheck-alpine:v0.11.0
+  script:
+    - cd getting-started-sdk
+    - shellcheck -S warning ubx-*.sh scripts/matter_vendor/*.sh
+  rules:
+    - changes: [getting-started-sdk/**/*, .gitlab-ci.yml]

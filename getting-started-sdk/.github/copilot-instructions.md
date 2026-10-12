@@ -72,7 +72,8 @@ u-blox-sho-OpenCPU/                  repository root
   one. `scripts/target_paths.py` is the single source of truth. Exceptions: nRF
   Connect SDK in `C:\ncs\<rev>` or `~/ncs/<rev>`, Matter SDKs in
   `~/ubx-matter/<target>` inside WSL2.
-- Only `README.md`, `.gitattributes` and `.gitlab-ci.yml` may sit at the
+- Only `README.md`, `.gitattributes`, `.gitlab-ci.yml` and
+  `.github/workflows/` may sit at the
   repository root besides the asset folders. The SDK root holds only the two
   launcher pairs, `ubx.code-workspace`, `README.md` and the folders above.
 
@@ -114,7 +115,12 @@ u-blox-sho-OpenCPU/                  repository root
 
 - Tests: `python -m pytest tests -q` from the SDK root. Hermetic: no SDK,
   toolchain, WSL2 or hardware. Add a test with every new flag, target, alias,
-  profile field or Matter vendor script. CI runs it on Python 3.10 and 3.12.
+  profile field or Matter vendor script. CI runs it on Python 3.10 and 3.12,
+  on Linux (GitLab) and Linux + Windows (GitHub Actions on the mirror).
+- Lint: `ruff check --isolated --target-version py310 --select E4,E7,E9,F scripts tests`
+  and `shellcheck -S warning ubx-*.sh scripts/matter_vendor/*.sh` must pass; both
+  run in CI with the same pinned rules. Keep the commands identical in
+  `.gitlab-ci.yml`, the GitHub workflow and `README.md`.
 - `.cmd` and `.bat` files must stay CRLF; editing tools write LF. Re-normalise
   after every edit.
 - `docs/BUILD_TEST_RESULTS.md` is the only record of real builds. Update it

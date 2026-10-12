@@ -229,7 +229,7 @@ def flash_esptool(firmware_file: str, port: Optional[str] = None, baudrate: int 
         baudrate: Flash baud rate
     """
     try:
-        import esptool
+        import esptool  # noqa: F401  availability check; esptool.py runs as a subprocess
 
         if port is None:
             # Auto-detect port

@@ -87,7 +87,7 @@ def create_venv():
 
     print(f"Creating virtual environment at {venv_path}...")
     subprocess.check_call([select_base_python(), "-m", "venv", venv_path])
-    print(f"[OK] Virtual environment created")
+    print("[OK] Virtual environment created")
     return venv_path
 
 def get_pip_executable(venv_path):

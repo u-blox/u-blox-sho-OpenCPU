@@ -32,8 +32,6 @@ import subprocess
 import sys
 from pathlib import Path
 
-# Import serial logger
-import serial_logger
 import target_paths
 
 TARGET = "nora_w50_w51"

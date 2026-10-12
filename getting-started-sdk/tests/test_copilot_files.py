@@ -56,3 +56,21 @@ def test_skills_referenced_by_the_instructions_exist():
     text = (GITHUB / "copilot-instructions.md").read_text(encoding="utf-8")
     for name in re.findall(r"skill `([a-z0-9-]+)`", text):
         assert (GITHUB / "skills" / name / "SKILL.md").is_file(), name
+
+
+LINT_COMMANDS = (
+    "ruff==0.17.0",
+    "ruff check --isolated --target-version py310 --select E4,E7,E9,F",
+    "shellcheck -S warning ubx-*.sh scripts/matter_vendor/*.sh",
+)
+
+
+@pytest.mark.parametrize("path", [
+    SDK_ROOT.parent / ".gitlab-ci.yml",
+    SDK_ROOT.parent / ".github" / "workflows" / "getting-started-sdk.yml",
+    SDK_ROOT / "README.md",
+], ids=lambda p: p.name)
+def test_lint_commands_identical_everywhere(path):
+    text = path.read_text(encoding="utf-8")
+    for command in LINT_COMMANDS:
+        assert command in text, f"{path.name} lacks: {command}"

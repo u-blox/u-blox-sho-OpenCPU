@@ -206,8 +206,19 @@ python -m pytest tests -q
 `setup_venv.py` installs pytest. Run the suite on both Windows and WSL2/Linux;
 a few tests are platform-specific and skip elsewhere.
 
-GitLab CI (`.gitlab-ci.yml` at the repository root) runs the suite on Python
-3.10 and 3.12 for every push that touches `getting-started-sdk/`.
+CI runs on every push that touches `getting-started-sdk/`:
+
+| Where | Jobs |
+|-------|------|
+| GitLab (`.gitlab-ci.yml`) | pytest on Linux, Python 3.10 and 3.12; ruff; shellcheck |
+| GitHub Actions (`.github/workflows/getting-started-sdk.yml`, runs on the mirror) | pytest on Linux and Windows, Python 3.10 and 3.12; ruff; shellcheck |
+
+Run the linters locally before pushing (`pip install ruff==0.17.0 shellcheck-py`):
+
+```bash
+ruff check --isolated --target-version py310 --select E4,E7,E9,F scripts tests
+shellcheck -S warning ubx-*.sh scripts/matter_vendor/*.sh
+```
 
 ## Documentation
 

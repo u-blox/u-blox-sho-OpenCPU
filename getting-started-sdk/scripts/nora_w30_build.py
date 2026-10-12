@@ -11,7 +11,6 @@ import os
 import sys
 import json
 import subprocess
-import platform
 import shutil
 from pathlib import Path
 from typing import Dict, List, Optional
@@ -56,7 +55,7 @@ def newest(patterns: List[str]) -> Optional[str]:
             else:
                 # Relative path - use glob
                 candidates.extend(Path().glob(pattern))
-        except:
+        except (OSError, ValueError):
             pass
 
     if not candidates:
@@ -97,7 +96,7 @@ def load_config() -> Dict:
     if cfg_path.exists():
         try:
             return json.loads(cfg_path.read_text(encoding="utf-8"))
-        except:
+        except (json.JSONDecodeError, OSError):
             pass
     return {}
 
@@ -317,7 +316,7 @@ def cmd_build(args) -> int:
 
     if not project_dir.exists():
         print(f"[FAIL] Project directory not found: {project_dir}")
-        print(f"Available projects: project_lp (KM0), project_hp (KM4)")
+        print("Available projects: project_lp (KM0), project_hp (KM4)")
         return 1
 
     print(f"\nBuilding {project} (Ameba-D Firmware)...\n")
