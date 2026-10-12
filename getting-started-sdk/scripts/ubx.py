@@ -534,8 +534,8 @@ def argv_for(ctx: Context, action: str) -> list[str] | None:
         argv = ["clean"]
         if ctx.clean_all:
             argv.append("--all")
-        elif t.key == "nora-w30" and ctx.example:
-            # Clean only the named project; the other core's build stays usable.
+        elif ctx.example and t.key != "iris-w10":
+            # Clean only the example being built; IRIS-W10 has one shared build folder.
             argv.append(ctx.example)
         return argv
 

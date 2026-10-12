@@ -246,6 +246,10 @@ def test_clean_variants():
     # NORA-W30 cleans only the project being built.
     assert argv(["nora-w30", "--clean", "--build", "project_hp"], "clean") == ["clean", "project_hp"]
     assert argv(["nora-w30", "--clean"], "clean") == ["clean"]
+    # Every target except IRIS-W10 cleans just the example being built.
+    assert argv(["nora-w40", "--clean", "--build", "hello_world"], "clean") == ["clean", "hello_world"]
+    assert argv(["nora-b20-b21-b22", "--clean", "--build", "blinky"], "clean") == ["clean", "blinky"]
+    assert argv(["iris-w10", "--clean", "--build", "hello_world"], "clean") == ["clean"]
 
 
 def test_flash_and_log():
