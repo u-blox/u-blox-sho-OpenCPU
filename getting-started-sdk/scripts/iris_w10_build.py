@@ -306,14 +306,14 @@ def cmd_install(args) -> int:
         print("[FAIL] Python not found on PATH")
         return 1
 
-    print("Installing/updating west...")
+    print("Installing/updating west and spsdk (blhost, for flashing through the boot ROM)...")
     result = subprocess.run(
-        [python, "-m", "pip", "install", "-U", "west"],
+        [python, "-m", "pip", "install", "-U", "west", "spsdk"],
     )
     if result.returncode != 0:
-        print("\n[FAIL] Failed to install west.")
+        print("\n[FAIL] Failed to install west / spsdk.")
         return result.returncode
-    print("[OK] west installed.\n")
+    print("[OK] west and blhost installed.\n")
 
     workspace = detect_workspace()
     reqs = Path(workspace) / "mcuxsdk" / "scripts" / "requirements-base.txt" if workspace else None
@@ -587,7 +587,8 @@ def cmd_build(args) -> int:
 
     if result.returncode == 0:
         print(f"\n[OK] Build complete. Artefacts under {workspace}/build\n")
-        print("Flash with:  west flash -r linkserver     (or J-Link / J-Flash Lite)")
+        print("Flash with:  ubx-sdk iris-w10 --flash            (J-Link / MCU-Link)")
+        print("             ubx-sdk iris-w10 --flash COM<n>     (boot ROM, EVK in ISP mode)")
         print()
     return result.returncode
 
