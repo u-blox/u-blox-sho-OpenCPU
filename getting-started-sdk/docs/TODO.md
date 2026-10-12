@@ -11,10 +11,11 @@ Last updated 2026-10-12 (branch `cmag_getting_started_sdk`).
 - [ ] **Build ALMA-B20-B21**: `ubx-sdk.cmd alma-b20-b21 --doctor --build hello_world`.
 - [x] NORA-W50-W51 `--build-sdk` runs `configure` first, so the flow is launcher-only;
       `--flash` finds the Wi-Fi Toolbox in `C:\ti\simplelink_wifi_toolbox*` (2026-10-12).
-- [ ] **Re-run NORA-W30** `ubx-sdk.cmd nora-w30 --build project_hp`. The last attempt
-      failed only because E: was full (`fatal error: when writing output to
-      wlan_network.i`). Building on `/mnt/e` is slow; consider moving the Ameba-D
-      SDK into the WSL2 filesystem.
+- [ ] **NORA-W30 boot fault**: build and `--flash` work (2026-10-12), but the
+      default `project_hp` image hits a secure-state Hard Fault about 1 s after
+      "WIFI initialized" (PC 0x0E013176). Resolve the PC with addr2line on
+      `target_img2.axf`, compare with Realtek's prebuilt images, then retest
+      `--log` and the MAC read (`ATW?`).
 - [ ] **Re-run each target once** after the move to `sdks/<vendor>/<version>/`
       and record it in `docs/BUILD_TEST_RESULTS.md` (rewritten 2026-10-12 with
       only the verified results).
