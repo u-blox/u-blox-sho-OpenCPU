@@ -28,6 +28,25 @@ def test_resolve_variant_tolerates_case_and_suffixes(key):
         assert mc.resolve_variant(profile, f"{name}-99")[0] == name
 
 
+READY = [k for k in mc.TARGET_KEYS if mc.load_profile(k).get("status") == "ready"]
+
+
+@pytest.mark.parametrize("key", READY)
+def test_every_profile_asset_exists_in_the_repo(key):
+    # Assets live in the repo-root folders, so a rename there must not go unnoticed.
+    profile = mc.load_profile(key)
+    assert (mc.REPO_ROOT / profile["assets"]).is_dir()
+    assert mc.asset_path(profile, profile["source"], {}).is_file()
+    missing = []
+    for variant, cfg in profile["variants"].items():
+        values = mc.build_vars(profile, variant, cfg, {})
+        for op in mc.iter_ops(profile):
+            for field in ("src", "patch"):
+                if field in op and not mc.asset_path(profile, op[field], values).exists():
+                    missing.append(f"{variant}: {op[field]}")
+    assert not missing
+
+
 def test_resolve_variant_errors():
     profile = {"variants": {"NORA-W301": {}, "NORA-W306": {}}}
     with pytest.raises(ValueError, match="No variant selected"):

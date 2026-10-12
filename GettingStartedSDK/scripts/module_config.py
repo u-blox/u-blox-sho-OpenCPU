@@ -111,6 +111,15 @@ def expand(text: str, values: dict) -> str:
         raise ValueError(f"Profile references undefined variable {exc} in: {text}") from exc
 
 
+def asset_path(profile: dict, rel: str, values: dict) -> Path:
+    """u-blox asset, relative to the profile's repo-root ``assets`` folder."""
+    return REPO_ROOT / profile.get("assets", "") / expand(rel, values)
+
+
+def iter_ops(profile: dict) -> list[dict]:
+    return list(profile.get("sdk_patch") or [])
+
+
 # ============================================================================
 # VENDOR SDK LOCATION
 # ============================================================================
@@ -452,7 +461,7 @@ def cmd_apply(key: str, args) -> int:
         """An op counts as in place whether we just did it or found it done."""
         return message.startswith("[OK]") or message.startswith("[INFO] already applied")
 
-    for op in profile.get("sdk_patch", []):
+    for op in iter_ops(profile):
         kind = op["op"]
         spec = op.get("sdk_version")
         if spec and found_version and not version_matches(found_version, spec):
@@ -464,14 +473,14 @@ def cmd_apply(key: str, args) -> int:
             print(f"    [WARNING] {expand(op['warning'], values)}")
 
         if kind in ("copy", "replace"):
-            src = REPO_ROOT / expand(op["src"], values)
+            src = asset_path(profile, op["src"], values)
             dst = root / expand(op["dst"], values)
             message = apply_copy(src, dst, backups, replace_only=(kind == "replace"),
                                  created=created)
             if record(message):
                 applied.append({"op": kind, "path": str(dst), "sha256": sha256(dst)})
         elif kind == "copy-tree":
-            src = REPO_ROOT / expand(op["src"], values)
+            src = asset_path(profile, op["src"], values)
             dst = root / expand(op["dst"], values)
             message = apply_copy_tree(src, dst)
             if record(message):
@@ -483,7 +492,7 @@ def cmd_apply(key: str, args) -> int:
             if record(message):
                 applied.append({"op": kind, "path": str(path), "sha256": sha256(path)})
         elif kind == "patch":
-            patch = REPO_ROOT / expand(op["patch"], values)
+            patch = asset_path(profile, op["patch"], values)
             directory = root / expand(op.get("dir", "."), values)
             ok, message = run_patch(patch, directory, int(op.get("strip", 1)))
             if ok and record(message):

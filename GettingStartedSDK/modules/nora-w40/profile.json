@@ -3,10 +3,11 @@
   "target": "nora-w40",
   "label": "NORA-W40 (Espressif ESP32-C6)",
   "status": "ready",
-  "source": "NORA-W40-OutputPower/README.md",
+  "assets": "esp-idf/nora-w40",
+  "source": "README.md",
   "requires": {
     "sdk_version": ">=5.1,<5.2 || >=5.5,<5.6 || >=6.2,<6.3",
-    "hint": "u-blox PHY calibration patches exist for ESP-IDF 5.1, 5.5 and 6.2 only. For any other IDF, add a re-cut patch to NORA-W40-OutputPower/patches/ and a matching sdk_version op here."
+    "hint": "u-blox PHY calibration patches exist for ESP-IDF 5.1, 5.5 and 6.2 only. For any other IDF, add a re-cut patch to esp-idf/nora-w40/patches/ and a matching sdk_version op here."
   },
   "variants": {
     "NORA-W401": { "description": "Antenna pin" },
@@ -15,14 +16,14 @@
   "sdk_patch": [
     {
       "op": "copy-tree",
-      "src": "NORA-W40-OutputPower/components/ubx_phy_cal",
+      "src": "components/ubx_phy_cal",
       "dst": "components/ubx_phy_cal",
       "note": "u-blox PHY calibration component, installed SDK-wide so any example picks it up"
     },
     {
       "op": "patch",
       "sdk_version": ">=5.1,<5.2",
-      "patch": "NORA-W40-OutputPower/patches/ubx_phy_cal_esp_idf_5_1.patch",
+      "patch": "patches/ubx_phy_cal_esp_idf_5_1.patch",
       "dir": "components",
       "strip": 2,
       "note": "route esp_phy_get_init_data() through ubx_phy_cal (ESP-IDF 5.1)"
@@ -30,7 +31,7 @@
     {
       "op": "patch",
       "sdk_version": ">=5.5,<5.6",
-      "patch": "NORA-W40-OutputPower/patches/ubx_phy_cal_esp_idf_5_5.patch",
+      "patch": "patches/ubx_phy_cal_esp_idf_5_5.patch",
       "dir": "components",
       "strip": 2,
       "note": "route esp_phy_get_init_data() through ubx_phy_cal (ESP-IDF 5.5)",
@@ -39,7 +40,7 @@
     {
       "op": "patch",
       "sdk_version": ">=6.2,<6.3",
-      "patch": "NORA-W40-OutputPower/patches/ubx_phy_cal_esp_idf_6_2.patch",
+      "patch": "patches/ubx_phy_cal_esp_idf_6_2.patch",
       "dir": "components",
       "strip": 2,
       "note": "route esp_phy_get_init_data() through ubx_phy_cal (ESP-IDF 6.2)",

@@ -3,7 +3,8 @@
   "target": "nora-w30",
   "label": "NORA-W30 (Realtek RTL8720DF)",
   "status": "ready",
-  "source": "NORA-W30-OutputPower/README.md",
+  "assets": "ameba-rtos-d/nora-w30",
+  "source": "README.md",
   "variants": {
     "NORA-W301": {
       "description": "Antenna pin",
@@ -17,7 +18,7 @@
   "sdk_patch": [
     {
       "op": "copy",
-      "src": "NORA-W30-OutputPower/rtw_opt_rf_para_rtl8721d_{rf_para}.c",
+      "src": "rtw_opt_rf_para_rtl8721d_{rf_para}.c",
       "dst": "component/common/drivers/wlan/realtek/src/core/option/rtw_opt_rf_para_rtl8721d_{rf_para}.c",
       "note": "u-blox TX power limit tables for {variant}"
     },
@@ -53,7 +54,7 @@
   },
   "verify": {
     "notes": [
-      "Print array_mp_8721d_txpwr_lmt_type1[] at startup and compare against the u-blox table. See NORA-W30-OutputPower/README.md."
+      "Print array_mp_8721d_txpwr_lmt_type1[] at startup and compare against the u-blox table. See ameba-rtos-d/nora-w30/README.md."
     ]
   }
 }

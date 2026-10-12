@@ -3,70 +3,71 @@
   "target": "iris-w10",
   "label": "IRIS-W10 (NXP RW612/RW610)",
   "status": "ready",
-  "source": "MCUXpresso/IRIS-W1/sw_config/README.md",
+  "assets": "mcuxpresso/iris-w10",
+  "source": "sw-config/README.md",
   "variables": {
-    "sdk_release": "SDK_24_12_00",
-    "flash_vendor": "Macronix"
+    "sdk_release": "sdk-24-12-00",
+    "flash_vendor": "macronix"
   },
   "variants": {
-    "IRIS-W101-00B": { "description": "RW612, 8 MB flash, antenna pin", "vars": { "flash_size": "8MB" } },
-    "IRIS-W106-00B": { "description": "RW612, 8 MB flash, PCB antenna", "vars": { "flash_size": "8MB" } },
-    "IRIS-W101-10B": { "description": "RW612, 16 MB flash, antenna pin", "vars": { "flash_size": "16MB" } },
-    "IRIS-W106-10B": { "description": "RW612, 16 MB flash, PCB antenna", "vars": { "flash_size": "16MB" } },
-    "IRIS-W101-30B": { "description": "RW610, 8 MB flash, antenna pin", "vars": { "flash_size": "8MB" } },
-    "IRIS-W106-30B": { "description": "RW610, 8 MB flash, PCB antenna", "vars": { "flash_size": "8MB" } },
-    "IRIS-W101-40B": { "description": "RW610, 16 MB flash, antenna pin", "vars": { "flash_size": "16MB" } },
-    "IRIS-W106-40B": { "description": "RW610, 16 MB flash, PCB antenna", "vars": { "flash_size": "16MB" } }
+    "IRIS-W101-00B": { "description": "RW612, 8 MB flash, antenna pin", "vars": { "flash_size": "8mb" } },
+    "IRIS-W106-00B": { "description": "RW612, 8 MB flash, PCB antenna", "vars": { "flash_size": "8mb" } },
+    "IRIS-W101-10B": { "description": "RW612, 16 MB flash, antenna pin", "vars": { "flash_size": "16mb" } },
+    "IRIS-W106-10B": { "description": "RW612, 16 MB flash, PCB antenna", "vars": { "flash_size": "16mb" } },
+    "IRIS-W101-30B": { "description": "RW610, 8 MB flash, antenna pin", "vars": { "flash_size": "8mb" } },
+    "IRIS-W106-30B": { "description": "RW610, 8 MB flash, PCB antenna", "vars": { "flash_size": "8mb" } },
+    "IRIS-W101-40B": { "description": "RW610, 16 MB flash, antenna pin", "vars": { "flash_size": "16mb" } },
+    "IRIS-W106-40B": { "description": "RW610, 16 MB flash, PCB antenna", "vars": { "flash_size": "16mb" } }
   },
   "sdk_patch": [
     {
       "op": "replace",
-      "src": "MCUXpresso/IRIS-W1/sw_config/wifi_txpower_cfg/wlan_txpwrlimit_cfg_WW_rw610.h",
+      "src": "sw-config/wifi-txpower-cfg/wlan_txpwrlimit_cfg_WW_rw610.h",
       "dst": "components/wifi_bt_module/AzureWave/tx_pwr_limits/wlan_txpwrlimit_cfg_WW_rw610.h",
       "note": "u-blox certified Wi-Fi TX power limits (WW, FCC, ETSI, JP)"
     },
     {
       "op": "replace",
       "sdk_version": "<24.12",
-      "src": "MCUXpresso/IRIS-W1/sw_config/wifi_Calibration/2_16_100/wifi_cal_data_ext.h",
+      "src": "sw-config/wifi-calibration/2-16-100/wifi_cal_data_ext.h",
       "dst": "middleware/wifi_nxp/incl/wifi_cal_data_ext.h",
       "note": "Wi-Fi calibration, MCUXpresso SDK 2.16.100 and earlier"
     },
     {
       "op": "replace",
       "sdk_version": ">=24.12,<25.6",
-      "src": "MCUXpresso/IRIS-W1/sw_config/wifi_Calibration/24_12_00/wifi_cal_data_rw61x_1ant.h",
+      "src": "sw-config/wifi-calibration/24-12-00/wifi_cal_data_rw61x_1ant.h",
       "dst": "middleware/wifi_nxp/incl/wifi_cal_data_rw61x_1ant.h",
       "note": "Wi-Fi calibration, MCUXpresso SDK 24.12.00 / 25.03.00"
     },
     {
       "op": "replace",
       "sdk_version": ">=25.6",
-      "src": "MCUXpresso/IRIS-W1/sw_config/wifi_Calibration/25_06_00/wifi_cal_data_override.h",
+      "src": "sw-config/wifi-calibration/25-06-00/wifi_cal_data_override.h",
       "dst": "middleware/wifi_nxp/incl/wifi_cal_data_override.h",
       "note": "Wi-Fi calibration, MCUXpresso SDK 25.06.00 and later"
     },
     {
       "op": "replace",
-      "src": "MCUXpresso/IRIS-W1/sw_config/BT_802_15_4_Calibration_Files/{sdk_release}/fwk_config.h",
+      "src": "sw-config/bt-802-15-4-calibration-files/{sdk_release}/fwk_config.h",
       "dst": "middleware/wireless/framework/platform/rw61x/configs/fwk_config.h",
       "note": "Bluetooth / 802.15.4 calibration config"
     },
     {
       "op": "replace",
-      "src": "MCUXpresso/IRIS-W1/sw_config/BT_802_15_4_Calibration_Files/{sdk_release}/fwk_platform_ble.c",
+      "src": "sw-config/bt-802-15-4-calibration-files/{sdk_release}/fwk_platform_ble.c",
       "dst": "middleware/wireless/framework/platform/rw61x/fwk_platform_ble.c",
       "note": "Bluetooth / 802.15.4 calibration data"
     },
     {
       "op": "replace",
-      "src": "MCUXpresso/IRIS-W1/sw_config/flash_drv/{flash_vendor}_{flash_size}/{sdk_release}/mflash_drv.c",
+      "src": "sw-config/flash-drv/{flash_vendor}-{flash_size}/{sdk_release}/mflash_drv.c",
       "dst": "components/flash/mflash/rdrw612bga/mflash_drv.c",
       "note": "MFlash driver for the {flash_vendor} {flash_size} part on {variant}"
     },
     {
       "op": "replace",
-      "src": "MCUXpresso/IRIS-W1/sw_config/flash_drv/{flash_vendor}_{flash_size}/{sdk_release}/mflash_drv.h",
+      "src": "sw-config/flash-drv/{flash_vendor}-{flash_size}/{sdk_release}/mflash_drv.h",
       "dst": "components/flash/mflash/rdrw612bga/mflash_drv.h",
       "note": "MFlash driver header for the {flash_vendor} {flash_size} part on {variant}"
     }
@@ -95,8 +96,8 @@
   "manual_steps": [
     { "sdk_version": ">=24.12,<25.6", "text": "SDK 24.12.00 / 25.03.00: add '#define CONFIG_WLAN_CALDATA_1ANT 1' to the example's wifi_config.h, otherwise the u-blox Wi-Fi calibration is not used." },
     { "sdk_version": ">=25.6", "text": "SDK 25.06.00 and later: add '#define OVERRIDE_CALIBRATION_DATA \"wifi_cal_data_override.h\"' to the example's wifi_config.h, otherwise the u-blox Wi-Fi calibration is not used." },
-    "Linker scripts for the {flash_size} part are in MCUXpresso/IRIS-W1/sw_config/Linker_Scripts/ - the destination depends on the toolchain, so they are not applied automatically.",
-    "EVK LED/button pin mux is in MCUXpresso/IRIS-W1/sw_config/board_files/ - copy into the example's board/ folder if you need it."
+    "Linker scripts for the {flash_size} part are in mcuxpresso/iris-w10/sw-config/linker-scripts/ - the destination depends on the toolchain, so they are not applied automatically.",
+    "EVK LED/button pin mux is in mcuxpresso/iris-w10/sw-config/board-files/ - copy into the example's board/ folder if you need it."
   ],
   "verify": {
     "notes": [
