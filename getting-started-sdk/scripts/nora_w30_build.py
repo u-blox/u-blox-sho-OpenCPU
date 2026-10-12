@@ -13,7 +13,7 @@ import json
 import subprocess
 import shutil
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Dict, Optional
 
 import target_paths
 
@@ -34,34 +34,9 @@ def host_kind() -> str:
     """Detect platform type: 'wsl', 'linux', or 'windows'."""
     return target_paths.host_kind()
 
-def mak_path(p: str) -> str:
-    """Convert path to forward slashes."""
-    return str(p).replace("\\", "/")
-
 # ============================================================================
 # TOOL DETECTION
 # ============================================================================
-
-def newest(patterns: List[str]) -> Optional[str]:
-    """Find newest matching path from glob patterns."""
-    candidates = []
-    for pattern in patterns:
-        try:
-            if pattern.startswith(("C:/", "C:\\", "/")):
-                # Absolute path - check directly
-                p = Path(pattern)
-                if p.exists():
-                    candidates.append(p)
-            else:
-                # Relative path - use glob
-                candidates.extend(Path().glob(pattern))
-        except (OSError, ValueError):
-            pass
-
-    if not candidates:
-        return None
-    candidates.sort(key=lambda p: str(p), reverse=True)
-    return str(candidates[0].resolve()) if candidates else None
 
 def detect_git() -> Optional[str]:
     """Detect git executable."""
@@ -254,50 +229,6 @@ def cmd_clean(args) -> int:
             return 1
 
     print("[OK] Clean complete.\n")
-    return 0
-
-    sdk_path = load_config().get("sdk_path")
-    if not sdk_path:
-        print("[FAIL] Realtek SDK not found.\n")
-        return 1
-
-    sdk_path = Path(sdk_path)
-
-    # Try Ameba-D structure first
-    example_sources = sdk_path / "project" / "realtek_amebaD_va0_example" / "example_sources"
-    if example_sources.exists():
-        example_dir = example_sources / args.example
-        if example_dir.exists():
-            print(f"Running make clean for: {args.example}\n")
-            result = subprocess.run(
-                ["make", "-C", str(example_sources), "clean"],
-                cwd=example_sources
-            )
-            if result.returncode == 0:
-                print("\n[OK] Build directory cleaned.\n")
-            return result.returncode
-        else:
-            print(f"[INFO] Example directory not found: {example_dir}\n")
-            return 0
-
-    # Fall back to alternative paths
-    example_dir = sdk_path / "examples" / args.example
-    if not example_dir.exists():
-        example_dir = sdk_path / "project" / "realtek_amebaZ" / args.example
-
-    # Try to clean using make
-    if example_dir.exists():
-        print(f"Running make clean in: {example_dir}\n")
-        result = subprocess.run(
-            ["make", "clean"],
-            cwd=example_dir
-        )
-        if result.returncode == 0:
-            print("\n[OK] Build directory cleaned.\n")
-        return result.returncode
-    else:
-        print(f"[INFO] Example directory not found: {example_dir}\n")
-
     return 0
 
 def cmd_build(args) -> int:

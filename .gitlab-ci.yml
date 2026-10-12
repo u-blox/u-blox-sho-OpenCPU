@@ -17,8 +17,7 @@ workflow:
     - cd getting-started-sdk
     - python -m pip install --quiet pytest pytest-cov
   script:
-    - python -m pytest tests -q -rs --junitxml=report.xml --cov=scripts --cov-report=term --cov-report=xml:coverage.xml
-  # Report only for now; no --cov-fail-under until the number has settled.
+    - python -m pytest tests -q -rs --junitxml=report.xml --cov=scripts --cov-report=term --cov-report=xml:coverage.xml --cov-fail-under=90
   coverage: '/^TOTAL.*\s(\d+%)$/'
   artifacts:
     when: always

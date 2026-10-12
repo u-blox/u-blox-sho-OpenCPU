@@ -50,10 +50,6 @@ def short_path(value: str) -> str:
     except (OSError, AttributeError):
         return value
 
-def mak_path(p: str) -> str:
-    """Convert path to forward slashes."""
-    return str(p).replace("\\", "/")
-
 # ============================================================================
 # TOOL DETECTION
 # ============================================================================

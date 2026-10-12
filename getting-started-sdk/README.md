@@ -267,14 +267,16 @@ python -m pytest tests -q --cov=scripts --cov-report=term --cov-report=html
 ```
 
 Coverage counts only code run inside the pytest process; the scripts that
-`test_cli.py` starts as subprocesses are not included.
+`test_cli.py` starts as subprocesses are not included. Total coverage is about
+96%, and every file in `scripts/` is above 80%. CI fails below 90% total; new
+code needs tests that keep it there.
 
 CI runs on every push that touches `getting-started-sdk/`:
 
 | Where | Jobs |
 |-------|------|
-| GitLab (`.gitlab-ci.yml`) | pytest with coverage on Linux, Python 3.10 and 3.12 (total in the pipeline, covered lines in merge-request diffs); ruff; shellcheck |
-| GitHub Actions (`.github/workflows/getting-started-sdk.yml`, runs on the mirror) | pytest with coverage summary on Linux and Windows, Python 3.10 and 3.12; ruff; shellcheck |
+| GitLab (`.gitlab-ci.yml`) | pytest with coverage on Linux, Python 3.10 and 3.12 (fails below 90%; total in the pipeline, covered lines in merge-request diffs); ruff; shellcheck |
+| GitHub Actions (`.github/workflows/getting-started-sdk.yml`, runs on the mirror) | pytest with coverage on Linux and Windows, Python 3.10 and 3.12 (fails below 90%); ruff; shellcheck |
 
 Run the linters locally before pushing (`pip install ruff==0.17.0 shellcheck-py`):
 

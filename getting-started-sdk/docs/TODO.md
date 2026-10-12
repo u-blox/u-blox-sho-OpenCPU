@@ -91,7 +91,7 @@ Last updated 2026-10-12 (branch `cmag_getting_started_sdk`).
       (Windows). It honours `core.autocrlf`, so with `autocrlf=true` a patched LF file is
       written back as CRLF. Harmless for SDKs cloned with the same setting; decide whether
       to pin `-c core.autocrlf=false` once a CRLF checkout has been tested.
-- [ ] Test coverage is 43% (report only). Next gaps: the per-target drivers' clone/build
-      paths and `flash_helper.py`; then add `--cov-fail-under` just below the current value.
+- [ ] Coverage gate is on the total only (90%). pytest-cov has no per-file minimum; add a
+      `coverage json` check in CI if a per-file floor (75%) is wanted.
 - [ ] `ubx_evkalmab2` board once u-blox publishes it (ALMA-B20-B21 uses `nrf54lm20dk`).
 - [ ] Review and merge `cmag_getting_started_sdk` to master.
