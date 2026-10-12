@@ -26,7 +26,7 @@ u-blox-sho-OpenCPU/
 │   ├── docs/
 │   └── README.md
 │
-├── NORA-W*-OutputPower/          <- Other unrelated folders
+├── esp-idf/, mcuxpresso/, ...    <- u-blox asset folders
 └── [other repo files]
 ```
 

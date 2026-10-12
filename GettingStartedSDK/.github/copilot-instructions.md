@@ -58,9 +58,12 @@ sub-series** in its family, lowercase, joined with `-`:
 - `target_paths.LEGACY` maps each target to its old slug and folder;
   `adopt_legacy()` moves an old `targets/NORA-W3/` or `~/ubx-matter/NORA-W4/`
   into the new folder on first use. Keep it.
-- Do not rename repo-root assets (`MCUXpresso/IRIS-W1/`, `NORA-W30-OutputPower/`),
-  EVK product names (`EVK-IRIS-W1`), u-blox URLs (`.../product/nora-w5-series`)
-  or Zephyr board ids (`ubx_evk_iris_w1`, `ubx_evknorab2`).
+- Do not rename EVK product names (`EVK-IRIS-W1`), u-blox URLs
+  (`.../product/nora-w5-series`) or Zephyr board ids (`ubx_evk_iris_w1`, `ubx_evknorab2`).
+- Repo-root u-blox assets follow `<vendor-sdk>/<module>/` (lowercase, hyphens):
+  `mcuxpresso/iris-w10/`, `ameba-rtos-d/nora-w30/`, `esp-idf/nora-w40/`. New
+  targets use the target key as the module folder. Profiles reference them
+  through their `assets` field only.
 - `scripts/ubx.py` has a `UCONNECTXPRESS` map so that typing `nora-w36` gives
   a product-line explanation instead of a bare "unknown target".
 
@@ -141,8 +144,8 @@ Naming rule: anything shared by both launchers is plain `ubx`
 
 Only `README.md`, `.gitattributes` and `.gitlab-ci.yml` (GitLab only reads CI
 config from the root) belong at the repository root. The root
-is shared with unrelated projects (`nRF5_SDK/`, `zephyr/`, `MCUXpresso/`,
-`*-OutputPower/`), so SDK files must not be added there.
+is shared with the u-blox asset folders (`zephyr/`, `nrf5-sdk/`, `mcuxpresso/`,
+`esp-idf/`, `ameba-rtos-d/`), so SDK files must not be added there.
 `GettingStartedSDK/ubx.code-workspace` is multi-root (`"."` plus `".."`), so it
 opens both the SDK and the repository root from its own folder.
 
@@ -289,9 +292,9 @@ u-blox folders at the repository root and are referenced by path:
 
 | Target | Assets | Status |
 |--------|--------|--------|
-| IRIS-W10 | `MCUXpresso/IRIS-W1/sw_config/` | ready |
-| NORA-W30 | `NORA-W30-OutputPower/` | ready |
-| NORA-W40 | `NORA-W40-OutputPower/` | ready |
+| IRIS-W10 | `mcuxpresso/iris-w10/sw-config/` | ready |
+| NORA-W30 | `ameba-rtos-d/nora-w30/` | ready |
+| NORA-W40 | `esp-idf/nora-w40/` | ready |
 | nora-w50-w51, nora-b20-b21-b22, ALMA-B20-B21 | none yet | `status: pending` |
 
 Ops are idempotent, back the vendor file up to `<name>.ubx-orig`, and record a

@@ -204,22 +204,23 @@ blhost -p <COM-PORT> fill-memory 0 4 0xc0403050
 blhost -p <COM-PORT> write-memory 0 <firmware.bin>
 ```
 
-Refer to the [u-blox Short Range OpenCPU repository](https://github.com/u-blox/u-blox-sho-OpenCPU/tree/master/MCUXpresso/IRIS-W1/recovery_tool) for recovery tools.
+Refer to the [u-blox Short Range OpenCPU repository](https://github.com/u-blox/u-blox-sho-OpenCPU/tree/master/mcuxpresso/iris-w10/recovery-tool) for recovery tools.
 
 ## Board Files & Calibration Data
 
-To add u-blox specific features (RF calibration, GPIO pinmux, linker scripts), copy files from the [u-blox OpenCPU repository](https://github.com/u-blox/u-blox-sho-OpenCPU):
+The u-blox files are in [`mcuxpresso/iris-w10/sw-config/`](../../mcuxpresso/iris-w10/sw-config/README.md)
+at the repository root. The RF and flash-driver files are applied for you:
 
 ```bash
-# Copy board-specific configurations
-cp -r MCUXpresso/IRIS-W1/sw_config/* ./mcuxpresso-sdk/mcuxsdk/boards/rdrw612bga/
+./ubx-sdk.sh iris-w10 --variant IRIS-W101-00B --rf-config
 ```
 
-Key files:
-- **`pin_mux.c/h`** — GPIO/LED/switch configuration
-- **`wifi_Calibration/`** — Wi-Fi TX power calibration data
-- **`BT_802_15_4_Calibration_Files/`** — Bluetooth & Thread calibration
-- **`Linker_Scripts/`** — u-blox-specific linker script variants
+Key folders:
+- **`board-files/`** — GPIO/LED/switch pin mux (copy manually)
+- **`wifi-calibration/`**, **`wifi-txpower-cfg/`** — Wi-Fi calibration and TX power limits
+- **`bt-802-15-4-calibration-files/`** — Bluetooth & Thread calibration
+- **`flash-drv/`**, **`flash-config/`** — flash driver per memory part
+- **`linker-scripts/`** — u-blox linker script variants (copy manually)
 
 ## Troubleshooting
 

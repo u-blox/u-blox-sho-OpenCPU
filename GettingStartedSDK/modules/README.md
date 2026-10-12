@@ -12,9 +12,9 @@ ubx-sdk <target> --mac           # reports the MAC / Bluetooth device address
 ```
 
 The assets are **not** stored here. They stay in the per-module folders u-blox
-publishes at the repository root (`NORA-W30-OutputPower/`,
-`NORA-W40-OutputPower/`, `MCUXpresso/IRIS-W1/sw_config/`) and are referenced by
-path. One copy, one place to update.
+publishes at the repository root, laid out as `<vendor-sdk>/<module>/`
+(`mcuxpresso/iris-w10/`, `ameba-rtos-d/nora-w30/`, `esp-idf/nora-w40/`), and
+are referenced by path. One copy, one place to update.
 
 ## Status per target
 
@@ -37,6 +37,8 @@ One `profile.json` per target, applied by `scripts/module_config.py`.
   "target": "nora-w30",
   "label": "NORA-W30 (Realtek RTL8720DF)",
   "status": "ready",                 // "ready" or "pending"
+  "assets": "ameba-rtos-d/nora-w30", // repo-root folder holding the u-blox files
+  "source": "README.md",
   "requires": { "sdk_version": ">=5.1,<5.2 || >=6.2,<6.3" },
   "variables": { "flash_vendor": "Macronix" },   // defaults, --set overrides
   "variants": {
@@ -50,9 +52,11 @@ One `profile.json` per target, applied by `scripts/module_config.py`.
 }
 ```
 
-`src` and `patch` paths are relative to the **repository root**. `dst`, `file`
+`src` and `patch` paths are relative to the profile's **`assets` folder**. `dst`, `file`
 and `dir` are relative to the **vendor SDK root**. Any `{name}` is substituted
 from `variables`, the variant's `vars`, and the built-in `{variant}`.
+`tests/test_module_config.py` fails if a `src` or `patch` of a ready profile
+does not exist, for every variant.
 
 ### Operations
 
@@ -90,9 +94,9 @@ SHA-256 per file. That gives:
 
 ## Adding a target or a variant
 
-1. Put the assets in the module's folder at the repository root.
-2. Add the variant to `modules/<target>/profile.json` with any `vars` the ops
-   need, and flip `status` to `ready`.
+1. Put the assets in `<vendor-sdk>/<target>/` at the repository root.
+2. Set `assets` to that folder, add the variant to `modules/<target>/profile.json`
+   with any `vars` the ops need, and flip `status` to `ready`.
 3. `python scripts/module_config.py <target> variants` to check the part
    numbers resolve, then `apply` and `revert` to check the ops round-trip.
 

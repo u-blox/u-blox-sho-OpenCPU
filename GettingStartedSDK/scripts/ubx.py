@@ -283,7 +283,7 @@ UCONNECTXPRESS = {
 # easy to confuse with IRIS-W10, which is NXP.
 UNSUPPORTED = {
     "nora-w1": "NORA-W1 (ESP32) is not built by this SDK. Note IRIS-W10 is NXP RW612,\n"
-               "       a different module. See NORA-W1-OutputPower/ in the repository root.",
+               "       a different module. See esp-idf/nora-w10/ in the repository root.",
     "nora-w2": "NORA-W2 (ESP32) is not built by this SDK.",
 }
 
