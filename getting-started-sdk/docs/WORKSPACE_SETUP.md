@@ -11,8 +11,8 @@ It is multi-root, so you get both views at once:
 
 | Folder | Path | Use |
 |--------|------|-----|
-| GettingStartedSDK (Build Scripts & Infrastructure) | `.` | The SDK itself |
-| Repository Root (Documentation & Extras) | `..` | Everything else in the repo |
+| getting-started-sdk | `.` | The SDK itself |
+| Repository Root (u-blox assets) | `..` | Asset folders and the rest of the repo; the nested `getting-started-sdk` is hidden there |
 
 ## What it configures
 
@@ -27,9 +27,9 @@ python scripts/setup_venv.py
 
 The launcher works without a venv too, so this is optional.
 
-**Performance** — the multi-GB vendor SDKs under `targets/*/sdk/` are kept out
-of search and the file watcher; the ESP-IDF and MCUXpresso trees are also
-hidden in the explorer. `.venv` stays visible on purpose.
+**Performance** — the multi-GB vendor SDKs under `sdks/` are kept out
+of search and the file watcher. `.venv` stays visible on purpose. CMake Tools
+does not configure on open; the drivers run CMake themselves.
 
 **Extensions** — Python/Pylance, CMake Tools, Cortex-Debug, GitLab Workflow are
 recommended on first open.
@@ -51,7 +51,7 @@ the launcher from a terminal instead.
 | Cortex Debug: NORA-W50-W51 (XDS110) | JTAG, port 55000 |
 | Cortex Debug: NORA-W30 (J-Link) | RTL8721D over SWD, port 2331 |
 | Cortex Debug: NORA-W40 (OpenOCD/ESP-Prog) | esp32c6, port 3333 |
-| ESP-IDF Monitor: NORA-W40 | `targets/nora-w40/sdk/esp-idf/tools/idf.py monitor` |
+| ESP-IDF Monitor: NORA-W40 | `sdks/esp-idf/master/tools/idf.py monitor` |
 
 The Cortex-Debug entries need a running GDB server and a matching `.elf`; they
 are starting points, not verified configurations.
@@ -90,10 +90,6 @@ valid and the documented flag order in sync with the launcher.
 `getting-started-sdk/.venv`. If it is missing, run `python scripts/setup_venv.py`
 and reload the window.
 
-**A stray `.venv` at the repository root** — run `scripts/migrate_venv.sh` (or
-`.bat`) to move it into `getting-started-sdk/`.
-
-**Windows vs WSL2 venv** — the two are not interchangeable. The launcher probes
-for the right one per host and falls back to system Python, but VS Code's
-interpreter setting assumes the Linux layout (`.venv/bin/python`); on Windows
-select `.venv\Scripts\python.exe` manually.
+**Windows vs WSL2 venv** — the two are not interchangeable. The workspace
+points VS Code at the Windows one (`.venv\Scripts\python.exe`); the launcher
+picks the right one per host and falls back to system Python.

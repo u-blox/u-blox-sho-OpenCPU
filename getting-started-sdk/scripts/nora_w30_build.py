@@ -88,7 +88,7 @@ def detect_python() -> Optional[str]:
 # ============================================================================
 
 def config_file() -> Path:
-    """Get per-platform config file path (targets/nora-w30/config)."""
+    """Get per-platform config file path (modules/nora-w30/config)."""
     return target_paths.resolve_config(TARGET, host_kind())
 
 def load_config() -> Dict:
@@ -112,7 +112,7 @@ def save_config(cfg: Dict) -> None:
 def cmd_doctor(args) -> int:
     """Verify toolchain availability."""
     current_host = host_kind()
-    print(f"\nNORA-W3 Build Environment Check ({current_host})\n")
+    print(f"\nNORA-W30 Build Environment Check ({current_host})\n")
 
     if current_host == "windows":
         print("[NOTE] Windows detected.")
@@ -153,7 +153,14 @@ def cmd_clone(args) -> int:
         print("[FAIL] Git not found!")
         return 1
 
-    for existing in target_paths.sdk_candidates(TARGET) + [target_paths.sdk_dir(TARGET) / "realtek-rtos-sdk"]:
+    revision = getattr(args, "revision", None)
+    if revision:
+        candidates = [target_paths.sdk_dir(TARGET, revision)]
+    else:
+        # Without a version, keep the SDK already in use.
+        cached = load_config().get("sdk_path")
+        candidates = ([Path(cached)] if cached else []) + target_paths.installed_sdks(TARGET)
+    for existing in candidates:
         if (existing / "project").is_dir():
             print(f"[INFO] {existing} already exists. Skipping clone.\n")
             cfg = load_config()
@@ -161,8 +168,9 @@ def cmd_clone(args) -> int:
             save_config(cfg)
             return 0
 
-    sdk_dir = target_paths.vendor_sdk(TARGET)
+    sdk_dir = target_paths.sdk_dir(TARGET, revision)
     target_paths.ensure(TARGET)
+    sdk_dir.parent.mkdir(parents=True, exist_ok=True)
     # Approximate: shallow Ameba-D SDK, its bundled toolchain and a first build.
     if not target_paths.check_space(sdk_dir, 2, "the Realtek Ameba-D SDK"):
         return 1
@@ -173,7 +181,7 @@ def cmd_clone(args) -> int:
     print(f"Cloning from: {repo_url}\n")
 
     result = subprocess.run(
-        [git, "clone", "--depth", "1", repo_url, str(sdk_dir)],
+        [git, "clone", "--depth", "1", *(["--branch", revision] if revision else []), repo_url, str(sdk_dir)],
         cwd=sdk_dir.parent
     )
 
@@ -397,7 +405,8 @@ Note: Best on Linux or WSL2. Windows Cygwin is complex.
     subparsers = parser.add_subparsers(dest="command", help="Command")
 
     subparsers.add_parser("doctor", help="Verify toolchain")
-    subparsers.add_parser("clone", help="Clone Realtek SDK")
+    clone_parser = subparsers.add_parser("clone", help="Clone Realtek SDK")
+    clone_parser.add_argument("--revision", help="branch or tag (default: main), fetched into sdks/ameba-rtos-d/<revision>")
     subparsers.add_parser("install", help="Show tool installation info")
     subparsers.add_parser("list", help="List example sources")
 

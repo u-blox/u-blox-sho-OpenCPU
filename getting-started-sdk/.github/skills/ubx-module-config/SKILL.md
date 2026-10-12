@@ -44,7 +44,8 @@ repository-root asset folder named by the profile's `assets`. Schema:
 
 ## New vendor SDK release (example: ESP-IDF patch)
 
-1. Fetch the release into `targets/<target>/sdk/`.
+1. Fetch the release next to the current one: `ubx-sdk <target> --clone <tag>`
+   lands in `sdks/<vendor>/<tag>/` and becomes the cached SDK path.
 2. Re-cut the patch against it: `ubx_phy_cal_esp_idf_<major>_<minor>.patch`.
 3. Add a `patch` op with `sdk_version: ">=X.Y,<X.Y+1"` and extend
    `requires.sdk_version`.

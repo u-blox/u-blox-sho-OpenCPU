@@ -74,23 +74,23 @@ def test_matter_root_override(monkeypatch, tmp_path):
 def test_matter_root_defaults_to_home_in_wsl(monkeypatch, tmp_path):
     monkeypatch.delenv("UBX_MATTER_ROOT", raising=False)
     monkeypatch.setattr(mb, "host_kind", lambda: "wsl")
-    monkeypatch.setattr(mb.target_paths, "sdk_dir", lambda slug: tmp_path / slug)
+    monkeypatch.setattr(mb.target_paths, "matter_dir", lambda slug: tmp_path / slug)
     assert mb.matter_root(W5) == mb.Path.home() / "ubx-matter" / "nora-w50-w51"
 
 
 def test_matter_root_keeps_existing_in_tree_clone(monkeypatch, tmp_path):
     monkeypatch.delenv("UBX_MATTER_ROOT", raising=False)
     monkeypatch.setattr(mb, "host_kind", lambda: "wsl")
-    monkeypatch.setattr(mb.target_paths, "sdk_dir", lambda slug: tmp_path / slug)
-    make(tmp_path / "nora_w50_w51" / "matter" / "ti-matter", ".git")
-    assert mb.matter_root(W5) == tmp_path / "nora_w50_w51" / "matter"
+    monkeypatch.setattr(mb.target_paths, "matter_dir", lambda slug: tmp_path / slug)
+    make(tmp_path / "nora_w50_w51" / "ti-matter", ".git")
+    assert mb.matter_root(W5) == tmp_path / "nora_w50_w51"
 
 
 def test_matter_root_in_tree_on_windows(monkeypatch, tmp_path):
     monkeypatch.delenv("UBX_MATTER_ROOT", raising=False)
     monkeypatch.setattr(mb, "host_kind", lambda: "windows")
-    monkeypatch.setattr(mb.target_paths, "sdk_dir", lambda slug: tmp_path / slug)
-    assert mb.matter_root(W4) == tmp_path / "nora_w40" / "matter"
+    monkeypatch.setattr(mb.target_paths, "matter_dir", lambda slug: tmp_path / slug)
+    assert mb.matter_root(W4) == tmp_path / "nora_w40"
 
 
 # ---------------------------------------------------------------------------

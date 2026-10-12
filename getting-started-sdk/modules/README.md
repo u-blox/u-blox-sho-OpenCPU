@@ -135,7 +135,7 @@ rather than failing or double-patching.
 ### Backup and revert
 
 Before a vendor file is overwritten it is copied to `<name>.ubx-orig`, and what
-was applied is recorded in `targets/<target>/config/rf_config.json` with a
+was applied is recorded in `modules/<target>/config/rf_config.json` with a
 SHA-256 per file. That gives:
 
 - `--doctor` a drift check: a file changed since apply, or a patch that no

@@ -139,7 +139,7 @@ Build outputs:
 
 # Step 6: Build an example
 python3 nora_w30_build.py build hello_world
-# Output: targets/nora-w30/sdk/ameba-rtos-d/.../project_hp/asdk/image/
+# Output: sdks/ameba-rtos-d/main/.../project_hp/asdk/image/
 
 # Step 7: Or use full pipeline
 python3 nora_w30_build.py all hello_world
@@ -147,7 +147,7 @@ python3 nora_w30_build.py all hello_world
 
 # Step 8: Build another example
 python3 nora_w30_build.py build wifi_sta
-# Output: targets/nora-w30/sdk/ameba-rtos-d/.../project_hp/asdk/image/
+# Output: sdks/ameba-rtos-d/main/.../project_hp/asdk/image/
 
 # Step 9: Clean if needed
 python3 nora_w30_build.py clean hello_world     # Clean hello_world build
@@ -187,8 +187,8 @@ python scripts/nora_w40_build.py doctor
 # Step 4: Clone ESP-IDF v6.2 (first time only, ~200MB)
 python scripts/nora_w40_build.py clone
 # Clones: https://github.com/espressif/esp-idf.git (v6.2)
-# Creates: esp-idf/ folder
-# Saves: config in targets/nora-w40/config/build.{platform}.json
+# Creates: sdks/esp-idf/master/ (add --revision v5.5.1 for a release)
+# Saves: config in modules/nora-w40/config/build.{platform}.json
 
 # Step 5: Install ESP-IDF environment (downloads ~600MB toolchain)
 python scripts/nora_w40_build.py install
@@ -278,7 +278,7 @@ python scripts/iris_w10_build.py list
 # Step 7: Build an example
 python scripts/iris_w10_build.py build demo_apps/hello_world
 # Runs: west build -b rdrw612bga examples/demo_apps/hello_world --toolchain armgcc --config debug
-# Output: targets/iris-w10/sdk/mcuxpresso-sdk/build/
+# Output: sdks/mcuxpresso-sdk/main/build/
 
 # Bare names work too when unambiguous:
 python scripts/iris_w10_build.py build hello_world
@@ -533,20 +533,20 @@ entirely for the Nordic targets.
 
 **W30:**
 ```
-getting-started-sdk/targets/nora-w30/
-├── sdk/ameba-rtos-d/
+getting-started-sdk/
+├── sdks/ameba-rtos-d/main/
 │   └── project/realtek_amebaD_va0_example/GCC-RELEASE/project_hp/asdk/image/   <- Firmware
-└── config/build.{wsl|linux}.json
+└── modules/nora-w30/config/build.{wsl|linux}.json
 ```
 
 **W40:**
 ```
-getting-started-sdk/targets/nora-w40/
-├── sdk/esp-idf/
+getting-started-sdk/
+├── sdks/esp-idf/master/
 │   ├── examples/get-started/hello_world/build/hello_world.bin  <- Firmware
 │   ├── examples/network/static_ip/build/static_ip.bin          <- Firmware
 │   └── ...
-└── config/build.{windows|wsl|linux}.json
+└── modules/nora-w40/config/build.{windows|wsl|linux}.json
 ```
 
 ---
@@ -556,13 +556,13 @@ getting-started-sdk/targets/nora-w40/
 ### W50/W51 -> XDS110 Debug Connector or UART Bootloader
 ```bash
 # Using Code Composer Studio or CCS command-line tools
-# See: README.md in NORA-W50-W51-GettingStartedSDK
+# See: docs/nora_w50_w51_README.md
 ```
 
 ### W30 -> UART with Realtek Flash Tool
 ```bash
 # Using Realtek's flash tool (ameba_image_tool or ImageTool.exe)
-# See: README.md in NORA-W30-GettingStartedSDK
+# See: docs/nora_w30_README.md
 ```
 
 ### W40 -> USB JTAG or UART Bootloader
@@ -570,5 +570,5 @@ getting-started-sdk/targets/nora-w40/
 # Using esptool.py
 esptool.py -p /dev/ttyUSB0 write_flash 0x0 hello_world.bin
 # Or: esptool.py -p COM5 write_flash 0x0 hello_world.bin (Windows)
-# See: README.md in NORA-W40-GettingStartedSDK
+# See: docs/nora_w40_README.md
 ```

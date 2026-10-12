@@ -126,7 +126,7 @@ python iris_w10_build.py clone
 
 This creates:
 ```
-targets/iris-w10/sdk/mcuxpresso-sdk/
+sdks/mcuxpresso-sdk/main/        (or sdks/mcuxpresso-sdk/<revision>/ with --revision)
   ├── .west/
   ├── mcuxsdk/
   │   ├── boards/rdrw612bga/  (board definitions)
@@ -150,7 +150,7 @@ python iris_w10_build.py build ble_peripheral -p  # pristine (clean) build
 
 **Build output:**
 ```
-targets/iris-w10/sdk/mcuxpresso-sdk/build/
+sdks/mcuxpresso-sdk/main/build/
   ├── zephyr.bin         (firmware image)
   ├── zephyr.elf
   ├── zephyr.map

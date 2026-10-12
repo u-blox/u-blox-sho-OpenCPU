@@ -23,12 +23,11 @@ argument-hint: 'module family and SoC, e.g. "ALMA-W10 on nRF54LM20"'
 | File | What to add |
 |------|-------------|
 | `scripts/ubx.py` | `TARGETS` entry (`script`, `default_example`, `supports`, `linux_only`, `driver_args`); `ALIASES` for obvious spellings; usage text target table |
-| `scripts/target_paths.py` | `TARGETS` (slug -> folder), `LEGACY` (use the new names if there is no old one), `ROOT_SDKS` only if the SDK repo name is fixed |
-| `scripts/<slug>_build.py` | new driver following `.github/instructions/python-scripts.instructions.md`; clone into `target_paths.vendor_sdk()` / `sdk_dir()` with `check_space()` |
+| `scripts/target_paths.py` | `TARGETS` (slug -> folder), `VENDORS` (slug -> `sdks/<vendor>`), `DEFAULT_VERSIONS` (folder for a clone without a version) |
+| `scripts/<slug>_build.py` | new driver following `.github/instructions/python-scripts.instructions.md`; clone into `target_paths.sdk_dir(TARGET, args.revision)` with `check_space()` |
 | `scripts/nordic_ncs_build.py` | `TARGETS` entry instead of a new driver, for nRF Connect SDK modules |
 | `scripts/module_config.py` | key in `TARGET_KEYS`; SDK detection in `vendor_sdk_root()` if RF assets exist |
 | `modules/<key>/profile.json` | start as `status: pending` with `pending_reason`, `mac.source`, `mac.read` |
-| `targets/<key>/{sdk,config}/.gitkeep` | folder skeleton |
 | `scripts/matter_build.py` | `TARGETS` entry and `scripts/matter_vendor/<slug>.sh`, only if Matter is wanted |
 
 ## 3. Assets and docs

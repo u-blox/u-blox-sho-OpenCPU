@@ -81,12 +81,14 @@ def test_nora_w1_is_not_iris_w10(capsys):
 @pytest.mark.parametrize("alias,key", [
     ("w50", "nora-w50-w51"), ("nora-w51", "nora-w50-w51"), ("iris-w10", "iris-w10"),
     ("NORA-W40", "nora-w40"), ("w30", "nora-w30"), ("alma", "alma-b20-b21"), ("nora_b20_b21_b22", "nora-b20-b21-b22"),
-    # Short keys used before the switch to full series names.
-    ("iris-w1", "iris-w10"), ("nora-w3", "nora-w30"), ("nora-w4", "nora-w40"),
-    ("nora-w5", "nora-w50-w51"), ("nora_b2", "nora-b20-b21-b22"), ("alma-b2", "alma-b20-b21"),
 ])
 def test_aliases(alias, key):
     assert ctx([alias, "--list"]).target.key == key
+
+
+@pytest.mark.parametrize("bare", ["nora-w3", "nora-w4", "nora-w5", "nora-b2", "alma-b2", "iris-w1"])
+def test_bare_series_is_not_a_target(bare):
+    assert ubx.resolve_target(bare) is None
 
 
 def test_every_alias_resolves():
@@ -217,6 +219,22 @@ def test_build_forwards_extra():
 def test_full_only_for_iris():
     assert argv(["iris-w10", "--clone", "--full"], "clone") == ["clone", "--full"]
     assert argv(["nora-w40", "--clone", "--full"], "clone") == ["clone"]
+
+
+@pytest.mark.parametrize("key", ["iris-w10", "nora-w30", "nora-w40", "nora-b20-b21-b22", "alma-b20-b21"])
+def test_clone_version_becomes_revision(key):
+    assert argv([key, "--clone", "v5.5.1", "--build"], "clone") == ["clone", "--revision", "v5.5.1"]
+
+
+def test_clone_version_ignored_for_nora_w50_w51(capsys):
+    assert argv(["nora-w50-w51", "--clone", "main"], "clone") == ["clone"]
+    assert "ignoring version main" in capsys.readouterr().out
+
+
+def test_clone_without_version_takes_no_positional():
+    ctx = ubx.parse(["nora-w40", "--clone", "--build", "hello_world"])
+    assert ctx.sdk_version is None
+    assert ctx.example == "hello_world"
 
 
 def test_clean_variants():
@@ -364,6 +382,28 @@ def test_linux_only_sdk_target_hops(windows):
     assert cmd[:2] == ["wsl", "--"]
     assert "./ubx-sdk.sh nora-w30 --build" in cmd[-1]
     assert "--wsl" not in cmd[-1]
+
+
+def test_failed_wsl_hop_suggests_vmcompute_restart(windows, capsys):
+    windows.returns = [1]
+    assert ubx.main(["nora-w30", "--build"]) == 1
+    out = capsys.readouterr().out
+    assert "net stop vmcompute" in out and "net start vmcompute" in out
+
+
+@pytest.mark.parametrize("rc", [0, 130])
+def test_wsl_fix_not_shown_on_success_or_ctrl_c(windows, capsys, rc):
+    windows.returns = [rc]
+    ubx.main(["nora-w30", "--build"])
+    assert "vmcompute" not in capsys.readouterr().out
+
+
+def test_missing_wsl_exe_suggests_vmcompute_restart(windows, monkeypatch, capsys):
+    def boom(cmd, **kwargs):
+        raise FileNotFoundError("wsl")
+    monkeypatch.setattr(ubx.subprocess, "call", boom)
+    assert ubx.main(["nora-w30", "--build"]) == 1
+    assert "net start vmcompute" in capsys.readouterr().out
 
 
 def test_no_wsl_suppresses_hop(windows):

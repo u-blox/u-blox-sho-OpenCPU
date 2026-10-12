@@ -33,7 +33,7 @@ Combinable, and always executed in this order:
 | Flag | Purpose |
 |------|---------|
 | `--doctor` | Verify host tools for the target |
-| `--clone` | Fetch the vendor SDK on demand |
+| `--clone [VERSION]` | Fetch the vendor SDK on demand into `sdks/<vendor>/<VERSION>` (branch or tag; default: vendor default branch) |
 | `--install` | Install/refresh the SDK's own tool environment |
 | `--build-sdk` | NORA-W50-W51 only: build the SDK libraries |
 | `--rf-config` | Apply the u-blox output power, calibration and SDK patches |
@@ -42,7 +42,7 @@ Combinable, and always executed in this order:
 | `--list` | List vendor examples and u-blox examples (`ubx/<name>`) |
 | `--build [NAME]` | Build an example (target default if omitted); `ubx/<name>` for a u-blox one |
 | `--clean` | Clean build artifacts |
-| `--clean-all` | Remove the fetched SDK entirely |
+| `--clean-all` | Remove the SDK version in use (other versions in `sdks/<vendor>/` stay) |
 | `--flash [SERIAL]` | Flash via the target's debug probe |
 | `--mac-set ADDR [PORT]` | Show how to use another MAC address |
 | `--burn` | With `--mac-set`: store it in eFuse where supported (irreversible) |
@@ -128,8 +128,8 @@ Under development - builds against Nordic's nRF54LM20 DK, not a u-blox board.
 | NORA-B20-B21-B22 | `zephyr.elf/.hex/.bin` | `<ncs>/build/<sample>/zephyr/` |
 | ALMA-B20-B21 | `zephyr.elf/.hex/.bin` | `<ncs>/build/<sample>/zephyr/` |
 
-Vendor SDKs land in `targets/<target>/sdk/` and are gitignored. Per-host tool
-caches live in `targets/<target>/config/build.<host>.json`.
+Vendor SDKs land in `sdks/<vendor>/<version>/` and are gitignored. Per-host tool
+caches live in `modules/<target>/config/build.<host>.json`.
 
 ---
 

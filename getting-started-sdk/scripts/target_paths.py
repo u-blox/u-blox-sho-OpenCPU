@@ -1,35 +1,39 @@
 #!/usr/bin/env python3
-"""
-Shared per-target directory layout for the u-blox Getting Started SDK.
+r"""
+Shared directory layout for the u-blox Getting Started SDK.
 
-Every target owns a base folder under ``targets/`` that holds everything we
-fetch or generate for it:
+    modules/<target>/
+        profile.json    u-blox configuration (tracked)
+        config/         build.<host>.json tool cache, rf_config.json (gitignored)
+    sdks/<vendor>/<version>/
+                        vendor SDK clone or west workspace (gitignored)
 
-    targets/<target>/
-        sdk/        vendor SDK clones / west workspaces, e.g. sdk/esp-idf
-        config/     build.<host>.json tool cache, rf_config.json
+<version> is the branch or tag that was fetched (`ubx-sdk <target> --clone
+<version>`), so several versions of one vendor SDK can sit side by side. The
+SDK path cached in build.<host>.json picks the one a target builds with.
 
-SDKs that older versions fetched into the SDK root (esp-idf/, ameba-rtos-d/,
-mcuxpresso-sdk/) are moved here by the launcher on first use.
+nRF Connect SDK defaults to C:\ncs\<rev> or ~/ncs/<rev>, and the WSL2 Matter
+SDKs to ~/ubx-matter/<target>; both stay outside this tree.
 
-Build artifacts are deliberately not relocated here: each vendor build system
-(west, idf.py, Realtek make) emits in-tree and expects to find its own output.
+Build artifacts stay where each vendor build system puts them, inside the SDK
+or example tree.
 
-Paths are anchored to this file rather than the current working directory, so
-a script behaves the same no matter where it is invoked from.
+Paths are anchored to this file, not the working directory.
 """
 
 from __future__ import annotations
 
 import os
 import platform
+import re
 import shutil
 from pathlib import Path
 
 SDK_ROOT = Path(__file__).resolve().parent.parent
-TARGETS_DIR = SDK_ROOT / "targets"
+MODULES_DIR = SDK_ROOT / "modules"
+SDKS_DIR = SDK_ROOT / "sdks"
 
-# Script slug -> base folder name shown in the explorer.
+# Script slug -> folder name under modules/ (the target key).
 TARGETS: dict[str, str] = {
     "alma_b20_b21": "alma-b20-b21",
     "iris_w10": "iris-w10",
@@ -39,17 +43,23 @@ TARGETS: dict[str, str] = {
     "nora_w50_w51": "nora-w50-w51",
 }
 
-# Names used before the switch to full series names: (script slug, folder).
-LEGACY: dict[str, tuple[str, str]] = {
-    "alma_b20_b21": ("alma_b2", "ALMA-B2"),
-    "iris_w10": ("iris_w1", "IRIS-W1"),
-    "nora_b20_b21_b22": ("nora_b2", "NORA-B2"),
-    "nora_w30": ("nora_w3", "NORA-W3"),
-    "nora_w40": ("nora_w4", "NORA-W4"),
-    "nora_w50_w51": ("nora_w5", "NORA-W5"),
+# Script slug -> sdks/<vendor> folder. Both Nordic targets share one NCS.
+VENDORS: dict[str, str] = {
+    "alma_b20_b21": "ncs",
+    "iris_w10": "mcuxpresso-sdk",
+    "nora_b20_b21_b22": "ncs",
+    "nora_w30": "ameba-rtos-d",
+    "nora_w40": "esp-idf",
+    "nora_w50_w51": "simplelink-wifi",
 }
 
-SUBDIRS = ("sdk", "config")
+# Version folder for a clone without a version: the vendor's default branch.
+DEFAULT_VERSIONS: dict[str, str] = {
+    "iris_w10": "main",
+    "nora_w30": "main",
+    "nora_w40": "master",
+    "nora_w50_w51": "main",
+}
 
 
 def host_kind() -> str:
@@ -71,139 +81,61 @@ def _slug(target: str) -> str:
     return target
 
 
-def _merge(old: Path, new: Path) -> None:
-    """Move old's contents into new without overwriting, then drop old if empty."""
-    new.mkdir(parents=True, exist_ok=True)
-    for child in old.iterdir():
-        dest = new / child.name
-        if not dest.exists():
-            child.rename(dest)
-        elif child.is_dir() and dest.is_dir():
-            _merge(child, dest)
-    try:
-        old.rmdir()
-    except OSError:
-        pass
+def module_dir(target: str) -> Path:
+    """modules/<target>: the tracked profile plus the gitignored config/."""
+    return MODULES_DIR / TARGETS[_slug(target)]
 
 
-def adopt_legacy(new: Path, target: str) -> Path:
-    """Return new, first moving in a sibling folder that still has the old target name."""
-    old = new.parent / LEGACY[_slug(target)][1]
-    if old.is_dir() and old.name != new.name:
-        _merge(old, new)
-    return new
+def vendor_dir(target: str) -> Path:
+    """sdks/<vendor>, holding one folder per fetched version."""
+    return SDKS_DIR / VENDORS[_slug(target)]
 
 
-def base_dir(target: str) -> Path:
-    """Base folder for a target, e.g. targets/nora-w30."""
-    return adopt_legacy(TARGETS_DIR / TARGETS[_slug(target)], target)
+def default_version(target: str) -> str:
+    return DEFAULT_VERSIONS.get(_slug(target), "main")
 
 
-def sdk_dir(target: str) -> Path:
-    return base_dir(target) / "sdk"
+def sdk_dir(target: str, version: str | None = None) -> Path:
+    """sdks/<vendor>/<version>; version defaults to the vendor's default branch."""
+    return vendor_dir(target) / (version or default_version(target))
 
 
-# Vendor SDKs that older versions fetched into the SDK root itself.
-ROOT_SDKS: dict[str, str] = {
-    "iris_w10": "mcuxpresso-sdk",
-    "nora_w30": "ameba-rtos-d",
-    "nora_w40": "esp-idf",
-}
+def matter_dir(target: str) -> Path:
+    """sdks/matter/<target>: in-tree Matter SDKs (native Linux and Windows hosts)."""
+    return SDKS_DIR / "matter" / TARGETS[_slug(target)]
 
 
-def vendor_sdk(target: str) -> Path:
-    """Where the target's vendor SDK is fetched: targets/<target>/sdk/<repo>."""
-    return sdk_dir(target) / ROOT_SDKS[_slug(target)]
+def _version_key(name: str) -> list:
+    # 'v5.10' after 'v5.9': digit runs compare as numbers.
+    return [int(part) if part.isdigit() else part for part in re.split(r"(\d+)", name)]
 
 
-def root_sdk(target: str) -> Path | None:
-    """An SDK still sitting at the old root location, not yet adopted."""
-    name = ROOT_SDKS.get(_slug(target))
-    old = SDK_ROOT / name if name else None
-    return old if old is not None and old.is_dir() else None
-
-
-def adopt_root_sdk(target: str) -> Path | None:
-    """Move <SDK root>/<repo> into targets/<target>/sdk/ and repoint the cached paths."""
-    old = root_sdk(target)
-    if old is None:
-        return None
-    new = vendor_sdk(target)
-    if new.exists():
-        print(f"[WARNING] Both {old} and {new} exist; using {new}. Remove the old one when done.")
-        return None
-    new.parent.mkdir(parents=True, exist_ok=True)
-    try:
-        old.rename(new)
-    except OSError as exc:
-        print(f"[WARNING] Could not move {old} to {new}: {exc}")
-        print("          Close any shell or editor using it and run again.")
-        return None
-    print(f"[INFO] Moved vendor SDK {old.name}/ to {new}")
-    rewrite_cached_paths(target, f"{SDK_ROOT.name}/{old.name}",
-                         f"{SDK_ROOT.name}/targets/{TARGETS[_slug(target)]}/sdk/{old.name}")
-    return new
-
-
-def rewrite_cached_paths(target: str, old: str, new: str) -> None:
-    """Replace a path fragment in the target's config files, in either separator style."""
-    for cfg in config_dir(target).glob("*.json"):
-        text = cfg.read_text(encoding="utf-8")
-        # Cached paths may be Windows, POSIX or /mnt/<drive> form.
-        updated = text.replace(old, new).replace(old.replace("/", "\\\\"), new.replace("/", "\\\\"))
-        if updated != text:
-            cfg.write_text(updated, encoding="utf-8")
-
-
-# The SDK folder was called GettingStartedSDK before 2026-10.
-OLD_SDK_DIR = "GettingStartedSDK"
-
-
-def adopt_renamed_root() -> None:
-    """Repoint cached absolute paths that still name the old SDK folder."""
-    if SDK_ROOT.name == OLD_SDK_DIR:
-        return
-    for target in TARGETS:
-        rewrite_cached_paths(target, f"/{OLD_SDK_DIR}/", f"/{SDK_ROOT.name}/")
-
-
-def sdk_candidates(target: str) -> list[Path]:
-    """The fetched vendor SDK location, plus the old root one if adoption has not run."""
-    old = root_sdk(target)
-    return [vendor_sdk(target)] + ([old] if old else [])
+def installed_sdks(target: str) -> list[Path]:
+    """Fetched versions of the target's vendor SDK, newest tag first, branch names last."""
+    root = vendor_dir(target)
+    if not root.is_dir():
+        return []
+    return sorted((p for p in root.iterdir() if p.is_dir()), key=lambda p: _version_key(p.name), reverse=True)
 
 
 def config_dir(target: str) -> Path:
-    return base_dir(target) / "config"
+    return module_dir(target) / "config"
 
 
 def config_file(target: str, host: str | None = None) -> Path:
     return config_dir(target) / f"build.{host or host_kind()}.json"
 
 
-def legacy_config_file(target: str, host: str | None = None) -> Path:
-    """Pre-targets/ location: a dotfile at the SDK root."""
-    return SDK_ROOT / f".{LEGACY[_slug(target)][0]}_build.{host or host_kind()}.json"
-
-
 def ensure(target: str) -> Path:
-    """Create the target's folder skeleton and return its base folder."""
-    base = base_dir(target)
-    for name in SUBDIRS:
-        (base / name).mkdir(parents=True, exist_ok=True)
-    return base
+    """Create the target's config/ folder; return the module folder."""
+    config_dir(target).mkdir(parents=True, exist_ok=True)
+    return module_dir(target)
 
 
 def resolve_config(target: str, host: str | None = None) -> Path:
-    """Config path for a target, migrating the old root dotfile on first use."""
-    host = host or host_kind()
-    new = config_file(target, host)
-    new.parent.mkdir(parents=True, exist_ok=True)
-    old = legacy_config_file(target, host)
-    if old.exists() and not new.exists():
-        new.write_text(old.read_text(encoding="utf-8"), encoding="utf-8")
-        old.unlink()
-    return new
+    """Config file for a target, with its config/ folder created."""
+    ensure(target)
+    return config_file(target, host)
 
 
 def free_gb(path: Path) -> float | None:

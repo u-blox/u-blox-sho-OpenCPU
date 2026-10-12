@@ -1,72 +1,23 @@
-# Virtual Environment (venv) Consolidation
+# Python virtual environment
 
-**Status:** [OK] .venv now lives in getting-started-sdk/ directory
+The launchers use `getting-started-sdk/.venv` when it exists and fall back to
+the system Python otherwise, so the venv is optional. It holds `west`,
+`pyserial`, `pylink-square` (J-Link flashing) and `pytest`.
 
-## Why This Change?
-
-- **Better organization:** The venv is specific to the Getting Started SDK build infrastructure, so it should live within that folder
-- **Cleaner repo root:** Reduces clutter at the repository root level
-- **Logical structure:** Everything build-related is contained within getting-started-sdk/
-
-## New Structure
-
-```
-u-blox-sho-OpenCPU/
-├── getting-started-sdk/
-│   ├── .venv/                    <- Virtual environment HERE
-│   ├── ubx-sdk.cmd / .sh         <- SDK launcher
-│   ├── scripts/
-│   │   ├── ubx.py
-│   │   ├── setup_venv.py         <- Run this from getting-started-sdk/
-│   │   ├── migrate_venv.sh / .bat
-│   │   ├── iris_w10_build.py
-│   │   ├── nora_w50_w51_build.py
-│   │   ├── nora_w30_build.py
-│   │   └── nora_w40_build.py
-│   ├── docs/
-│   └── README.md
-│
-├── esp-idf/, mcuxpresso/, ...    <- u-blox asset folders
-└── [other repo files]
-```
-
-## How to Setup
-
-### Option 1: Automatic (Recommended)
-
-If you have an old .venv at the repo root, just run setup_venv.py and it will automatically move it:
+## Create it
 
 ```bash
 cd getting-started-sdk
-python scripts/setup_venv.py
+python scripts/setup_venv.py        # or: ubx-sdk.cmd --setup-venv
 ```
 
-The script will:
-1. [OK] Detect if you have an old .venv at the repo root
-2. [OK] Automatically move it to getting-started-sdk/.venv
-3. [OK] Create a new one if needed
-4. [OK] Install 'west' in the venv
+On Windows the venv must come from a python.org or Microsoft Store Python, so it
+has `.venv\Scripts\python.exe` (the path `ubx-sdk.cmd` looks for). If the
+`python` on PATH is MSYS2/MinGW (`C:\msys64\...`), `setup_venv.py` switches to
+`py -3` by itself; psutil, needed by pylink-square, has no MinGW wheels.
 
-### Option 2: Manual Migration
-
-If automatic migration fails, use the helper scripts:
-
-**Linux/macOS/WSL:**
-```bash
-./scripts/migrate_venv.sh
-```
-
-**Windows:**
-```cmd
-scripts\migrate_venv.bat
-```
-
-### Option 3: Manual Move
-
-```bash
-# From repo root
-mv .venv getting-started-sdk/.venv
-```
+Windows and WSL2 each need their own venv; one created on the other side is
+ignored by the launcher.
 
 ## Activation Instructions
 
@@ -96,82 +47,15 @@ cd getting-started-sdk
 source .venv/bin/activate
 ```
 
-## Running Build Scripts
-
-With venv activated, run scripts from getting-started-sdk:
-
-```bash
-cd getting-started-sdk
-python scripts/iris_w10_build.py doctor
-python scripts/nora_w50_w51_build.py build empty
-```
-
-Or run with full path:
-
-```bash
-cd e:/u-blox/u-blox-sho-OpenCPU
-source getting-started-sdk/.venv/bin/activate
-python getting-started-sdk/scripts/iris_w10_build.py doctor
-```
-
-## What Changed
-
-### setup_venv.py
-- [OK] Now explicitly creates .venv in getting-started-sdk/
-- [OK] Automatically detects and moves old .venv from repo root
-- [OK] Updated documentation
-
-### Build Scripts
-- [OK] No changes needed - they work with venv in any location
-- [OK] Scripts use relative paths for configuration, not venv paths
-
-### Helper Scripts
-- [OK] migrate_venv.sh - For Linux/macOS/WSL
-- [OK] migrate_venv.bat - For Windows CMD
-
 ## Troubleshooting
 
-### Old .venv still at repo root?
-```bash
-# Option 1: Run setup_venv.py again
-cd getting-started-sdk
-python scripts/setup_venv.py
+**"pip not found in venv"** or a broken venv: delete it and create it again.
 
-# Option 2: Use migration script
-./scripts/migrate_venv.sh  # or scripts\migrate_venv.bat on Windows
-
-# Option 3: Manual deletion
-rm -rf .venv  # from repo root
-```
-
-### "pip not found in venv"?
-This means the venv might be corrupted. Delete it and recreate:
 ```bash
 cd getting-started-sdk
-rm -rf .venv
+rm -rf .venv          # PowerShell: Remove-Item -Recurse -Force .venv
 python scripts/setup_venv.py
 ```
 
-### Scripts still looking for old location?
-Make sure you're running scripts from within the activated venv:
-```bash
-cd getting-started-sdk
-source .venv/bin/activate  # or appropriate activation command
-python scripts/iris_w10_build.py doctor
-```
-
-## Verification
-
-To verify the setup is correct:
-
-```bash
-cd getting-started-sdk
-ls -la .venv  # Should show venv directory
-source .venv/bin/activate  # or appropriate command
-which python  # Should show path inside .venv
-python scripts/iris_w10_build.py doctor  # Should work
-```
-
----
-
-**Note:** All build scripts automatically detect and use the venv when it's activated. No code changes needed - the move is purely organizational!
+**`pylink-square could not be installed`**: the venv was made from MSYS2/MinGW
+Python. Delete it and rerun `py -3 scripts\setup_venv.py`.

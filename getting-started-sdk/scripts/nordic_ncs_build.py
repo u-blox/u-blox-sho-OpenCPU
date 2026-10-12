@@ -94,19 +94,12 @@ TARGETS: Dict[str, NcsTarget] = {
     ),
 }
 
-ALIASES = {
-    "norab2": "nora-b20-b21-b22", "nora-b2": "nora-b20-b21-b22",
-    "almab2": "alma-b20-b21", "alma-b2": "alma-b20-b21",
-}
-
 # Where samples are searched for, in priority order, relative to the workspace.
 SAMPLE_ROOTS = ("nrf/samples", "nrf/applications", "zephyr/samples")
 
 
 def resolve_target(name: str) -> Optional[NcsTarget]:
-    key = name.lower().replace("_", "-")
-    key = ALIASES.get(key.replace("-", ""), ALIASES.get(key, key))
-    return TARGETS.get(key)
+    return TARGETS.get(name.lower().replace("_", "-"))
 
 
 # ============================================================================
@@ -205,7 +198,7 @@ def _workspace_candidates(target: NcsTarget) -> List[Path]:
         if root.is_dir():
             paths += sorted(root.iterdir(), reverse=True)
     paths += sorted(Path.home().glob("ncs-*"), reverse=True)
-    paths += [target_paths.sdk_dir(target.slug) / WORKSPACE_NAME, target_paths.SDK_ROOT / WORKSPACE_NAME]
+    paths += [*target_paths.installed_sdks(target.slug), target_paths.SDK_ROOT / WORKSPACE_NAME]
     return paths
 
 

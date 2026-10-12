@@ -17,30 +17,14 @@ __pycache__/
 *.elf
 *.map
 
-# Config cache (per-platform, legacy root location)
-.iris_w1_build.*.json
-.nora_w3_build.*.json
-.nora_w4_build.*.json
-.nora_w5_build.*.json
-
-# Per-target base folders: track the skeleton, ignore everything generated.
-# The directories are re-included first because git will not descend into an
-# excluded directory to pick the .gitkeep back up.
-!targets/*/sdk/
-!targets/*/config/
-targets/*/sdk/*
-targets/*/config/*
-!targets/*/sdk/.gitkeep
-!targets/*/config/.gitkeep
+# Per-machine state next to each tracked profile.json.
+modules/*/config/
 
 # Vendor files backed up by --rf-config before the u-blox version is applied.
 *.ubx-orig
 
-# Vendor SDKs. Fetched on demand into targets/<target>/sdk/ (ignored above),
-# never committed. These are the pre-targets/ locations, moved on first use.
-/mcuxpresso-sdk/
-/esp-idf/
-/ameba-rtos-d/
+# Vendor SDKs, fetched on demand into sdks/<vendor>/<version>/.
+/sdks/
 
 # west metadata
 .west/

@@ -46,6 +46,10 @@ location; the launcher forwards it into WSL2.
 NORA-W50-W51 runs in the `Ubuntu-22.04` distro because TI supports nothing else. The
 other targets use your default distro. Override with `UBX_WSL_DISTRO`.
 
+If WSL2 itself fails (does not start, hangs, `Wsl/Service/...` error), restart it
+from an Administrator prompt with `net stop vmcompute` and `net start vmcompute`,
+then rerun the command.
+
 NORA-B20-B21-B22 and ALMA-B20-B21 get Matter from the nRF Connect SDK itself, so `--clone`
 fetches the same NCS workspace `ubx-sdk` uses and they build natively on Windows.
 

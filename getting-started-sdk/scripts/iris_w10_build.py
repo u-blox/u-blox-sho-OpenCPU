@@ -35,7 +35,6 @@ for _stream in (sys.stdout, sys.stderr):
 # ============================================================================
 
 MANIFEST_URL = "https://github.com/nxp-mcuxpresso/mcuxsdk-manifests.git"
-WORKSPACE_NAME = "mcuxpresso-sdk"
 
 # IRIS-W10 uses NXP RW612 (with Thread) or RW610 (BLE + Wi-Fi only); rdrw612bga is the matching MCUXpresso board target.
 DEFAULT_BOARD = "rdrw612bga"
@@ -224,7 +223,7 @@ def detect_workspace() -> Optional[str]:
     if "workspace" in cfg and (Path(cfg["workspace"]) / ".west").exists():
         return cfg["workspace"]
 
-    for candidate in target_paths.sdk_candidates(TARGET):
+    for candidate in target_paths.installed_sdks(TARGET):
         if (candidate / ".west").exists():
             return str(candidate)
     return None
@@ -242,7 +241,7 @@ def examples_root(workspace: str) -> Optional[Path]:
 # ============================================================================
 
 def config_file() -> Path:
-    """Get per-platform config file path (targets/iris-w10/config)."""
+    """Get per-platform config file path (modules/iris-w10/config)."""
     return target_paths.resolve_config(TARGET, host_kind())
 
 def load_config() -> Dict:
@@ -263,7 +262,7 @@ def save_config(cfg: Dict) -> None:
 
 def cmd_doctor(args) -> int:
     """Verify toolchain availability."""
-    print("\nIRIS-W1 Build Environment Check\n")
+    print("\nIRIS-W10 Build Environment Check\n")
 
     tools = {
         "Python": detect_python(),
@@ -312,7 +311,10 @@ def cmd_clone(args) -> int:
         print("[FAIL] west not found. Run 'python iris_w10_build.py install' first.")
         return 1
 
-    workspace = target_paths.sdk_dir(TARGET) / WORKSPACE_NAME
+    if args.revision:
+        workspace = target_paths.sdk_dir(TARGET, args.revision)
+    else:
+        workspace = Path(detect_workspace() or target_paths.sdk_dir(TARGET))
     # Approximate, including a first build: board-only ~2 GB, whole SDK ~7 GB.
     if not (workspace / ".west").exists() or args.full:
         needed = 8 if args.full else 3
@@ -322,7 +324,8 @@ def cmd_clone(args) -> int:
         print(f"[INFO] {workspace} already initialised. Skipping west init.\n")
     else:
         target_paths.ensure(TARGET)
-        init = west + ["init", "-m", MANIFEST_URL, WORKSPACE_NAME]
+        workspace.parent.mkdir(parents=True, exist_ok=True)
+        init = west + ["init", "-m", MANIFEST_URL, workspace.name]
         if args.revision:
             init += ["--mr", args.revision]
         print(f"Running: {' '.join(init)}\n")
@@ -436,14 +439,14 @@ def cmd_log(args) -> int:
     """Open serial monitor for debugging output at 115200 baud."""
     port = getattr(args, 'port', None)
 
-    print("\nIRIS-W1 Serial Monitor (115200 baud)")
+    print("\nIRIS-W10 Serial Monitor (115200 baud)")
     print("   Use Ctrl+C to exit\n")
 
     return serial_logger.open_serial_monitor(port, 115200)
 
 def cmd_flash(args) -> int:
     """Flash firmware using J-Link debugger."""
-    print("\nIRIS-W1 Flash Utility (J-Link/MCU-Link)\n")
+    print("\nIRIS-W10 Flash Utility (J-Link/MCU-Link)\n")
 
     import flash_helper
 

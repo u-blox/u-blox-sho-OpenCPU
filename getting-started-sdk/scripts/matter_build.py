@@ -134,11 +134,11 @@ def matter_root(target: MatterTarget) -> Path:
     """
     override = os.environ.get("UBX_MATTER_ROOT")
     if override:
-        return target_paths.adopt_legacy(Path(override).expanduser() / target.folder, target.slug)
-    in_tree = target_paths.sdk_dir(target.slug) / "matter"
+        return Path(override).expanduser() / target.folder
+    in_tree = target_paths.matter_dir(target.slug)
     if host_kind() == "wsl" and not any((in_tree / r.name / ".git").exists() for r in target.repos):
         # The repo is on a /mnt/<drive> path, where these SDKs must not be built.
-        return target_paths.adopt_legacy(Path.home() / "ubx-matter" / target.folder, target.slug)
+        return Path.home() / "ubx-matter" / target.folder
     return in_tree
 
 

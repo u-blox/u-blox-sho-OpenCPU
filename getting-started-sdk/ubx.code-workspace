@@ -2,19 +2,17 @@
   "folders": [
     {
       "path": ".",
-      "name": "GettingStartedSDK (Build Scripts & Infrastructure)"
+      "name": "getting-started-sdk"
     },
     {
       "path": "..",
-      "name": "Repository Root (Documentation & Extras)"
+      "name": "Repository Root (u-blox assets)"
     }
   ],
   "settings": {
-    "python.defaultInterpreterPath": "${workspaceFolder:GettingStartedSDK (Build Scripts & Infrastructure)}/.venv/bin/python",
-    "python.linting.enabled": true,
-    "python.linting.pylintEnabled": true,
+    "python.defaultInterpreterPath": "${workspaceFolder:getting-started-sdk}/.venv/Scripts/python.exe",
+    "cmake.configureOnOpen": false,
     "editor.formatOnSave": true,
-    "editor.defaultFormatter": "ms-python.python",
     "[python]": {
       "editor.defaultFormatter": "ms-python.python",
       "editor.formatOnSave": true,
@@ -27,31 +25,27 @@
       "editor.formatOnSave": true
     },
     "files.exclude": {
-      "**/targets/*/sdk/mcuxpresso-sdk": true,
-      "**/targets/*/sdk/esp-idf": true,
-      "mcuxpresso-sdk": true,
+      "getting-started-sdk": true,
       "**/.git": true,
       "**/__pycache__": true,
       "**/.pytest_cache": true,
       "**/.venv": false
     },
     "search.exclude": {
-      "mcuxpresso-sdk": true,
       "**/.venv": true,
-      "**/targets/*/sdk/**": true
+      "**/sdks/**": true
     },
     "files.watcherExclude": {
-      "**/targets/*/sdk/**": true,
-      "mcuxpresso-sdk/**": true
+      "**/sdks/**": true
     },
     "terminal.integrated.env.linux": {
-      "PYTHONPATH": "${workspaceFolder:GettingStartedSDK (Build Scripts & Infrastructure)}"
+      "PYTHONPATH": "${workspaceFolder:getting-started-sdk}"
     },
     "terminal.integrated.env.osx": {
-      "PYTHONPATH": "${workspaceFolder:GettingStartedSDK (Build Scripts & Infrastructure)}"
+      "PYTHONPATH": "${workspaceFolder:getting-started-sdk}"
     },
     "terminal.integrated.env.windows": {
-      "PYTHONPATH": "${workspaceFolder:GettingStartedSDK (Build Scripts & Infrastructure)}"
+      "PYTHONPATH": "${workspaceFolder:getting-started-sdk}"
     }
   },
   "extensions": {
@@ -71,79 +65,97 @@
         "name": "Python: IRIS-W10 doctor",
         "type": "debugpy",
         "request": "launch",
-        "program": "${workspaceFolder:GettingStartedSDK (Build Scripts & Infrastructure)}/scripts/iris_w10_build.py",
-        "args": ["doctor"],
+        "program": "${workspaceFolder:getting-started-sdk}/scripts/iris_w10_build.py",
+        "args": [
+          "doctor"
+        ],
         "console": "integratedTerminal",
-        "cwd": "${workspaceFolder:GettingStartedSDK (Build Scripts & Infrastructure)}",
+        "cwd": "${workspaceFolder:getting-started-sdk}",
         "justMyCode": false
       },
       {
         "name": "Python: IRIS-W10 clone",
         "type": "debugpy",
         "request": "launch",
-        "program": "${workspaceFolder:GettingStartedSDK (Build Scripts & Infrastructure)}/scripts/iris_w10_build.py",
-        "args": ["clone", "--full"],
+        "program": "${workspaceFolder:getting-started-sdk}/scripts/iris_w10_build.py",
+        "args": [
+          "clone",
+          "--full"
+        ],
         "console": "integratedTerminal",
-        "cwd": "${workspaceFolder:GettingStartedSDK (Build Scripts & Infrastructure)}",
+        "cwd": "${workspaceFolder:getting-started-sdk}",
         "justMyCode": false
       },
       {
         "name": "Python: IRIS-W10 build",
         "type": "debugpy",
         "request": "launch",
-        "program": "${workspaceFolder:GettingStartedSDK (Build Scripts & Infrastructure)}/scripts/iris_w10_build.py",
-        "args": ["build", "hello_world"],
+        "program": "${workspaceFolder:getting-started-sdk}/scripts/iris_w10_build.py",
+        "args": [
+          "build",
+          "hello_world"
+        ],
         "console": "integratedTerminal",
-        "cwd": "${workspaceFolder:GettingStartedSDK (Build Scripts & Infrastructure)}",
+        "cwd": "${workspaceFolder:getting-started-sdk}",
         "justMyCode": false
       },
       {
         "name": "Python: NORA-W50-W51 build",
         "type": "debugpy",
         "request": "launch",
-        "program": "${workspaceFolder:GettingStartedSDK (Build Scripts & Infrastructure)}/scripts/nora_w50_w51_build.py",
-        "args": ["build", "ble_wifi_provisioning"],
+        "program": "${workspaceFolder:getting-started-sdk}/scripts/nora_w50_w51_build.py",
+        "args": [
+          "build",
+          "ble_wifi_provisioning"
+        ],
         "console": "integratedTerminal",
-        "cwd": "${workspaceFolder:GettingStartedSDK (Build Scripts & Infrastructure)}",
+        "cwd": "${workspaceFolder:getting-started-sdk}",
         "justMyCode": false
       },
       {
         "name": "Python: NORA-W40 clone",
         "type": "debugpy",
         "request": "launch",
-        "program": "${workspaceFolder:GettingStartedSDK (Build Scripts & Infrastructure)}/scripts/nora_w40_build.py",
-        "args": ["clone"],
+        "program": "${workspaceFolder:getting-started-sdk}/scripts/nora_w40_build.py",
+        "args": [
+          "clone"
+        ],
         "console": "integratedTerminal",
-        "cwd": "${workspaceFolder:GettingStartedSDK (Build Scripts & Infrastructure)}",
+        "cwd": "${workspaceFolder:getting-started-sdk}",
         "justMyCode": false
       },
       {
         "name": "Python: NORA-W40 build",
         "type": "debugpy",
         "request": "launch",
-        "program": "${workspaceFolder:GettingStartedSDK (Build Scripts & Infrastructure)}/scripts/nora_w40_build.py",
-        "args": ["build", "hello_world"],
+        "program": "${workspaceFolder:getting-started-sdk}/scripts/nora_w40_build.py",
+        "args": [
+          "build",
+          "hello_world"
+        ],
         "console": "integratedTerminal",
-        "cwd": "${workspaceFolder:GettingStartedSDK (Build Scripts & Infrastructure)}",
+        "cwd": "${workspaceFolder:getting-started-sdk}",
         "justMyCode": false
       },
       {
         "name": "Python: NORA-W30 build",
         "type": "debugpy",
         "request": "launch",
-        "program": "${workspaceFolder:GettingStartedSDK (Build Scripts & Infrastructure)}/scripts/nora_w30_build.py",
-        "args": ["build"],
+        "program": "${workspaceFolder:getting-started-sdk}/scripts/nora_w30_build.py",
+        "args": [
+          "build"
+        ],
         "console": "integratedTerminal",
-        "cwd": "${workspaceFolder:GettingStartedSDK (Build Scripts & Infrastructure)}",
+        "cwd": "${workspaceFolder:getting-started-sdk}",
         "justMyCode": false
       },
       {
         "name": "Python: Setup venv",
         "type": "debugpy",
         "request": "launch",
-        "program": "${workspaceFolder:GettingStartedSDK (Build Scripts & Infrastructure)}/scripts/setup_venv.py",
+        "program": "${workspaceFolder:getting-started-sdk}/scripts/setup_venv.py",
         "console": "integratedTerminal",
-        "cwd": "${workspaceFolder:GettingStartedSDK (Build Scripts & Infrastructure)}",
+        "cwd": "${workspaceFolder:getting-started-sdk}",
         "justMyCode": false
       },
       {
@@ -155,7 +167,7 @@
         "interface": "swd",
         "ipAddress": "localhost",
         "port": 2331,
-        "cwd": "${workspaceFolder:GettingStartedSDK (Build Scripts & Infrastructure)}"
+        "cwd": "${workspaceFolder:getting-started-sdk}"
       },
       {
         "name": "Cortex Debug: IRIS-W10 (MCU-Link)",
@@ -166,7 +178,7 @@
         "interface": "swd",
         "ipAddress": "localhost",
         "port": 2331,
-        "cwd": "${workspaceFolder:GettingStartedSDK (Build Scripts & Infrastructure)}"
+        "cwd": "${workspaceFolder:getting-started-sdk}"
       },
       {
         "name": "Cortex Debug: NORA-W50-W51 (XDS110)",
@@ -177,7 +189,7 @@
         "interface": "jtag",
         "ipAddress": "localhost",
         "port": 55000,
-        "cwd": "${workspaceFolder:GettingStartedSDK (Build Scripts & Infrastructure)}"
+        "cwd": "${workspaceFolder:getting-started-sdk}"
       },
       {
         "name": "Cortex Debug: NORA-W30 (J-Link)",
@@ -188,7 +200,7 @@
         "interface": "swd",
         "ipAddress": "localhost",
         "port": 2331,
-        "cwd": "${workspaceFolder:GettingStartedSDK (Build Scripts & Infrastructure)}"
+        "cwd": "${workspaceFolder:getting-started-sdk}"
       },
       {
         "name": "Cortex Debug: NORA-W40 (OpenOCD/ESP-Prog)",
@@ -199,35 +211,38 @@
         "interface": "jtag",
         "ipAddress": "localhost",
         "port": 3333,
-        "cwd": "${workspaceFolder:GettingStartedSDK (Build Scripts & Infrastructure)}/targets/nora-w40/sdk/esp-idf/examples/get-started/hello_world",
-        "executable": "${workspaceFolder:GettingStartedSDK (Build Scripts & Infrastructure)}/targets/nora-w40/sdk/esp-idf/examples/get-started/hello_world/build/hello_world.elf"
+        "cwd": "${workspaceFolder:getting-started-sdk}/sdks/esp-idf/master/examples/get-started/hello_world",
+        "executable": "${workspaceFolder:getting-started-sdk}/sdks/esp-idf/master/examples/get-started/hello_world/build/hello_world.elf"
       },
       {
         "name": "ESP-IDF Monitor: NORA-W40",
         "type": "debugpy",
         "request": "launch",
-        "program": "${workspaceFolder:GettingStartedSDK (Build Scripts & Infrastructure)}/targets/nora-w40/sdk/esp-idf/tools/idf.py",
-        "args": ["monitor", "--print-filter=*"],
+        "program": "${workspaceFolder:getting-started-sdk}/sdks/esp-idf/master/tools/idf.py",
+        "args": [
+          "monitor",
+          "--print-filter=*"
+        ],
         "console": "integratedTerminal",
-        "cwd": "${workspaceFolder:GettingStartedSDK (Build Scripts & Infrastructure)}/targets/nora-w40/sdk/esp-idf/examples/get-started/hello_world",
+        "cwd": "${workspaceFolder:getting-started-sdk}/sdks/esp-idf/master/examples/get-started/hello_world",
         "justMyCode": false
       },
       {
         "name": "Serial Logger (all boards)",
         "type": "debugpy",
         "request": "launch",
-        "program": "${workspaceFolder:GettingStartedSDK (Build Scripts & Infrastructure)}/scripts/serial_logger.py",
+        "program": "${workspaceFolder:getting-started-sdk}/scripts/serial_logger.py",
         "console": "integratedTerminal",
-        "cwd": "${workspaceFolder:GettingStartedSDK (Build Scripts & Infrastructure)}",
+        "cwd": "${workspaceFolder:getting-started-sdk}",
         "justMyCode": false
       },
       {
         "name": "Flash Helper (multi-board)",
         "type": "debugpy",
         "request": "launch",
-        "program": "${workspaceFolder:GettingStartedSDK (Build Scripts & Infrastructure)}/scripts/flash_helper.py",
+        "program": "${workspaceFolder:getting-started-sdk}/scripts/flash_helper.py",
         "console": "integratedTerminal",
-        "cwd": "${workspaceFolder:GettingStartedSDK (Build Scripts & Infrastructure)}",
+        "cwd": "${workspaceFolder:getting-started-sdk}",
         "justMyCode": false
       }
     ]

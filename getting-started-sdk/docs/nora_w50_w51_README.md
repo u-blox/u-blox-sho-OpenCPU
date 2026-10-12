@@ -124,7 +124,7 @@ python scripts/nora_w50_w51_build.py configure   # patch imports.mak (backs up a
 Useful flags: `--toolchain gcc` (default `ticlang`), `--board LP_EM_CC35X1ET`,
 `--sdk <path>` to point at a specific SDK, `-j8` for parallel builds, and
 `--gcc_armcompiler <dir>` style overrides for any tool it fails to detect.
-Settings are cached in `.nora_w5_build.<host>.json`, one file per host type so the same
+Settings are cached in `modules/nora-w50-w51/config/build.<host>.json`, one file per host type so the same
 folder works from Windows and WSL at once.
 
 On Windows the script converts paths containing spaces to their 8.3 short form, because

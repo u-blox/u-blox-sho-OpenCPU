@@ -32,7 +32,7 @@ python getting-started-sdk/scripts/setup_venv.py
 # Check new consolidated layout
 ls -la getting-started-sdk/
 # Should see: ubx-sdk.cmd, ubx-sdk.sh, ubx-matter.cmd, ubx-matter.sh,
-#             scripts/, modules/, docs/, targets/, README.md
+#             scripts/, modules/, docs/, README.md (sdks/ once an SDK is fetched)
 ```
 
 ### 4. Test Infrastructure
@@ -100,8 +100,7 @@ python getting-started-sdk/scripts/nora_w40_build.py build hello_world
 
 - **Each Build Script**:
   - Check `config_file()` function - now delegates to `target_paths.py`
-  - Configs stored per-target: `targets/<target>/config/build.<host>.json`
-  - Legacy root dotfiles (`.iris_w1_build.*.json`) auto-migrated on first run
+  - Configs stored per-target: `modules/<target>/config/build.<host>.json`
   - Check `detect_python()` function - handles venv activation
   - Review error handling and tool detection logic
 
@@ -113,20 +112,8 @@ python getting-started-sdk/scripts/nora_w40_build.py build hello_world
   - `getting-started-sdk/docs/nora_b20_b21_b22_README.md` - NORA-B20-B21-B22 setup
   - `getting-started-sdk/docs/alma_b20_b21_README.md` - ALMA-B20-B21 setup
 
-## What's New (Since Consolidation)
+## Layout
 
-### [OK] Consolidated Structure
-**Before:**
-```
-repo/
-├── IRIS-W10-GettingStartedSDK/
-├── NORA-W50-W51-GettingStartedSDK/
-├── NORA-W30-GettingStartedSDK/
-├── NORA-W40-GettingStartedSDK/
-└── BUILD_ALL_EXAMPLES.md
-```
-
-**After:**
 ```
 repo/
 └── getting-started-sdk/
@@ -134,12 +121,13 @@ repo/
     ├── ubx-matter.cmd / .sh (optional Matter layer)
     ├── scripts/ (ubx.py, ubx_sdk.py, ubx_matter.py, matter_build.py,
     │           per-target build drivers, target_paths.py, setup_venv.py,
-    │           migrate_venv.*, matter_vendor/)
-    ├── targets/ (per-target base folders: sdk/, config/)
+    │           matter_vendor/)
+    ├── modules/ (per-target profile.json + gitignored config/)
     │   ├── iris-w10/
     │   ├── nora-w30/
     │   ├── nora-w40/
     │   └── nora-w50-w51/
+    ├── sdks/ (vendor SDKs per version, gitignored)
     ├── docs/ (4 variant READMEs + build guides)
     ├── .github/ (consolidated instructions)
     └── README.md
@@ -163,7 +151,7 @@ repo/
 - [ ] **Build Scripts**: Do all target scripts work correctly?
 - [ ] **Documentation**: Are the READMEs clear and complete?
 - [ ] **Venv Setup**: Does `setup_venv.py` work on your system?
-- [ ] **Config Files**: Are `targets/<target>/config/build.<host>.json` files created?
+- [ ] **Config Files**: Are `modules/<target>/config/build.<host>.json` files created?
 - [ ] **Cross-Platform**: Can you test on multiple platforms (Windows, WSL2, Linux)?
 - [ ] **Examples**: Did you successfully build at least one example per variant?
 - [ ] **Output Files**: Are firmware binaries created in expected locations?

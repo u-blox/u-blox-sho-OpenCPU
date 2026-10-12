@@ -25,7 +25,6 @@ from dataclasses import dataclass, field, replace
 from pathlib import Path
 
 import module_config
-import target_paths
 
 SDK_ROOT = Path(__file__).resolve().parent.parent
 SCRIPTS_DIR = SDK_ROOT / "scripts"
@@ -107,23 +106,17 @@ TARGETS: dict[str, Target] = {
     ),
 }
 
-# Short keys are canonical; the full u-blox series names stay accepted.
-# Full series names are canonical. The short keys used before (iris-w1,
-# nora-w3, ...) stay accepted. Underscores are folded to '-' before lookup.
+# Full series names are canonical. Underscores are folded to '-' before lookup.
+# Bare series (nora-w3, nora-b2, ...) are not accepted: they also cover
+# u-connectXpress parts.
 ALIASES = {
-    "alma": "alma-b20-b21", "alma-b2": "alma-b20-b21", "almab2": "alma-b20-b21",
-    "alma-b20": "alma-b20-b21", "alma-b21": "alma-b20-b21",
-    "iris": "iris-w10", "iris-w1": "iris-w10", "irisw1": "iris-w10",
-    "irisw10": "iris-w10", "w10": "iris-w10",
-    "nora-b2": "nora-b20-b21-b22", "norab2": "nora-b20-b21-b22",
+    "alma": "alma-b20-b21", "alma-b20": "alma-b20-b21", "alma-b21": "alma-b20-b21",
+    "iris": "iris-w10", "irisw10": "iris-w10", "w10": "iris-w10",
     "nora-b20": "nora-b20-b21-b22", "nora-b21": "nora-b20-b21-b22",
     "nora-b22": "nora-b20-b21-b22",
-    "nora-w3": "nora-w30", "noraw3": "nora-w30", "noraw30": "nora-w30",
-    "w3": "nora-w30", "w30": "nora-w30",
-    "nora-w4": "nora-w40", "noraw4": "nora-w40", "noraw40": "nora-w40",
-    "w4": "nora-w40", "w40": "nora-w40",
+    "noraw30": "nora-w30", "w30": "nora-w30",
+    "noraw40": "nora-w40", "w40": "nora-w40",
     # W50x and W51x only. W56x/W57x are u-connectXpress parts, not Open CPU.
-    "nora-w5": "nora-w50-w51", "noraw5": "nora-w50-w51", "w5": "nora-w50-w51",
     "nora-w50": "nora-w50-w51", "nora-w51": "nora-w50-w51",
     "w50": "nora-w50-w51", "w51": "nora-w50-w51",
 }
@@ -148,6 +141,7 @@ class Context:
     variant: str | None = None
     region: str | None = None
     full: bool = False
+    sdk_version: str | None = None
     clean_all: bool = False
     matter: bool = False
     use_wsl: bool | None = None
@@ -173,7 +167,8 @@ with AT-command firmware and are not built from this Open CPU SDK.
 
 Flags (combinable; always run in this order)
   --doctor              Verify host tools for the target
-  --clone               Fetch the vendor SDK on demand
+  --clone [VERSION]     Fetch the vendor SDK on demand into sdks/<vendor>/<version>;
+                        VERSION is a branch or tag (default: the vendor's default)
     --full                IRIS-W10 only: full SDK instead of RW612 only
   --install             Install/refresh the SDK's own tool environment
   --build-sdk           NORA-W50-W51 only: build the SDK libraries
@@ -182,7 +177,7 @@ Flags (combinable; always run in this order)
     --region <DOMAIN>     Regulatory domain: FCC, ISED, ETSI, MKK, ACMA
   --list                List available examples, including the u-blox ones (ubx/...)
   --clean               Clean build artifacts
-  --clean-all           Remove the fetched SDK entirely
+  --clean-all           Remove the SDK version in use (other versions in sdks/ stay)
   --build [NAME]        Build an example (target-specific default if omitted);
                         ubx/<name> builds a u-blox example from the repository
   --flash [SERIAL]      Flash via the target's debug probe
@@ -201,6 +196,7 @@ is not regulatory compliant. --doctor reports whether it has been applied.
 
 Examples
   ubx-sdk nora-w40 --clone --install --build hello_world
+  ubx-sdk nora-w40 --clone v5.5.1 --install   (next to the existing ESP-IDF)
   ubx-sdk nora-b20-b21-b22 --clone --build hello_world --flash --log
   ubx-sdk iris-w10 --doctor
   ubx-sdk iris-w10 --build demo_apps/hello_world --flash --log
@@ -369,6 +365,9 @@ def parse(argv: list[str], matter: bool = False) -> Context | int:
             ctx.actions.add(arg[2:])
         elif arg == "--clone":
             ctx.actions.add("clone")
+            if not matter and peek():
+                ctx.sdk_version = peek()
+                i += 1
         elif arg == "--rf-config":
             ctx.actions.add("rf-config")
         elif arg in ("--variant", "--region"):
@@ -512,6 +511,12 @@ def argv_for(ctx: Context, action: str) -> list[str] | None:
         argv = ["clone"]
         if ctx.full and t.key == "iris-w10":
             argv.append("--full")
+        if ctx.sdk_version:
+            if t.key == "nora-w50-w51":
+                print("[WARNING] NORA-W50-W51 clones the TI example repos at their default branch; "
+                      f"ignoring version {ctx.sdk_version}.")
+            else:
+                argv += ["--revision", ctx.sdk_version]
         return argv
 
     if action == "clean":
@@ -581,7 +586,22 @@ def hop_to_wsl(ctx: Context, argv: list[str]) -> int:
     wsl = ["wsl", "-d", distro] if distro else ["wsl"]
     if distro:
         print(f"[INFO] WSL distro: {distro}")
-    return execute(ctx, [*wsl, "--", "bash", "-lc", command])
+    try:
+        rc = execute(ctx, [*wsl, "--", "bash", "-lc", command])
+    except OSError as exc:
+        print(f"[FAIL] Could not start WSL2: {exc}")
+        rc = 1
+    if rc not in (0, 130):
+        print(f"[FAIL] {ctx.target.label} in WSL2 exited with code {rc}.")
+        print(WSL_FIX)
+    return rc
+
+
+WSL_FIX = """\
+[INFO] If WSL2 itself failed (did not start, hangs, or reports a Wsl/Service error),
+       restart its compute service from an Administrator prompt and try again:
+         net stop vmcompute
+         net start vmcompute"""
 
 
 def needs_linux(ctx: Context) -> bool:
@@ -613,19 +633,7 @@ def resolve_ubx_example(ctx: Context) -> int:
     return 0
 
 
-def adopt_sdk(ctx: Context) -> None:
-    """Move a vendor SDK left in the SDK root by older versions into targets/."""
-    slug = ctx.target.key.replace("-", "_")
-    if ctx.dry_run:
-        return
-    target_paths.adopt_renamed_root()
-    if not ctx.matter and slug in target_paths.ROOT_SDKS:
-        target_paths.adopt_root_sdk(slug)
-
-
 def run(ctx: Context, raw_argv: list[str]) -> int:
-    adopt_sdk(ctx)
-
     if needs_linux(ctx) and host_is_windows() and ctx.use_wsl is not False:
         return hop_to_wsl(ctx, [a for a in raw_argv if a != "--wsl"])
 

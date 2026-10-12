@@ -311,6 +311,15 @@ sx output.bin > /dev/ttyUSB0
 
 ## Troubleshooting
 
+### WSL2 does not start, hangs, or reports a `Wsl/Service/...` error
+
+Restart the WSL2 compute service from an Administrator prompt, then rerun the
+launcher command:
+```bat
+net stop vmcompute
+net start vmcompute
+```
+
 ### "arm-none-eabi-gcc: command not found" (Linux)
 
 Install toolchain:

@@ -37,10 +37,10 @@ as `ubx/<name>`, e.g. `nora-w40 --variant NORA-W401 --rf-config --build ubx/rf-c
 
 | Target | SDK | Firmware |
 |--------|-----|----------|
-| IRIS-W10 | `targets/iris-w10/sdk/mcuxpresso-sdk` | `<workspace>/build/<config>/<example>.{elf,bin}` |
-| NORA-W30 | `targets/nora-w30/sdk/ameba-rtos-d` | `.../GCC-RELEASE/project_hp/asdk/image/km4_image2_all.bin` |
-| NORA-W40 | `targets/nora-w40/sdk/esp-idf` | `<example>/build/<project>.bin` |
-| NORA-W50-W51 | `targets/nora-w50-w51/sdk/` | `<example>/<rtos>/<board>/<toolchain>/*.out` |
+| IRIS-W10 | `sdks/mcuxpresso-sdk/<version>` | `<workspace>/build/<config>/<example>.{elf,bin}` |
+| NORA-W30 | `sdks/ameba-rtos-d/<version>` | `.../GCC-RELEASE/project_hp/asdk/image/km4_image2_all.bin` |
+| NORA-W40 | `sdks/esp-idf/<version>` | `<example>/build/<project>.bin` |
+| NORA-W50-W51 | `sdks/simplelink-wifi/<version>/` | `<example>/<rtos>/<board>/<toolchain>/*.out` |
 | NORA-B20-B21-B22, ALMA-B20-B21 | `C:\ncs\<rev>` or `~/ncs/<rev>` | `<ncs>/build/<sample>/zephyr/zephyr.{elf,hex,bin}` |
 
 ## Flash and log
@@ -72,6 +72,10 @@ as `ubx/<name>`, e.g. `nora-w40 --variant NORA-W401 --rf-config --build ubx/rf-c
   `~/.mcuxpressotools` and `PATH`. `--doctor` shows the pick.
 - **NORA-W30 on Windows**: the Realtek build is Linux-only; the launcher hops
   into WSL2. Building from `/mnt/<drive>` is slow but works.
+- **WSL2 itself fails** (does not start, hangs, `Wsl/Service/...` error): restart
+  its compute service from an Administrator prompt, then rerun:
+  `net stop vmcompute` and `net start vmcompute`. The launcher prints this after
+  any failed WSL2 run.
 - **NCS too old**: an existing `~/ncs` may predate `ubx_evknorab2` (not in
   v2.9.0). The driver reports the version; `--clone` fetches the pinned one into
   `<system drive>/ncs/<rev>`. `nordic_ncs_build.py <target> use [path]` selects one.

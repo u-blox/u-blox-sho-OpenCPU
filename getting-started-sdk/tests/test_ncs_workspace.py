@@ -25,7 +25,7 @@ def host(tmp_path, monkeypatch):
     home.mkdir()
     monkeypatch.setattr(ncs, "host_kind", lambda: "linux")
     monkeypatch.setattr(ncs.Path, "home", lambda: home)
-    monkeypatch.setattr(ncs.target_paths, "sdk_dir", lambda slug: tmp_path / "repo" / slug)
+    monkeypatch.setattr(ncs.target_paths, "installed_sdks", lambda slug: [])
     monkeypatch.setattr(ncs.target_paths, "SDK_ROOT", tmp_path / "repo")
     monkeypatch.delenv(ncs.WORKSPACE_ENV, raising=False)
     monkeypatch.delenv("ZEPHYR_BASE", raising=False)
@@ -152,84 +152,43 @@ def test_free_gb_walks_up_to_existing_parent(tmp_path):
 
 
 # ---------------------------------------------------------------------------
-# target_paths.adopt_legacy
-# ---------------------------------------------------------------------------
-
-def test_adopt_legacy_merges_old_folder(tmp_path):
-    old = tmp_path / "NORA-W4"
-    (old / "sdk" / "esp-idf").mkdir(parents=True)
-    (old / "config").mkdir()
-    (old / "config" / "rf_config.json").write_text("{}")
-    new = tmp_path / "nora-w40"
-    (new / "sdk").mkdir(parents=True)
-    (new / "sdk" / ".gitkeep").write_text("")
-
-    assert target_paths.adopt_legacy(new, "nora_w40") == new
-    assert (new / "sdk" / "esp-idf").is_dir()
-    assert (new / "config" / "rf_config.json").read_text() == "{}"
-    assert not old.exists()
-
-
-def test_adopt_legacy_without_old_folder(tmp_path):
-    new = tmp_path / "nora-w50-w51"
-    assert target_paths.adopt_legacy(new, "nora_w50_w51") == new
-    assert not new.exists()
-
-
-def test_every_target_has_a_legacy_name():
-    assert set(target_paths.LEGACY) == set(target_paths.TARGETS)
-
-
-# ---------------------------------------------------------------------------
-# target_paths.adopt_root_sdk
+# target_paths layout
 # ---------------------------------------------------------------------------
 
 @pytest.fixture
 def fake_sdk_root(tmp_path, monkeypatch):
     root = tmp_path / "getting-started-sdk"
     monkeypatch.setattr(target_paths, "SDK_ROOT", root)
-    monkeypatch.setattr(target_paths, "TARGETS_DIR", root / "targets")
+    monkeypatch.setattr(target_paths, "MODULES_DIR", root / "modules")
+    monkeypatch.setattr(target_paths, "SDKS_DIR", root / "sdks")
     return root
 
 
-def test_adopt_root_sdk_moves_sdk_and_repoints_config(fake_sdk_root):
-    (fake_sdk_root / "esp-idf" / "components").mkdir(parents=True)
-    config = target_paths.config_dir("nora_w40")
-    config.mkdir(parents=True)
-    (config / "build.windows.json").write_text('{"idf_path": "E:/x/getting-started-sdk/esp-idf"}')
-    (config / "build.wsl.json").write_text('{"idf_path": "E:\\\\x\\\\getting-started-sdk\\\\esp-idf"}')
-
-    new = target_paths.adopt_root_sdk("nora_w40")
-
-    assert new == fake_sdk_root / "targets" / "nora-w40" / "sdk" / "esp-idf"
-    assert (new / "components").is_dir()
-    assert not (fake_sdk_root / "esp-idf").exists()
-    assert "getting-started-sdk/targets/nora-w40/sdk/esp-idf" in (config / "build.windows.json").read_text()
-    assert "targets\\\\nora-w40\\\\sdk\\\\esp-idf" in (config / "build.wsl.json").read_text()
-    assert target_paths.sdk_candidates("nora_w40") == [new]
+def test_layout_paths(fake_sdk_root):
+    assert target_paths.config_dir("nora_w40") == fake_sdk_root / "modules" / "nora-w40" / "config"
+    assert target_paths.sdk_dir("nora_w40") == fake_sdk_root / "sdks" / "esp-idf" / "master"
+    assert target_paths.sdk_dir("nora_w40", "v5.5.1") == fake_sdk_root / "sdks" / "esp-idf" / "v5.5.1"
+    assert target_paths.vendor_dir("alma_b20_b21") == target_paths.vendor_dir("nora_b20_b21_b22")
+    assert target_paths.matter_dir("nora_w40") == fake_sdk_root / "sdks" / "matter" / "nora-w40"
 
 
-def test_adopt_root_sdk_keeps_both_when_new_exists(fake_sdk_root, capsys):
-    (fake_sdk_root / "ameba-rtos-d").mkdir(parents=True)
-    target_paths.vendor_sdk("nora_w30").mkdir(parents=True)
-
-    assert target_paths.adopt_root_sdk("nora_w30") is None
-    assert "Both" in capsys.readouterr().out
-    assert len(target_paths.sdk_candidates("nora_w30")) == 2
+def test_every_target_has_a_vendor():
+    assert set(target_paths.VENDORS) == set(target_paths.TARGETS)
 
 
-def test_adopt_root_sdk_ignores_targets_without_root_sdk(fake_sdk_root):
-    assert target_paths.adopt_root_sdk("nora_b20_b21_b22") is None
-    assert target_paths.adopt_root_sdk("iris_w10") is None
+def test_installed_sdks_newest_tag_first_branches_last(fake_sdk_root):
+    for name in ("master", "v5.5.1", "v5.10", "v6.2", "4d59230ddff1"):
+        target_paths.sdk_dir("nora_w40", name).mkdir(parents=True)
+    names = [p.name for p in target_paths.installed_sdks("nora_w40")]
+    assert names == ["v6.2", "v5.10", "v5.5.1", "master", "4d59230ddff1"]
 
 
-def test_cached_paths_follow_the_sdk_folder_rename(fake_sdk_root):
-    config = target_paths.config_dir("nora_w30")
-    config.mkdir(parents=True)
-    (config / "build.wsl.json").write_text('{"sdk_path": "/mnt/e/r/GettingStartedSDK/targets/nora-w30/sdk/ameba-rtos-d"}')
-    (config / "build.windows.json").write_text('{"p": "E:\\\\r\\\\GettingStartedSDK\\\\x"}')
+def test_installed_sdks_without_any(fake_sdk_root):
+    assert target_paths.installed_sdks("iris_w10") == []
 
-    target_paths.adopt_renamed_root()
 
-    assert "/mnt/e/r/getting-started-sdk/targets/" in (config / "build.wsl.json").read_text()
-    assert "\\\\getting-started-sdk\\\\x" in (config / "build.windows.json").read_text()
+def test_resolve_config_creates_config_folder(fake_sdk_root):
+    path = target_paths.resolve_config("nora_w30", "wsl")
+    assert path == fake_sdk_root / "modules" / "nora-w30" / "config" / "build.wsl.json"
+    assert path.parent.is_dir()
+    assert not (fake_sdk_root / "sdks").exists()

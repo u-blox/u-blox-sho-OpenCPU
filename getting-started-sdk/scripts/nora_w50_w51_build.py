@@ -644,7 +644,7 @@ def cmd_log(args) -> int:
     """Open serial monitor for debugging output."""
     port = getattr(args, 'port', None)
 
-    print("\nNORA-W5 Serial Monitor (115200 baud)")
+    print("\nNORA-W50-W51 Serial Monitor (115200 baud)")
     print("   Use Ctrl+C to exit\n")
 
     import serial_logger
@@ -653,7 +653,7 @@ def cmd_log(args) -> int:
 
 def cmd_flash(args) -> int:
     """Flash firmware using XDS110 or other debugger."""
-    print("\nNORA-W5 Flash Utility (XDS110)\n")
+    print("\nNORA-W50-W51 Flash Utility (XDS110)\n")
 
     import flash_helper
 

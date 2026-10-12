@@ -7,6 +7,10 @@ Always-on context for `getting-started-sdk/`. Task procedures are skills in
 
 - Concise and technical. No emoji in code, script output or docs.
 - Status markers are plain text: `[OK]` `[FAIL]` `[WARNING]` `[INFO]`.
+- Chat replies: when a reply or summary is longer than a screen, start it with
+  a `TL;DR` of 2-4 lines: what changed, whether it works, and anything the
+  user must decide or do. Never leave an open question or a required action
+  only at the bottom.
 
 ## What this is
 
@@ -53,8 +57,8 @@ u-blox-sho-OpenCPU/                  repository root
     ├── ubx-sdk.cmd/.sh, ubx-matter.cmd/.sh, ubx.code-workspace, README.md
     ├── scripts/                     ubx.py (launcher core), per-target drivers, module_config.py
     ├── modules/<target>/profile.json   what the u-blox configuration is, per target
-    ├── targets/<target>/sdk/<repo>  vendor SDK, fetched on demand (gitignored)
-    ├── targets/<target>/config/     cached paths, RF-config state (gitignored)
+    ├── modules/<target>/config/     cached paths, RF-config state (gitignored)
+    ├── sdks/<vendor>/<version>/     vendor SDK, fetched on demand (gitignored)
     ├── tests/                       hermetic pytest suite
     └── docs/
 ```
@@ -62,24 +66,24 @@ u-blox-sho-OpenCPU/                  repository root
 - Repository-root folders are named after an SDK but hold only u-blox files.
   The SDK is never cloned there. Profiles point at them through `assets`;
   nothing is copied into `modules/`.
-- Vendor SDKs live only in `targets/<target>/sdk/<repo>`
-  (`scripts/target_paths.py` is the single source of truth). Exceptions: nRF
+- Vendor SDKs live only in `sdks/<vendor>/<version>/` (`esp-idf/master`,
+  `ameba-rtos-d/main`, ...); `<version>` is the fetched branch or tag, so
+  versions sit side by side and the path cached in `build.<host>.json` picks
+  one. `scripts/target_paths.py` is the single source of truth. Exceptions: nRF
   Connect SDK in `C:\ncs\<rev>` or `~/ncs/<rev>`, Matter SDKs in
   `~/ubx-matter/<target>` inside WSL2.
 - Only `README.md`, `.gitattributes` and `.gitlab-ci.yml` may sit at the
   repository root besides the asset folders. The SDK root holds only the two
   launcher pairs, `ubx.code-workspace`, `README.md` and the folders above.
-- The folder was `GettingStartedSDK/` until 2026-10. The product is still
-  "Getting Started SDK" in prose.
 
 ## Naming
 
 - Target keys list every Open CPU sub-series: `iris-w10`, `nora-w30`,
   `nora-w40`, `nora-w50-w51`, `nora-b20-b21-b22`, `alma-b20-b21`. The same key
-  names `targets/`, `modules/`, asset folders and `~/ubx-matter/`. Python and
+  names `modules/`, asset folders and `~/ubx-matter/`. Python and
   doc file names use `_` (`nora_w50_w51_build.py`).
-- Never use a bare series (`nora-w3`, `nora-b2`) as a canonical name; it also
-  covers u-connectXpress parts. Old short keys stay as hidden aliases in `ubx.py`.
+- Never use a bare series (`nora-w3`, `nora-b2`) as a target key or alias; it
+  also covers u-connectXpress parts. `ubx.py` rejects them.
 - Never add a `nora-w1` target: NORA-W1 is an ESP32 module outside this SDK.
 - Do not rename EVK names (`EVK-IRIS-W1`), u-blox URLs or Zephyr board ids.
 - Shared by both launchers: plain `ubx` (`ubx.py`); layer-specific: suffixed
@@ -100,7 +104,9 @@ u-blox-sho-OpenCPU/                  repository root
   data and is not regulatory compliant on a u-blox module. Never describe a
   plain `--build` as production-ready.
 - NORA-W30 and all vendor-SDK Matter actions hop into WSL2 automatically.
-  The Nordic targets build natively on Windows and never hop.
+  The Nordic targets build natively on Windows and never hop. When a WSL2 run
+  fails, suggest restarting WSL2 from an Administrator prompt:
+  `net stop vmcompute` then `net start vmcompute`.
 - Matter is a separate launcher with vendor examples only; no u-blox Matter
   application code lives here.
 

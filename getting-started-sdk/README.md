@@ -146,8 +146,8 @@ getting-started-sdk/
 ├── scripts/                      Per-target drivers + venv helpers
 │   └── matter_vendor/            Per-vendor Matter setup/build scripts
 ├── modules/<T>/profile.json      RF calibration / TX power profiles
-├── targets/<T>/sdk/              Vendor SDKs, fetched on demand (gitignored)
-├── targets/<T>/config/           Per-host tool cache
+├── modules/<T>/config/           Per-host tool cache (gitignored)
+├── sdks/<vendor>/<version>/      Vendor SDKs, fetched on demand (gitignored)
 ├── tests/                        pytest suite for the launchers and drivers
 └── docs/                         Per-module guides and build references
 ```
@@ -161,7 +161,7 @@ Where things live:
 |------|-------|
 | u-blox RF data, patches, board files, examples | repository root: `esp-idf/nora-w40/`, `mcuxpresso/iris-w10/`, `ameba-rtos-d/nora-w30/`, `zephyr/`, ... |
 | The tooling (this folder) | `getting-started-sdk/` |
-| ESP-IDF, MCUXpresso, Ameba-D, SimpleLink | `getting-started-sdk/targets/<target>/sdk/<repo>` |
+| ESP-IDF, MCUXpresso, Ameba-D, SimpleLink | `getting-started-sdk/sdks/<vendor>/<version>`, e.g. `sdks/esp-idf/master`; `--clone <tag>` fetches another version next to it |
 | nRF Connect SDK (NORA-B20-B21-B22, ALMA-B20-B21) | `C:\ncs\<version>` or `~/ncs/<version>`, shared with Nordic's own tools |
 | Matter SDKs | `~/ubx-matter/<target>` inside WSL2 |
 

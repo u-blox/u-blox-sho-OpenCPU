@@ -29,7 +29,7 @@ def calls():
 
 
 @pytest.fixture(autouse=True)
-def no_sdk_adoption(monkeypatch):
-    """Never move the real vendor SDKs of the machine running the tests."""
-    import ubx
-    monkeypatch.setattr(ubx, "adopt_sdk", lambda ctx: None)
+def isolated_sdks(monkeypatch, tmp_path):
+    """Never read or create the real sdks/ folder of the machine running the tests."""
+    import target_paths
+    monkeypatch.setattr(target_paths, "SDKS_DIR", tmp_path / "sdks")

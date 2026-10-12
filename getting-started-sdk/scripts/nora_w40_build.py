@@ -93,7 +93,7 @@ def detect_idf() -> Optional[str]:
             return idf_path
 
     # Check common locations
-    patterns = [str(p) for p in target_paths.sdk_candidates(TARGET)] + [
+    patterns = [str(p) for p in target_paths.installed_sdks(TARGET)] + [
         str(Path.home() / "esp" / "esp-idf"),
         "/opt/esp/esp-idf",
         "C:/esp/esp-idf",
@@ -154,7 +154,7 @@ def detect_python() -> Optional[str]:
 # ============================================================================
 
 def config_file() -> Path:
-    """Get per-platform config file path (targets/nora-w40/config)."""
+    """Get per-platform config file path (modules/nora-w40/config)."""
     return target_paths.resolve_config(TARGET, host_kind())
 
 def load_config() -> Dict:
@@ -177,7 +177,7 @@ def save_config(cfg: Dict) -> None:
 
 def cmd_doctor(args) -> int:
     """Verify toolchain availability."""
-    print("\nNORA-W4 Build Environment Check\n")
+    print("\nNORA-W40 Build Environment Check\n")
 
     tools = {
         "Python": detect_python(),
@@ -216,7 +216,12 @@ def cmd_clone(args) -> int:
         print("[FAIL] Git not found or not in PATH!")
         return 1
 
-    idf_dir = target_paths.sdk_dir(TARGET) / "esp-idf"
+    revision = getattr(args, "revision", None)
+    if revision:
+        idf_dir = target_paths.sdk_dir(TARGET, revision)
+    else:
+        # Without a version, keep the ESP-IDF already in use.
+        idf_dir = Path(detect_idf() or target_paths.sdk_dir(TARGET))
     if idf_dir.exists():
         print(f"[INFO] {idf_dir} already exists. Skipping clone.\n")
         cfg = load_config()
@@ -224,12 +229,14 @@ def cmd_clone(args) -> int:
         save_config(cfg)
         return 0
     target_paths.ensure(TARGET)
+    idf_dir.parent.mkdir(parents=True, exist_ok=True)
     # Approximate: shallow ESP-IDF with submodules plus a first build.
     if not target_paths.check_space(idf_dir, 3, "ESP-IDF"):
         return 1
 
     result = subprocess.run(
-        ["git", "clone", "--depth", "1", "https://github.com/espressif/esp-idf.git", str(idf_dir)],
+        ["git", "clone", "--depth", "1", *(["--branch", revision] if revision else []),
+         "https://github.com/espressif/esp-idf.git", str(idf_dir)],
         cwd=idf_dir.parent
     )
 
@@ -574,13 +581,13 @@ def _idf_invoke(args, verb: str, extra: list) -> int:
 
 def cmd_flash(args) -> int:
     """Flash a built example over the ESP32-C6 USB/UART bootloader."""
-    print(f"\nNORA-W4 Flash Utility: {args.example}\n")
+    print(f"\nNORA-W40 Flash Utility: {args.example}\n")
     return _idf_invoke(args, "flash", [])
 
 
 def cmd_log(args) -> int:
     """Open the ESP-IDF serial monitor."""
-    print("\nNORA-W4 Serial Monitor (Ctrl+] to exit)\n")
+    print("\nNORA-W40 Serial Monitor (Ctrl+] to exit)\n")
     return _idf_invoke(args, "monitor", [])
 
 
@@ -629,7 +636,8 @@ Examples:
     subparsers = parser.add_subparsers(dest="command", help="Command")
 
     subparsers.add_parser("doctor", help="Verify toolchain")
-    subparsers.add_parser("clone", help="Clone ESP-IDF")
+    clone_parser = subparsers.add_parser("clone", help="Clone ESP-IDF")
+    clone_parser.add_argument("--revision", help="branch or tag, e.g. v5.5.1 (default: master), fetched into sdks/esp-idf/<revision>")
     subparsers.add_parser("install", help="Install ESP-IDF environment")
     subparsers.add_parser("list", help="List examples")
 

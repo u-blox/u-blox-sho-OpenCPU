@@ -1,5 +1,6 @@
 """Per-target driver internals that can be checked without an SDK or toolchain."""
 
+import argparse
 import subprocess
 
 import pytest
@@ -48,6 +49,51 @@ def test_git_detection_does_not_shell_out(module, monkeypatch):
     monkeypatch.setattr(module.subprocess, "run",
                         lambda *a, **k: pytest.fail(f"unexpected subprocess: {a}"))
     assert module.detect_git() == "/usr/bin/git"
+
+
+@pytest.mark.parametrize("module,vendor,default", [
+    (nora_w30_build, "ameba-rtos-d", "main"),
+    (nora_w40_build, "esp-idf", "master"),
+], ids=["nora_w30", "nora_w40"])
+@pytest.mark.parametrize("revision", [None, "v5.5.1"])
+def test_clone_fetches_into_versioned_sdk_folder(module, vendor, default, revision, monkeypatch):
+    seen = []
+    monkeypatch.setattr(module.subprocess, "run",
+                        lambda cmd, **kw: seen.append(cmd) or subprocess.CompletedProcess(cmd, 0))
+    monkeypatch.setattr(module, "detect_git", lambda: "git")
+    monkeypatch.setattr(module, "detect_idf", lambda: None, raising=False)
+    monkeypatch.setattr(module.target_paths, "check_space", lambda *a: True)
+    cfg = {}
+    monkeypatch.setattr(module, "load_config", lambda: dict(cfg))
+    monkeypatch.setattr(module, "save_config", cfg.update)
+
+    assert module.cmd_clone(argparse.Namespace(revision=revision)) == 0
+
+    clone = seen[-1]
+    dest = module.target_paths.SDKS_DIR / vendor / (revision or default)
+    assert clone[-1] == str(dest)
+    assert (["--branch", revision] == clone[4:6]) if revision else "--branch" not in clone
+    assert cfg[next(iter(cfg))] == str(dest)
+
+
+@pytest.mark.parametrize("module,key,marker", [
+    (nora_w30_build, "sdk_path", "project"),
+    (nora_w40_build, "idf_path", "components"),
+], ids=["nora_w30", "nora_w40"])
+def test_clone_without_version_keeps_the_sdk_in_use(module, key, marker, monkeypatch):
+    in_use = module.target_paths.sdk_dir(module.TARGET, "v5.5.1")
+    (in_use / marker).mkdir(parents=True)
+    module.target_paths.sdk_dir(module.TARGET).mkdir(parents=True)
+    cfg = {key: str(in_use)}
+    monkeypatch.setattr(module, "load_config", lambda: dict(cfg))
+    monkeypatch.setattr(module, "save_config", cfg.update)
+    monkeypatch.setattr(module, "detect_git", lambda: "git")
+    monkeypatch.setattr(module.subprocess, "run",
+                        lambda cmd, **kw: pytest.fail(f"unexpected clone: {cmd}") if "clone" in cmd
+                        else subprocess.CompletedProcess(cmd, 0))
+
+    assert module.cmd_clone(argparse.Namespace(revision=None)) == 0
+    assert cfg[key] == str(in_use)
 
 
 def make_board(ws, rel):
