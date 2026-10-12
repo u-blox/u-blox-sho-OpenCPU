@@ -8,11 +8,15 @@
   "variants": {
     "NORA-W301": {
       "description": "Antenna pin",
-      "vars": { "rf_para": "W301" }
+      "vars": {
+        "rf_para": "W301"
+      }
     },
     "NORA-W306": {
       "description": "Internal PCB antenna",
-      "vars": { "rf_para": "W306" }
+      "vars": {
+        "rf_para": "W306"
+      }
     }
   },
   "output_power": [
@@ -50,8 +54,12 @@
   "mac": {
     "source": "Realtek eFuse, programmed in u-blox production",
     "read": "unsupported",
+    "on_device": {
+      "build": "project_hp",
+      "command": "ATW?"
+    },
     "notes": [
-      "No host-side reader is wired up. Print it from the application with wifi_get_mac_address()."
+      "ATW? lists it as 'MAC =>' per interface. In the application, use wifi_get_mac_address()."
     ],
     "write": {
       "runtime": [

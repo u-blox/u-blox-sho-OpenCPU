@@ -660,11 +660,15 @@ def cmd_mac(key: str, args) -> int:
     print(f"  Source: {mac.get('source', 'unknown')}")
 
     if mac.get("read") == "esptool":
-        rc = read_mac_esptool(key, args.serial)
+        rc = read_mac_esptool(key, args.serial, mac.get("derived") or [])
     else:
-        print("  [INFO] No host-side reader is wired up for this target.")
+        print("  [INFO] Not readable from the PC on this target.")
         rc = 0
 
+    on_device = mac.get("on_device")
+    if on_device:
+        then = f", then type: {on_device['command']}" if on_device.get("command") else ""
+        print(f"  On the module: ubx-sdk {key} --build {on_device['build']} --flash --log{then}")
     for note in mac.get("notes") or []:
         print(f"  - {note}")
     for step in profile.get("manual_steps") or []:
@@ -775,7 +779,33 @@ def cmd_examples(key: str, args) -> int:
     return 0
 
 
-def read_mac_esptool(key: str, port: str | None) -> int:
+ESPTOOL_MAC = re.compile(r"^\s*(BASE MAC|MAC_EXT|MAC):\s*([0-9A-Fa-f:]+)\s*$")
+
+
+def offset_mac(mac: str, offset: int) -> str:
+    """Add offset to the last octet without carry, as ESP-IDF's generate_mac() does."""
+    octets = mac.split(":")
+    octets[-1] = f"{(int(octets[-1], 16) + offset) & 0xFF:02X}"
+    return ":".join(octets)
+
+
+def print_esptool_mac(stdout: str, derived: list[dict]) -> None:
+    found = {m.group(1): m.group(2).upper() for m in map(ESPTOOL_MAC.match, stdout.splitlines()) if m}
+    # Chips with an 802.15.4 radio print the EUI-64 as 'MAC' and the 6-byte base separately.
+    base = found.get("BASE MAC") or found.get("MAC")
+    eui64 = found.get("MAC") if "BASE MAC" in found else None
+    if not base:
+        print("  [WARNING] esptool printed no MAC address.")
+        return
+    print(f"  {'Base MAC (eFuse):':<22}{base}")
+    for entry in derived:
+        if "offset" in entry:
+            print(f"  {entry['name'] + ':':<22}{offset_mac(base, entry['offset'])}")
+        elif entry.get("from") == "eui64" and eui64:
+            print(f"  {entry['name'] + ':':<22}{eui64}")
+
+
+def read_mac_esptool(key: str, port: str | None, derived: list[dict]) -> int:
     root = vendor_sdk_root(key)
     candidates = [[sys.executable, "-m", "esptool"]]
     if root:
@@ -793,9 +823,7 @@ def read_mac_esptool(key: str, port: str | None) -> int:
         except OSError:
             continue
         if result.returncode == 0:
-            for line in result.stdout.splitlines():
-                if "MAC:" in line:
-                    print(f"  {line.strip()}")
+            print_esptool_mac(result.stdout, derived)
             return 0
         if "No module named" not in result.stderr:
             print(f"  [FAIL] {(result.stderr or result.stdout).strip().splitlines()[-1]}")

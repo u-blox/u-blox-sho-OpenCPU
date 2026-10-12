@@ -64,6 +64,8 @@ One `profile.json` per target, applied by `scripts/module_config.py`.
   "mac": {
     "source": "...",
     "read": "esptool" | "unsupported",
+    "derived": [ { "name": "Wi-Fi SoftAP", "offset": 1 }, { "name": "IEEE 802.15.4", "from": "eui64" } ],
+    "on_device": { "build": "wifi_examples/wifi_cli", "command": "wlan-mac" },   // printed by --mac
     "write": {
       "runtime": [ "uint8_t mac[6] = {mac_array};", "..." ],   // printed by --mac-set
       "permanent": { "tool": "espefuse", "chip": "esp32c6", "note": "..." }
@@ -84,6 +86,12 @@ split is for people reading the profile and the `--doctor` report; all three
 are needed for a compliant build.
 
 ### MAC address
+
+`--mac` reads the address with the host tool named in `read` and prints each
+`derived` address: `offset` is added to the last octet of the base (no carry,
+as ESP-IDF does), `from: eui64` shows the EUI-64 the tool reports. `on_device`
+is the build and console command that shows the address on the module; `--mac`
+prints it as one launcher line.
 
 `--mac-set <ADDR>` checks the address (unicast, not all-zero) and prints the
 `runtime` lines with `{mac}`, `{mac_hex}` and `{mac_array}` filled in. That is

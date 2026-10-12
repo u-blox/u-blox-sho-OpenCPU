@@ -10,14 +10,54 @@
     "flash_vendor": "macronix"
   },
   "variants": {
-    "IRIS-W101-00B": { "description": "RW612, 8 MB flash, antenna pin", "vars": { "flash_size": "8mb" } },
-    "IRIS-W106-00B": { "description": "RW612, 8 MB flash, PCB antenna", "vars": { "flash_size": "8mb" } },
-    "IRIS-W101-10B": { "description": "RW612, 16 MB flash, antenna pin", "vars": { "flash_size": "16mb" } },
-    "IRIS-W106-10B": { "description": "RW612, 16 MB flash, PCB antenna", "vars": { "flash_size": "16mb" } },
-    "IRIS-W101-30B": { "description": "RW610, 8 MB flash, antenna pin", "vars": { "flash_size": "8mb" } },
-    "IRIS-W106-30B": { "description": "RW610, 8 MB flash, PCB antenna", "vars": { "flash_size": "8mb" } },
-    "IRIS-W101-40B": { "description": "RW610, 16 MB flash, antenna pin", "vars": { "flash_size": "16mb" } },
-    "IRIS-W106-40B": { "description": "RW610, 16 MB flash, PCB antenna", "vars": { "flash_size": "16mb" } }
+    "IRIS-W101-00B": {
+      "description": "RW612, 8 MB flash, antenna pin",
+      "vars": {
+        "flash_size": "8mb"
+      }
+    },
+    "IRIS-W106-00B": {
+      "description": "RW612, 8 MB flash, PCB antenna",
+      "vars": {
+        "flash_size": "8mb"
+      }
+    },
+    "IRIS-W101-10B": {
+      "description": "RW612, 16 MB flash, antenna pin",
+      "vars": {
+        "flash_size": "16mb"
+      }
+    },
+    "IRIS-W106-10B": {
+      "description": "RW612, 16 MB flash, PCB antenna",
+      "vars": {
+        "flash_size": "16mb"
+      }
+    },
+    "IRIS-W101-30B": {
+      "description": "RW610, 8 MB flash, antenna pin",
+      "vars": {
+        "flash_size": "8mb"
+      }
+    },
+    "IRIS-W106-30B": {
+      "description": "RW610, 8 MB flash, PCB antenna",
+      "vars": {
+        "flash_size": "8mb"
+      }
+    },
+    "IRIS-W101-40B": {
+      "description": "RW610, 16 MB flash, antenna pin",
+      "vars": {
+        "flash_size": "16mb"
+      }
+    },
+    "IRIS-W106-40B": {
+      "description": "RW610, 16 MB flash, PCB antenna",
+      "vars": {
+        "flash_size": "16mb"
+      }
+    }
   },
   "output_power": [
     {
@@ -93,8 +133,12 @@
   "mac": {
     "source": "RW612/RW610 OTP, programmed in u-blox production",
     "read": "unsupported",
+    "on_device": {
+      "build": "wifi_examples/wifi_cli",
+      "command": "wlan-mac"
+    },
     "notes": [
-      "No host-side reader is wired up. Print it from the application, or read it over the Wi-Fi CLI."
+      "In the application, wlan_get_mac_address() returns it after wlan_start()."
     ],
     "write": {
       "runtime": [
@@ -123,8 +167,14 @@
     }
   ],
   "manual_steps": [
-    { "sdk_version": ">=24.12,<25.6", "text": "SDK 24.12.00 / 25.03.00: add '#define CONFIG_WLAN_CALDATA_1ANT 1' to the example's wifi_config.h, otherwise the u-blox Wi-Fi calibration is not used." },
-    { "sdk_version": ">=25.6", "text": "SDK 25.06.00 and later: add '#define OVERRIDE_CALIBRATION_DATA \"wifi_cal_data_override.h\"' to the example's wifi_config.h, otherwise the u-blox Wi-Fi calibration is not used." },
+    {
+      "sdk_version": ">=24.12,<25.6",
+      "text": "SDK 24.12.00 / 25.03.00: add '#define CONFIG_WLAN_CALDATA_1ANT 1' to the example's wifi_config.h, otherwise the u-blox Wi-Fi calibration is not used."
+    },
+    {
+      "sdk_version": ">=25.6",
+      "text": "SDK 25.06.00 and later: add '#define OVERRIDE_CALIBRATION_DATA \"wifi_cal_data_override.h\"' to the example's wifi_config.h, otherwise the u-blox Wi-Fi calibration is not used."
+    },
     "Linker scripts for the {flash_size} part are in mcuxpresso/iris-w10/sw-config/linker-scripts/ - the destination depends on the toolchain, so they are not applied automatically.",
     "EVK LED/button pin mux is in mcuxpresso/iris-w10/sw-config/board-files/ - copy into the example's board/ folder if you need it."
   ],

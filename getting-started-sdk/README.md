@@ -97,34 +97,33 @@ referenced, never duplicated. See [modules/README.md](modules/README.md).
 
 ## MAC address and Bluetooth device address
 
-Every module has a unique address programmed by u-blox in production (eFuse,
-OTP or UICR, depending on the SoC). Firmware uses it automatically; nothing has
-to be configured.
+Every module has a unique address set in production: by u-blox (eFuse or OTP)
+or, on the Nordic modules, by Nordic in the SoC (FICR). Firmware uses it
+automatically; nothing has to be configured.
 
 ```bash
 ./ubx-sdk.sh nora-w40 --mac                          # read it from the module
+./ubx-sdk.sh nora-w40 --build ubx/read-mac --flash --log   # print it on the module
 ./ubx-sdk.sh nora-w40 --mac-set 02:12:34:56:78:9A    # show how to use another one
 ```
 
 - `--mac [PORT]` reads the address over the serial port where a host tool
-  exists (NORA-W40, via esptool). For the other targets it explains where the
-  address lives and how the application reads it.
+  exists (NORA-W40, via esptool) and lists every address derived from it
+  (Wi-Fi station, SoftAP, Bluetooth LE, IEEE 802.15.4). For the other targets it
+  prints the one-line command to read it on the module.
 - `--mac-set <ADDR>` prints the code to use a different address at runtime (RAM
   only, nothing is written to the module).
 - `--burn` with `--mac-set` stores the address permanently, NORA-W40 only
   (espefuse, `CUSTOM_MAC` eFuse). It is **irreversible**: an eFuse can be
   written once.
 
-| Target | Factory address | `--mac` reads it | Permanent change |
-|--------|-----------------|------------------|------------------|
-| `iris-w10` | RW612 OTP | No, print it from the app or the Wi-Fi CLI | No |
-| `nora-w30` | Realtek eFuse | No, `wifi_get_mac_address()` in the app | From the app only (eFuse, one time) |
-| `nora-w40` | ESP32-C6 eFuse (base MAC for Wi-Fi STA/AP, Bluetooth) | Yes | `--mac-set <ADDR> --burn` (one time) |
-| `nora-w50-w51` | CC35xx factory configuration | No | No |
-| `nora-b20-b21-b22`, `alma-b20-b21` | Public Bluetooth address in UICR OTP | No | No |
-
-NCS samples use a random static Bluetooth address by default, not the u-blox
-public address in UICR.
+| Target | Factory address | Read it | Permanent change |
+|--------|-----------------|---------|------------------|
+| `iris-w10` | RW612 OTP | `--build wifi_examples/wifi_cli --flash --log`, then type `wlan-mac` | No |
+| `nora-w30` | Realtek eFuse | `--build project_hp --flash --log`, then type `ATW?` | From the app only (eFuse, one time) |
+| `nora-w40` | ESP32-C6 eFuse (base for Wi-Fi, Bluetooth LE, 802.15.4) | `--mac` from the PC, or `--build ubx/read-mac --flash --log` | `--mac-set <ADDR> --burn` (one time) |
+| `nora-w50-w51` | CC35xx factory configuration | Not yet | No |
+| `nora-b20-b21-b22`, `alma-b20-b21` | Nordic FICR `DEVICEADDR` (random static Bluetooth address); u-blox programs none on NORA-B2, ALMA-B2 not decided | `--build bluetooth/beacon --flash --log` ("advertising as ...") | No |
 
 ## Launcher details
 

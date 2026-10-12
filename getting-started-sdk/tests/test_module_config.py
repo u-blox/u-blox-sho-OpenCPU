@@ -103,6 +103,50 @@ def test_examples_command(capsys):
     assert "(none yet)" in capsys.readouterr().out
 
 
+# esptool read_mac on an ESP32-C6: EUI-64 first, then the 6-byte base.
+ESP32C6_READ_MAC = """\
+MAC:                60:55:f9:ff:fe:f7:2c:fe
+BASE MAC:           60:55:f9:f7:2c:fe
+MAC_EXT:            ff:fe
+"""
+
+
+def test_esptool_mac_prints_every_derived_address(capsys):
+    mc.print_esptool_mac(ESP32C6_READ_MAC, mc.load_profile("nora-w40")["mac"]["derived"])
+    out = capsys.readouterr().out
+    assert "Base MAC (eFuse):     60:55:F9:F7:2C:FE" in out
+    assert "Wi-Fi station:        60:55:F9:F7:2C:FE" in out
+    assert "Wi-Fi SoftAP:         60:55:F9:F7:2C:FF" in out
+    # The last octet wraps without carry, as in ESP-IDF's generate_mac().
+    assert "Bluetooth LE:         60:55:F9:F7:2C:00" in out
+    assert "IEEE 802.15.4:        60:55:F9:FF:FE:F7:2C:FE" in out
+
+
+def test_esptool_mac_without_eui64_uses_mac_as_base(capsys):
+    mc.print_esptool_mac("MAC: 24:0a:c4:00:00:01\n", [{"name": "Bluetooth LE", "offset": 2},
+                                                      {"name": "IEEE 802.15.4", "from": "eui64"}])
+    out = capsys.readouterr().out
+    assert "Base MAC (eFuse):     24:0A:C4:00:00:01" in out
+    assert "Bluetooth LE:         24:0A:C4:00:00:03" in out
+    assert "802.15.4" not in out
+
+
+@pytest.mark.parametrize("key,expected", [
+    ("iris-w10", "--build wifi_examples/wifi_cli --flash --log, then type: wlan-mac"),
+    ("nora-w30", "--build project_hp --flash --log, then type: ATW?"),
+    ("nora-b20-b21-b22", "--build bluetooth/beacon --flash --log"),
+    ("alma-b20-b21", "--build bluetooth/beacon --flash --log"),
+])
+def test_mac_explains_how_to_read_it_on_the_module(key, expected, capsys):
+    assert mc.main([key, "mac"]) == 0
+    assert expected in capsys.readouterr().out
+
+
+def test_nora_w40_read_mac_example_is_listed(capsys):
+    assert mc.main(["nora-w40", "examples"]) == 0
+    assert "--build ubx/read-mac" in capsys.readouterr().out
+
+
 @pytest.mark.parametrize("key", READY)
 def test_every_example_exists_in_the_repo(key):
     profile = mc.load_profile(key)

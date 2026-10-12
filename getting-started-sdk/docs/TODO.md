@@ -38,10 +38,19 @@ Last updated 2026-10-12 (branch `cmag_getting_started_sdk`).
       (target key as the module folder, like `esp-idf/nora-w40/`).
 - [ ] `esp-idf/nora-w10/` and `esp-idf/nina-w10/` stay asset-only (NORA-W1/NINA-W1 are
       not targets of this SDK). Confirm.
-- [ ] IRIS-W10 `ubx/read-mac-address` and `ubx/read-otp-parameters` are drop-in files.
-      Make them buildable `project` examples once the matching base example exists in
-      the MCUXpresso workspace (`wifi_examples/wifi_test_mode`, `driver_examples/romapi/otp`
-      were not found in the board-only fetch).
+- [ ] IRIS-W10 `ubx/read-otp-parameters` is a drop-in file; make it a buildable
+      `project` once `driver_examples/romapi/otp` exists in the MCUXpresso workspace.
+      The MAC is now read with `wifi_examples/wifi_cli` + `wlan-mac` instead of the
+      `ubx/read-mac-address` drop-in (its base `wifi_examples/wifi_test_mode` is not in
+      the board-only fetch, and the file contains non-breaking spaces gcc rejects).
+- [x] MAC on NORA-B20-B21-B22: u-blox programs no address; the Nordic FICR
+      `DEVICEADDR` (random static) is used, shown by `bluetooth/beacon` (2026-10-12).
+- [ ] ALMA-B20-B21: ask u-blox whether a public address will be programmed (and where).
+      Until then the profile documents the FICR address like NORA-B2.
+- [ ] `--mac-set` runtime lines for the Nordic targets (own public address via the
+      controller, or a static random identity with `bt_id_create()`), confirmed in NCS.
+- [ ] Verify on hardware: NORA-W40 `--mac` derived addresses and `ubx/read-mac`,
+      IRIS-W10 `wlan-mac`, NORA-W30 `ATW?`.
 - [ ] `--mac-set` runtime lines for NORA-W50-W51, NORA-B20-B21-B22 and ALMA-B20-B21
       (only IRIS-W10, NORA-W30 and NORA-W40 are documented). `--burn` is wired for
       NORA-W40 (espefuse) only; untested on hardware.

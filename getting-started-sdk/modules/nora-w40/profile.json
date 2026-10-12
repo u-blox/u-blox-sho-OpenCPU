@@ -10,8 +10,12 @@
     "hint": "u-blox PHY calibration patches exist for ESP-IDF 5.1, 5.5 and 6.2 only. For any other IDF, add a re-cut patch to esp-idf/nora-w40/patches/ and a matching sdk_version op here."
   },
   "variants": {
-    "NORA-W401": { "description": "Antenna pin" },
-    "NORA-W406": { "description": "Internal PCB antenna" }
+    "NORA-W401": {
+      "description": "Antenna pin"
+    },
+    "NORA-W406": {
+      "description": "Internal PCB antenna"
+    }
   },
   "output_power": [
     {
@@ -66,8 +70,29 @@
   "mac": {
     "source": "ESP32-C6 eFuse, programmed in u-blox production",
     "read": "esptool",
+    "derived": [
+      {
+        "name": "Wi-Fi station",
+        "offset": 0
+      },
+      {
+        "name": "Wi-Fi SoftAP",
+        "offset": 1
+      },
+      {
+        "name": "Bluetooth LE",
+        "offset": 2
+      },
+      {
+        "name": "IEEE 802.15.4",
+        "from": "eui64"
+      }
+    ],
+    "on_device": {
+      "build": "ubx/read-mac"
+    },
     "notes": [
-      "Four addresses are derived from the base MAC: Wi-Fi STA, Wi-Fi AP, Bluetooth, Ethernet."
+      "Derived as ESP-IDF does with four universal MAC addresses (CONFIG_ESP_MAC_UNIVERSAL_MAC_ADDRESSES=4, the ESP32-C6 default)."
     ],
     "write": {
       "runtime": [
@@ -88,6 +113,12 @@
       "path": ".",
       "needs_rf_config": true,
       "description": "Wi-Fi station on the u-blox PHY init data; logs the ubx_phy_cal line"
+    },
+    {
+      "name": "read-mac",
+      "kind": "project",
+      "path": "examples/read-mac",
+      "description": "Print the base, Wi-Fi, Bluetooth and 802.15.4 addresses at boot"
     }
   ],
   "verify": {

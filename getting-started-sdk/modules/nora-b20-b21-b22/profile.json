@@ -13,13 +13,11 @@
     ]
   },
   "mac": {
-    "source": "Public Bluetooth device address in UICR OTP, programmed in u-blox production",
+    "source": "Nordic FICR DEVICEADDR (random static Bluetooth address). u-blox programs no address on NORA-B2.",
     "read": "unsupported",
+    "on_device": { "build": "bluetooth/beacon" },
     "notes": [
-      "NCS samples default to the static random address derived from FICR, not the u-blox public address."
+      "Zephyr and NCS use the FICR address as the identity address by default; the beacon sample prints it as 'advertising as ...'."
     ]
-  },
-  "manual_steps": [
-    "To use the programmed public address, read it from UICR and call bt_ctlr_set_public_addr() before bt_enable(). See u-blox application note UBX-19055303, 'Using public IEEE address from UICR'."
-  ]
+  }
 }
