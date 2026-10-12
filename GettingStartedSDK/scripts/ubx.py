@@ -605,6 +605,10 @@ def resolve_ubx_example(ctx: Context) -> int:
         return fail(f"{ctx.example} is a source file to drop into a vendor example, not a project.\n"
                     f"       Replace {example['base']}/{Path(example['file']).name} with "
                     f"{assets}/{example['file']}, then build {example['base']}.")
+    if example.get("needs_rf_config") and "rf-config" not in ctx.actions \
+            and not module_config.load_state(ctx.target.key).get("applied"):
+        return fail(f"{ctx.example} needs the u-blox RF configuration in the SDK. Add:\n"
+                    f"       --variant <PART> --rf-config")
     ctx.example = str(module_config.example_dir(ctx.target.key, example))
     return 0
 

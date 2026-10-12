@@ -152,11 +152,21 @@ def test_mac_set_needs_an_address_and_burn_needs_mac_set():
     assert ubx.parse(["nora-w40", "--mac", "--burn"]) == 1
 
 
-def test_ubx_project_example_builds_from_the_repository(native):
+def test_ubx_project_example_builds_from_the_repository(native, monkeypatch):
+    monkeypatch.setattr(ubx.module_config, "load_state", lambda key: {"applied": [{}]})
     assert ubx.main(["nora-w40", "--build", "ubx/rf-calibration", "--log"]) == 0
     project = ubx.SDK_ROOT.parent / "esp-idf" / "nora-w40"
     assert native.cmds[0][2:] == ["build", str(project)]
     assert native.cmds[1][2:] == ["log", str(project)]
+
+
+def test_ubx_example_needing_rf_config(native, monkeypatch, capsys):
+    monkeypatch.setattr(ubx.module_config, "load_state", lambda key: {})
+    assert ubx.main(["nora-w40", "--build", "ubx/rf-calibration"]) == 1
+    assert "--rf-config" in capsys.readouterr().out
+    assert not native.calls
+    assert ubx.main(["nora-w40", "--variant", "NORA-W401", "--rf-config",
+                     "--build", "ubx/rf-calibration"]) == 0
 
 
 def test_ubx_drop_in_example_explains_instead_of_building(native, capsys):

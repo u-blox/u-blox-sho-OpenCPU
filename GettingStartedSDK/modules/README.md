@@ -98,6 +98,8 @@ the vendor SDK. `--list` shows them as `ubx/<name>`.
 
 - `project`: a complete project at `path` (relative to `assets`), built in place
   with `--build ubx/<name>`. `--flash` and `--log` use the same name.
+  `"needs_rf_config": true` refuses the build until `--rf-config` is applied
+  (the NORA-W40 project links against the patched ESP-IDF PHY code).
 - `drop-in`: a source `file` that replaces the same-named file in the vendor
   example `base`. The launcher prints the steps instead of editing the SDK.
 

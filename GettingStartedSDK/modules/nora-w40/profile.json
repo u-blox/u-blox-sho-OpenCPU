@@ -86,6 +86,7 @@
       "name": "rf-calibration",
       "kind": "project",
       "path": ".",
+      "needs_rf_config": true,
       "description": "Wi-Fi station on the u-blox PHY init data; logs the ubx_phy_cal line"
     }
   ],
