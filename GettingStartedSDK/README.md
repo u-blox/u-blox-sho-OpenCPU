@@ -139,7 +139,7 @@ See [docs/matter_README.md](docs/matter_README.md).
 ## Layout
 
 ```
-GettingStartedSDK/
+getting-started-sdk/
 ├── ubx-sdk.cmd / .sh             SDK launcher (start here)
 ├── ubx-matter.cmd / .sh          Optional Matter launcher
 ├── ubx.code-workspace            VS Code workspace
@@ -153,8 +153,21 @@ GettingStartedSDK/
 ```
 
 Vendor SDKs are never committed. Each target's `--clone` fetches only what that
-module needs, so a fresh checkout stays small. Matter SDKs live outside the
-repository, in `~/ubx-matter/` inside WSL2.
+module needs, so a fresh checkout stays small.
+
+Where things live:
+
+| What | Where |
+|------|-------|
+| u-blox RF data, patches, board files, examples | repository root: `esp-idf/nora-w40/`, `mcuxpresso/iris-w10/`, `ameba-rtos-d/nora-w30/`, `zephyr/`, ... |
+| The tooling (this folder) | `getting-started-sdk/` |
+| ESP-IDF, MCUXpresso, Ameba-D, SimpleLink | `getting-started-sdk/targets/<target>/sdk/<repo>` |
+| nRF Connect SDK (NORA-B20-B21-B22, ALMA-B20-B21) | `C:\ncs\<version>` or `~/ncs/<version>`, shared with Nordic's own tools |
+| Matter SDKs | `~/ubx-matter/<target>` inside WSL2 |
+
+The repository-root folders are named after the SDK they belong to, but they
+only hold u-blox files; the SDK itself is never cloned there. `--rf-config`
+copies or patches those files into the fetched SDK.
 
 ## Setup
 
@@ -194,7 +207,7 @@ python -m pytest tests -q
 a few tests are platform-specific and skip elsewhere.
 
 GitLab CI (`.gitlab-ci.yml` at the repository root) runs the suite on Python
-3.10 and 3.12 for every push that touches `GettingStartedSDK/`.
+3.10 and 3.12 for every push that touches `getting-started-sdk/`.
 
 ## Documentation
 

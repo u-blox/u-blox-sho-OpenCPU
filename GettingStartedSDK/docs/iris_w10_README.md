@@ -64,7 +64,7 @@ python iris_w10_build.py doctor
 All u-blox build scripts share the same Python dependencies. Set up the shared virtual environment (one-time setup):
 
 ```bash
-cd ..  # Go to the GettingStartedSDK root
+cd ..  # Go to the getting-started-sdk root
 python scripts/setup_venv.py
 ```
 

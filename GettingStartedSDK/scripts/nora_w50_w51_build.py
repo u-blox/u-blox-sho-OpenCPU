@@ -38,7 +38,7 @@ import target_paths
 
 TARGET = "nora_w50_w51"
 
-SCRIPT_DIR = Path(__file__).resolve().parent.parent  # GettingStartedSDK root
+SCRIPT_DIR = Path(__file__).resolve().parent.parent  # SDK root
 
 # Windows consoles default to cp1252 and raise UnicodeEncodeError on the status glyphs below.
 for _stream in (sys.stdout, sys.stderr):

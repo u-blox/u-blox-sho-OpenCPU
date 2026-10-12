@@ -11,18 +11,18 @@ at the u-blox website, https://www.u-blox.com/.
 
 ## Getting Started SDK
 
-[GettingStartedSDK](GettingStartedSDK/README.md) fetches the vendor SDK, builds,
+[Getting Started SDK](getting-started-sdk/README.md) fetches the vendor SDK, builds,
 flashes and applies the u-blox RF configuration from the folders below for
 IRIS-W10, NORA-W30, NORA-W40, NORA-W50-W51, NORA-B20-B21-B22 and ALMA-B20-B21:
 
-`GettingStartedSDK/ubx-sdk.cmd <target> --doctor` on Windows,
-`./GettingStartedSDK/ubx-sdk.sh <target> --doctor` on Linux, WSL2 and macOS.
+`getting-started-sdk/ubx-sdk.cmd <target> --doctor` on Windows,
+`./getting-started-sdk/ubx-sdk.sh <target> --doctor` on Linux, WSL2 and macOS.
 
 ## Contents
 
 | Folder | SDK / environment | Content |
 |--------|-------------------|---------|
-| [GettingStartedSDK](GettingStartedSDK/README.md) | Vendor SDKs, fetched on demand | Build, flash and RF configuration tooling |
+| [getting-started-sdk](getting-started-sdk/README.md) | Vendor SDKs, fetched on demand | Build, flash and RF configuration tooling |
 | [zephyr](zephyr/README.md) | Zephyr RTOS / nRF Connect SDK | Board support packages and DFU bootloaders |
 | [nrf5-sdk](nrf5-sdk/README.md) | Nordic nRF5 SDK | Board files for EVK-ANNA-B1, EVK-ANNA-B4, EVK-NINA-B1, EVK-NINA-B3 and EVK-NINA-B4 |
 | [mcuxpresso](mcuxpresso/README.md) | NXP MCUXpresso SDK | IRIS-W1 (EVK-IRIS-W1, USB-IRIS-W1) and EVK-NINA-B50x |

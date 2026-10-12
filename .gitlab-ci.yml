@@ -9,21 +9,21 @@ workflow:
       when: never
     - if: $CI_COMMIT_BRANCH
 
-# GettingStartedSDK launcher, Matter driver and module-config tests.
+# Getting Started SDK launcher, Matter driver and module-config tests.
 # Hermetic: no vendor SDK, toolchain or hardware needed.
 .sdk-tests:
   stage: test
   before_script:
-    - cd GettingStartedSDK
+    - cd getting-started-sdk
     - python -m pip install --quiet pytest
   script:
     - python -m pytest tests -q -rs --junitxml=report.xml
   artifacts:
     when: always
     reports:
-      junit: GettingStartedSDK/report.xml
+      junit: getting-started-sdk/report.xml
   rules:
-    - changes: [GettingStartedSDK/**/*, .gitlab-ci.yml]
+    - changes: [getting-started-sdk/**/*, .gitlab-ci.yml]
 
 sdk-tests:
   extends: .sdk-tests

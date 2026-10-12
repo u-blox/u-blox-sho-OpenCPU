@@ -26,7 +26,7 @@ monitors it as a u-blox example:
 
 `./ubx-sdk.sh nora-w40 --build ubx/rf-calibration --flash --log`
 
-See `GettingStartedSDK/modules/README.md` for details.
+See `getting-started-sdk/modules/README.md` for details.
 
 ### Manually, esp-idf 5.1.x
 

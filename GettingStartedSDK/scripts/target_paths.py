@@ -140,16 +140,31 @@ def adopt_root_sdk(target: str) -> Path | None:
         print("          Close any shell or editor using it and run again.")
         return None
     print(f"[INFO] Moved vendor SDK {old.name}/ to {new}")
-    rel_old = f"{SDK_ROOT.name}/{old.name}"
-    rel_new = f"{SDK_ROOT.name}/targets/{TARGETS[_slug(target)]}/sdk/{old.name}"
+    rewrite_cached_paths(target, f"{SDK_ROOT.name}/{old.name}",
+                         f"{SDK_ROOT.name}/targets/{TARGETS[_slug(target)]}/sdk/{old.name}")
+    return new
+
+
+def rewrite_cached_paths(target: str, old: str, new: str) -> None:
+    """Replace a path fragment in the target's config files, in either separator style."""
     for cfg in config_dir(target).glob("*.json"):
         text = cfg.read_text(encoding="utf-8")
         # Cached paths may be Windows, POSIX or /mnt/<drive> form.
-        updated = text.replace(rel_old, rel_new).replace(
-            rel_old.replace("/", "\\\\"), rel_new.replace("/", "\\\\"))
+        updated = text.replace(old, new).replace(old.replace("/", "\\\\"), new.replace("/", "\\\\"))
         if updated != text:
             cfg.write_text(updated, encoding="utf-8")
-    return new
+
+
+# The SDK folder was called GettingStartedSDK before 2026-10.
+OLD_SDK_DIR = "GettingStartedSDK"
+
+
+def adopt_renamed_root() -> None:
+    """Repoint cached absolute paths that still name the old SDK folder."""
+    if SDK_ROOT.name == OLD_SDK_DIR:
+        return
+    for target in TARGETS:
+        rewrite_cached_paths(target, f"/{OLD_SDK_DIR}/", f"/{SDK_ROOT.name}/")
 
 
 def sdk_candidates(target: str) -> list[Path]:

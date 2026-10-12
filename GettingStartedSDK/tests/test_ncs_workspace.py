@@ -186,7 +186,7 @@ def test_every_target_has_a_legacy_name():
 
 @pytest.fixture
 def fake_sdk_root(tmp_path, monkeypatch):
-    root = tmp_path / "GettingStartedSDK"
+    root = tmp_path / "getting-started-sdk"
     monkeypatch.setattr(target_paths, "SDK_ROOT", root)
     monkeypatch.setattr(target_paths, "TARGETS_DIR", root / "targets")
     return root
@@ -196,15 +196,15 @@ def test_adopt_root_sdk_moves_sdk_and_repoints_config(fake_sdk_root):
     (fake_sdk_root / "esp-idf" / "components").mkdir(parents=True)
     config = target_paths.config_dir("nora_w40")
     config.mkdir(parents=True)
-    (config / "build.windows.json").write_text('{"idf_path": "E:/x/GettingStartedSDK/esp-idf"}')
-    (config / "build.wsl.json").write_text('{"idf_path": "E:\\\\x\\\\GettingStartedSDK\\\\esp-idf"}')
+    (config / "build.windows.json").write_text('{"idf_path": "E:/x/getting-started-sdk/esp-idf"}')
+    (config / "build.wsl.json").write_text('{"idf_path": "E:\\\\x\\\\getting-started-sdk\\\\esp-idf"}')
 
     new = target_paths.adopt_root_sdk("nora_w40")
 
     assert new == fake_sdk_root / "targets" / "nora-w40" / "sdk" / "esp-idf"
     assert (new / "components").is_dir()
     assert not (fake_sdk_root / "esp-idf").exists()
-    assert "GettingStartedSDK/targets/nora-w40/sdk/esp-idf" in (config / "build.windows.json").read_text()
+    assert "getting-started-sdk/targets/nora-w40/sdk/esp-idf" in (config / "build.windows.json").read_text()
     assert "targets\\\\nora-w40\\\\sdk\\\\esp-idf" in (config / "build.wsl.json").read_text()
     assert target_paths.sdk_candidates("nora_w40") == [new]
 
@@ -221,3 +221,15 @@ def test_adopt_root_sdk_keeps_both_when_new_exists(fake_sdk_root, capsys):
 def test_adopt_root_sdk_ignores_targets_without_root_sdk(fake_sdk_root):
     assert target_paths.adopt_root_sdk("nora_b20_b21_b22") is None
     assert target_paths.adopt_root_sdk("iris_w10") is None
+
+
+def test_cached_paths_follow_the_sdk_folder_rename(fake_sdk_root):
+    config = target_paths.config_dir("nora_w30")
+    config.mkdir(parents=True)
+    (config / "build.wsl.json").write_text('{"sdk_path": "/mnt/e/r/GettingStartedSDK/targets/nora-w30/sdk/ameba-rtos-d"}')
+    (config / "build.windows.json").write_text('{"p": "E:\\\\r\\\\GettingStartedSDK\\\\x"}')
+
+    target_paths.adopt_renamed_root()
+
+    assert "/mnt/e/r/getting-started-sdk/targets/" in (config / "build.wsl.json").read_text()
+    assert "\\\\getting-started-sdk\\\\x" in (config / "build.windows.json").read_text()

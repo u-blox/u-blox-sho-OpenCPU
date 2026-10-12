@@ -14,7 +14,7 @@ infrastructure for iris-w10, nora-w30, nora-w40, nora-w50-w51, NORA-B20-B21-B22 
 
 **Repository:** u-blox-sho-OpenCPU (GitLab)
 **Primary Work:** Building firmware for 6 u-blox wireless module families
-**Build Infrastructure:** GettingStartedSDK/ folder with consolidated scripts
+**Build Infrastructure:** getting-started-sdk/ folder with consolidated scripts
 **Current Branch:** cmag_getting_started_sdk (review branch) or master
 
 ### Module Specifications
@@ -79,8 +79,13 @@ extensible for it, but do not fabricate specs - MCP returns no data for it.
 
 ## Directory Structure
 
+The folder was `GettingStartedSDK/` until 2026-10; it is `getting-started-sdk/`
+now, matching the lowercase-hyphen repo layout. The product is still called
+"Getting Started SDK" in prose. `target_paths.adopt_renamed_root()` rewrites
+cached absolute paths that still name the old folder.
+
 ```
-GettingStartedSDK/                  Workspace root
+getting-started-sdk/                Workspace root
 ├── .github/
 │   └── copilot-instructions.md    This file
 ├── .venv/                          Virtual environment (Python packages)
@@ -130,7 +135,7 @@ GettingStartedSDK/                  Workspace root
     └── WORKSPACE_SETUP.md         VS Code workspace guide
 ```
 
-The GettingStartedSDK root is kept deliberately minimal: the two launcher
+The getting-started-sdk root is kept deliberately minimal: the two launcher
 pairs, `ubx.code-workspace`, `README.md` and the folders above. Do not add
 loose `.md` or `.bat` files to the root - docs go in `docs/`, scripts go in
 `scripts/`.
@@ -143,7 +148,7 @@ Only `README.md`, `.gitattributes` and `.gitlab-ci.yml` (GitLab only reads CI
 config from the root) belong at the repository root. The root
 is shared with the u-blox asset folders (`zephyr/`, `nrf5-sdk/`, `mcuxpresso/`,
 `esp-idf/`, `ameba-rtos-d/`), so SDK files must not be added there.
-`GettingStartedSDK/ubx.code-workspace` is multi-root (`"."` plus `".."`), so it
+`getting-started-sdk/ubx.code-workspace` is multi-root (`"."` plus `".."`), so it
 opens both the SDK and the repository root from its own folder.
 
 ## Build System Architecture
@@ -152,9 +157,9 @@ opens both the SDK and the repository root from its own folder.
 
 2. **Virtual Environment (.venv/)**
    - Shared by all variant scripts
-   - Location: GettingStartedSDK/.venv/
+   - Location: getting-started-sdk/.venv/
    - Contains: west (MCUXpresso manager), build dependencies
-   - Setup: `python scripts/setup_venv.py` from GettingStartedSDK/
+   - Setup: `python scripts/setup_venv.py` from getting-started-sdk/
    - The launcher picks it up automatically; a Windows venv is never used from
      WSL and vice versa because the shims probe for `Scripts/python.exe` vs
      `bin/python`
@@ -230,7 +235,7 @@ target, not by the per-target driver. See "Module configuration" below.
 
 ### 1. First Time Setup
 ```bash
-cd GettingStartedSDK
+cd getting-started-sdk
 python scripts/setup_venv.py   # optional; the launcher also works without it
 ```
 
@@ -493,7 +498,7 @@ facts; module docstrings have been wrong before.
 ## Testing and Verification
 
 ### Unit Tests
-- `python -m pytest tests -q` from GettingStartedSDK/ (pytest comes with `setup_venv.py`)
+- `python -m pytest tests -q` from getting-started-sdk/ (pytest comes with `setup_venv.py`)
 - Hermetic: no SDK, toolchain, WSL2 or hardware. Unit tests monkeypatch
   `subprocess.call` with the `calls` fixture (`tests/conftest.py`); vendor SDKs are
   faked as directory trees under `UBX_MATTER_ROOT=tmp_path`
@@ -504,7 +509,7 @@ facts; module docstrings have been wrong before.
 - Run on Windows and WSL2; shim and drive-letter tests skip on the other host
 - Add a test with every new flag, target, alias or Matter vendor script
 - CI: the root `.gitlab-ci.yml` runs this suite on every push that touches
-  `GettingStartedSDK/` (python:3.10-slim and 3.12-slim, JUnit report). Keep the
+  `getting-started-sdk/` (python:3.10-slim and 3.12-slim, JUnit report). Keep the
   suite hermetic so it stays runnable there
 - Each build script also has `cmd_doctor()` - verifies tools on a real host
 
@@ -544,7 +549,7 @@ Known host traps found while building:
 
 | File | Purpose |
 |------|---------|
-| README.md | GettingStartedSDK overview, quick start for all modules |
+| README.md | Getting Started SDK overview, quick start for all modules |
 | docs/matter_README.md | Matter SDKs, vendor examples, per-target setup |
 | modules/README.md | Module config profile schema, op reference |
 | docs/iris_w10_README.md | IRIS-W10 detailed guide |
@@ -590,7 +595,7 @@ Here are things you can ask Copilot for help with:
 
 ---
 
-**Location:** GettingStartedSDK/.github/copilot-instructions.md (workspace root)
+**Location:** getting-started-sdk/.github/copilot-instructions.md (workspace root)
 **Last Updated:** 2026-10-07
 **Branch:** cmag_getting_started_sdk (under review)
 **Status:** see docs/BUILD_TEST_RESULTS.md

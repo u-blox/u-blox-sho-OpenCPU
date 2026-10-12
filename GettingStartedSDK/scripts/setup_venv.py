@@ -2,8 +2,8 @@
 r"""
 Setup shared Python virtual environment for all u-blox build scripts.
 
-Creates and configures the shared .venv at the GettingStartedSDK root:
-    cd GettingStartedSDK
+Creates and configures the shared .venv at the getting-started-sdk root:
+    cd getting-started-sdk
     python scripts/setup_venv.py
 
 Then activate it:
@@ -26,11 +26,11 @@ import platform
 import shutil
 
 def get_sdk_root():
-    """Get GettingStartedSDK root directory (the parent of scripts/)."""
+    """Get the SDK root directory (the parent of scripts/)."""
     return os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 def create_venv():
-    """Create virtual environment in GettingStartedSDK/.venv."""
+    """Create virtual environment in getting-started-sdk/.venv."""
     sdk_root = get_sdk_root()
     venv_path = os.path.join(sdk_root, ".venv")
 

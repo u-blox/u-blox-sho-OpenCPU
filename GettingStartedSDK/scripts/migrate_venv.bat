@@ -1,8 +1,8 @@
 @echo off
-REM Helper script to migrate .venv from repo root to GettingStartedSDK/
+REM Helper script to migrate .venv from repo root to getting-started-sdk/
 
 setlocal enabledelayedexpansion
-REM This script lives in GettingStartedSDK\scripts\.
+REM This script lives in getting-started-sdk\scripts\.
 for %%I in ("%~dp0..") do set "SDK_DIR=%%~fI\"
 for %%I in ("%SDK_DIR%..") do set "REPO_ROOT=%%~fI\"
 set "OLD_VENV=%REPO_ROOT%.venv"
@@ -18,7 +18,7 @@ if exist "%OLD_VENV%" (
     echo.
     
     if exist "%NEW_VENV%" (
-        echo [WARNING] .venv already exists at GettingStartedSDK/
+        echo [WARNING] .venv already exists at getting-started-sdk/
         echo    Remove the old one at repo root? (y/n)
         set /p choice="    > "
         if /i "!choice!"=="y" (
@@ -28,11 +28,11 @@ if exist "%OLD_VENV%" (
             echo [WARNING] Skipped. You can manually remove it or run setup_venv.py again.
         )
     ) else (
-        echo [INFO] Moving .venv to GettingStartedSDK/
+        echo [INFO] Moving .venv to getting-started-sdk/
         move "%OLD_VENV%" "%NEW_VENV%"
         echo [OK] Virtual environment moved successfully
         echo.
-        echo Next step: Activate from GettingStartedSDK directory
+        echo Next step: Activate from getting-started-sdk directory
         echo   .venv\Scripts\activate.bat  (Windows CMD)
         echo   .venv\Scripts\Activate.ps1  (Windows PowerShell)
         echo   source .venv/Scripts/activate  (Git Bash)

@@ -63,8 +63,8 @@ If you must use Cygwin:
 The `nora_w30_build.py` script automates the build process:
 
 ```bash
-# From GettingStartedSDK directory
-cd GettingStartedSDK
+# From the repository root
+cd getting-started-sdk
 
 # 1. Activate virtual environment
 source .venv/bin/activate          # Linux/WSL2

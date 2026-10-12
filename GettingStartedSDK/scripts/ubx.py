@@ -616,7 +616,10 @@ def resolve_ubx_example(ctx: Context) -> int:
 def adopt_sdk(ctx: Context) -> None:
     """Move a vendor SDK left in the SDK root by older versions into targets/."""
     slug = ctx.target.key.replace("-", "_")
-    if not ctx.dry_run and not ctx.matter and slug in target_paths.ROOT_SDKS:
+    if ctx.dry_run:
+        return
+    target_paths.adopt_renamed_root()
+    if not ctx.matter and slug in target_paths.ROOT_SDKS:
         target_paths.adopt_root_sdk(slug)
 
 

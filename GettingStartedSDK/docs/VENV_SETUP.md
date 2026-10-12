@@ -1,23 +1,23 @@
 # Virtual Environment (venv) Consolidation
 
-**Status:** [OK] .venv now lives in GettingStartedSDK/ directory
+**Status:** [OK] .venv now lives in getting-started-sdk/ directory
 
 ## Why This Change?
 
-- **Better organization:** The venv is specific to the GettingStartedSDK build infrastructure, so it should live within that folder
+- **Better organization:** The venv is specific to the Getting Started SDK build infrastructure, so it should live within that folder
 - **Cleaner repo root:** Reduces clutter at the repository root level
-- **Logical structure:** Everything build-related is contained within GettingStartedSDK/
+- **Logical structure:** Everything build-related is contained within getting-started-sdk/
 
 ## New Structure
 
 ```
 u-blox-sho-OpenCPU/
-├── GettingStartedSDK/
+├── getting-started-sdk/
 │   ├── .venv/                    <- Virtual environment HERE
 │   ├── ubx-sdk.cmd / .sh         <- SDK launcher
 │   ├── scripts/
 │   │   ├── ubx.py
-│   │   ├── setup_venv.py         <- Run this from GettingStartedSDK/
+│   │   ├── setup_venv.py         <- Run this from getting-started-sdk/
 │   │   ├── migrate_venv.sh / .bat
 │   │   ├── iris_w10_build.py
 │   │   ├── nora_w50_w51_build.py
@@ -37,13 +37,13 @@ u-blox-sho-OpenCPU/
 If you have an old .venv at the repo root, just run setup_venv.py and it will automatically move it:
 
 ```bash
-cd GettingStartedSDK
+cd getting-started-sdk
 python scripts/setup_venv.py
 ```
 
 The script will:
 1. [OK] Detect if you have an old .venv at the repo root
-2. [OK] Automatically move it to GettingStartedSDK/.venv
+2. [OK] Automatically move it to getting-started-sdk/.venv
 3. [OK] Create a new one if needed
 4. [OK] Install 'west' in the venv
 
@@ -65,43 +65,43 @@ scripts\migrate_venv.bat
 
 ```bash
 # From repo root
-mv .venv GettingStartedSDK/.venv
+mv .venv getting-started-sdk/.venv
 ```
 
 ## Activation Instructions
 
-Once setup is complete, activate the venv from the GettingStartedSDK directory:
+Once setup is complete, activate the venv from the getting-started-sdk directory:
 
 **Windows CMD:**
 ```cmd
-cd GettingStartedSDK
+cd getting-started-sdk
 .venv\Scripts\activate.bat
 ```
 
 **Windows PowerShell:**
 ```powershell
-cd GettingStartedSDK
+cd getting-started-sdk
 .venv\Scripts\Activate.ps1
 ```
 
 **Git Bash / MSYS2:**
 ```bash
-cd GettingStartedSDK
+cd getting-started-sdk
 source .venv/Scripts/activate
 ```
 
 **Linux/macOS/WSL:**
 ```bash
-cd GettingStartedSDK
+cd getting-started-sdk
 source .venv/bin/activate
 ```
 
 ## Running Build Scripts
 
-With venv activated, run scripts from GettingStartedSDK:
+With venv activated, run scripts from getting-started-sdk:
 
 ```bash
-cd GettingStartedSDK
+cd getting-started-sdk
 python scripts/iris_w10_build.py doctor
 python scripts/nora_w50_w51_build.py build empty
 ```
@@ -110,14 +110,14 @@ Or run with full path:
 
 ```bash
 cd e:/u-blox/u-blox-sho-OpenCPU
-source GettingStartedSDK/.venv/bin/activate
-python GettingStartedSDK/scripts/iris_w10_build.py doctor
+source getting-started-sdk/.venv/bin/activate
+python getting-started-sdk/scripts/iris_w10_build.py doctor
 ```
 
 ## What Changed
 
 ### setup_venv.py
-- [OK] Now explicitly creates .venv in GettingStartedSDK/
+- [OK] Now explicitly creates .venv in getting-started-sdk/
 - [OK] Automatically detects and moves old .venv from repo root
 - [OK] Updated documentation
 
@@ -134,7 +134,7 @@ python GettingStartedSDK/scripts/iris_w10_build.py doctor
 ### Old .venv still at repo root?
 ```bash
 # Option 1: Run setup_venv.py again
-cd GettingStartedSDK
+cd getting-started-sdk
 python scripts/setup_venv.py
 
 # Option 2: Use migration script
@@ -147,7 +147,7 @@ rm -rf .venv  # from repo root
 ### "pip not found in venv"?
 This means the venv might be corrupted. Delete it and recreate:
 ```bash
-cd GettingStartedSDK
+cd getting-started-sdk
 rm -rf .venv
 python scripts/setup_venv.py
 ```
@@ -155,7 +155,7 @@ python scripts/setup_venv.py
 ### Scripts still looking for old location?
 Make sure you're running scripts from within the activated venv:
 ```bash
-cd GettingStartedSDK
+cd getting-started-sdk
 source .venv/bin/activate  # or appropriate activation command
 python scripts/iris_w10_build.py doctor
 ```
@@ -165,7 +165,7 @@ python scripts/iris_w10_build.py doctor
 To verify the setup is correct:
 
 ```bash
-cd GettingStartedSDK
+cd getting-started-sdk
 ls -la .venv  # Should show venv directory
 source .venv/bin/activate  # or appropriate command
 which python  # Should show path inside .venv

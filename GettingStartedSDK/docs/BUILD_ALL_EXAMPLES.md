@@ -80,8 +80,8 @@ python nora_w50_w51_build.py build --clean      # Clean example rebuild
 ### Complete Build Workflow
 
 ```bash
-# Step 1: Navigate to GettingStartedSDK workspace
-cd GettingStartedSDK
+# Step 1: Navigate to getting-started-sdk workspace
+cd getting-started-sdk
 
 # Step 2: Activate virtual environment (Linux/WSL2)
 source .venv/bin/activate
@@ -173,8 +173,8 @@ python3 nora_w30_build.py clean --all           # Remove entire SDK (~500MB)
 ### Complete Build Workflow
 
 ```bash
-# Step 1: Navigate to GettingStartedSDK workspace
-cd GettingStartedSDK
+# Step 1: Navigate to getting-started-sdk workspace
+cd getting-started-sdk
 
 # Step 2: Activate shared virtual environment
 source .venv/bin/activate              # Linux/WSL2
@@ -252,7 +252,7 @@ python scripts/nora_w40_build.py clean --all
 
 ```bash
 # Step 1: Navigate to workspace
-cd GettingStartedSDK
+cd getting-started-sdk
 
 # Step 2: Check environment
 python scripts/iris_w10_build.py doctor
@@ -278,7 +278,7 @@ python scripts/iris_w10_build.py list
 # Step 7: Build an example
 python scripts/iris_w10_build.py build demo_apps/hello_world
 # Runs: west build -b rdrw612bga examples/demo_apps/hello_world --toolchain armgcc --config debug
-# Output: mcuxpresso-sdk/build/
+# Output: targets/iris-w10/sdk/mcuxpresso-sdk/build/
 
 # Bare names work too when unambiguous:
 python scripts/iris_w10_build.py build hello_world
@@ -320,7 +320,7 @@ data and flash addresses.
 ### Complete Build Workflow
 
 ```bash
-cd GettingStartedSDK
+cd getting-started-sdk
 
 # Step 1: Check environment
 ./ubx-sdk.sh nora-b20-b21-b22 --doctor
@@ -387,7 +387,7 @@ Same toolchain and driver as NORA-B20-B21-B22. Two differences matter:
   is distributed separately by Nordic and is not driven by this SDK.
 
 ```bash
-cd GettingStartedSDK
+cd getting-started-sdk
 
 ./ubx-sdk.sh alma-b20-b21 --doctor
 ./ubx-sdk.sh alma-b20-b21 --clone --install
@@ -483,7 +483,7 @@ python iris_w10_build.py clean --all
 ## Quick Start Commands (Fastest Path)
 
 Assuming the host tools are already installed (`--doctor` tells you), each
-target is one line from the `GettingStartedSDK` folder:
+target is one line from the `getting-started-sdk` folder:
 
 ```bash
 ./ubx-sdk.sh nora-w50-w51   --clone --build-sdk --build network_terminal
@@ -533,7 +533,7 @@ entirely for the Nordic targets.
 
 **W30:**
 ```
-GettingStartedSDK/targets/nora-w30/
+getting-started-sdk/targets/nora-w30/
 ├── sdk/ameba-rtos-d/
 │   └── project/realtek_amebaD_va0_example/GCC-RELEASE/project_hp/asdk/image/   <- Firmware
 └── config/build.{wsl|linux}.json
@@ -541,7 +541,7 @@ GettingStartedSDK/targets/nora-w30/
 
 **W40:**
 ```
-GettingStartedSDK/targets/nora-w40/
+getting-started-sdk/targets/nora-w40/
 ├── sdk/esp-idf/
 │   ├── examples/get-started/hello_world/build/hello_world.bin  <- Firmware
 │   ├── examples/network/static_ip/build/static_ip.bin          <- Firmware

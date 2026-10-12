@@ -28,7 +28,7 @@ Last updated 2026-10-07 (branch `cmag_getting_started_sdk`, commit `384030e`).
 ## Asset layout (after merging `mhan-new-structure`)
 
 - [ ] **Finish moving the vendor SDKs into `targets/<t>/sdk/`.** IRIS-W10 moved.
-      `GettingStartedSDK/esp-idf` and `GettingStartedSDK/ameba-rtos-d` were locked
+      `getting-started-sdk/esp-idf` and `getting-started-sdk/ameba-rtos-d` were locked
       (Access denied). Close VS Code and every shell using them, run
       `wsl --shutdown`, then run any `ubx-sdk.cmd nora-w40 ...` and
       `ubx-sdk.cmd nora-w30 ...` command. The launcher moves them. After that,
