@@ -9,7 +9,20 @@ declared, so applying them is one flag instead of a README procedure:
 ubx-sdk <target> --variant <PART> --region <DOMAIN> --rf-config
 ubx-sdk <target> --doctor        # reports whether it is applied
 ubx-sdk <target> --mac           # reports the MAC / Bluetooth device address
+ubx-sdk <target> --mac-set <ADDR> [--burn]   # use another MAC address
+ubx-sdk <target> --list          # vendor examples plus the u-blox ones (ubx/...)
+ubx-sdk <target> --build ubx/<name>
 ```
+
+Every target is described by the same five topics:
+
+| Topic | Profile key | Applied by |
+|-------|-------------|------------|
+| Output power | `output_power` | `--rf-config` |
+| Calibration | `calibration` | `--rf-config` |
+| SDK patches | `patches` | `--rf-config` |
+| MAC address | `mac` | `--mac`, `--mac-set` |
+| u-blox examples | `examples` | `--list`, `--build ubx/<name>` |
 
 The assets are **not** stored here. They stay in the per-module folders u-blox
 publishes at the repository root, laid out as `<vendor-sdk>/<module>/`
@@ -44,19 +57,55 @@ One `profile.json` per target, applied by `scripts/module_config.py`.
   "variants": {
     "NORA-W301": { "description": "Antenna pin", "vars": { "rf_para": "W301" } }
   },
-  "sdk_patch": [ /* ops, see below */ ],
+  "output_power": [ /* ops, see below */ ],
+  "calibration":  [ /* ops */ ],
+  "patches":      [ /* ops */ ],
   "regulatory": { "api": "...", "domains": { "ETSI": "0x5E" } },
-  "mac": { "source": "...", "read": "esptool" | "unsupported" },
+  "mac": {
+    "source": "...",
+    "read": "esptool" | "unsupported",
+    "write": {
+      "runtime": [ "uint8_t mac[6] = {mac_array};", "..." ],   // printed by --mac-set
+      "permanent": { "tool": "espefuse", "chip": "esp32c6", "note": "..." }
+    }
+  },
+  "examples": [
+    { "name": "rf-calibration", "kind": "project", "path": ".", "description": "..." },
+    { "name": "read-mac-address", "kind": "drop-in", "file": "example-code/read-mac-address/main.c",
+      "base": "wifi_examples/wifi_test_mode" }
+  ],
   "manual_steps": [ "..." ],
   "verify": { "log_contains": "..." }
 }
 ```
 
+`--rf-config` applies `output_power`, then `calibration`, then `patches`. The
+split is for people reading the profile and the `--doctor` report; all three
+are needed for a compliant build.
+
+### MAC address
+
+`--mac-set <ADDR>` checks the address (unicast, not all-zero) and prints the
+`runtime` lines with `{mac}`, `{mac_hex}` and `{mac_array}` filled in. That is
+an application-side override, reversible by removing it. `--burn` stores the
+address permanently and is only honoured when `permanent.tool` names a host
+tool (`espefuse` today); the tool asks for its own confirmation.
+
+### u-blox examples
+
+Examples written by u-blox (or third parties) live in the asset folder, not in
+the vendor SDK. `--list` shows them as `ubx/<name>`.
+
+- `project`: a complete project at `path` (relative to `assets`), built in place
+  with `--build ubx/<name>`. `--flash` and `--log` use the same name.
+- `drop-in`: a source `file` that replaces the same-named file in the vendor
+  example `base`. The launcher prints the steps instead of editing the SDK.
+
 `src` and `patch` paths are relative to the profile's **`assets` folder**. `dst`, `file`
 and `dir` are relative to the **vendor SDK root**. Any `{name}` is substituted
 from `variables`, the variant's `vars`, and the built-in `{variant}`.
-`tests/test_module_config.py` fails if a `src` or `patch` of a ready profile
-does not exist, for every variant.
+`tests/test_module_config.py` fails if a `src`, `patch` or example of a ready
+profile does not exist, for every variant.
 
 ### Operations
 

@@ -46,11 +46,12 @@ def test_dry_run_prints_commands_in_order():
     rc, out = run("ubx_sdk.py", "nora-w40", "--dry-run", "--build", "--doctor", "--list")
     assert rc == 0
     lines = dry_lines(out)
-    assert len(lines) == 4
+    assert len(lines) == 5
     assert "nora_w40_build.py doctor" in lines[0]
     assert "module_config.py nora-w40 status" in lines[1]
     assert "nora_w40_build.py list" in lines[2]
-    assert "nora_w40_build.py build hello_world" in lines[3]
+    assert "module_config.py nora-w40 examples" in lines[3]
+    assert "nora_w40_build.py build hello_world" in lines[4]
 
 
 def test_dry_run_rf_config():

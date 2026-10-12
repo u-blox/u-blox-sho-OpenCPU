@@ -36,18 +36,20 @@ ubx-sdk.cmd nora-w40 --clone --install --build hello_world
 
 `ubx-sdk --help` lists every target and flag. Flags are combinable and always
 run in a fixed order — `--doctor` -> `--clone` -> `--install` -> `--build-sdk` ->
-`--rf-config` -> `--list` -> `--clean` -> `--build` -> `--flash` -> `--mac` ->
-`--log` — so a full rebuild-and-run is one line:
+`--rf-config` -> `--list` -> `--clean` -> `--build` -> `--flash` -> `--mac-set` ->
+`--mac` -> `--log` — so a full rebuild-and-run is one line:
 
 ```bash
 ./ubx-sdk.sh iris-w10 --clean --build demo_apps/hello_world --flash --log
 ```
 
-`--list` shows what a target can build: the examples in the fetched vendor SDK.
+`--list` shows what a target can build: the examples in the fetched vendor SDK,
+followed by the u-blox examples from the repository as `ubx/<name>`.
 Run it after `--clone`:
 
 ```bash
 ./ubx-sdk.sh nora-w50-w51 --list
+./ubx-sdk.sh nora-w40 --build ubx/rf-calibration --flash --log
 ```
 
 `--dry-run` prints the commands a flag combination would run, in order,
@@ -72,8 +74,9 @@ part number before the build:
 What gets applied is declared per target in `modules/<target>/profile.json`; the
 assets themselves stay in the per-module folders at the repository root and are
 referenced, never duplicated. `--doctor` reports whether the configuration is
-applied, `--mac` reports the module's MAC / Bluetooth device address. See
-`modules/README.md`.
+applied, `--mac` reports the module's MAC / Bluetooth device address, and
+`--mac-set <ADDR>` shows how to use another one (`--burn` stores it in eFuse
+where a host tool exists; irreversible). See `modules/README.md`.
 
 The launcher picks the shared `.venv` if there is one, hops into WSL2 for
 targets that only build on Linux, and passes anything after `--` straight

@@ -5,7 +5,6 @@
   "status": "pending",
   "pending_reason": "No u-blox RF calibration or TX power assets for NORA-W50-W51 exist in this repository yet. Nothing is applied and no compliance claim can be made from this SDK.",
   "variants": {},
-  "sdk_patch": [],
   "mac": {
     "source": "CC35xx factory configuration",
     "read": "unsupported"

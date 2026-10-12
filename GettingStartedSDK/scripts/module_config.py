@@ -13,6 +13,7 @@ Normally driven by the launcher:
 
     ubx-sdk <target> --variant <PART> --region <DOMAIN> --rf-config
     ubx-sdk <target> --mac
+    ubx-sdk <target> --mac-set AA:BB:CC:DD:EE:FF [--burn]
 
 Run directly only when debugging this layer:
 
@@ -20,7 +21,8 @@ Run directly only when debugging this layer:
     module_config.py <target> status
     module_config.py <target> apply --variant PART [--region ETSI] [--set k=v]
     module_config.py <target> revert
-    module_config.py <target> mac [--serial PORT]
+    module_config.py <target> mac [--serial PORT] [--address MAC [--burn]]
+    module_config.py <target> examples
 """
 
 from __future__ import annotations
@@ -45,6 +47,10 @@ BACKUP_SUFFIX = ".ubx-orig"
 STATE_NAME = "rf_config.json"
 
 TARGET_KEYS = ("alma-b20-b21", "iris-w10", "nora-b20-b21-b22", "nora-w30", "nora-w40", "nora-w50-w51")
+
+# Profile sections holding SDK ops, in the order --rf-config applies them.
+TOPICS = ("output_power", "calibration", "patches")
+TOPIC_LABELS = {"output_power": "Output power", "calibration": "Calibration", "patches": "SDK patches"}
 
 
 def slug(key: str) -> str:
@@ -117,7 +123,8 @@ def asset_path(profile: dict, rel: str, values: dict) -> Path:
 
 
 def iter_ops(profile: dict) -> list[dict]:
-    return list(profile.get("sdk_patch") or [])
+    """Every op in apply order, tagged with the topic it is listed under."""
+    return [dict(op, topic=topic) for topic in TOPICS for op in profile.get(topic) or []]
 
 
 # ============================================================================
@@ -450,6 +457,7 @@ def cmd_apply(key: str, args) -> int:
     applied: list[dict] = []
     failed = False
     found_version = sdk_version(key, root)
+    topic = None
 
     def record(message: str) -> bool:
         """An op counts as in place whether we just did it or found it done."""
@@ -460,11 +468,14 @@ def cmd_apply(key: str, args) -> int:
         spec = op.get("sdk_version")
         if spec and found_version and not version_matches(found_version, spec):
             continue
+        if op["topic"] != topic:
+            topic = op["topic"]
+            print(f"  {TOPIC_LABELS[topic]}")
         note = expand(op.get("note", ""), values)
         if note:
-            print(f"  {note}")
+            print(f"    {note}")
         if op.get("warning"):
-            print(f"    [WARNING] {expand(op['warning'], values)}")
+            print(f"      [WARNING] {expand(op['warning'], values)}")
 
         if kind in ("copy", "replace"):
             src = asset_path(profile, op["src"], values)
@@ -472,30 +483,30 @@ def cmd_apply(key: str, args) -> int:
             message = apply_copy(src, dst, backups, replace_only=(kind == "replace"),
                                  created=created)
             if record(message):
-                applied.append({"op": kind, "path": str(dst), "sha256": sha256(dst)})
+                applied.append({"op": kind, "topic": topic, "path": str(dst), "sha256": sha256(dst)})
         elif kind == "copy-tree":
             src = asset_path(profile, op["src"], values)
             dst = root / expand(op["dst"], values)
             message = apply_copy_tree(src, dst)
             if record(message):
-                applied.append({"op": kind, "path": str(dst)})
+                applied.append({"op": kind, "topic": topic, "path": str(dst)})
         elif kind == "replace-line":
             path = root / expand(op["file"], values)
             message = apply_replace_line(path, expand(op["from"], values),
                                          expand(op["to"], values), backups)
             if record(message):
-                applied.append({"op": kind, "path": str(path), "sha256": sha256(path)})
+                applied.append({"op": kind, "topic": topic, "path": str(path), "sha256": sha256(path)})
         elif kind == "patch":
             patch = asset_path(profile, op["patch"], values)
             directory = root / expand(op.get("dir", "."), values)
             ok, message = run_patch(patch, directory, int(op.get("strip", 1)))
             if ok and record(message):
-                applied.append({"op": kind, "patch": str(patch),
+                applied.append({"op": kind, "topic": topic, "patch": str(patch),
                                 "dir": str(directory), "strip": int(op.get("strip", 1))})
         else:
             message = f"[FAIL] unknown op '{kind}' in {profile_path(key)}"
 
-        print(f"    {message}")
+        print(f"      {message}")
         failed = failed or message.startswith("[FAIL]")
 
     save_state(key, {
@@ -582,7 +593,11 @@ def cmd_status(key: str, args) -> int:
     print(f"  Region:  {state.get('region') or '[WARNING] not set'}")
     print(f"  Applied: {state['timestamp']}")
     drifted = 0
+    topic = None
     for entry in state["applied"]:
+        if entry.get("topic") and entry["topic"] != topic:
+            topic = entry["topic"]
+            print(f"  {TOPIC_LABELS.get(topic, topic)}")
         path = Path(entry.get("path", entry.get("dir", "")))
         if entry["op"] == "patch":
             if patch_applied(Path(entry["patch"]), Path(entry["dir"]), entry["strip"]):
@@ -639,6 +654,8 @@ def cmd_revert(key: str, args) -> int:
 
 def cmd_mac(key: str, args) -> int:
     profile = load_profile(key)
+    if getattr(args, "address", None):
+        return set_mac(profile, args)
     mac = profile.get("mac") or {}
     print(f"\n{profile['label']} - MAC / device address")
     print(f"  Source: {mac.get('source', 'unknown')}")
@@ -654,8 +671,109 @@ def cmd_mac(key: str, args) -> int:
     for step in profile.get("manual_steps") or []:
         if "address" in step_text(step).lower():
             print(f"  - {step_text(step)}")
+    if (mac.get("write") or {}).get("runtime"):
+        print("  - To use another address: --mac-set AA:BB:CC:DD:EE:FF")
     print()
     return rc
+
+
+def parse_mac(text: str) -> bytes:
+    digits = re.sub(r"[:\-.]", "", text.strip())
+    if not re.fullmatch(r"[0-9A-Fa-f]{12}", digits):
+        raise ValueError(f"Not a MAC address: {text}. Use the form AA:BB:CC:DD:EE:FF.")
+    mac = bytes.fromhex(digits)
+    if mac in (bytes(6), b"\xff" * 6):
+        raise ValueError(f"{text} is not a usable device address.")
+    if mac[0] & 0x01:
+        raise ValueError(f"{text} is a multicast address. Bit 0 of the first byte must be 0.")
+    return mac
+
+
+def idf_pythons() -> list[str]:
+    """ESP-IDF's own Python environments, newest first; esptool lives there, not in .venv."""
+    envs = Path.home() / ".espressif" / "python_env"
+    found = list(envs.glob("*/Scripts/python.exe")) + list(envs.glob("*/bin/python"))
+    return [str(p) for p in sorted(found, reverse=True)]
+
+
+def esp_tool(module: str) -> list[str] | None:
+    for python in [sys.executable, *idf_pythons()]:
+        probe = subprocess.run([python, "-c", f"import {module}"], capture_output=True)
+        if probe.returncode == 0:
+            return [python, "-m", module]
+    return None
+
+
+def set_mac(profile: dict, args) -> int:
+    write = (profile.get("mac") or {}).get("write") or {}
+    mac = parse_mac(args.address)
+    shown = ":".join(f"{b:02X}" for b in mac)
+    values = {"{mac}": shown, "{mac_hex}": shown.replace(":", "").lower(),
+              "{mac_array}": "{ " + ", ".join(f"0x{b:02X}" for b in mac) + " }"}
+
+    def fill(text: str) -> str:
+        for placeholder, value in values.items():
+            text = text.replace(placeholder, value)
+        return text
+
+    print(f"\n{profile['label']} - set MAC address {shown}")
+    runtime = write.get("runtime") or []
+    if runtime:
+        print("  Runtime override, set by the application on every boot (reversible):")
+        for line in runtime:
+            print(f"    {fill(line)}")
+    else:
+        print("  [INFO] No runtime override is documented for this target yet.")
+
+    permanent = write.get("permanent") or {}
+    if not args.burn:
+        if permanent.get("note"):
+            print(f"  Permanent: {fill(permanent['note'])}")
+        print()
+        return 0
+    if permanent.get("tool") != "espefuse":
+        print("[FAIL] No host-side tool can store a MAC address permanently on this target.\n")
+        return 1
+
+    tool = esp_tool("espefuse")
+    if tool is None:
+        print("[FAIL] espefuse not found. Run '--install' first.\n")
+        return 1
+    help_text = subprocess.run([*tool, "--help"], capture_output=True, text=True).stdout
+    # esptool v5 renamed the commands to dashed form.
+    command = "burn-custom-mac" if "burn-custom-mac" in help_text else "burn_custom_mac"
+    cmd = [*tool, "--chip", permanent["chip"]] + (["--port", args.serial] if args.serial else []) \
+        + [command, shown]
+    print("  [WARNING] This writes eFuses. It cannot be undone and the address cannot be changed again.")
+    print("            espefuse asks you to type BURN to confirm.\n")
+    return subprocess.call(cmd)
+
+
+def find_example(key: str, name: str) -> dict | None:
+    wanted = name[4:] if name.startswith("ubx/") else name
+    return next((ex for ex in load_profile(key).get("examples") or [] if ex["name"] == wanted), None)
+
+
+def example_dir(key: str, example: dict) -> Path:
+    return asset_path(load_profile(key), example.get("path", "."), {})
+
+
+def cmd_examples(key: str, args) -> int:
+    profile = load_profile(key)
+    examples = profile.get("examples") or []
+    print(f"\nu-blox examples for {profile['label']}")
+    if not examples:
+        print("  (none yet)\n")
+        return 0
+    for example in examples:
+        print(f"  ubx/{example['name']:<24} {example.get('description', '')}")
+        if example["kind"] == "project":
+            print(f"      --build ubx/{example['name']}")
+        else:
+            print(f"      Manual: replace {example['base']}/{Path(example['file']).name} with "
+                  f"{profile['assets']}/{example['file']}")
+    print()
+    return 0
 
 
 def read_mac_esptool(key: str, port: str | None) -> int:
@@ -665,6 +783,7 @@ def read_mac_esptool(key: str, port: str | None) -> int:
         bundled = root / "components" / "esptool_py" / "esptool" / "esptool.py"
         if bundled.exists():
             candidates.append([sys.executable, str(bundled)])
+    candidates += [[python, "-m", "esptool"] for python in idf_pythons()]
     if shutil.which("esptool.py"):
         candidates.insert(0, ["esptool.py"])
 
@@ -696,6 +815,7 @@ COMMANDS = {
     "apply": cmd_apply,
     "revert": cmd_revert,
     "mac": cmd_mac,
+    "examples": cmd_examples,
 }
 
 
@@ -708,6 +828,9 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--variant", help="u-blox part number, e.g. NORA-W301")
     parser.add_argument("--region", help="Regulatory domain, e.g. ETSI")
     parser.add_argument("--serial", help="Serial port, for 'mac'")
+    parser.add_argument("--address", help="For 'mac': the MAC address to set, AA:BB:CC:DD:EE:FF")
+    parser.add_argument("--burn", action="store_true",
+                        help="For 'mac --address': store it permanently in eFuse (irreversible)")
     parser.add_argument("--set", action="append", metavar="KEY=VALUE",
                         help="Override a profile variable, e.g. --set flash_vendor=Fidelex")
     parser.add_argument("--force", action="store_true",

@@ -133,9 +133,41 @@ def test_matter_flag_points_to_matter_launcher(capsys):
 
 
 @pytest.mark.parametrize("flag", ["--full", "--build-sdk", "--clean-all", "--rf-config", "--mac",
-                                  "--variant", "--region"])
+                                  "--mac-set", "--burn", "--variant", "--region"])
 def test_sdk_only_flags_rejected_by_matter(flag):
     assert ubx.parse(["nora-w40", flag], matter=True) == 1
+
+
+def test_mac_set_takes_address_and_optional_port():
+    c = ctx(["nora-w40", "--mac-set", "02:12:34:56:78:9A", "COM4", "--burn"])
+    assert (c.mac_address, c.mac_port, c.burn) == ("02:12:34:56:78:9A", "COM4", True)
+    assert ubx.argv_for(c, "mac-set") == ["mac", "--address", "02:12:34:56:78:9A",
+                                         "--serial", "COM4", "--burn"]
+    assert ubx.argv_for(ctx(["iris-w10", "--mac-set", "02:00:00:00:00:01"]), "mac-set") == \
+        ["mac", "--address", "02:00:00:00:00:01"]
+
+
+def test_mac_set_needs_an_address_and_burn_needs_mac_set():
+    assert ubx.parse(["nora-w40", "--mac-set"]) == 1
+    assert ubx.parse(["nora-w40", "--mac", "--burn"]) == 1
+
+
+def test_ubx_project_example_builds_from_the_repository(native):
+    assert ubx.main(["nora-w40", "--build", "ubx/rf-calibration", "--log"]) == 0
+    project = ubx.SDK_ROOT.parent / "esp-idf" / "nora-w40"
+    assert native.cmds[0][2:] == ["build", str(project)]
+    assert native.cmds[1][2:] == ["log", str(project)]
+
+
+def test_ubx_drop_in_example_explains_instead_of_building(native, capsys):
+    assert ubx.main(["iris-w10", "--build", "ubx/read-mac-address"]) == 1
+    assert not native.calls
+    assert "wifi_examples/wifi_test_mode/main.c" in capsys.readouterr().out
+
+
+def test_unknown_ubx_example(native, capsys):
+    assert ubx.main(["nora-w40", "--build", "ubx/nope"]) == 1
+    assert "No u-blox example" in capsys.readouterr().out
 
 
 def test_flash_log_only_for_nordic_matter():
@@ -236,6 +268,7 @@ def test_actions_run_in_fixed_order(native):
         ("nora_w40_build.py", "doctor"),
         ("module_config.py", "status"),
         ("nora_w40_build.py", "list"),
+        ("module_config.py", "examples"),
         ("nora_w40_build.py", "clean"),
         ("nora_w40_build.py", "build"),
         ("nora_w40_build.py", "log"),
@@ -243,15 +276,16 @@ def test_actions_run_in_fixed_order(native):
 
 
 def test_full_action_order_matches_constant(native):
-    flags = ["--log", "--mac", "--flash", "--build", "--clean", "--list", "--rf-config",
-             "--build-sdk", "--install", "--clone", "--doctor"]
+    flags = ["--log", "--mac", "--mac-set", "02:00:00:00:00:01", "--flash", "--build", "--clean",
+             "--list", "--rf-config", "--build-sdk", "--install", "--clone", "--doctor"]
     assert ubx.main(["nora-w50-w51", *flags]) == 0
-    actions = [a for _, a in steps(native.cmds) if a != "status"]
+    actions = [a for _, a in steps(native.cmds) if a not in ("status", "examples")]
     translated = {"apply": "rf-config"}
-    # NORA-W50-W51 maps --clean onto a clean build.
+    # NORA-W50-W51 maps --clean onto a clean build; --mac-set and --mac both call 'mac'.
     order = [translated.get(a, a) for a in actions]
     assert order[:5] == ["doctor", "clone", "install", "build-sdk", "rf-config"]
-    assert order[5:] == ["list", "build", "build", "flash", "mac", "log"]
+    assert order[5:] == ["list", "build", "build", "flash", "mac", "mac", "log"]
+    assert native.cmds[-3][3:] == ["mac", "--address", "02:00:00:00:00:01"]
 
 
 def test_failure_stops_the_chain(native, capsys):

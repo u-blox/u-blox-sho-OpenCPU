@@ -24,6 +24,7 @@ import sys
 from dataclasses import dataclass, field, replace
 from pathlib import Path
 
+import module_config
 import target_paths
 
 SDK_ROOT = Path(__file__).resolve().parent.parent
@@ -32,7 +33,7 @@ MATTER_SCRIPT = SCRIPTS_DIR / "matter_build.py"
 MODULE_CONFIG_SCRIPT = SCRIPTS_DIR / "module_config.py"
 
 # Served by module_config.py for every target rather than by the per-target driver.
-MODULE_ACTIONS = frozenset({"rf-config", "mac"})
+MODULE_ACTIONS = frozenset({"rf-config", "mac-set", "mac"})
 
 
 @dataclass(frozen=True)
@@ -131,7 +132,7 @@ ALIASES = {
 # 'list' sits after the SDK is in place so '--clone --list' reads correctly.
 # 'rf-config' mutates the SDK tree, so it has to land before anything is built.
 ACTION_ORDER = ["doctor", "clone", "install", "build-sdk", "rf-config",
-                "list", "clean", "build", "flash", "mac", "log"]
+                "list", "clean", "build", "flash", "mac-set", "mac", "log"]
 
 
 @dataclass
@@ -142,6 +143,8 @@ class Context:
     port: str | None = None
     probe: str | None = None
     mac_port: str | None = None
+    mac_address: str | None = None
+    burn: bool = False
     variant: str | None = None
     region: str | None = None
     full: bool = False
@@ -177,11 +180,14 @@ Flags (combinable; always run in this order)
   --rf-config           Apply the u-blox RF calibration / TX power configuration
     --variant <PART>      Module part number, e.g. NORA-W301, IRIS-W101-00B
     --region <DOMAIN>     Regulatory domain: FCC, ISED, ETSI, MKK, ACMA
-  --list                List available examples
+  --list                List available examples, including the u-blox ones (ubx/...)
   --clean               Clean build artifacts
   --clean-all           Remove the fetched SDK entirely
-  --build [NAME]        Build an example (target-specific default if omitted)
+  --build [NAME]        Build an example (target-specific default if omitted);
+                        ubx/<name> builds a u-blox example from the repository
   --flash [SERIAL]      Flash via the target's debug probe
+  --mac-set ADDR [PORT] Show how to use another MAC / device address
+    --burn                Store it permanently in eFuse where supported (irreversible)
   --mac [PORT]          Report the module MAC / Bluetooth device address
   --log [PORT]          Open the serial monitor (port auto-detected if omitted)
   --setup-venv          Create/refresh the shared .venv, then exit
@@ -201,6 +207,8 @@ Examples
   ubx-sdk nora-w50-w51 --clone --build-sdk --build network_terminal
   ubx-sdk nora-w30 --build        (hops into WSL2 automatically on Windows)
   ubx-sdk nora-w30 --variant NORA-W301 --region ETSI --rf-config --build
+  ubx-sdk nora-w40 --build ubx/rf-calibration --flash --log
+  ubx-sdk nora-w40 --mac-set 02:12:34:56:78:9A
   ubx-sdk iris-w10 --build hello_world -- --config release
 
 Matter is a separate, optional layer with its own launcher: ubx-matter --help
@@ -352,7 +360,7 @@ def parse(argv: list[str], matter: bool = False) -> Context | int:
             return fail(f"Matter has its own launcher: ubx-matter {target.key} {others}".rstrip())
         if matter and arg in ("--full", "--build-sdk", "--clean-all"):
             return fail(f"{arg} is an SDK-only flag and has no Matter equivalent.")
-        if matter and arg in ("--rf-config", "--mac", "--variant", "--region"):
+        if matter and arg in ("--rf-config", "--mac", "--mac-set", "--burn", "--variant", "--region"):
             return fail(f"{arg} is an SDK-only flag. Apply the module configuration with\n"
                         f"       'ubx-sdk {target.key} {arg} ...' before building Matter.")
         if matter and arg in ("--flash", "--log") and not is_ncs_matter(ctx):
@@ -399,6 +407,19 @@ def parse(argv: list[str], matter: bool = False) -> Context | int:
             if value:
                 ctx.mac_port = value
                 i += 1
+        elif arg == "--mac-set":
+            value = peek()
+            if not value:
+                return fail("--mac-set needs an address, e.g. --mac-set 02:12:34:56:78:9A")
+            ctx.actions.add("mac-set")
+            ctx.mac_address = value
+            i += 1
+            value = peek()
+            if value:
+                ctx.mac_port = value
+                i += 1
+        elif arg == "--burn":
+            ctx.burn = True
         elif arg == "--log":
             ctx.actions.add("log")
             value = peek()
@@ -414,6 +435,8 @@ def parse(argv: list[str], matter: bool = False) -> Context | int:
         return 0
     if (ctx.variant or ctx.region) and "rf-config" not in ctx.actions:
         print("[WARNING] --variant/--region only take effect with --rf-config; ignoring.")
+    if ctx.burn and "mac-set" not in ctx.actions:
+        return fail("--burn only makes sense with --mac-set <ADDR>.")
     return ctx
 
 
@@ -453,6 +476,11 @@ def argv_for(ctx: Context, action: str) -> list[str] | None:
         return argv
     if action == "mac":
         return ["mac", "--serial", ctx.mac_port] if ctx.mac_port else ["mac"]
+    if action == "mac-set":
+        argv = ["mac", "--address", ctx.mac_address]
+        if ctx.mac_port:
+            argv += ["--serial", ctx.mac_port]
+        return argv + (["--burn"] if ctx.burn else [])
 
     if is_ncs_matter(ctx):
         # Matter here is just the nrf/samples/matter subtree of the NCS
@@ -566,13 +594,38 @@ def needs_linux(ctx: Context) -> bool:
     return ctx.matter
 
 
-def run(ctx: Context, raw_argv: list[str]) -> int:
+def resolve_ubx_example(ctx: Context) -> int:
+    """Turn 'ubx/<name>' into the u-blox example's folder in the repository."""
+    example = module_config.find_example(ctx.target.key, ctx.example)
+    if example is None:
+        return fail(f"No u-blox example '{ctx.example}' for {ctx.target.label}.\n"
+                    f"       Run 'ubx-sdk {ctx.target.key} --list' to see them.")
+    if example["kind"] != "project":
+        assets = module_config.load_profile(ctx.target.key)["assets"]
+        return fail(f"{ctx.example} is a source file to drop into a vendor example, not a project.\n"
+                    f"       Replace {example['base']}/{Path(example['file']).name} with "
+                    f"{assets}/{example['file']}, then build {example['base']}.")
+    ctx.example = str(module_config.example_dir(ctx.target.key, example))
+    return 0
+
+
+def adopt_sdk(ctx: Context) -> None:
+    """Move a vendor SDK left in the SDK root by older versions into targets/."""
     slug = ctx.target.key.replace("-", "_")
     if not ctx.dry_run and not ctx.matter and slug in target_paths.ROOT_SDKS:
         target_paths.adopt_root_sdk(slug)
 
+
+def run(ctx: Context, raw_argv: list[str]) -> int:
+    adopt_sdk(ctx)
+
     if needs_linux(ctx) and host_is_windows() and ctx.use_wsl is not False:
         return hop_to_wsl(ctx, [a for a in raw_argv if a != "--wsl"])
+
+    if ctx.example and ctx.example.startswith("ubx/") and not ctx.matter:
+        rc = resolve_ubx_example(ctx)
+        if rc:
+            return rc
 
     script = MATTER_SCRIPT if ctx.matter else SCRIPTS_DIR / ctx.target.script
     if is_ncs_matter(ctx):
@@ -602,6 +655,9 @@ def run(ctx: Context, raw_argv: list[str]) -> int:
                           ctx.target.key, "status"], cwd=str(SDK_ROOT))
         if rc != 0:
             return fail(f"{banner}{action} failed (exit {rc}).")
+        if action == "list" and not ctx.matter:
+            execute(ctx, [sys.executable, str(MODULE_CONFIG_SCRIPT),
+                          ctx.target.key, "examples"], cwd=str(SDK_ROOT))
     return 0
 
 

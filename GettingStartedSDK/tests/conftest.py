@@ -26,3 +26,10 @@ class CallRecorder:
 @pytest.fixture
 def calls():
     return CallRecorder()
+
+
+@pytest.fixture(autouse=True)
+def no_sdk_adoption(monkeypatch):
+    """Never move the real vendor SDKs of the machine running the tests."""
+    import ubx
+    monkeypatch.setattr(ubx, "adopt_sdk", lambda ctx: None)

@@ -47,6 +47,72 @@ def test_every_profile_asset_exists_in_the_repo(key):
     assert not missing
 
 
+def test_ops_are_applied_in_topic_order():
+    profile = {"patches": [{"op": "p"}], "output_power": [{"op": "o"}], "calibration": [{"op": "c"}]}
+    assert [(op["topic"], op["op"]) for op in mc.iter_ops(profile)] == \
+        [("output_power", "o"), ("calibration", "c"), ("patches", "p")]
+
+
+@pytest.mark.parametrize("key", mc.TARGET_KEYS)
+def test_profiles_use_topics_not_the_old_flat_list(key):
+    assert "sdk_patch" not in mc.load_profile(key)
+
+
+@pytest.mark.parametrize("text", ["02:12:34:56:78:9a", "02-12-34-56-78-9A", "0212.3456.789a", "02123456789A"])
+def test_parse_mac_accepts_common_forms(text):
+    assert mc.parse_mac(text) == bytes.fromhex("02123456789A")
+
+
+@pytest.mark.parametrize("text", ["02:12:34:56:78", "zz:12:34:56:78:9a", "00:00:00:00:00:00",
+                                  "ff:ff:ff:ff:ff:ff", "01:12:34:56:78:9a"])
+def test_parse_mac_rejects_unusable_addresses(text):
+    with pytest.raises(ValueError):
+        mc.parse_mac(text)
+
+
+def test_mac_set_prints_runtime_override(capsys):
+    assert mc.main(["iris-w10", "mac", "--address", "02:12:34:56:78:9a"]) == 0
+    out = capsys.readouterr().out
+    assert "{ 0x02, 0x12, 0x34, 0x56, 0x78, 0x9A }" in out
+    assert "wlan_set_sta_mac_addr" in out
+
+
+def test_mac_burn_refused_without_host_tool(capsys):
+    assert mc.main(["nora-w30", "mac", "--address", "02:12:34:56:78:9a", "--burn"]) == 1
+    assert "No host-side tool" in capsys.readouterr().out
+
+
+def test_mac_burn_runs_espefuse_interactively(monkeypatch, calls):
+    monkeypatch.setattr(mc, "esp_tool", lambda module: ["py", "-m", module])
+    monkeypatch.setattr(mc.subprocess, "run", lambda *a, **k: mc.subprocess.CompletedProcess(
+        a[0], 0, stdout="Commands: burn-custom-mac ..."))
+    monkeypatch.setattr(mc.subprocess, "call", calls)
+    assert mc.main(["nora-w40", "mac", "--address", "02:12:34:56:78:9a",
+                    "--serial", "COM3", "--burn"]) == 0
+    # No --do-not-confirm: espefuse itself asks the user to type BURN.
+    assert calls.cmds == [["py", "-m", "espefuse", "--chip", "esp32c6", "--port", "COM3",
+                           "burn-custom-mac", "02:12:34:56:78:9A"]]
+
+
+def test_examples_command(capsys):
+    assert mc.main(["nora-w40", "examples"]) == 0
+    assert "--build ubx/rf-calibration" in capsys.readouterr().out
+    assert mc.main(["iris-w10", "examples"]) == 0
+    assert "Manual: replace wifi_examples/wifi_test_mode/main.c" in capsys.readouterr().out
+    assert mc.main(["nora-w50-w51", "examples"]) == 0
+    assert "(none yet)" in capsys.readouterr().out
+
+
+@pytest.mark.parametrize("key", READY)
+def test_every_example_exists_in_the_repo(key):
+    profile = mc.load_profile(key)
+    for example in profile.get("examples") or []:
+        if example["kind"] == "project":
+            assert (mc.example_dir(key, example) / "CMakeLists.txt").is_file()
+        else:
+            assert mc.asset_path(profile, example["file"], {}).is_file()
+
+
 def test_resolve_variant_errors():
     profile = {"variants": {"NORA-W301": {}, "NORA-W306": {}}}
     with pytest.raises(ValueError, match="No variant selected"):

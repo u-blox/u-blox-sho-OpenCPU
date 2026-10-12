@@ -15,13 +15,15 @@
       "vars": { "rf_para": "W306" }
     }
   },
-  "sdk_patch": [
+  "output_power": [
     {
       "op": "copy",
       "src": "rtw_opt_rf_para_rtl8721d_{rf_para}.c",
       "dst": "component/common/drivers/wlan/realtek/src/core/option/rtw_opt_rf_para_rtl8721d_{rf_para}.c",
       "note": "u-blox TX power limit tables for {variant}"
-    },
+    }
+  ],
+  "patches": [
     {
       "op": "replace-line",
       "file": "project/realtek_amebaD_va0_example/GCC-RELEASE/project_hp/asdk/make/wlan/option/Makefile",
@@ -50,7 +52,16 @@
     "read": "unsupported",
     "notes": [
       "No host-side reader is wired up. Print it from the application with wifi_get_mac_address()."
-    ]
+    ],
+    "write": {
+      "runtime": [
+        "u8 mac[6] = {mac_array};",
+        "wifi_change_mac_address_from_ram(0, mac);   /* RAM only, wlan0 */"
+      ],
+      "permanent": {
+        "note": "wifi_set_mac_address(\"{mac_hex}\") writes the eFuse from the application. eFuse space is limited and the write cannot be undone."
+      }
+    }
   },
   "verify": {
     "notes": [

@@ -13,13 +13,15 @@
     "NORA-W401": { "description": "Antenna pin" },
     "NORA-W406": { "description": "Internal PCB antenna" }
   },
-  "sdk_patch": [
+  "output_power": [
     {
       "op": "copy-tree",
       "src": "components/ubx_phy_cal",
       "dst": "components/ubx_phy_cal",
-      "note": "u-blox PHY calibration component, installed SDK-wide so any example picks it up"
-    },
+      "note": "u-blox PHY init data (TX power), installed SDK-wide so any example picks it up"
+    }
+  ],
+  "patches": [
     {
       "op": "patch",
       "sdk_version": ">=5.1,<5.2",
@@ -66,8 +68,27 @@
     "read": "esptool",
     "notes": [
       "Four addresses are derived from the base MAC: Wi-Fi STA, Wi-Fi AP, Bluetooth, Ethernet."
-    ]
+    ],
+    "write": {
+      "runtime": [
+        "uint8_t mac[6] = {mac_array};",
+        "esp_iface_mac_addr_set(mac, ESP_MAC_BASE);   /* before esp_wifi_init() / esp_bt_controller_init() */"
+      ],
+      "permanent": {
+        "tool": "espefuse",
+        "chip": "esp32c6",
+        "note": "--burn writes it to the CUSTOM_MAC eFuse (one time only). Enable CONFIG_ESP_MAC_USE_CUSTOM_MAC_AS_BASE_MAC in the application so it is used as the base MAC."
+      }
+    }
   },
+  "examples": [
+    {
+      "name": "rf-calibration",
+      "kind": "project",
+      "path": ".",
+      "description": "Wi-Fi station on the u-blox PHY init data; logs the ubx_phy_cal line"
+    }
+  ],
   "verify": {
     "log_contains": "ubx_phy_cal: loading PHY init data from application binary",
     "notes": [

@@ -19,13 +19,15 @@
     "IRIS-W101-40B": { "description": "RW610, 16 MB flash, antenna pin", "vars": { "flash_size": "16mb" } },
     "IRIS-W106-40B": { "description": "RW610, 16 MB flash, PCB antenna", "vars": { "flash_size": "16mb" } }
   },
-  "sdk_patch": [
+  "output_power": [
     {
       "op": "replace",
       "src": "sw-config/wifi-txpower-cfg/wlan_txpwrlimit_cfg_WW_rw610.h",
       "dst": "components/wifi_bt_module/AzureWave/tx_pwr_limits/wlan_txpwrlimit_cfg_WW_rw610.h",
       "note": "u-blox certified Wi-Fi TX power limits (WW, FCC, ETSI, JP)"
-    },
+    }
+  ],
+  "calibration": [
     {
       "op": "replace",
       "sdk_version": "<24.12",
@@ -58,7 +60,9 @@
       "src": "sw-config/bt-802-15-4-calibration-files/{sdk_release}/fwk_platform_ble.c",
       "dst": "middleware/wireless/framework/platform/rw61x/fwk_platform_ble.c",
       "note": "Bluetooth / 802.15.4 calibration data"
-    },
+    }
+  ],
+  "patches": [
     {
       "op": "replace",
       "src": "sw-config/flash-drv/{flash_vendor}-{flash_size}/{sdk_release}/mflash_drv.c",
@@ -91,8 +95,33 @@
     "read": "unsupported",
     "notes": [
       "No host-side reader is wired up. Print it from the application, or read it over the Wi-Fi CLI."
-    ]
+    ],
+    "write": {
+      "runtime": [
+        "uint8_t mac[6] = {mac_array};",
+        "wlan_set_sta_mac_addr(mac);   /* after Wi-Fi init; wlan_set_mac_addr() also derives the uAP address */"
+      ],
+      "permanent": {
+        "note": "The OTP address is programmed by u-blox in production and is not rewritten from the host."
+      }
+    }
   },
+  "examples": [
+    {
+      "name": "read-mac-address",
+      "kind": "drop-in",
+      "description": "Print the Wi-Fi STA MAC address",
+      "file": "example-code/read-mac-address/main.c",
+      "base": "wifi_examples/wifi_test_mode"
+    },
+    {
+      "name": "read-otp-parameters",
+      "kind": "drop-in",
+      "description": "Print the module type and serial number from OTP",
+      "file": "example-code/read-otp-parameters/main.c",
+      "base": "driver_examples/romapi/otp"
+    }
+  ],
   "manual_steps": [
     { "sdk_version": ">=24.12,<25.6", "text": "SDK 24.12.00 / 25.03.00: add '#define CONFIG_WLAN_CALDATA_1ANT 1' to the example's wifi_config.h, otherwise the u-blox Wi-Fi calibration is not used." },
     { "sdk_version": ">=25.6", "text": "SDK 25.06.00 and later: add '#define OVERRIDE_CALIBRATION_DATA \"wifi_cal_data_override.h\"' to the example's wifi_config.h, otherwise the u-blox Wi-Fi calibration is not used." },

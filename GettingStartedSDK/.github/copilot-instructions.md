@@ -222,10 +222,10 @@ when debugging that driver. Matter has its own shim pair,
 
 Flags are combinable and always execute in this order:
 `--doctor` -> `--clone` -> `--install` -> `--build-sdk` -> `--rf-config` ->
-`--list` -> `--clean` -> `--build` -> `--flash` -> `--mac` -> `--log`. Anything
+`--list` -> `--clean` -> `--build` -> `--flash` -> `--mac-set` -> `--mac` -> `--log`. Anything
 after a bare `--` is passed verbatim to the underlying driver.
 
-`--rf-config` and `--mac` are served by `scripts/module_config.py` for every
+`--rf-config`, `--mac-set` and `--mac` are served by `scripts/module_config.py` for every
 target, not by the per-target driver. See "Module configuration" below.
 
 ### 1. First Time Setup
@@ -287,11 +287,16 @@ Vendor SDKs ship RF data for the vendor's reference board, so firmware built
 without `--rf-config` is **not regulatory compliant** on a u-blox module. Never
 describe a plain `--build` flow as production-ready.
 
-`scripts/module_config.py` serves `--rf-config` and `--mac` for every target.
-What it applies is data, not code: `modules/<target>/profile.json` lists ops
-(`copy`, `replace`, `copy-tree`, `replace-line`, `patch`) against the fetched
-vendor SDK. Assets are never duplicated into `modules/` - they stay in the
-u-blox folders at the repository root and are referenced by path:
+`scripts/module_config.py` serves `--rf-config`, `--mac-set` and `--mac` for every
+target. What it applies is data, not code: `modules/<target>/profile.json`
+describes every target with the same five topics - `output_power`,
+`calibration` and `patches` (ops: `copy`, `replace`, `copy-tree`,
+`replace-line`, `patch`, applied by `--rf-config` in that order), `mac`
+(read, plus `write.runtime` lines and an optional `write.permanent` host tool
+for `--mac-set [--burn]`) and `examples` (u-blox examples, `--build ubx/<name>`;
+`project` builds in place, `drop-in` only prints the steps). Assets are never
+duplicated into `modules/` - they stay in the u-blox folders at the repository
+root, referenced through the profile's `assets` field:
 
 | Target | Assets | Status |
 |--------|--------|--------|
