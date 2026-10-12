@@ -64,3 +64,14 @@ sdk-shellcheck:
     - shellcheck -S warning ubx-*.sh scripts/matter_vendor/*.sh
   rules:
     - changes: [getting-started-sdk/**/*, .gitlab-ci.yml]
+
+# Typos in docs, skills, messages and comments. Version pinned; same command in GitHub Actions.
+sdk-codespell:
+  stage: test
+  image: python:3.12-slim
+  script:
+    - python -m pip install --quiet codespell==2.4.1
+    - cd getting-started-sdk
+    - codespell -L ser,ameba --skip "*/config/*" README.md docs modules .github scripts tests ubx-sdk.cmd ubx-sdk.sh ubx-matter.cmd ubx-matter.sh
+  rules:
+    - changes: [getting-started-sdk/**/*, .gitlab-ci.yml]

@@ -106,6 +106,9 @@ LINT_COMMANDS = (
     "ruff==0.17.0",
     "ruff check --isolated --target-version py310 --select E4,E7,E9,F",
     "shellcheck -S warning ubx-*.sh scripts/matter_vendor/*.sh",
+    "codespell==2.4.1",
+    'codespell -L ser,ameba --skip "*/config/*" README.md docs modules .github scripts tests '
+    "ubx-sdk.cmd ubx-sdk.sh ubx-matter.cmd ubx-matter.sh",
 )
 
 

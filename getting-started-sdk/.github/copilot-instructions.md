@@ -129,10 +129,12 @@ u-blox-sho-OpenCPU/                  repository root
   toolchain, WSL2 or hardware. Add a test with every new flag, target, alias,
   profile field or Matter vendor script. CI runs it on Python 3.10 and 3.14,
   on Linux (GitLab) and Linux + Windows (GitHub Actions on the mirror).
-- Lint: `ruff check --isolated --target-version py310 --select E4,E7,E9,F scripts tests`
-  and `shellcheck -S warning ubx-*.sh scripts/matter_vendor/*.sh` must pass; both
+- Lint: `ruff check --isolated --target-version py310 --select E4,E7,E9,F scripts tests`,
+  `shellcheck -S warning ubx-*.sh scripts/matter_vendor/*.sh` and the `codespell`
+  command in `README.md` (docs, skills, scripts, tests) must pass; all
   run in CI with the same pinned rules. Keep the commands identical in
-  `.gitlab-ci.yml`, the GitHub workflow and `README.md`.
+  `.gitlab-ci.yml`, the GitHub workflow and `README.md`. A real word codespell
+  rejects goes into its `-L` list everywhere.
 - `.cmd` and `.bat` files must stay CRLF; editing tools write LF. Re-normalise
   after every edit.
 - `docs/BUILD_TEST_RESULTS.md` is the only record of real builds. Update it

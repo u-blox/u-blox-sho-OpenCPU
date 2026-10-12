@@ -217,11 +217,12 @@ python -m pytest tests -q --cov=scripts --cov-report=term
 
 CI (GitLab, and GitHub Actions on the mirror) runs it on Linux and Windows with
 Python 3.10 and 3.14 and fails below 90% coverage, plus these linters
-(`pip install ruff==0.17.0 shellcheck-py`):
+(`pip install ruff==0.17.0 shellcheck-py codespell==2.4.1`):
 
 ```bash
 ruff check --isolated --target-version py310 --select E4,E7,E9,F scripts tests
 shellcheck -S warning ubx-*.sh scripts/matter_vendor/*.sh
+codespell -L ser,ameba --skip "*/config/*" README.md docs modules .github scripts tests ubx-sdk.cmd ubx-sdk.sh ubx-matter.cmd ubx-matter.sh
 ```
 
 ## Documentation
