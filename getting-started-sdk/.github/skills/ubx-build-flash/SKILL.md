@@ -41,7 +41,7 @@ as `ubx/<name>`, e.g. `nora-w40 --variant NORA-W401 --rf-config --build ubx/rf-c
 
 | Target | SDK | Firmware |
 |--------|-----|----------|
-| IRIS-W10 | `sdks/mcuxpresso-sdk/<version>` | `<workspace>/build/<config>/<example>.{elf,bin}` |
+| IRIS-W10 | `sdks/mcuxpresso-sdk/<version>` | `<workspace>/build/<example>.{elf,bin,hex}` (older SDKs: `build/<config>/`) |
 | NORA-W30 | `sdks/ameba-rtos-d/<version>` | `.../GCC-RELEASE/project_hp/asdk/image/km4_image2_all.bin` |
 | NORA-W40 | `sdks/esp-idf/<version>` | `<example>/build/<project>.bin` |
 | NORA-W50-W51 | `sdks/simplelink-wifi/<version>/` | `<example>/<rtos>/<board>/<toolchain>/*.out` |
@@ -51,13 +51,15 @@ as `ubx/<name>`, e.g. `nora-w40 --variant NORA-W401 --rf-config --build ubx/rf-c
 
 | Target | Probe |
 |--------|-------|
-| IRIS-W10 | J-Link / MCU-Link; J-Link device is `RW612`, not the board name |
+| IRIS-W10 | MCU-Link with J-Link firmware, J-Link device `RW612`; `--flash COM<n>` = boot-ROM recovery with blhost (SW3 position 1 EXT-REQ to GND) when J-Link cannot verify (blank/wrong FCB) |
 | NORA-W40 | USB serial via `idf.py flash`; `--log` runs `idf.py monitor` in the example |
 | NORA-W50-W51 | XDS110 (`--flash <serial>`) |
 | NORA-B20-B21-B22, ALMA-B20-B21 | on-board J-Link OB via `west flash -r nrfutil` (needs `nrfutil`) |
-| NORA-W30 | not wired (`--flash` is skipped); use Realtek ImageTool |
+| NORA-W30 | on-board J-Link OB, J-Link device `RTL8720DF`; built in WSL2, flashed and logged from Windows |
 
-`--log [PORT]` auto-detects the port when omitted.
+`--log [PORT]` auto-detects the port when omitted. With several probes attached,
+J-Link targets pick the board's probe by product name, or pass its serial.
+`--log` is interactive: typed lines go to the module.
 
 ## Environment variables
 

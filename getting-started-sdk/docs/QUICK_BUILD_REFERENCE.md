@@ -39,11 +39,12 @@ Combinable, and always executed in this order:
 | `--rf-config` | Apply the u-blox output power, calibration and SDK patches |
 | `--variant <PART>` | Module part number, e.g. `NORA-W301`, `IRIS-W101-00B` |
 | `--region <DOMAIN>` | Regulatory domain: FCC, ISED, ETSI, MKK, ACMA |
+| `--set KEY=VALUE` | With `--rf-config`: override a profile variable, e.g. `flash_part=macronix-8mb` (IRIS-W10) |
 | `--list` | List vendor examples and u-blox examples (`ubx/<name>`) |
 | `--build [NAME]` | Build an example (target default if omitted); `ubx/<name>` for a u-blox one |
 | `--clean` | Clean build artifacts |
 | `--clean-all` | Remove the SDK version in use (other versions in `sdks/<vendor>/` stay) |
-| `--flash [SERIAL]` | Flash via the target's debug probe |
+| `--flash [SERIAL]` | Flash via the target's debug probe; IRIS-W10 `--flash COM<n>` uses the boot ROM |
 | `--mac-set ADDR [PORT]` | Show how to use another MAC address |
 | `--burn` | With `--mac-set`: store it in eFuse where supported (irreversible) |
 | `--mac [PORT]` | Report the module MAC / Bluetooth device address |
@@ -122,7 +123,7 @@ Under development - builds against Nordic's nRF54LM20 DK, not a u-blox board.
 
 | Target | Artifacts | Location |
 |--------|-----------|----------|
-| IRIS-W10 | `<example>.elf`, `.bin` | `<west workspace>/build/<config>/` |
+| IRIS-W10 | `<example>.elf`, `.bin`, `.hex` | `<west workspace>/build/` |
 | NORA-W30 | `*.bin` | in-source, under the example directory |
 | NORA-W40 | `*.elf`, `*.bin` | `<esp-idf>/examples/<example>/build/` |
 | NORA-W50-W51 | `*.out`, `*.map` | `<examples>/<rtos>/<board>/<toolchain>/` |
