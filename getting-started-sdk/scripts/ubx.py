@@ -175,7 +175,8 @@ with AT-command firmware and are not built from this Open CPU SDK.
 Flags (combinable; always run in this order)
   --doctor              Verify host tools for the target
   --clone [VERSION]     Fetch the vendor SDK on demand into sdks/<vendor>/<version>;
-                        VERSION is a branch or tag (default: the vendor's default)
+                        VERSION is a branch or tag (default: the tested release;
+                        main/master for the vendor's newest code)
     --full                IRIS-W10 only: full SDK instead of RW612 only
   --install             Install/refresh the SDK's own tool environment
   --build-sdk           NORA-W50-W51 only: build the SDK libraries
@@ -204,7 +205,7 @@ is not regulatory compliant. --doctor reports whether it has been applied.
 
 Examples
   ubx-sdk nora-w40 --clone --install --build hello_world
-  ubx-sdk nora-w40 --clone v5.5.1 --install   (next to the existing ESP-IDF)
+  ubx-sdk nora-w40 --clone master --install   (next to the existing ESP-IDF)
   ubx-sdk nora-b20-b21-b22 --clone --build hello_world --flash --log
   ubx-sdk iris-w10 --doctor
   ubx-sdk iris-w10 --build demo_apps/hello_world --flash --log
@@ -530,11 +531,7 @@ def argv_for(ctx: Context, action: str) -> list[str] | None:
         if ctx.full and t.key == "iris-w10":
             argv.append("--full")
         if ctx.sdk_version:
-            if t.key == "nora-w50-w51":
-                print("[WARNING] NORA-W50-W51 clones the TI example repos at their default branch; "
-                      f"ignoring version {ctx.sdk_version}.")
-            else:
-                argv += ["--revision", ctx.sdk_version]
+            argv += ["--revision", ctx.sdk_version]
         return argv
 
     if action == "clean":

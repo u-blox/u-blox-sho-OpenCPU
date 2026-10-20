@@ -167,7 +167,7 @@ def fake_sdk_root(tmp_path, monkeypatch):
 
 def test_layout_paths(fake_sdk_root):
     assert target_paths.config_dir("nora_w40") == fake_sdk_root / "modules" / "nora-w40" / "config"
-    assert target_paths.sdk_dir("nora_w40") == fake_sdk_root / "sdks" / "esp-idf" / "master"
+    assert target_paths.sdk_dir("nora_w40") == fake_sdk_root / "sdks" / "esp-idf" / "v5.5.5"
     assert target_paths.sdk_dir("nora_w40", "v5.5.1") == fake_sdk_root / "sdks" / "esp-idf" / "v5.5.1"
     assert target_paths.vendor_dir("alma_b20_b21") == target_paths.vendor_dir("nora_b20_b21_b22")
     assert target_paths.matter_dir("nora_w40") == fake_sdk_root / "sdks" / "matter" / "nora-w40"

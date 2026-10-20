@@ -442,7 +442,9 @@ def cmd_doctor(args) -> int:
 
 
 def cmd_clone(args) -> None:
-    ws = workspace_of(args)
+    revision = getattr(args, "revision", None)
+    ws = target_paths.sdk_dir(TARGET, revision) if revision else workspace_of(args)
+    branch = revision or target_paths.default_version(TARGET)
     ws.mkdir(parents=True, exist_ok=True)
     if HOST == "wsl" and str(ws).startswith("/mnt/"):
         log("[WARNING] Cloning onto a Windows drive from WSL2; expect very slow builds.")
@@ -461,7 +463,7 @@ def cmd_clone(args) -> None:
                 run(["git", "-C", str(dest), "pull", "--ff-only"], check=False)
             run(["git", "-C", str(dest), "submodule", "update", "--init", "--recursive"])
         else:
-            run(["git", "clone", "--recurse-submodules", url, str(dest)])
+            run(["git", "clone", "--recurse-submodules", "--branch", branch, url, str(dest)])
 
     save_config(workspace=str(ws))
 
@@ -658,6 +660,8 @@ def build_parser() -> argparse.ArgumentParser:
 
     sp = add("clone", cmd_clone, "clone TI example repos (SDK included as submodule)")
     sp.add_argument("--repo", choices=[*REPOS, "both"], default="both")
+    sp.add_argument("--revision", help=f"tag or branch (default: {target_paths.default_version(TARGET)}), "
+                                       "fetched into sdks/simplelink-wifi/<revision>")
     sp.add_argument("--update", action="store_true", help="pull latest if already cloned")
 
     add("install", cmd_install, "show TI toolchain installation info")
@@ -682,6 +686,7 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("--all", action="store_true", help="build every example")
     sp.add_argument("--clone", action="store_true", help="clone the example repos first")
     sp.add_argument("--repo", choices=[*REPOS, "both"], default="both")
+    sp.add_argument("--revision", help="tag or branch to clone")
     sp.add_argument("--update", action="store_true")
     add_build_opts(sp)
 

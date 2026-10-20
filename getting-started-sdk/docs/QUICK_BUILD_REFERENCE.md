@@ -33,7 +33,7 @@ Combinable, and always executed in this order:
 | Flag | Purpose |
 |------|---------|
 | `--doctor` | Verify host tools for the target; a failure does not stop a following `--clone`/`--install` |
-| `--clone [VERSION]` | Fetch the vendor SDK on demand into `sdks/<vendor>/<VERSION>` (branch or tag; default: vendor default branch) |
+| `--clone [VERSION]` | Fetch the vendor SDK on demand into `sdks/<vendor>/<VERSION>` (branch or tag; default: the release this SDK is tested with, `main`/`master` for the newest code) |
 | `--full` | With `--clone`, IRIS-W10 only: the whole MCUXpresso SDK instead of the RW612 board set |
 | `--install` | Install/refresh the SDK's own tool environment |
 | `--build-sdk` | NORA-W50-W51 only: build the SDK libraries |

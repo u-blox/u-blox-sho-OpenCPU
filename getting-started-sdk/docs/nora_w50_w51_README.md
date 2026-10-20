@@ -26,7 +26,8 @@ what is missing:
 
 An SDK installed with TI's installer (`C:\ti\simplelink_wifi_sdk_*`, `~/ti/...`)
 is used as is. Without one, `--clone` fetches TI's example repos with the SDK
-as a submodule.
+as a submodule, at the tag of the newest SDK release (`--clone main` for the
+development branch).
 
 ## Quick start
 
@@ -88,7 +89,7 @@ Not yet verified on an EVK. UniFlash, also from TI, flashes without an IDE.
 ## WSL2
 
 Run inside WSL2 from a checkout on a Windows drive, `--clone` fetches into
-`~/ubx-sdk/sdks/simplelink-wifi/main`: `/mnt/...` builds are very slow. USB is not visible in WSL2 by default: attach it
+`~/ubx-sdk/sdks/simplelink-wifi/<version>`: `/mnt/...` builds are very slow. USB is not visible in WSL2 by default: attach it
 with `usbipd attach --wsl --busid <BUSID>` from an admin PowerShell, or flash
 from Windows.
 

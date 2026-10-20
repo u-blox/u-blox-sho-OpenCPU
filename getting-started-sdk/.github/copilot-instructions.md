@@ -69,10 +69,13 @@ u-blox-sho-OpenCPU/                  repository root
 - Repository-root folders are named after an SDK but hold only u-blox files.
   The SDK is never cloned there. Profiles point at them through `assets`;
   nothing is copied into `modules/`.
-- Vendor SDKs live only in `sdks/<vendor>/<version>/` (`esp-idf/master`,
+- Vendor SDKs live only in `sdks/<vendor>/<version>/` (`esp-idf/v5.5.5`,
   `ameba-rtos-d/main`, ...); `<version>` is the fetched branch or tag, so
   versions sit side by side and the path cached in `build.<host>.json` picks
-  one. `scripts/target_paths.py` is the single source of truth. Exceptions: nRF
+  one. `scripts/target_paths.py` is the single source of truth; its
+  `DEFAULT_VERSIONS` pins the tested release a plain `--clone` fetches
+  (Ameba-D has no releases). Move a pin only after `scripts/build_all_sdk.py`
+  passes on it; `scripts/check_versions.py` reports newer releases. Exceptions: nRF
   Connect SDK in `C:\ncs\<rev>` or `~/ncs/<rev>`, Matter SDKs in
   `~/ubx-matter/<target>` inside WSL2, and any SDK fetched inside WSL2 from a
   `/mnt/<drive>` checkout, which goes to `~/ubx-sdk/sdks/<vendor>/<version>`

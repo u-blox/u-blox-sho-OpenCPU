@@ -59,12 +59,16 @@ VENDORS: dict[str, str] = {
     "nora_w50_w51": "simplelink-wifi",
 }
 
-# Version folder for a clone without a version: the vendor's default branch.
+# Version folder and checkout for a clone without a version: the newest
+# release verified with build_all_sdk.py. check_versions.py reports newer ones.
+# Ameba-D publishes no releases. NCS is pinned in nordic_ncs_build.NCS_REVISION.
 DEFAULT_VERSIONS: dict[str, str] = {
-    "iris_w10": "main",
+    "iris_w10": "v26.09.00",
     "nora_w30": "main",
-    "nora_w40": "master",
-    "nora_w50_w51": "main",
+    # u-blox PHY calibration patches exist for ESP-IDF 5.1, 5.5 and 6.2 only.
+    "nora_w40": "v5.5.5",
+    # Matches the newest TI SimpleLink Wi-Fi SDK installer.
+    "nora_w50_w51": "wifi-10.20.00.39",
 }
 
 
@@ -172,7 +176,7 @@ def default_version(target: str) -> str:
 
 
 def sdk_dir(target: str, version: str | None = None) -> Path:
-    """sdks/<vendor>/<version>; version defaults to the vendor's default branch."""
+    """sdks/<vendor>/<version>; version defaults to the pinned release."""
     return vendor_dir(target) / (version or default_version(target))
 
 

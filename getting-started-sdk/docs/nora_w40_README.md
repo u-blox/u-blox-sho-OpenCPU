@@ -21,8 +21,9 @@ not regulatory compliant on the module. `ubx/rf-calibration` is a Wi-Fi station
 built on the u-blox PHY data; its log must contain
 `ubx_phy_cal: loading PHY init data from application binary`.
 
-- `--clone` fetches ESP-IDF `master` into `sdks/esp-idf/master`; `--clone v5.5.1`
-  fetches a release next to it.
+- `--clone` fetches the ESP-IDF release this SDK is tested with, one the u-blox
+  PHY patch covers, into `sdks/esp-idf/<version>`; `--clone master` fetches the
+  development branch next to it (`--rf-config` refuses an IDF without a patch).
 - `--install` runs ESP-IDF's own installer (toolchain and Python environment
   under `~/.espressif`). It works from cmd, PowerShell, Git Bash and Linux.
 - `--build` sets the target to `esp32c6` before the first build. Any example

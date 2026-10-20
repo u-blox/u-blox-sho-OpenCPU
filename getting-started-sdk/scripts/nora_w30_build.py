@@ -19,6 +19,8 @@ import target_paths
 from target_paths import host_kind
 
 TARGET = "nora_w30"
+# Ameba-D, the SDK for the RTL8720DF; the newer ameba-rtos does not cover it.
+SDK_URL = "https://github.com/Ameba-AIoT/ameba-rtos-d.git"
 
 # J-Link's device for the NORA-W30 SoC; its flash loader runs on the KM0 core.
 JLINK_DEVICE = "RTL8720DF"
@@ -141,19 +143,17 @@ def cmd_clone(args) -> int:
             return 0
 
     sdk_dir = target_paths.sdk_dir(TARGET, revision)
+    revision = revision or target_paths.default_version(TARGET)
     target_paths.ensure(TARGET)
     sdk_dir.parent.mkdir(parents=True, exist_ok=True)
     # Approximate: shallow Ameba-D SDK, its bundled toolchain and a first build.
     if not target_paths.check_space(sdk_dir, 2, "the Realtek Ameba-D SDK"):
         return 1
 
-    # Note: NORA-W30 uses Realtek RTL8720DF which requires Ameba-D SDK (not main ameba-rtos)
-    repo_url = "https://github.com/Ameba-AIoT/ameba-rtos-d.git"  # Ameba-D SDK (specifically for RTL8720DF used in NORA-W30)
-
-    print(f"Cloning from: {repo_url}\n")
+    print(f"Cloning from: {SDK_URL}\n")
 
     result = subprocess.run(
-        [git, "clone", "--depth", "1", *(["--branch", revision] if revision else []), repo_url, str(sdk_dir)],
+        [git, "clone", "--depth", "1", "--branch", revision, SDK_URL, str(sdk_dir)],
         cwd=sdk_dir.parent
     )
 

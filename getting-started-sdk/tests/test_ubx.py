@@ -226,9 +226,8 @@ def test_clone_version_becomes_revision(key):
     assert argv([key, "--clone", "v5.5.1", "--build"], "clone") == ["clone", "--revision", "v5.5.1"]
 
 
-def test_clone_version_ignored_for_nora_w50_w51(capsys):
-    assert argv(["nora-w50-w51", "--clone", "main"], "clone") == ["clone"]
-    assert "ignoring version main" in capsys.readouterr().out
+def test_clone_version_reaches_nora_w50_w51():
+    assert argv(["nora-w50-w51", "--clone", "main"], "clone") == ["clone", "--revision", "main"]
 
 
 def test_clone_without_version_takes_no_positional():

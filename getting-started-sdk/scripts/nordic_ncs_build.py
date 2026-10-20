@@ -549,9 +549,10 @@ def cmd_build(target: NcsTarget, args) -> int:
     rel = example_path.relative_to(workspace).as_posix()
     print(f"\nBuilding {rel} for {board}...\n")
 
-    cmd = [*west, "build", "-b", board, "-d", str(out)]
-    if args.clean:
-        cmd.append("--pristine")
+    # Both Nordic targets share <ncs>/build/<sample>; 'auto' starts over when
+    # the cached board differs instead of failing.
+    cmd = [*west, "build", "-b", board, "-d", str(out),
+           "--pristine" if args.clean else "--pristine=auto"]
     # west build takes CMake cache entries only after its own '--'.
     cmake_args = [a for a in args.extra if a.startswith("-D")]
     cmd += [*(a for a in args.extra if not a.startswith("-D")), str(example_path)]

@@ -284,11 +284,22 @@ def test_clone(ws, calls_, cfg, monkeypatch):
     monkeypatch.setattr(w5.target_paths, "check_space", lambda *a: True)
     (ws / "coresdk-examples" / ".git").mkdir(parents=True)
     w5.cmd_clone(parse("clone", "--update"))
+    pinned = w5.target_paths.default_version(w5.TARGET)
     assert calls_.cmds == [
-        ["git", "clone", "--recurse-submodules", w5.REPOS["wifi-examples"], str(ws / "wifi-examples")],
+        ["git", "clone", "--recurse-submodules", "--branch", pinned,
+         w5.REPOS["wifi-examples"], str(ws / "wifi-examples")],
         ["git", "-C", str(ws / "coresdk-examples"), "pull", "--ff-only"],
         ["git", "-C", str(ws / "coresdk-examples"), "submodule", "update", "--init", "--recursive"]]
     assert w5.Path(json.loads(cfg.read_text())["workspace"]) == ws.resolve()
+
+
+def test_clone_revision_goes_to_its_own_folder(ws, calls_, cfg, monkeypatch):
+    monkeypatch.setattr(w5.target_paths, "check_space", lambda *a: True)
+    w5.cmd_clone(parse("clone", "--repo", "wifi-examples", "--revision", "main"))
+    dest = w5.target_paths.sdk_dir(w5.TARGET, "main")
+    assert calls_.cmds == [["git", "clone", "--recurse-submodules", "--branch", "main",
+                            w5.REPOS["wifi-examples"], str(dest / "wifi-examples")]]
+    assert w5.Path(json.loads(cfg.read_text())["workspace"]) == dest
 
 
 def test_clone_checks_space(ws, monkeypatch, calls_):

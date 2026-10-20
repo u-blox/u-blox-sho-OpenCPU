@@ -21,8 +21,9 @@ Without `--rf-config` the firmware uses NXP's reference-board calibration and
 is not regulatory compliant on the module. It also installs the flash driver
 for the module's flash part.
 
-- `--clone` fetches only what `rdrw612bga` needs (about 2 GB); `--clone v25.09.00`
-  picks a release. `--clone --full` fetches the whole SDK (about 7 GB).
+- `--clone` fetches the release this SDK is tested with, only what `rdrw612bga`
+  needs (about 2 GB); `--clone main` fetches the development branch next to it.
+  `--clone --full` fetches the whole SDK (about 7 GB).
 - Needs CMake 3.30+, Ninja 1.12+ and the Arm GNU Toolchain. `--install`
   installs `west` and the SDK's Python requirements and names whatever else is
   missing. The toolchain is found by itself (Arm installer, MCUXpresso

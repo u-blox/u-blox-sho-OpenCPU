@@ -53,7 +53,7 @@ def test_git_detection_does_not_shell_out(module, monkeypatch):
 
 @pytest.mark.parametrize("module,vendor,default", [
     (nora_w30_build, "ameba-rtos-d", "main"),
-    (nora_w40_build, "esp-idf", "master"),
+    (nora_w40_build, "esp-idf", "v5.5.5"),
 ], ids=["nora_w30", "nora_w40"])
 @pytest.mark.parametrize("revision", [None, "v5.5.1"])
 def test_clone_fetches_into_versioned_sdk_folder(module, vendor, default, revision, monkeypatch):
@@ -72,7 +72,8 @@ def test_clone_fetches_into_versioned_sdk_folder(module, vendor, default, revisi
     clone = seen[-1]
     dest = module.target_paths.SDKS_DIR / vendor / (revision or default)
     assert clone[-1] == str(dest)
-    assert (["--branch", revision] == clone[4:6]) if revision else "--branch" not in clone
+    # The folder name and the checkout always agree, also without a version.
+    assert clone[4:6] == ["--branch", revision or default]
     assert cfg[next(iter(cfg))] == str(dest)
 
 

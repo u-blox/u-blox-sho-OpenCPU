@@ -176,7 +176,7 @@ Where things live:
 |------|-------|
 | u-blox RF data, patches, board files, examples | repository root: `esp-idf/nora-w40/`, `mcuxpresso/iris-w10/`, `ameba-rtos-d/nora-w30/`, `zephyr/`, ... |
 | The tooling (this folder) | `getting-started-sdk/` |
-| ESP-IDF, MCUXpresso, Ameba-D, SimpleLink | `getting-started-sdk/sdks/<vendor>/<version>`, e.g. `sdks/esp-idf/master`; `--clone <tag>` fetches another version next to it |
+| ESP-IDF, MCUXpresso, Ameba-D, SimpleLink | `getting-started-sdk/sdks/<vendor>/<version>`, e.g. `sdks/esp-idf/v5.5.5`; a plain `--clone` fetches the tested release, `--clone <tag>` or `--clone main` another version next to it |
 | nRF Connect SDK (NORA-B20-B21-B22, ALMA-B20-B21) | `C:\ncs\<version>` or `~/ncs/<version>`, shared with Nordic's own tools |
 | Matter SDKs | `~/ubx-matter/<target>` inside WSL2 |
 
@@ -223,6 +223,26 @@ Python 3.10 and 3.14 and fails below 90% coverage, plus these linters
 ruff check --isolated --target-version py310 --select E4,E7,E9,F scripts tests
 shellcheck -S warning ubx-*.sh scripts/matter_vendor/*.sh
 codespell -L ser,ameba --skip "*/config/*" README.md docs modules .github scripts tests ubx-sdk.cmd ubx-sdk.sh ubx-matter.cmd ubx-matter.sh
+```
+
+Real builds of every target, one after the other, through `ubx-sdk.cmd` on
+Windows or `ubx-sdk.sh` elsewhere (`build_all_matter.py` does the same with
+`ubx-matter`). Clean by default; `--incremental` skips the clean, `--setup`
+adds `--clone --install` first, target keys limit the run. A full run is long;
+it saves a log per step and ends with a summary table for
+[docs/BUILD_TEST_RESULTS.md](docs/BUILD_TEST_RESULTS.md):
+
+```bash
+python scripts/build_all_sdk.py
+```
+
+Whether a newer vendor SDK or Matter release exists: the pins are read from the
+drivers and compared with upstream tags and branches (`git ls-remote`, no
+download). `[WARNING]` marks a newer stable release; move a pin only together
+with its companion pins and after a build-all run:
+
+```bash
+python scripts/check_versions.py
 ```
 
 ## Documentation

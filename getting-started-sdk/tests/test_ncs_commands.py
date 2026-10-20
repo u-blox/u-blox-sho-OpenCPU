@@ -216,6 +216,12 @@ def test_build_command_line(ws, cfg, calls, capsys):
     assert f"Artifacts in {out / 'zephyr'}" in capsys.readouterr().out
 
 
+def test_incremental_build_starts_over_when_the_board_changes(ws, calls):
+    # nora-b20-b21-b22 and alma-b20-b21 share <ncs>/build/<sample>.
+    assert ncs.cmd_build(B2, parse("build", "hello_world")) == 0
+    assert "--pristine=auto" in calls.cmds[0] and "--pristine" not in calls.cmds[0]
+
+
 def test_build_west_options_stay_before_the_cmake_args(ws, calls):
     args = parse("build", "hello_world")
     args.extra = ["-DFOO=1", "-S", "rtt-console", "-DBAR=2"]

@@ -17,6 +17,7 @@ import target_paths
 from target_paths import host_kind, newest, short_path
 
 TARGET = "nora_w40"
+IDF_URL = "https://github.com/espressif/esp-idf.git"
 
 # NORA-W40 is an ESP32-C6 (RISC-V), not the Xtensa ESP32 that idf.py assumes by default.
 IDF_TARGET = "esp32c6"
@@ -182,8 +183,8 @@ def cmd_clone(args) -> int:
         return 1
 
     result = subprocess.run(
-        ["git", "clone", "--depth", "1", *(["--branch", revision] if revision else []),
-         "https://github.com/espressif/esp-idf.git", str(idf_dir)],
+        ["git", "clone", "--depth", "1", "--branch", revision or target_paths.default_version(TARGET),
+         IDF_URL, str(idf_dir)],
         cwd=idf_dir.parent
     )
 
@@ -577,7 +578,9 @@ Examples:
 
     subparsers.add_parser("doctor", help="Verify toolchain")
     clone_parser = subparsers.add_parser("clone", help="Clone ESP-IDF")
-    clone_parser.add_argument("--revision", help="branch or tag, e.g. v5.5.1 (default: master), fetched into sdks/esp-idf/<revision>")
+    clone_parser.add_argument("--revision", help="branch or tag, e.g. master or v6.2 "
+                              f"(default: {target_paths.default_version(TARGET)}), "
+                              "fetched into sdks/esp-idf/<revision>")
     subparsers.add_parser("install", help="Install ESP-IDF environment")
     subparsers.add_parser("list", help="List examples")
 

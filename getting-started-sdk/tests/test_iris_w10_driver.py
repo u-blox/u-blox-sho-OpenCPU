@@ -202,9 +202,19 @@ def test_clone_targeted(tmp_path, monkeypatch, run, cfg):
     monkeypatch.setattr(iris.target_paths, "check_space", lambda *a: True)
     assert iris.cmd_clone(ns(revision="v25.09.00")) == 0
     ws = iris.target_paths.sdk_dir(iris.TARGET, "v25.09.00")
-    assert run.cmds == [["west", "init", "-m", iris.MANIFEST_URL, ws.name, "--mr", "v25.09.00"],
+    assert run.cmds == [["west", "init", "-m", iris.MANIFEST_URL, "--mr", "v25.09.00", ws.name],
                         ["west", "update_board", "--set", "board", iris.DEFAULT_BOARD]]
     assert cfg == {"workspace": str(ws), "board": iris.DEFAULT_BOARD}
+
+
+def test_clone_without_version_fetches_the_pinned_release(monkeypatch, run, cfg):
+    monkeypatch.setattr(iris, "west_cmd", lambda: ["west"])
+    monkeypatch.setattr(iris, "detect_workspace", lambda: None)
+    monkeypatch.setattr(iris.target_paths, "check_space", lambda *a: True)
+    assert iris.cmd_clone(ns()) == 0
+    pinned = iris.target_paths.default_version(iris.TARGET)
+    assert pinned.startswith("v")
+    assert run.cmds[0] == ["west", "init", "-m", iris.MANIFEST_URL, "--mr", pinned, pinned]
 
 
 def test_clone_existing_full_and_failures(ws, monkeypatch, run, capsys):

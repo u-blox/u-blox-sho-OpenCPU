@@ -274,9 +274,8 @@ def cmd_clone(args) -> int:
     else:
         target_paths.ensure(TARGET)
         workspace.parent.mkdir(parents=True, exist_ok=True)
-        init = west + ["init", "-m", MANIFEST_URL, workspace.name]
-        if args.revision:
-            init += ["--mr", args.revision]
+        init = west + ["init", "-m", MANIFEST_URL, "--mr",
+                       args.revision or target_paths.default_version(TARGET), workspace.name]
         print(f"Running: {' '.join(init)}\n")
         result = subprocess.run(init, cwd=workspace.parent)
         if result.returncode != 0:
@@ -692,7 +691,8 @@ Examples:
     clone_parser = subparsers.add_parser("clone", help="Initialise west workspace")
     clone_parser.add_argument("--full", action="store_true",
                               help="fetch the complete SDK instead of RW612 only")
-    clone_parser.add_argument("--revision", help="manifest tag, e.g. v25.09.00")
+    clone_parser.add_argument("--revision", help="manifest tag or branch, e.g. main "
+                              f"(default: {target_paths.default_version(TARGET)})")
 
     subparsers.add_parser("install", help="Install west and report toolchain status")
     subparsers.add_parser("list", help="List examples")
@@ -723,7 +723,8 @@ Examples:
     all_parser.add_argument("--toolchain", default=DEFAULT_TOOLCHAIN, help="toolchain")
     all_parser.add_argument("-p", "--pristine", action="store_true", help="force a clean rebuild")
     all_parser.add_argument("--full", action="store_true", help="fetch the complete SDK")
-    all_parser.add_argument("--revision", help="manifest tag, e.g. v25.09.00")
+    all_parser.add_argument("--revision", help="manifest tag or branch "
+                            f"(default: {target_paths.default_version(TARGET)})")
 
     args = parser.parse_args()
 

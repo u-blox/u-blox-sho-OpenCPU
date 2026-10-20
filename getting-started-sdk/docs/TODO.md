@@ -79,6 +79,10 @@ Last updated 2026-10-12 (branch `cmag_getting_started_sdk`).
 
 ## Matter
 
+- [ ] Outdated pins (`scripts/check_versions.py`, 2026-10-14): esp-matter `release/v1.5`
+      -> `release/v1.6.1`, which recommends ESP-IDF `v6.0.2` instead of the pinned `v5.5.5`
+      (move both together); ameba-rtos-matter `release/v1.5` -> `release/v1.6`.
+      Bump, then `build_all_matter.py` for those targets.
 - [ ] NORA-W40 vendor build: `ubx-matter.cmd nora-w40 --install --build light`
       (proves the vendor-only build path end to end).
 - [ ] NORA-W50-W51: install Linux **SysConfig 1.26.3** and **SimpleLink Wi-Fi Toolbox
@@ -110,6 +114,14 @@ Last updated 2026-10-12 (branch `cmag_getting_started_sdk`).
 
 ## Nice to have
 
+- [x] A plain `--clone` fetches a tested release, not the vendor's development branch
+      (2026-10-14): IRIS-W10 `v26.09.00`, NORA-W40 ESP-IDF `v5.5.5` (u-blox PHY patch;
+      v6.1 has none), NORA-W50-W51 examples `wifi-10.20.00.39`; NORA-W30 stays on `main`
+      (no releases). Pins in `target_paths.DEFAULT_VERSIONS`; `main`/`master` via `--clone <branch>`.
+      Existing checkouts keep being used.
+- [ ] Verify the new defaults: fresh `--clone` + `build_all_sdk.py` for iris-w10, nora-w40 and
+      nora-w50-w51 (`west init --mr v26.09.00` with `update_board`, shallow ESP-IDF tag clone).
+- [ ] NORA-W40: move to ESP-IDF v6.2.x once released (patch exists for 6.2).
 - [ ] Space estimates in the drivers are rough; refine them from real clone sizes.
 - [ ] `--rf-config` patch ops fall back to `git apply` when GNU `patch` is not on PATH
       (Windows). It honours `core.autocrlf`, so with `autocrlf=true` a patched LF file is

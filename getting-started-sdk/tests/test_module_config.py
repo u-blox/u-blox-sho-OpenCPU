@@ -188,3 +188,18 @@ def test_expand_reports_undefined_variables():
 def test_unknown_variant_is_a_clean_failure(capsys):
     assert mc.main(["nora-w30", "apply", "--variant", "NORA-W999"]) == 1
     assert "[FAIL]" in capsys.readouterr().out
+
+
+def test_default_sdk_versions_satisfy_the_profile_requirements():
+    # A plain --clone must fetch an SDK that --rf-config accepts.
+    import re
+
+    import target_paths
+
+    for slug, key in target_paths.TARGETS.items():
+        spec = (mc.load_profile(key).get("requires") or {}).get("sdk_version")
+        if not spec:
+            continue
+        found = re.match(r"v?(\d+)\.(\d+)", target_paths.default_version(slug))
+        assert found, f"{key}: default version is not a release, but the profile requires {spec}"
+        assert mc.version_matches((int(found[1]), int(found[2])), spec), key
