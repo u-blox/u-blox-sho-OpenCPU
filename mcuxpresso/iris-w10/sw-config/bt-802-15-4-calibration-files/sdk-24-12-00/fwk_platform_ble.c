@@ -123,10 +123,10 @@
  */
 #if defined(gPlatformDisableSetBtCalDataAnnex100_d) && (gPlatformDisableSetBtCalDataAnnex100_d == 1)
 // For dual ant case
-#define BT_CAL_DATA_ANNEX_FRONT_END_LOSS 0x06U
+#define BT_CAL_DATA_ANNEX_FRONT_END_LOSS 0x02U
 #elif defined(gPlatformDisableSetBtCalDataAnnex100_d) && (gPlatformDisableSetBtCalDataAnnex100_d == 0)
 // For share antenna case or diversty case(ble only case)
-#define BT_CAL_DATA_ANNEX_FRONT_END_LOSS 0x06U
+#define BT_CAL_DATA_ANNEX_FRONT_END_LOSS 0x03U
 #endif
 
 /*
@@ -292,14 +292,6 @@ static const uint8_t hci_cal_data_params[HCI_CMD_STORE_BT_CAL_DATA_PARAM_LENGTH]
     0x00U,                            //  Action : 0x00
     0x01U,                            //  Type : Not use CheckSum
     0x1CU,                            //  File Length : 0x1C
-    0x37U, 0x35U, 0x1CU, 0x00U,
-    0x1CU, 0x00U, 0x00U, 0x00U,
-    0x01U, 0x71U, 0x06U, 0x06U,       
-    0x28U, 0x00U, 0x00U, 0x00U,
-    0xC0U, 0xC6U, 0x2DU, 0x00U,
-    0xF7U, 0X01U, 0xD6U, 0xDAU,
-    0x95U, 0xC0U, 0xF0U, 0x00U,
-/*    
     0x37U,                            //  BT Annex Type : BT CFG
     0x71U,                            //  Checksum : 0x71
     0x1CU,                            //  Annex Length LSB: 0x001C
@@ -339,8 +331,7 @@ static const uint8_t hci_cal_data_params[HCI_CMD_STORE_BT_CAL_DATA_PARAM_LENGTH]
     0x00U, //  RegionCode : 0x00
 #else
     0x00U, //  Reserved : 0x00
-#endif     gPlatformEnableTxPowerChangeWithCountry_d */
-
+#endif /* gPlatformEnableTxPowerChangeWithCountry_d */
 };
 
 #if !defined(gPlatformDisableSetBtCalDataAnnex100_d) || (gPlatformDisableSetBtCalDataAnnex100_d == 0)
@@ -352,13 +343,7 @@ static const uint8_t hci_cal_data_params[HCI_CMD_STORE_BT_CAL_DATA_PARAM_LENGTH]
  */
 static const uint8_t hci_cal_data_annex100_params[HCI_CMD_STORE_BT_CAL_DATA_PARAM_ANNEX100_LENGTH] = {
     /*                   BT_HW_INFO   START              */
-    0x64U, 0X8FU, 0x10U, 0x00U,
-    0xFFU, 0xFFU, 0xFFU, 0xFFU,
-    0x01U, 0x00U, 0x00U, 0x00U,
-    0x01U, 0x00U, 0x00U, 0x00U,
-    /*                   BT_HW_INFO   END              */
-
-/*  0x64U, //  Annex Type : 0x64
+    0x64U, //  Annex Type : 0x64
     0x00U, //  CheckSum: Annex100 ignores checksum
     0x10U, //  Length-In-Byte : 0x0010
     0x00U, //  Length-In-Byte : 0x0010
@@ -371,15 +356,14 @@ static const uint8_t hci_cal_data_annex100_params[HCI_CMD_STORE_BT_CAL_DATA_PARA
     0x00U, // Ext_Ant Gain : Bit[4:1]   Ext_Ant Present : Bit[0]
 #else
     0x00U, // Reserved
-#endif                                            gPlatformEnableTxPowerChangeWithCountry_d 
+#endif                                           /* gPlatformEnableTxPowerChangeWithCountry_d */
     BT_CAL_DATA_ANNEX_100_EPA_FEM_MASK_LOW_BYTE, // BT_HW_INFO_EPA_FEM_Mask
     0x00U,                                       // BT_HW_INFO_EPA_FEM_Mask
     0x01U,                                       // Ext_LNA Present : Bit[0]   Ext_LNA Gain : Bit[7:1]
     0x00U,                                       // multipurpose mask
     BT_CAL_DATA_ANNEX_100_LNA_FEM_MASK_LOW_BYTE, // BT / LE ext LNA FEM BITMASK
-    0x00U,                                       // BT / LE ext LNA FEM BITMASK 
-*/
-
+    0x00U,                                       // BT / LE ext LNA FEM BITMASK
+    /*                   BT_HW_INFO   END              */
 };
 #endif
 /* -------------------------------------------------------------------------- */
@@ -479,14 +463,13 @@ int PLATFORM_TerminateBle(void)
             break;
         }
 
-        /* Power off CPU2 first */
-        if (PLATFORM_TerminateControllers((uint8_t)connBle_c) != 0) /* MISRA CID 26829044 */
+        if (PLATFORM_TerminateHciLink() != 0)
         {
             ret = -1;
             break;
         }
 
-        if (PLATFORM_TerminateHciLink() != 0)
+        if (PLATFORM_TerminateControllers((uint8_t)connBle_c) != 0) /* MISRA CID 26829044 */
         {
             ret = -2;
             break;
@@ -689,12 +672,6 @@ int PLATFORM_RequestBleWakeUp(void)
          * completely awake and ready to receive a message */
         NVIC_EnableIRQ(BLE_MCI_WAKEUP_DONE0_IRQn);
 
-        /* Make sure to clear wake up event */
-        if (OSA_EventClear((osa_event_handle_t)wakeUpEventGroup, (uint32_t)ble_awake_event) != KOSA_StatusSuccess)
-        {
-            ret = -1;
-        }
-
         /* Wake up BLE core with PMU BLE_WAKEUP bit
          * This bit is maintained until we receive a BLE_MCI_WAKEUP_DONE0
          * interrupt */
@@ -785,9 +762,15 @@ static int PLATFORM_TerminateHciLink(void)
 
     do
     {
+        /* Force wake up CPU2 before send IMU_MSG_CONTROL_SHUTDOWN in HAL_ImuDeinit() */
+        PMU_EnableBleWakeup(0x1U);
+
         /* Deinitialize IMU first
          * Ignoring return value because kStatus_HAL_ImumcError means it was already deinitialize */
-        (void)HAL_ImuDeinit(kIMU_LinkCpu2Cpu3, 1);
+        (void)HAL_ImuDeinit(kIMU_LinkCpu2Cpu3, 0);
+
+        /* Clear CPU2 wake up bit after HAL_ImuDeinit() */
+        PMU_DisableBleWakeup(0x1U);
 
         /* Deinitialize IMUMC first */
         if (HAL_ImumcDeinit(hci_imumc_handle) != kStatus_HAL_ImumcSuccess)
@@ -807,14 +790,6 @@ static bool PLATFORM_IsHciLinkReady(void)
 
 static bool PLATFORM_IsBleAwake(void)
 {
-    /* The power state information of CPU2 is managed by a software state machine.
-     * This is an additional hardware check to make sure of the CPU2 power state
-     * Sending a HCI message while CPU2 is in low power causes message loss
-     */
-    if (BLE_POWER_STATUS() != BLE_POWER_ON)
-    {
-        blePowerState = ble_asleep_state;
-    }
     return (blePowerState != ble_asleep_state);
 }
 
@@ -933,6 +908,12 @@ static int PLATFORM_HandleBlePowerStateEvent(ble_ps_event_t psEvent)
             {
                 case ble_asleep_event:
                     blePowerState = ble_asleep_state;
+                    /* Make sure to clear wake up event */
+                    if (OSA_EventClear((osa_event_handle_t)wakeUpEventGroup, (uint32_t)ble_awake_event) !=
+                        KOSA_StatusSuccess)
+                    {
+                        ret = -1;
+                    }
                     break;
 
                 default:
