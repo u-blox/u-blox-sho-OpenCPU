@@ -176,3 +176,16 @@ def test_patch_op_applies_and_reverts(sdk, profile, tmp_path, capsys):
 
     assert mc.cmd_revert(KEY, args()) == 0
     assert text(sdk / "src" / "main.c") == b"int x = 0;\n"
+
+
+@pytest.mark.parametrize("os_name,found,expected", [
+    ("nt", {"patch", "git"}, "git"),
+    ("posix", {"patch", "git"}, "patch"),
+    ("posix", {"git"}, "git"),
+    ("nt", {"patch"}, "patch"),
+    ("posix", set(), None),
+])
+def test_patch_tool(monkeypatch, os_name, found, expected):
+    monkeypatch.setattr(mc.os, "name", os_name)
+    monkeypatch.setattr(mc.shutil, "which", lambda name: name if name in found else None)
+    assert mc.patch_tool() == expected

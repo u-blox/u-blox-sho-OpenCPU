@@ -347,14 +347,22 @@ def _git_apply(directory: Path, patch: Path, strip: int, *flags: str) -> subproc
     return result
 
 
+def patch_tool() -> str | None:
+    # The patch.exe on Windows PATHs (Strawberry Perl, GnuWin32) aborts with "Assertation failed!".
+    if shutil.which("git") and (os.name == "nt" or not shutil.which("patch")):
+        return "git"
+    return "patch" if shutil.which("patch") else None
+
+
 def patch_applied(patch: Path, directory: Path, strip: int) -> bool:
     """True when the patch reverses cleanly, i.e. it is in place."""
-    if shutil.which("patch"):
+    tool = patch_tool()
+    if tool == "patch":
         probe = subprocess.run(["patch", "--dry-run", "-R", "-f", "-p", str(strip),
                                 "-i", str(patch), "-d", str(directory)],
                                capture_output=True, text=True)
         return probe.returncode == 0
-    if shutil.which("git"):
+    if tool == "git":
         return _git_apply(directory, patch, strip, "--check", "--reverse").returncode == 0
     return False
 
@@ -368,11 +376,12 @@ def run_patch(patch: Path, directory: Path, strip: int, reverse: bool = False) -
     if not reverse and patch_applied(patch, directory, strip):
         return True, f"[INFO] already applied: {patch.name}"
 
-    if shutil.which("patch"):
+    tool = patch_tool()
+    if tool == "patch":
         cmd = ["patch", "-f"] + (["-R"] if reverse else []) + \
               ["-p", str(strip), "-i", str(patch), "-d", str(directory)]
         result = subprocess.run(cmd, capture_output=True, text=True)
-    elif shutil.which("git"):
+    elif tool == "git":
         result = _git_apply(directory, patch, strip, *(["--reverse"] if reverse else []))
     else:
         return False, "[FAIL] neither 'patch' nor 'git' found; cannot apply the patch."

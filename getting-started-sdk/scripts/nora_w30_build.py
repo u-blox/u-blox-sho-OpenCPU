@@ -315,7 +315,8 @@ def wsl_sdk_from_windows() -> Optional[Path]:
         return Path(f"{path[5].upper()}:" + path[6:].replace("/", "\\"))
     if path.startswith("/") and cfg.get("wsl_distro"):
         sdk = Path(f"\\\\wsl$\\{cfg['wsl_distro']}" + path.replace("/", "\\"))
-        if not sdk.is_dir():
+        # Path.is_dir raises WinError 64 on Python < 3.12 when \\wsl$ is unreachable.
+        if not os.path.isdir(sdk):
             # \\wsl$ only shows a running distro.
             subprocess.run(["wsl", "-d", cfg["wsl_distro"], "--", "true"])
         return sdk
@@ -326,7 +327,7 @@ def find_sdk() -> Optional[Path]:
     if host_kind() == "windows":
         wsl_sdk = wsl_sdk_from_windows()
         if wsl_sdk:
-            if (wsl_sdk / "project").is_dir():
+            if os.path.isdir(wsl_sdk / "project"):
                 return wsl_sdk
             print(f"[FAIL] Cannot reach the WSL2 SDK at {wsl_sdk}; WSL2 did not start.")
             print("       Administrator prompt: net stop vmcompute, then net start vmcompute.")
