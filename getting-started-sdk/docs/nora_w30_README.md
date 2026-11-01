@@ -44,7 +44,9 @@ Images land in
 `<sdk>/project/realtek_amebaD_va0_example/GCC-RELEASE/<project>/asdk/image/`.
 `<sdk>` is `~/ubx-sdk/sdks/ameba-rtos-d/main` when the launcher runs in WSL2
 from a Windows drive (`/mnt/...` builds are many times slower), otherwise
-`sdks/ameba-rtos-d/main`. `UBX_SDKS_DIR` picks another folder. An SDK cloned
+`sdks/ameba-rtos-d/main`. `UBX_SDKS_DIR` picks another folder. From Windows
+Explorer, that WSL2 folder is
+`\\wsl$\Ubuntu-24.04\home\<user>\ubx-sdk\sdks\ameba-rtos-d\main`. An SDK cloned
 earlier onto the Windows drive is still used, with a warning; `--clone main`
 fetches it into WSL2 and switches to it (then build `project_lp` again).
 

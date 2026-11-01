@@ -348,7 +348,7 @@ def _git_apply(directory: Path, patch: Path, strip: int, *flags: str) -> subproc
 
 
 def patch_tool() -> str | None:
-    # The patch.exe on Windows PATHs (Strawberry Perl, GnuWin32) aborts with "Assertation failed!".
+    # The patch.exe on Windows PATHs (Strawberry Perl, GnuWin32) aborts with an assertion failure.
     if shutil.which("git") and (os.name == "nt" or not shutil.which("patch")):
         return "git"
     return "patch" if shutil.which("patch") else None

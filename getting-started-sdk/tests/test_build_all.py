@@ -122,3 +122,14 @@ def test_run_step_tees_output_and_returns_the_exit_code(tmp_path, capfd):
 @pytest.mark.parametrize("seconds,text", [(5, "5s"), (125, "2m 05s"), (3725, "1h 02m")])
 def test_duration(seconds, text):
     assert build_all.duration(seconds) == text
+
+
+@pytest.mark.parametrize("script,matter", [("build_all_sdk.py", False), ("build_all_matter.py", True)])
+def test_entry_points_call_build_all(monkeypatch, script, matter):
+    import runpy
+    from conftest import SDK_ROOT
+    seen = []
+    monkeypatch.setattr(build_all, "main", lambda matter=False: seen.append(matter) or 0)
+    with pytest.raises(SystemExit) as exc:
+        runpy.run_path(str(SDK_ROOT / "scripts" / script), run_name="__main__")
+    assert exc.value.code == 0 and seen == [matter]
