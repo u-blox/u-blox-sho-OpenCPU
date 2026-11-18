@@ -25,7 +25,7 @@ therefore differs per target; `--list` is the source of truth.
 | NORA-W30 | `ameba-rtos-matter/examples/*` | `light` | listed only |
 | NORA-W40 | `esp-matter/examples/*` | `light` | yes |
 | NORA-W50-W51 | `ti-matter/examples/*/ti/cc35xx` | `lighting-app` | yes |
-| NORA-B20-B21-B22, ALMA-B20-B21 | `nrf/samples/matter/*` (NCS) | `light_bulb` | yes, plus `--flash`/`--log` |
+| NORA-B20-B21-B22, ALMA-B20-B21, ALMA-W10-W11 | `nrf/samples/matter/*` (NCS) | `light_bulb` | yes, plus `--flash`/`--log` |
 
 A light is the one example every vendor ships, so it is the one to use when
 comparing targets.
@@ -51,7 +51,7 @@ If WSL2 itself fails (does not start, hangs, `Wsl/Service/...` error), restart i
 from an Administrator prompt with `net stop vmcompute` and `net start vmcompute`,
 then rerun the command.
 
-NORA-B20-B21-B22 and ALMA-B20-B21 get Matter from the nRF Connect SDK itself, so `--clone`
+NORA-B20-B21-B22, ALMA-B20-B21 and ALMA-W10-W11 get Matter from the nRF Connect SDK itself, so `--clone`
 fetches the same NCS workspace `ubx-sdk` uses and they build natively on Windows.
 
 ## SDK versions

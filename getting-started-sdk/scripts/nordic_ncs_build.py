@@ -27,6 +27,8 @@ from target_paths import host_kind
 # Latest NCS general-availability release. Pinned rather than tracking main so a
 # clone is reproducible.
 NCS_REVISION = "v3.4.1"
+# First NCS with the nRF7120 (ALMA-W10-W11). Move to the GA release once out.
+NCS_PRERELEASE_REVISION = "v3.5.0-preview4"
 NCS_MANIFEST_URL = "https://github.com/nrfconnect/sdk-nrf"
 WORKSPACE_NAME = "ncs"
 # Approximate size of a full west update plus a few builds.
@@ -46,6 +48,8 @@ class NcsTarget:
     default_example: str
     variants: tuple
     note: str = ""
+    # NCS release this target is pinned to; a new SoC can need a pre-release.
+    revision: str = NCS_REVISION
 
 
 TARGETS: Dict[str, NcsTarget] = {
@@ -90,6 +94,28 @@ TARGETS: Dict[str, NcsTarget] = {
         ),
         note="Module is under development. No ubx_evkalmab2 board yet - "
              "builds fall back to Nordic's nRF54LM20 DK board target.",
+    ),
+    "alma-w10-w11": NcsTarget(
+        key="alma-w10-w11",
+        slug="alma_w10_w11",
+        label="ALMA-W10-W11 (Nordic nRF7120/nRF7120E)",
+        soc="nRF7120",
+        # No ubx_evkalmaw1 board in Zephyr yet; Nordic's DK is the stand-in.
+        # ALMA-W10x -> nRF7120 (dual-band), W11x -> nRF7120E (tri-band).
+        board="nrf7120dk/nrf7120/cpuapp",
+        jlink_device="cortex-m33",
+        default_example="hello_world",
+        variants=(
+            "nrf7120dk/nrf7120/cpuapp",
+            "nrf7120dk/nrf7120/cpuapp/ns",
+            "nrf7120dk/nrf7120e/cpuapp",
+            "nrf7120dk/nrf7120e/cpuapp/ns",
+            "nrf7120dk/nrf7120/cpuflpr",
+            "nrf7120dk/nrf7120e/cpuflpr",
+        ),
+        note="nRF7120 support is only in an NCS pre-release. No ubx_evkalmaw1 "
+             "board yet - builds use Nordic's nRF7120 DK board target.",
+        revision=NCS_PRERELEASE_REVISION,
     ),
 }
 
@@ -224,7 +250,7 @@ def detect_workspace(target: NcsTarget) -> Optional[str]:
     workspaces = find_workspaces(target)
     with_board = [w for w in workspaces if board_available(str(w), target.board)]
     for ws in with_board:
-        if workspace_revision(str(ws)) == NCS_REVISION:
+        if workspace_revision(str(ws)) == target.revision:
             return str(ws)
     best = with_board or workspaces
     return str(best[0]) if best else None
@@ -315,7 +341,7 @@ def board_available(workspace: str, board: str) -> bool:
 def missing_board_hint(target: NcsTarget, workspace: str, board: str) -> None:
     found = workspace_revision(workspace) or "unknown version"
     print(f"[FAIL] Board '{board.split('/')[0]}' is not in the NCS workspace at {workspace} ({found}).")
-    print(f"       It needs a newer NCS. Fetch the pinned {NCS_REVISION} into {default_workspace()} with:")
+    print(f"       It needs a newer NCS. Fetch the pinned {target.revision} into {default_workspace(target.revision)} with:")
     print(f"         ubx-sdk {target.key} --clone")
     print(f"       or select another workspace: python scripts/nordic_ncs_build.py {target.key} use <path>")
     print(f"       (or set {WORKSPACE_ENV}=<path>)")
@@ -330,7 +356,7 @@ def cmd_doctor(target: NcsTarget, args) -> int:
     print(f"Host:        {host_kind()}")
     print(f"SoC:         {target.soc}")
     print(f"Board:       {target.board}")
-    print(f"NCS:         {NCS_REVISION} (pinned)")
+    print(f"NCS:         {target.revision} (pinned)")
     if target.note:
         print(f"Note:        {target.note}")
     print()
@@ -359,14 +385,14 @@ def cmd_doctor(target: NcsTarget, args) -> int:
     if workspace:
         found = workspace_revision(workspace)
         print(f"\n[OK] NCS workspace   {workspace} ({found or 'version unknown'})")
-        if found and found != NCS_REVISION:
-            print(f"[WARNING] Workspace is {found}, this SDK is tested with {NCS_REVISION}.")
+        if found and found != target.revision:
+            print(f"[WARNING] Workspace is {found}, this SDK is tested with {target.revision}.")
         if not board_available(workspace, target.board):
             missing_board_hint(target, workspace, target.board)
             missing.append("board")
     else:
         print(f"\n[FAIL] NCS workspace not found. "
-              f"Run: ubx-sdk {target.key} --clone   (creates {default_workspace()})")
+              f"Run: ubx-sdk {target.key} --clone   (creates {default_workspace(target.revision)})")
         missing.append("workspace")
 
     if others:
@@ -396,6 +422,7 @@ def cmd_clone(target: NcsTarget, args) -> int:
         print(WEST_MISSING)
         return 1
 
+    args.revision = args.revision or target.revision
     workspace = Path(args.workspace) if args.workspace else default_workspace(args.revision)
 
     if (workspace / ".west").exists():
@@ -681,8 +708,8 @@ def build_parser() -> argparse.ArgumentParser:
     add("doctor", cmd_doctor, "show host, toolchain and workspace status")
 
     sp = add("clone", cmd_clone, "fetch the nRF Connect SDK with west")
-    sp.add_argument("--revision", default=NCS_REVISION,
-                    help=f"NCS tag or branch (default: {NCS_REVISION})")
+    sp.add_argument("--revision",
+                    help=f"NCS tag or branch (default: the target's pin, {NCS_REVISION} for most)")
     sp.add_argument("--workspace", help="where the west workspace is created "
                                         "(default: <system drive>/ncs/<revision>)")
 

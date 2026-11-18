@@ -20,6 +20,7 @@ Branch: `cmag_getting_started_sdk`.
 | NORA-W30 | `project_lp` + `project_hp`, `--flash` | Ameba-D `main` in `~/ubx-sdk/sdks` (WSL2 Ubuntu-24.04), asdk-6.4.1; J-Link V9.46, EVK J-Link OB | [OK] build, `km0_km4_image2.bin` 671,744 B; [OK] flash (3 images, J-Link device `RTL8720DF`); [OK] boot and console: `ATW?` reports MAC 54:f8:2a:13:f7:94 | 2026-10-12 |
 | NORA-B20-B21-B22 | `hello_world` (`ubx_evknorab2/nrf54l15/cpuapp`) | NCS v3.4.1 (Zephyr 4.4.2), Zephyr SDK 1.0.1 GCC 14.3.0, Windows | [OK] 30,236 B flash (1.94% of 1524 KB), 5,800 B RAM (2.21%); [OK] `--flash` (nrfutil, EVK-NORA-B2 OB) and `--log` on the FTDI "USB Serial Port": `Hello World! ubx_evknorab2/nrf54l15/cpuapp` | 2026-10-12 |
 | ALMA-B20-B21 | `hello_world` | NCS v3.4.1 | not built yet | - |
+| ALMA-W10-W11 | `hello_world` | NCS v3.5.0-preview4 | not built yet | - |
 
 All results above were taken before the SDKs moved to `sdks/<vendor>/<version>/`
 (2026-10-12). Re-run each target once to confirm the new layout.

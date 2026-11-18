@@ -1,0 +1,18 @@
+{
+  "schema": 1,
+  "target": "alma-w10-w11",
+  "label": "ALMA-W10-W11 (Nordic nRF7120/nRF7120E)",
+  "status": "pending",
+  "pending_reason": "No u-blox RF or provisioning assets exist in this repository for ALMA-W10-W11 yet, nRF7120 support is only in an nRF Connect SDK pre-release, and builds target Nordic's nrf7120dk rather than a u-blox board definition.",
+  "variants": {},
+  "mac": {
+    "source": "Not documented for ALMA-W1 in the u-blox documentation yet.",
+    "read": "unsupported",
+    "on_device": {
+      "build": "bluetooth/beacon"
+    },
+    "notes": [
+      "Zephyr and NCS use the FICR address as the Bluetooth identity address by default; the beacon sample prints it as 'advertising as ...'."
+    ]
+  }
+}

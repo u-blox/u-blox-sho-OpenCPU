@@ -42,6 +42,7 @@ WSL_SDKS_DIR = Path.home() / "ubx-sdk" / "sdks"
 # Script slug -> folder name under modules/ (the target key).
 TARGETS: dict[str, str] = {
     "alma_b20_b21": "alma-b20-b21",
+    "alma_w10_w11": "alma-w10-w11",
     "iris_w10": "iris-w10",
     "nora_b20_b21_b22": "nora-b20-b21-b22",
     "nora_w30": "nora-w30",
@@ -49,9 +50,10 @@ TARGETS: dict[str, str] = {
     "nora_w50_w51": "nora-w50-w51",
 }
 
-# Script slug -> sdks/<vendor> folder. Both Nordic targets share one NCS.
+# Script slug -> sdks/<vendor> folder. The Nordic targets share one NCS.
 VENDORS: dict[str, str] = {
     "alma_b20_b21": "ncs",
+    "alma_w10_w11": "ncs",
     "iris_w10": "mcuxpresso-sdk",
     "nora_b20_b21_b22": "ncs",
     "nora_w30": "ameba-rtos-d",
@@ -61,7 +63,7 @@ VENDORS: dict[str, str] = {
 
 # Version folder and checkout for a clone without a version: the newest
 # release verified with build_all_sdk.py. check_versions.py reports newer ones.
-# Ameba-D publishes no releases. NCS is pinned in nordic_ncs_build.NCS_REVISION.
+# Ameba-D publishes no releases. NCS is pinned per target in nordic_ncs_build.TARGETS.
 DEFAULT_VERSIONS: dict[str, str] = {
     "iris_w10": "v26.09.00",
     "nora_w30": "main",

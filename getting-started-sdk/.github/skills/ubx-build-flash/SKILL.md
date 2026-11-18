@@ -1,6 +1,6 @@
 ---
 name: ubx-build-flash
-description: 'Build, flash, log and troubleshoot firmware for u-blox Open CPU modules (IRIS-W10, NORA-W30, NORA-W40, NORA-W50-W51, NORA-B20-B21-B22, ALMA-B20-B21) with the ubx-sdk launcher. Use when: building an example, first-time setup, flashing an EVK, reading the serial log, a build or clone fails, toolchain not found, WSL2 hop, picking an NCS workspace, finding the output binary.'
+description: 'Build, flash, log and troubleshoot firmware for u-blox Open CPU modules (IRIS-W10, NORA-W30, NORA-W40, NORA-W50-W51, NORA-B20-B21-B22, ALMA-B20-B21, ALMA-W10-W11) with the ubx-sdk launcher. Use when: building an example, first-time setup, flashing an EVK, reading the serial log, a build or clone fails, toolchain not found, WSL2 hop, picking an NCS workspace, finding the output binary.'
 argument-hint: '<target> and what you want to do, e.g. "nora-w40 build and flash hello_world"'
 ---
 
@@ -9,8 +9,8 @@ argument-hint: '<target> and what you want to do, e.g. "nora-w40 build and flash
 ## Procedure
 
 1. Resolve the target key (`iris-w10`, `nora-w30`, `nora-w40`, `nora-w50-w51`,
-   `nora-b20-b21-b22`, `alma-b20-b21`). A u-connectXpress part (W36x, W56x,
-   W57x, B26x, B27x) cannot be built here; say so.
+   `nora-b20-b21-b22`, `alma-b20-b21`, `alma-w10-w11`). A u-connectXpress part
+   (W36x, W56x, W57x, B26x, B27x, ALMA-W16x) cannot be built here; say so.
 2. Run `--doctor` first and read what is missing before proposing fixes.
 3. Use the launcher from the SDK root: `ubx-sdk.cmd` on Windows,
    `./ubx-sdk.sh` elsewhere. Combine flags in one call; they run in a fixed order.
@@ -33,6 +33,7 @@ argument-hint: '<target> and what you want to do, e.g. "nora-w40 build and flash
 ./ubx-sdk.sh nora-w50-w51 --clone --build-sdk --build network_terminal
 ./ubx-sdk.sh nora-b20-b21-b22 --clone --install --build hello_world --flash --log
 ./ubx-sdk.sh alma-b20-b21 --build hello_world -- --board nrf54lm20dk/nrf54lm20b/cpuapp
+./ubx-sdk.sh alma-w10-w11 --clone --install --build hello_world --flash --log   # NCS pre-release, own workspace
 ```
 
 A failing `--doctor` does not stop a following `--clone`/`--install`/`--build-sdk`
@@ -49,7 +50,7 @@ as `ubx/<name>`, e.g. `nora-w40 --variant NORA-W401 --rf-config --build ubx/rf-c
 | NORA-W30 | `sdks/ameba-rtos-d/<version>` | `.../GCC-RELEASE/project_hp/asdk/image/km4_image2_all.bin` |
 | NORA-W40 | `sdks/esp-idf/<version>` | `<example>/build/<project>.bin` |
 | NORA-W50-W51 | `sdks/simplelink-wifi/<version>/` | `<example>/<rtos>/<board>/<toolchain>/*.out` |
-| NORA-B20-B21-B22, ALMA-B20-B21 | `C:\ncs\<rev>` or `~/ncs/<rev>` | `<ncs>/build/<sample>/<sample>/zephyr/zephyr.{elf,hex,bin}` (sysbuild) |
+| NORA-B20-B21-B22, ALMA-B20-B21, ALMA-W10-W11 | `C:\ncs\<rev>` or `~/ncs/<rev>` | `<ncs>/build/<sample>/<sample>/zephyr/zephyr.{elf,hex,bin}` (sysbuild) |
 
 Inside WSL2 from a `/mnt/<drive>` checkout, `sdks/` above is `~/ubx-sdk/sdks/`.
 
@@ -60,7 +61,7 @@ Inside WSL2 from a `/mnt/<drive>` checkout, `sdks/` above is `~/ubx-sdk/sdks/`.
 | IRIS-W10 | MCU-Link with J-Link firmware, J-Link device `RW612`; `--flash COM<n>` = boot-ROM recovery with blhost (SW3 position 1 EXT-REQ to GND) when J-Link cannot verify (blank/wrong FCB) |
 | NORA-W40 | USB serial via `idf.py flash`; `--log` runs `idf.py monitor` in the example |
 | NORA-W50-W51 | XDS110 (`--flash <serial>`) |
-| NORA-B20-B21-B22, ALMA-B20-B21 | on-board J-Link OB via `west flash -r nrfutil`, or `-r jlink` when `nrfutil` is not installed |
+| NORA-B20-B21-B22, ALMA-B20-B21, ALMA-W10-W11 | on-board J-Link OB via `west flash -r nrfutil`, or `-r jlink` when `nrfutil` is not installed |
 | NORA-W30 | on-board J-Link OB, J-Link device `RTL8720DF`; built in WSL2, flashed and logged from Windows |
 
 `--log [PORT]` auto-detects the port when omitted. With several probes attached,

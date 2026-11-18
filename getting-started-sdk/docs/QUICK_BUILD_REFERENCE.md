@@ -16,8 +16,9 @@ Linux/WSL2/macOS. The examples below use the shell form.
 | `nora-w50-w51` | TI CC3501E/CC3551E | SimpleLink | Any |
 | `nora-b20-b21-b22` | Nordic nRF54L15/L10/L05 | nRF Connect SDK | Any |
 | `alma-b20-b21` | Nordic nRF54LM20A/B | nRF Connect SDK | Any; Nordic DK board |
+| `alma-w10-w11` | Nordic nRF7120/nRF7120E | nRF Connect SDK (pre-release) | Any; Nordic DK board |
 
-u-connectXpress parts (NORA-W36x, W56x, W57x, B26x, B27x) ship pre-flashed with
+u-connectXpress parts (NORA-W36x, W56x, W57x, B26x, B27x, ALMA-W16x) ship pre-flashed with
 AT-command firmware and are not built from this Open CPU SDK.
 
 ---
@@ -106,6 +107,15 @@ Pick one explicitly with `python scripts/nordic_ncs_build.py nora-b20-b21-b22 us
 ```
 Under development - builds against Nordic's nRF54LM20 DK, not a u-blox board.
 
+### ALMA-W10-W11 (Nordic nRF7120)
+```bash
+./ubx-sdk.sh alma-w10-w11 --doctor
+./ubx-sdk.sh alma-w10-w11 --clone --install --build hello_world --flash --log
+./ubx-sdk.sh alma-w10-w11 --build hello_world -- --board nrf7120dk/nrf7120e/cpuapp
+```
+Pinned to an NCS pre-release in its own workspace; builds against Nordic's
+nRF7120 DK, not a u-blox board.
+
 ---
 
 ## Common operations
@@ -132,6 +142,7 @@ Under development - builds against Nordic's nRF54LM20 DK, not a u-blox board.
 | NORA-W50-W51 | `*.out`, `*.map` | `<examples>/<rtos>/<board>/<toolchain>/` |
 | NORA-B20-B21-B22 | `zephyr.elf/.hex/.bin` | `<ncs>/build/<sample>/<sample>/zephyr/` |
 | ALMA-B20-B21 | `zephyr.elf/.hex/.bin` | `<ncs>/build/<sample>/<sample>/zephyr/` |
+| ALMA-W10-W11 | `zephyr.elf/.hex/.bin` | `<ncs>/build/<sample>/<sample>/zephyr/` |
 
 Vendor SDKs land in `sdks/<vendor>/<version>/` and are gitignored. Per-host tool
 caches live in `modules/<target>/config/build.<host>.json`.
@@ -164,5 +175,5 @@ same flag order. See [matter_README.md](matter_README.md).
 
 Per module: [IRIS-W10](iris_w10_README.md), [NORA-W30](nora_w30_README.md),
 [NORA-W40](nora_w40_README.md), [NORA-W50-W51](nora_w50_w51_README.md),
-[NORA-B20-B21-B22](nora_b20_b21_b22_README.md), [ALMA-B20-B21](alma_b20_b21_README.md).
+[NORA-B20-B21-B22](nora_b20_b21_b22_README.md), [ALMA-B20-B21](alma_b20_b21_README.md), [ALMA-W10-W11](alma_w10_w11_README.md).
 Setup: [SETUP.md](SETUP.md).

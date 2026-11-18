@@ -19,6 +19,8 @@ Last updated 2026-10-12 (branch `cmag_getting_started_sdk`).
       (2026-10-12, see `docs/BUILD_TEST_RESULTS.md`). The CMake configure step took
       about 4 minutes on this machine.
 - [ ] **Build ALMA-B20-B21**: `ubx-sdk.cmd alma-b20-b21 --doctor --build hello_world`.
+- [ ] **Build ALMA-W10-W11** on NCS v3.5.0-preview4 and test on EVK-ALMA-W111/W116:
+      `ubx-sdk.cmd alma-w10-w11 --doctor --clone --install --build hello_world --flash --log`.
 - [x] NORA-W50-W51 `--build-sdk` runs `configure` first, so the flow is launcher-only;
       `--flash` finds the Wi-Fi Toolbox in `C:\ti\simplelink_wifi_toolbox*` (2026-10-12).
 - [x] NORA-W30 boot fault after `--flash` (2026-10-12): the image was fine; the
@@ -108,7 +110,7 @@ Last updated 2026-10-12 (branch `cmag_getting_started_sdk`).
 
 ## RF configuration (needs the RF team)
 
-- [ ] u-blox RF calibration / TX power assets for NORA-W50-W51, NORA-B20-B21-B22 and ALMA-B20-B21.
+- [ ] u-blox RF calibration / TX power assets for NORA-W50-W51, NORA-B20-B21-B22, ALMA-B20-B21 and ALMA-W10-W11.
       Profiles in `modules/<target>/profile.json` are `pending`; without assets the
       firmware is not regulatory compliant.
 
@@ -128,4 +130,9 @@ Last updated 2026-10-12 (branch `cmag_getting_started_sdk`).
       written back as CRLF. Harmless for SDKs cloned with the same setting; decide whether
       to pin `-c core.autocrlf=false` once a CRLF checkout has been tested.
 - [ ] `ubx_evkalmab2` board once u-blox publishes it (ALMA-B20-B21 uses `nrf54lm20dk`).
+- [ ] `ubx_evkalmaw1` board for EVK-ALMA-W111/W116 (ALMA-W10-W11 uses `nrf7120dk`).
+- [ ] ALMA-W10-W11: move `NCS_PRERELEASE_REVISION` to the NCS GA release with nRF7120
+      support, then fold it into `NCS_REVISION` once all Nordic targets build on it.
+- [ ] ALMA-W1 MAC / Bluetooth address source: not in the u-blox docs yet; fill `mac` in
+      `modules/alma-w10-w11/profile.json` once documented.
 - [ ] Review and merge `cmag_getting_started_sdk` to master.

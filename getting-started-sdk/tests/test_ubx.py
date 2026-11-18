@@ -39,7 +39,7 @@ def steps(cmds):
     for cmd in cmds:
         script = cmd[1].replace("\\", "/").rsplit("/", 1)[-1]
         rest = cmd[2:]
-        if script in ("module_config.py", "matter_build.py") or rest[:1] in (["nora-b20-b21-b22"], ["alma-b20-b21"]):
+        if script in ("module_config.py", "matter_build.py") or rest[:1] in (["nora-b20-b21-b22"], ["alma-b20-b21"], ["alma-w10-w11"]):
             rest = rest[1:]
         out.append((script, rest[0]))
     return out
@@ -67,7 +67,7 @@ def test_unknown_target(capsys):
     assert "Unknown target" in capsys.readouterr().out
 
 
-@pytest.mark.parametrize("name", ["nora-w36", "nora-w56", "nora-w57", "nora-b26", "nora-b27"])
+@pytest.mark.parametrize("name", ["nora-w36", "nora-w56", "nora-w57", "nora-b26", "nora-b27", "alma-w161"])
 def test_uconnectxpress_parts_are_explained(name, capsys):
     assert ubx.parse([name, "--list"]) == 1
     assert "u-connectXpress" in capsys.readouterr().out
@@ -81,12 +81,13 @@ def test_nora_w1_is_not_iris_w10(capsys):
 @pytest.mark.parametrize("alias,key", [
     ("w50", "nora-w50-w51"), ("nora-w51", "nora-w50-w51"), ("iris-w10", "iris-w10"),
     ("NORA-W40", "nora-w40"), ("w30", "nora-w30"), ("alma", "alma-b20-b21"), ("nora_b20_b21_b22", "nora-b20-b21-b22"),
+    ("alma-w10", "alma-w10-w11"), ("ALMA_W11", "alma-w10-w11"),
 ])
 def test_aliases(alias, key):
     assert ctx([alias, "--list"]).target.key == key
 
 
-@pytest.mark.parametrize("bare", ["nora-w3", "nora-w4", "nora-w5", "nora-b2", "alma-b2", "iris-w1"])
+@pytest.mark.parametrize("bare", ["nora-w3", "nora-w4", "nora-w5", "nora-b2", "alma-b2", "alma-w1", "iris-w1"])
 def test_bare_series_is_not_a_target(bare):
     assert ubx.resolve_target(bare) is None
 
@@ -221,7 +222,7 @@ def test_full_only_for_iris():
     assert argv(["nora-w40", "--clone", "--full"], "clone") == ["clone"]
 
 
-@pytest.mark.parametrize("key", ["iris-w10", "nora-w30", "nora-w40", "nora-b20-b21-b22", "alma-b20-b21"])
+@pytest.mark.parametrize("key", ["iris-w10", "nora-w30", "nora-w40", "nora-b20-b21-b22", "alma-b20-b21", "alma-w10-w11"])
 def test_clone_version_becomes_revision(key):
     assert argv([key, "--clone", "v5.5.1", "--build"], "clone") == ["clone", "--revision", "v5.5.1"]
 

@@ -84,7 +84,7 @@ ALL_ACTIONS = ["--doctor", "--clone", "--install", "--build-sdk", "--list", "--c
 
 
 @pytest.mark.parametrize("target", ["iris-w10", "nora-w30", "nora-w40", "nora-w50-w51",
-                                    "nora-b20-b21-b22", "alma-b20-b21"])
+                                    "nora-b20-b21-b22", "alma-b20-b21", "alma-w10-w11"])
 def test_launcher_dry_run_in_the_clone(clone, target):
     rc, out = run(clone, "ubx_sdk.py", target, "--dry-run", "--no-wsl", *ALL_ACTIONS)
     assert rc == 0 and "Traceback" not in out, out
@@ -93,7 +93,7 @@ def test_launcher_dry_run_in_the_clone(clone, target):
 
 
 @pytest.mark.parametrize("target", ["iris-w10", "nora-w30", "nora-w40", "nora-w50-w51",
-                                    "nora-b20-b21-b22", "alma-b20-b21"])
+                                    "nora-b20-b21-b22", "alma-b20-b21", "alma-w10-w11"])
 def test_module_config_reports_in_the_clone(clone, target):
     for command in ("variants", "status", "examples"):
         rc, out = run(clone, "module_config.py", target, command)
@@ -127,7 +127,7 @@ def test_host_shim_runs_without_a_venv(clone, shim, banner):
 
 
 @pytest.mark.parametrize("target", ["iris-w10", "nora-w30", "nora-w40", "nora-w50-w51",
-                                    "nora-b20-b21-b22", "alma-b20-b21"])
+                                    "nora-b20-b21-b22", "alma-b20-b21", "alma-w10-w11"])
 def test_matter_dry_run_in_the_clone(clone, target):
     rc, out = run(clone, "ubx_matter.py", target, "--dry-run", "--no-wsl", "--doctor", "--list", "--build")
     assert rc == 0 and "Traceback" not in out, out

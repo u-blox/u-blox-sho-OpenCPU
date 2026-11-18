@@ -61,6 +61,15 @@ TARGETS: dict[str, Target] = {
         supports=frozenset({"doctor", "clone", "install", "list", "clean", "build", "flash", "log"}),
         driver_args=("alma-b20-b21",),
     ),
+    "alma-w10-w11": Target(
+        key="alma-w10-w11",
+        label="ALMA-W10-W11 (Nordic nRF7120/nRF7120E)",
+        script="nordic_ncs_build.py",
+        default_example="hello_world",
+        example_word="sample",
+        supports=frozenset({"doctor", "clone", "install", "list", "clean", "build", "flash", "log"}),
+        driver_args=("alma-w10-w11",),
+    ),
     "iris-w10": Target(
         key="iris-w10",
         label="IRIS-W10 (NXP RW612/RW610)",
@@ -111,6 +120,8 @@ TARGETS: dict[str, Target] = {
 # u-connectXpress parts.
 ALIASES = {
     "alma": "alma-b20-b21", "alma-b20": "alma-b20-b21", "alma-b21": "alma-b20-b21",
+    # W10x and W11x only. W16x are u-connectXpress parts, not Open CPU.
+    "alma-w10": "alma-w10-w11", "alma-w11": "alma-w10-w11",
     "iris": "iris-w10", "irisw10": "iris-w10", "w10": "iris-w10",
     "nora-b20": "nora-b20-b21-b22", "nora-b21": "nora-b20-b21-b22",
     "nora-b22": "nora-b20-b21-b22",
@@ -163,14 +174,15 @@ u-blox Getting Started SDK launcher
 
 Targets                                                 Open CPU parts
   alma-b20-b21      Nordic nRF54LM20     nRF Connect SDK  ALMA-B20x/B21x
+  alma-w10-w11      Nordic nRF7120/E     nRF Connect SDK  ALMA-W10x/W11x
   iris-w10          NXP RW612/RW610      MCUXpresso       IRIS-W10x
   nora-b20-b21-b22  Nordic nRF54L15/L10  nRF Connect SDK  NORA-B20x/B21x/B22x
   nora-w30          Realtek RTL8720DF    Ameba (Linux)    NORA-W30x
   nora-w40          Espressif ESP32-C6   ESP-IDF          NORA-W40x
   nora-w50-w51      TI CC3501E/CC3551E   SimpleLink       NORA-W50x/W51x
 
-The u-connectXpress parts (NORA-W36x, W56x, W57x, B26x, B27x) ship pre-flashed
-with AT-command firmware and are not built from this Open CPU SDK.
+The u-connectXpress parts (NORA-W36x, W56x, W57x, B26x, B27x, ALMA-W16x) ship
+pre-flashed with AT-command firmware and are not built from this Open CPU SDK.
 
 Flags (combinable; always run in this order)
   --doctor              Verify host tools for the target
@@ -235,6 +247,7 @@ Targets
   nora-w50-w51      TI CC3551E           TexasInstruments/matter
   nora-b20-b21-b22  Nordic nRF54L15/L10  nRF Connect SDK (nrf/samples/matter)
   alma-b20-b21      Nordic nRF54LM20     nRF Connect SDK (nrf/samples/matter)
+  alma-w10-w11      Nordic nRF7120/E     nRF Connect SDK (nrf/samples/matter)
 
 The Nordic targets get Matter from the nRF Connect SDK itself, so --clone
 fetches the same NCS workspace 'ubx-sdk' uses and nothing extra is downloaded.
@@ -291,6 +304,7 @@ UCONNECTXPRESS = {
     "nora-w57": "nora-w50-w51", "w57": "nora-w50-w51",
     "nora-b26": "nora-b20-b21-b22", "b26": "nora-b20-b21-b22",
     "nora-b27": "nora-b20-b21-b22", "b27": "nora-b20-b21-b22",
+    "alma-w16": "alma-w10-w11",
 }
 
 

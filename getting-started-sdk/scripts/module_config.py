@@ -46,7 +46,7 @@ MODULES_DIR = SDK_ROOT / "modules"
 BACKUP_SUFFIX = ".ubx-orig"
 STATE_NAME = "rf_config.json"
 
-TARGET_KEYS = ("alma-b20-b21", "iris-w10", "nora-b20-b21-b22", "nora-w30", "nora-w40", "nora-w50-w51")
+TARGET_KEYS = ("alma-b20-b21", "alma-w10-w11", "iris-w10", "nora-b20-b21-b22", "nora-w30", "nora-w40", "nora-w50-w51")
 
 # Profile sections holding SDK ops, in the order --rf-config applies them.
 TOPICS = ("output_power", "calibration", "patches")

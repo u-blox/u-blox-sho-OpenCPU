@@ -1,8 +1,8 @@
 # u-blox Getting Started SDK
 
-One launcher, six module families. Build, flash and log Wi-Fi/Bluetooth firmware
-for IRIS-W10, NORA-W30, NORA-W40, NORA-W50-W51, NORA-B20-B21-B22 and ALMA-B20-B21 without learning
-six vendor build systems. Matter is available for the same silicon.
+One launcher, seven module families. Build, flash and log Wi-Fi/Bluetooth firmware
+for IRIS-W10, NORA-W30, NORA-W40, NORA-W50-W51, NORA-B20-B21-B22, ALMA-B20-B21 and ALMA-W10-W11
+without learning six vendor build systems. Matter is available for the same silicon.
 
 | Target | Module | SoC | Framework | Board target |
 |--------|--------|-----|-----------|--------------|
@@ -12,13 +12,16 @@ six vendor build systems. Matter is available for the same silicon.
 | `nora-w50-w51` | NORA-W50x/W51x | TI CC3501E/CC3551E | SimpleLink Wi-Fi SDK | `LP_EM_CC35X1` |
 | `nora-b20-b21-b22` | NORA-B20x/B21x/B22x | Nordic nRF54L15/L10/L05 | nRF Connect SDK (Zephyr) | `ubx_evknorab2/nrf54l15/cpuapp` |
 | `alma-b20-b21` | ALMA-B20x/B21x | Nordic nRF54LM20A/B | nRF Connect SDK (Zephyr) | `nrf54lm20dk/nrf54lm20a/cpuapp` |
+| `alma-w10-w11` | ALMA-W10x/W11x | Nordic nRF7120/nRF7120E | nRF Connect SDK pre-release (Zephyr) | `nrf7120dk/nrf7120/cpuapp` |
 
 This is the **Open CPU** SDK: your application runs on the module. The
-u-connectXpress parts (NORA-W36x, W56x, W57x, B26x, B27x) ship with AT-command
+u-connectXpress parts (NORA-W36x, W56x, W57x, B26x, B27x, ALMA-W16x) ship with AT-command
 firmware pre-flashed and are configured by a host, not built from here.
 
 ALMA-B20-B21 is under development and has no u-blox board definition yet, so it
 builds against Nordic's nRF54LM20 DK. See [docs/alma_b20_b21_README.md](docs/alma_b20_b21_README.md).
+ALMA-W10-W11 needs an nRF Connect SDK pre-release and builds against Nordic's
+nRF7120 DK. See [docs/alma_w10_w11_README.md](docs/alma_w10_w11_README.md).
 
 ## Quick start
 
@@ -89,7 +92,7 @@ before the build:
 | Target | RF configuration |
 |--------|------------------|
 | `iris-w10`, `nora-w30`, `nora-w40` | Available for every listed part number |
-| `nora-w50-w51`, `nora-b20-b21-b22`, `alma-b20-b21` | Pending: waiting for the u-blox RF assets |
+| `nora-w50-w51`, `nora-b20-b21-b22`, `alma-b20-b21`, `alma-w10-w11` | Pending: waiting for the u-blox RF assets |
 
 What gets applied is declared per target in `modules/<target>/profile.json`; the
 assets themselves stay in the per-module folders at the repository root and are
@@ -177,7 +180,7 @@ Where things live:
 | u-blox RF data, patches, board files, examples | repository root: `esp-idf/nora-w40/`, `mcuxpresso/iris-w10/`, `ameba-rtos-d/nora-w30/`, `zephyr/`, ... |
 | The tooling (this folder) | `getting-started-sdk/` |
 | ESP-IDF, MCUXpresso, Ameba-D, SimpleLink | `getting-started-sdk/sdks/<vendor>/<version>`, e.g. `sdks/esp-idf/v5.5.5`; a plain `--clone` fetches the tested release, `--clone <tag>` or `--clone main` another version next to it |
-| nRF Connect SDK (NORA-B20-B21-B22, ALMA-B20-B21) | `C:\ncs\<version>` or `~/ncs/<version>`, shared with Nordic's own tools |
+| nRF Connect SDK (NORA-B20-B21-B22, ALMA-B20-B21, ALMA-W10-W11) | `C:\ncs\<version>` or `~/ncs/<version>`, shared with Nordic's own tools |
 | Matter SDKs | `~/ubx-matter/<target>` inside WSL2 |
 
 The repository-root folders are named after the SDK they belong to, but they
@@ -196,7 +199,7 @@ or `arm-none-eabi-gcc` on `PATH`) and passes it to the build as `ARMGCC_DIR`;
 `--doctor` shows which one it picked. Set `ARMGCC_DIR` yourself only to force a
 specific toolchain.
 
-NORA-B20-B21-B22 and ALMA-B20-B21 need a Zephyr/nRF Connect toolchain. The quickest route is
+NORA-B20-B21-B22, ALMA-B20-B21 and ALMA-W10-W11 need a Zephyr/nRF Connect toolchain. The quickest route is
 nRF Connect for Desktop and its Toolchain Manager; `--doctor` reports what is
 still missing. Existing NCS workspaces are detected (`C:\ncs\*`, `~/ncs*`);
 `--clone` creates one in `C:\ncs\v3.4.1` (or `~/ncs/v3.4.1` on Linux).
@@ -250,7 +253,7 @@ python scripts/check_versions.py
 | Document | Contents |
 |----------|----------|
 | [docs/QUICK_BUILD_REFERENCE.md](docs/QUICK_BUILD_REFERENCE.md) | Every flag, first build per target, troubleshooting |
-| `docs/<target>_README.md` | One per module: [IRIS-W10](docs/iris_w10_README.md), [NORA-W30](docs/nora_w30_README.md), [NORA-W40](docs/nora_w40_README.md), [NORA-W50-W51](docs/nora_w50_w51_README.md), [NORA-B20-B21-B22](docs/nora_b20_b21_b22_README.md), [ALMA-B20-B21](docs/alma_b20_b21_README.md) |
+| `docs/<target>_README.md` | One per module: [IRIS-W10](docs/iris_w10_README.md), [NORA-W30](docs/nora_w30_README.md), [NORA-W40](docs/nora_w40_README.md), [NORA-W50-W51](docs/nora_w50_w51_README.md), [NORA-B20-B21-B22](docs/nora_b20_b21_b22_README.md), [ALMA-B20-B21](docs/alma_b20_b21_README.md), [ALMA-W10-W11](docs/alma_w10_w11_README.md) |
 | [docs/matter_README.md](docs/matter_README.md) | Matter |
 | [docs/SETUP.md](docs/SETUP.md) | Python venv, VS Code workspace, Copilot context |
 | [modules/README.md](modules/README.md) | Module configuration profiles |

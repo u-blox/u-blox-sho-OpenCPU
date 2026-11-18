@@ -44,7 +44,7 @@ Windows `PATH`; it has not been verified on hardware yet.
 
 An SDK fetched by the launcher can also be built and debugged in the vendor's
 own extension; the module guides say what to open (IRIS-W10, NORA-W40,
-NORA-B20-B21-B22, ALMA-B20-B21). Run `--rf-config` once first: it writes the
+NORA-B20-B21-B22, ALMA-B20-B21, ALMA-W10-W11). Run `--rf-config` once first: it writes the
 u-blox RF data into the SDK tree, so extension builds pick it up. An extension
 build on an SDK without it is not regulatory compliant. The extension workflow
 has not been verified on hardware yet.

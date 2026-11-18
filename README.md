@@ -13,7 +13,7 @@ at the u-blox website, https://www.u-blox.com/.
 
 [Getting Started SDK](getting-started-sdk/README.md) fetches the vendor SDK, builds,
 flashes and applies the u-blox RF configuration from the folders below for
-IRIS-W10, NORA-W30, NORA-W40, NORA-W50-W51, NORA-B20-B21-B22 and ALMA-B20-B21:
+IRIS-W10, NORA-W30, NORA-W40, NORA-W50-W51, NORA-B20-B21-B22, ALMA-B20-B21 and ALMA-W10-W11:
 
 `getting-started-sdk/ubx-sdk.cmd <target> --doctor` on Windows,
 `./getting-started-sdk/ubx-sdk.sh <target> --doctor` on Linux, WSL2 and macOS.
