@@ -11,10 +11,9 @@ are u-connectXpress parts and are not built here.
 ALMA-W10-W11 works like [NORA-B20-B21-B22](nora_b20_b21_b22_README.md): same
 tools, flags, flashing, nRF Connect for VS Code and Matter. Two things differ:
 
-- nRF7120 support is only in an nRF Connect SDK pre-release, so this target is
-  pinned separately and `--clone` fetches its own workspace
-  (`C:\ncs\<pre-release>` or `~/ncs/<pre-release>`) next to the one the other
-  Nordic targets use. `--doctor` shows the pin.
+- ALMA-W10x (nRF7120) builds on the same NCS release as the other Nordic
+  targets. ALMA-W11x (nRF7120E) is only in the pre-release `v3.5.0-preview4`:
+  fetch it next to the other one with `--clone v3.5.0-preview4`.
 - There is no `ubx_evkalmaw1` board yet, so builds use Nordic's nRF7120 DK
   board. Pins, antenna path and power rails will not match the EVK; expect a
   devicetree overlay for anything beyond CPU bring-up.

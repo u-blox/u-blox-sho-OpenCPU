@@ -1,5 +1,6 @@
 """nordic_ncs_build.py commands on a fake NCS workspace (no west, toolchain or probe)."""
 
+import dataclasses
 import subprocess
 import sys
 
@@ -350,9 +351,8 @@ def test_clone_failures(tmp_path, monkeypatch, calls, returns, expected_calls):
 
 
 def test_clone_defaults_to_the_target_pin(tmp_path, monkeypatch, calls):
-    # ALMA-W10-W11 needs an NCS pre-release; the other Nordic targets stay on GA.
-    alma_w = ncs.TARGETS["alma-w10-w11"]
-    assert alma_w.revision == ncs.NCS_PRERELEASE_REVISION != B2.revision == ncs.NCS_REVISION
+    # A target pinned apart from NCS_REVISION, e.g. a new SoC on a pre-release.
+    alma_w = dataclasses.replace(ncs.TARGETS["alma-w10-w11"], revision="v9.9.9-preview1")
     monkeypatch.setattr(ncs, "detect_west", lambda: ["west"])
     monkeypatch.setattr(ncs.subprocess, "call", calls)
     monkeypatch.setattr(ncs.target_paths, "check_space", lambda *a: True)
@@ -360,7 +360,7 @@ def test_clone_defaults_to_the_target_pin(tmp_path, monkeypatch, calls):
     monkeypatch.setattr(ncs, "save_config", lambda t, c: None)
     args = ncs.build_parser().parse_args(["alma-w10-w11", "clone", "--workspace", str(tmp_path / "ws")])
     assert ncs.cmd_clone(alma_w, args) == 0
-    assert calls.cmds[0][4:6] == ["--mr", ncs.NCS_PRERELEASE_REVISION]
+    assert calls.cmds[0][4:6] == ["--mr", "v9.9.9-preview1"]
 
 
 def test_clone_existing_workspace_and_no_west(ws, monkeypatch, calls, capsys):

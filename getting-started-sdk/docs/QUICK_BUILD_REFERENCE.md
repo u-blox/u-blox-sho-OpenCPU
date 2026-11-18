@@ -16,7 +16,7 @@ Linux/WSL2/macOS. The examples below use the shell form.
 | `nora-w50-w51` | TI CC3501E/CC3551E | SimpleLink | Any |
 | `nora-b20-b21-b22` | Nordic nRF54L15/L10/L05 | nRF Connect SDK | Any |
 | `alma-b20-b21` | Nordic nRF54LM20A/B | nRF Connect SDK | Any; Nordic DK board |
-| `alma-w10-w11` | Nordic nRF7120/nRF7120E | nRF Connect SDK (pre-release) | Any; Nordic DK board |
+| `alma-w10-w11` | Nordic nRF7120/nRF7120E | nRF Connect SDK | Any; Nordic DK board |
 
 u-connectXpress parts (NORA-W36x, W56x, W57x, B26x, B27x, ALMA-W16x) ship pre-flashed with
 AT-command firmware and are not built from this Open CPU SDK.
@@ -113,8 +113,8 @@ Under development - builds against Nordic's nRF54LM20 DK, not a u-blox board.
 ./ubx-sdk.sh alma-w10-w11 --clone --install --build hello_world --flash --log
 ./ubx-sdk.sh alma-w10-w11 --build hello_world -- --board nrf7120dk/nrf7120e/cpuapp
 ```
-Pinned to an NCS pre-release in its own workspace; builds against Nordic's
-nRF7120 DK, not a u-blox board.
+Builds against Nordic's nRF7120 DK, not a u-blox board. W11x (nRF7120E)
+needs `--clone v3.5.0-preview4`.
 
 ---
 

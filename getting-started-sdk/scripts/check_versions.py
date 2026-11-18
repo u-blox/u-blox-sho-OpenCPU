@@ -65,8 +65,8 @@ def pins() -> list[Pin]:
     sdk = [
         Pin("sdk", "nora-b20-b21-b22, alma-b20-b21", "nRF Connect SDK",
             nordic_ncs_build.NCS_MANIFEST_URL, nordic_ncs_build.NCS_REVISION),
-        Pin("sdk", "alma-w10-w11", "nRF Connect SDK (nRF7120 pre-release)",
-            nordic_ncs_build.NCS_MANIFEST_URL, nordic_ncs_build.NCS_PRERELEASE_REVISION),
+        Pin("sdk", "alma-w10-w11", "nRF Connect SDK (nRF7120E pre-release)",
+            nordic_ncs_build.NCS_MANIFEST_URL, nordic_ncs_build.NCS_NRF7120E_REVISION),
         Pin("sdk", "iris-w10", "MCUXpresso SDK", iris_w10_build.MANIFEST_URL,
             target_paths.default_version("iris_w10"), release=r"^v\d+\.\d+\.\d+$"),
         Pin("sdk", "nora-w30", "Ameba-D SDK", nora_w30_build.SDK_URL,

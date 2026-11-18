@@ -12,7 +12,7 @@ without learning six vendor build systems. Matter is available for the same sili
 | `nora-w50-w51` | NORA-W50x/W51x | TI CC3501E/CC3551E | SimpleLink Wi-Fi SDK | `LP_EM_CC35X1` |
 | `nora-b20-b21-b22` | NORA-B20x/B21x/B22x | Nordic nRF54L15/L10/L05 | nRF Connect SDK (Zephyr) | `ubx_evknorab2/nrf54l15/cpuapp` |
 | `alma-b20-b21` | ALMA-B20x/B21x | Nordic nRF54LM20A/B | nRF Connect SDK (Zephyr) | `nrf54lm20dk/nrf54lm20a/cpuapp` |
-| `alma-w10-w11` | ALMA-W10x/W11x | Nordic nRF7120/nRF7120E | nRF Connect SDK pre-release (Zephyr) | `nrf7120dk/nrf7120/cpuapp` |
+| `alma-w10-w11` | ALMA-W10x/W11x | Nordic nRF7120/nRF7120E | nRF Connect SDK (Zephyr) | `nrf7120dk/nrf7120/cpuapp` |
 
 This is the **Open CPU** SDK: your application runs on the module. The
 u-connectXpress parts (NORA-W36x, W56x, W57x, B26x, B27x, ALMA-W16x) ship with AT-command
@@ -20,8 +20,8 @@ firmware pre-flashed and are configured by a host, not built from here.
 
 ALMA-B20-B21 is under development and has no u-blox board definition yet, so it
 builds against Nordic's nRF54LM20 DK. See [docs/alma_b20_b21_README.md](docs/alma_b20_b21_README.md).
-ALMA-W10-W11 needs an nRF Connect SDK pre-release and builds against Nordic's
-nRF7120 DK. See [docs/alma_w10_w11_README.md](docs/alma_w10_w11_README.md).
+ALMA-W10-W11 builds against Nordic's nRF7120 DK; W11x needs an nRF Connect
+SDK pre-release. See [docs/alma_w10_w11_README.md](docs/alma_w10_w11_README.md).
 
 ## Quick start
 

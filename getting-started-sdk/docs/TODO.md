@@ -18,9 +18,12 @@ Last updated 2026-10-12 (branch `cmag_getting_started_sdk`).
 - [x] NCS v3.4.1 is in `C:\ncs\v3.4.1`; NORA-B20-B21-B22 `hello_world` builds
       (2026-10-12, see `docs/BUILD_TEST_RESULTS.md`). The CMake configure step took
       about 4 minutes on this machine.
-- [ ] **Build ALMA-B20-B21**: `ubx-sdk.cmd alma-b20-b21 --doctor --build hello_world`.
-- [ ] **Build ALMA-W10-W11** on NCS v3.5.0-preview4 and test on EVK-ALMA-W111/W116:
-      `ubx-sdk.cmd alma-w10-w11 --doctor --clone --install --build hello_world --flash --log`.
+- [x] ALMA-B20-B21 `hello_world` on an ALMA-B21x board: build, flash, log on VCOM 4 (2026-11-18).
+- [ ] `--log` auto-detect does not pick the J-Link OB VCOM 4 console of the ALMA-B2 board;
+      the logger output is also block-buffered when piped (no flush).
+- [ ] `--flash` prints the J-Link device `nRF54LM20A_M33` also for `nrf54lm20b` builds (label only).
+- [ ] **Build ALMA-W10-W11** (W10x on NCS v3.4.1, W11x on v3.5.0-preview4) and test on EVK-ALMA-W111/W116:
+      `ubx-sdk.cmd alma-w10-w11 --doctor --build hello_world --flash --log`.
 - [x] NORA-W50-W51 `--build-sdk` runs `configure` first, so the flow is launcher-only;
       `--flash` finds the Wi-Fi Toolbox in `C:\ti\simplelink_wifi_toolbox*` (2026-10-12).
 - [x] NORA-W30 boot fault after `--flash` (2026-10-12): the image was fine; the
@@ -131,8 +134,8 @@ Last updated 2026-10-12 (branch `cmag_getting_started_sdk`).
       to pin `-c core.autocrlf=false` once a CRLF checkout has been tested.
 - [ ] `ubx_evkalmab2` board once u-blox publishes it (ALMA-B20-B21 uses `nrf54lm20dk`).
 - [ ] `ubx_evkalmaw1` board for EVK-ALMA-W111/W116 (ALMA-W10-W11 uses `nrf7120dk`).
-- [ ] ALMA-W10-W11: move `NCS_PRERELEASE_REVISION` to the NCS GA release with nRF7120
-      support, then fold it into `NCS_REVISION` once all Nordic targets build on it.
+- [ ] ALMA-W11x: nRF7120E is only in NCS `v3.5.0-preview4` (`NCS_NRF7120E_REVISION`);
+      drop that once a GA release has it.
 - [ ] ALMA-W1 MAC / Bluetooth address source: not in the u-blox docs yet; fill `mac` in
       `modules/alma-w10-w11/profile.json` once documented.
 - [ ] Review and merge `cmag_getting_started_sdk` to master.

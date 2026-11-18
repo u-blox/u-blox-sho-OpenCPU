@@ -38,3 +38,8 @@ nothing to apply yet.
 As on NORA-B2, u-blox programs no address; the firmware uses the random static
 address in the Nordic FICR (`DEVICEADDR`). `--build bluetooth/beacon --flash --log`
 prints it.
+
+## Log
+
+The console is on the on-board J-Link OB, VCOM 4 (the fifth of its COM ports).
+`nrfutil device list` shows the order; pass it explicitly, e.g. `--log COM46`.

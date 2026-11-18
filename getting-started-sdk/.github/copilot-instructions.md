@@ -30,7 +30,7 @@ Matter examples on the same silicon.
 | `nora-w50-w51` | NORA-W50x/W51x | TI CC3501E/CC3551E | SimpleLink Wi-Fi | `LP_EM_CC35X1` |
 | `nora-b20-b21-b22` | NORA-B20x/B21x/B22x | Nordic nRF54L15/L10/L05 | nRF Connect SDK | `ubx_evknorab2/nrf54l15/cpuapp` |
 | `alma-b20-b21` | ALMA-B20x/B21x | Nordic nRF54LM20A/B | nRF Connect SDK | `nrf54lm20dk/nrf54lm20a/cpuapp` |
-| `alma-w10-w11` | ALMA-W10x/W11x | Nordic nRF7120/nRF7120E | nRF Connect SDK pre-release | `nrf7120dk/nrf7120/cpuapp` |
+| `alma-w10-w11` | ALMA-W10x/W11x | Nordic nRF7120/nRF7120E | nRF Connect SDK | `nrf7120dk/nrf7120/cpuapp` |
 
 The third digit of the part number decides the product line. Only Open CPU
 parts are built here. NORA-W36x, W56x, W57x, B26x, B27x and ALMA-W16x are u-connectXpress
@@ -50,7 +50,7 @@ Fixed facts that were wrong before:
 - ALMA-B20-B21 has no `ubx_evkalmab2` board yet; it builds for Nordic's DK.
 - ALMA-W10-W11 is nRF7120 (W10x) / nRF7120E (W11x); ALMA-W16x are
   u-connectXpress. No `ubx_evkalmaw1` board yet; it builds for Nordic's
-  `nrf7120dk` on an NCS pre-release pinned per target in `nordic_ncs_build.py`.
+  `nrf7120dk`; W11x (nRF7120E) needs NCS `v3.5.0-preview4`.
 
 ## Layout
 

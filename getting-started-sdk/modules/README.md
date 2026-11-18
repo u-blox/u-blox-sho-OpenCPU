@@ -39,7 +39,7 @@ are referenced by path. One copy, one place to update.
 | `nora-w50-w51` | pending | No u-blox assets in this repository yet |
 | `nora-b20-b21-b22` | pending | BLE needs no cal table; device address + TX power are manual |
 | `alma-b20-b21` | pending | Under development |
-| `alma-w10-w11` | pending | No u-blox RF assets yet; NCS pre-release |
+| `alma-w10-w11` | pending | No u-blox RF assets yet |
 
 ## Profile schema
 

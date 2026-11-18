@@ -27,8 +27,8 @@ from target_paths import host_kind
 # Latest NCS general-availability release. Pinned rather than tracking main so a
 # clone is reproducible.
 NCS_REVISION = "v3.4.1"
-# First NCS with the nRF7120 (ALMA-W10-W11). Move to the GA release once out.
-NCS_PRERELEASE_REVISION = "v3.5.0-preview4"
+# First NCS with the nRF7120E (ALMA-W11x); NCS_REVISION has only the nRF7120.
+NCS_NRF7120E_REVISION = "v3.5.0-preview4"
 NCS_MANIFEST_URL = "https://github.com/nrfconnect/sdk-nrf"
 WORKSPACE_NAME = "ncs"
 # Approximate size of a full west update plus a few builds.
@@ -113,9 +113,8 @@ TARGETS: Dict[str, NcsTarget] = {
             "nrf7120dk/nrf7120/cpuflpr",
             "nrf7120dk/nrf7120e/cpuflpr",
         ),
-        note="nRF7120 support is only in an NCS pre-release. No ubx_evkalmaw1 "
-             "board yet - builds use Nordic's nRF7120 DK board target.",
-        revision=NCS_PRERELEASE_REVISION,
+        note="No ubx_evkalmaw1 board yet - builds use Nordic's nRF7120 DK board "
+             f"target. ALMA-W11x (nRF7120E) needs --clone {NCS_NRF7120E_REVISION}.",
     ),
 }
 

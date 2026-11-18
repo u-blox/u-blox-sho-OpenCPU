@@ -33,7 +33,7 @@ argument-hint: '<target> and what you want to do, e.g. "nora-w40 build and flash
 ./ubx-sdk.sh nora-w50-w51 --clone --build-sdk --build network_terminal
 ./ubx-sdk.sh nora-b20-b21-b22 --clone --install --build hello_world --flash --log
 ./ubx-sdk.sh alma-b20-b21 --build hello_world -- --board nrf54lm20dk/nrf54lm20b/cpuapp
-./ubx-sdk.sh alma-w10-w11 --clone --install --build hello_world --flash --log   # NCS pre-release, own workspace
+./ubx-sdk.sh alma-w10-w11 --clone --install --build hello_world --flash --log   # W11x: --clone v3.5.0-preview4
 ```
 
 A failing `--doctor` does not stop a following `--clone`/`--install`/`--build-sdk`
