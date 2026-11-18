@@ -74,6 +74,11 @@ Set by u-blox in eFuse. Read it on the module: build `project_hp`, flash it and
 type `ATW?` in the console. `--mac-set` shows how to use another address at
 runtime.
 
+`ubx/read-mac` prints the address from your own firmware: a drop-in `main.c`
+for `project_hp` (`--list` shows where it goes), then build, flash and log as
+above. The eFuse also holds the u-blox production RF calibration; its layout
+is Realtek's and is not published.
+
 ## Troubleshooting
 
 | Symptom | Fix |

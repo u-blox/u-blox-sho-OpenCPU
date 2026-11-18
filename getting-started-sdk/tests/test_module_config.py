@@ -147,6 +147,13 @@ def test_nora_w40_read_mac_example_is_listed(capsys):
     assert "--build ubx/read-mac" in capsys.readouterr().out
 
 
+def test_nora_w30_read_mac_example_replaces_project_hp_main(capsys):
+    assert mc.main(["nora-w30", "examples"]) == 0
+    out = capsys.readouterr().out
+    assert "ubx/read-mac" in out
+    assert "src/src_hp/main.c with ameba-rtos-d/nora-w30/example-code/read-mac/main.c" in out
+
+
 @pytest.mark.parametrize("key", READY)
 def test_every_example_exists_in_the_repo(key):
     profile = mc.load_profile(key)

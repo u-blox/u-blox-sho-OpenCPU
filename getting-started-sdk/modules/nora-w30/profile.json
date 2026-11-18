@@ -71,6 +71,15 @@
       }
     }
   },
+  "examples": [
+    {
+      "name": "read-mac",
+      "kind": "drop-in",
+      "description": "Print the Wi-Fi MAC address programmed by u-blox",
+      "file": "example-code/read-mac/main.c",
+      "base": "project/realtek_amebaD_va0_example/src/src_hp"
+    }
+  ],
   "verify": {
     "notes": [
       "Print array_mp_8721d_txpwr_lmt_type1[] at startup and compare against the u-blox table. See ameba-rtos-d/nora-w30/README.md."
