@@ -1,5 +1,6 @@
 board:
   name: ubx_evkannab4
+  full_name: EVK-ANNA-B4
   vendor: u-blox
   socs:
   - name: nrf52833
